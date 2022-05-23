@@ -1,3 +1,10 @@
+/*
+ * main.c
+ *
+ *  Created on: 23.05.2022
+ *      Author: Marco Guerreiro
+ */
+
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
@@ -44,7 +51,7 @@
 /*-------------------------------- Prototypes -------------------------------*/
 //=============================================================================
 static int mainSysInit(void);
-static int  SetupIntrSystem(INTC *IntcInstancePtr);
+static int mainSetupIntrSystem(INTC *IntcInstancePtr);
 //=============================================================================
 
 //=============================================================================
@@ -98,7 +105,7 @@ static int mainSysInit(void){
     SYNC_FLAG = 0;
 
 	// Initialize the SCU Interrupt Distributer (ICD)
-	Status = SetupIntrSystem(&IntcInstancePtr);
+	Status = mainSetupIntrSystem(&IntcInstancePtr);
 	if (Status != XST_SUCCESS) {
 		return XST_FAILURE;
 	}
@@ -121,7 +128,7 @@ static int mainSysInit(void){
 
 }
 //-----------------------------------------------------------------------------
-static int SetupIntrSystem(INTC *IntcInstancePtr)
+static int mainSetupIntrSystem(INTC *IntcInstancePtr)
 {
 	int Status;
 

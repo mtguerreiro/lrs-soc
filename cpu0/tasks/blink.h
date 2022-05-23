@@ -1,3 +1,10 @@
+/*
+ * blink.h
+ *
+ *  Created on: 23.05.2022
+ *      Author: Marco Guerreiro
+ */
+
 #ifndef TASKS_BLINK_H_
 #define TASKS_BLINK_H_
 

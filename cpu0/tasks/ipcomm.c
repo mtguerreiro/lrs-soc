@@ -1,3 +1,10 @@
+/*
+ * ipcomm.c
+ *
+ *  Created on: 23.05.2022
+ *      Author: Marco Guerreiro
+ */
+
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
@@ -106,7 +113,9 @@ static uint32_t ipcommCmdCpu1Blink(uifaceDataExchange_t *data){
 
 	period = (data->buffer[0] << 8) | data->buffer[1];
 
+
 	p = (uint32_t *)SOC_MEM_CPU0_TO_CPU1_ADR;
+	*p++ = SOC_CMD_CPU1_BLINK;
 	*p = period;
 
 	XScuGic_SoftwareIntr ( InterruptControllerInst , IPCOMM_INT_CPU0_TO_CPU1 , SOC_SIG_CPU1_ID ) ;
