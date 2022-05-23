@@ -12,13 +12,16 @@
 //=============================================================================
 /*--------------------------------- Defines ---------------------------------*/
 //=============================================================================
-#define BLINK_CONFIG_TASK_STACK_SIZE    256
-#define BLINK_CONFIG_TASK_PRIO          5
+//#define BLINK_CONFIG_TASK_STACK_SIZE    256
+//#define BLINK_CONFIG_TASK_PRIO          5
+//
+//
+//#define BLINK_CONFIG_LED                DEVICE_GPIO_PIN_LED1
+//
+//#define BLINK_CMD_UPDATE_PERIOD         0x01
 
-
-#define BLINK_CONFIG_LED                DEVICE_GPIO_PIN_LED1
-
-#define BLINK_CMD_UPDATE_PERIOD         0x01
+#define BLINK_CONFIG_TASK_PRIO				2
+#define BLINK_CONFIG_TASK_STACK_SIZE		1024
 //=============================================================================
 
 //=============================================================================

@@ -13,7 +13,7 @@
 #include "xil_types.h"
 
 /* Libs */
-//#include "clibs/serial.h"
+#include "soc_defs.h"
 
 /* Tasks */
 #include "uiface.h"
@@ -29,7 +29,7 @@ uint32_t blinkPeriod;
 #define LED_CHANNEL 1
 #define LED_MASK 0b111
 
-#define BLINK_VAL  (*((volatile unsigned long *)(0xFFFF0000)+16))
+//#define BLINK_VAL  (*((volatile unsigned long *)(0xFFFF0000)+16))
 
 //=============================================================================
 
@@ -38,7 +38,7 @@ uint32_t blinkPeriod;
 //=============================================================================
 static void blinkInitialize(XGpio_Config *cfg, XGpio *led);
 static uint32_t blinkPeriodUpdate(uifaceDataExchange_t *data);
-static uint32_t blinkPeriodUpdateCPU1(uifaceDataExchange_t *data);
+//static uint32_t blinkPeriodUpdateCPU1(uifaceDataExchange_t *data);
 //=============================================================================
 
 //=============================================================================
@@ -57,8 +57,8 @@ void blink(void *param){
 
     blinkPeriod = 1000 / portTICK_PERIOD_MS;
 
-    uifaceRegisterHandle(0x01, blinkPeriodUpdate);
-    uifaceRegisterHandle(0x02, blinkPeriodUpdateCPU1);
+    uifaceRegisterHandle(SOC_CMD_CPU0_BLINK, blinkPeriodUpdate);
+//    uifaceRegisterHandle(SOC_CMD_CPU0_CPU1_BLINK, blinkPeriodUpdateCPU1);
 
     while(1){
 
@@ -100,15 +100,15 @@ static uint32_t blinkPeriodUpdate(uifaceDataExchange_t *data){
     return 0;
 }
 //-----------------------------------------------------------------------------
-static uint32_t blinkPeriodUpdateCPU1(uifaceDataExchange_t *data){
-
-	uint32_t period;
-
-	period = (data->buffer[0] << 8) | data->buffer[1];
-
-	BLINK_VAL = period;
-
-    return 0;
-}
+//static uint32_t blinkPeriodUpdateCPU1(uifaceDataExchange_t *data){
+//
+//	uint32_t period;
+//
+//	period = (data->buffer[0] << 8) | data->buffer[1];
+//
+//	BLINK_VAL = period;
+//
+//    return 0;
+//}
 //-----------------------------------------------------------------------------
 //=============================================================================

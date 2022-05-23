@@ -11,9 +11,6 @@
 //=============================================================================
 /*--------------------------------- Defines ---------------------------------*/
 //=============================================================================
-#define UIFACE_CONFIG_TASK_STACK_SIZE    1024
-#define UIFACE_CONFIG_TASK_PRIO          5
-
 typedef struct{
     uint32_t size;
     uint8_t *buffer;
@@ -28,6 +25,8 @@ typedef struct{
  */
 typedef uint32_t(*uifaceHandle_t)(uifaceDataExchange_t *data);
 
+#define UIFACE_CONFIG_TASK_PRIO			2
+#define UIFACE_CONFIG_TASK_STACK_SIZE	1024
 //=============================================================================
 
 //=============================================================================

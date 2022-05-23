@@ -62,6 +62,7 @@
 #include "xgpio.h"
 #include "xil_types.h"
 
+#include "soc_defs.h"
 //#define INTC		    XScuGic
 //#define INTC_HANDLER	XScuGic_InterruptHandler
 //#define INTC_DEVICE_ID	XPAR_PS7_SCUGIC_0_DEVICE_ID
@@ -71,7 +72,7 @@
 
 
 #define COMM_VAL    (*(volatile unsigned long *)(0xFFFF0000))
-#define BLINK_VAL  (*((volatile unsigned long *)(0xFFFF0000)+16))
+#define BLINK_VAL  (*((volatile unsigned long *)(0xFFFF0000)))
 
 ///**
 // * This typedef contains configuration information for the device driver.
@@ -134,6 +135,7 @@ static int SetupIntrSystem(INTC *IntcInstancePtr);
 XGpio_Config *cfg_ptr = 0;
 XGpio led_device;
 
+uint32_t blinkPeriod = 1000;
 void DeviceDriverHandler(void *CallbackRef);
 
 int main()
@@ -143,9 +145,9 @@ int main()
 	uint32_t data;
 //    init_platform();
 
-	uint32_t blink;
+	uint32_t blink = 1000;
 
-	BLINK_VAL = 1;
+//	BLINK_VAL = 1000;
 
 	mainSysInit();
 
@@ -156,8 +158,8 @@ int main()
     	prevstate &= ~0b00111000;
        	XGpio_DiscreteWrite(&led_device, LED_CHANNEL, ((data & LED_MASK) << 3U) | prevstate);
 
-       	blink = (uint32_t)(BLINK_VAL) * 1000;
-       	usleep(blink);		//Delay so output can be seen
+//       	blink = (uint32_t)(BLINK_VAL) * 1000;
+       	usleep(blinkPeriod * 1000);		//Delay so output can be seen
 
        	data = data << 1;
     	if( (data & (LED_MASK << 2 ) ) == 0 ) data = 0xFF;
@@ -248,12 +250,16 @@ static int SetupIntrSystem(INTC *IntcInstancePtr)
 //=============================================================================
 void DeviceDriverHandler(void *CallbackRef){
 
-	while(COMM_VAL == 0);
-	xil_printf("CPU1: Got something from CPU0\n\r");
+	uint32_t *p;
+
+	p = (uint32_t *)SOC_MEM_CPU0_TO_CPU1_ADR;
+	blinkPeriod = *p;
+//	while(COMM_VAL == 0);
+//	xil_printf("CPU1: Got something from CPU0\n\r");
 
 	XScuGic_SoftwareIntr ( &IntcInstancePtr , IPCOMM_INT_CPU1_TO_CPU0 , CPU0_ID ) ;
 
-	COMM_VAL = 0;
+//	COMM_VAL = 0;
 }
 //=============================================================================
 

@@ -19,10 +19,15 @@
 #include "xil_printf.h"
 #include "xstatus.h"
 #include "xscugic.h"
+
+#include "soc_defs.h"
+
+/* Tasks */
+#include "uiface.h"
 //=============================================================================
 
 //=============================================================================
-/*--------------------------------- Globals ---------------------------------*/
+/*--------------------------------- Defines ---------------------------------*/
 //=============================================================================
 /*
  * The following constants map to the XPAR parameters created in the
@@ -30,17 +35,17 @@
  * change all the needed parameters in one place.
  */
 #define INTC_DEVICE_ID		XPAR_SCUGIC_0_DEVICE_ID
-#define INTC_DEVICE_INT_ID	0x0E
 
-#define IPCOMM_INT_CPU0_TO_CPU1		0x0E
-#define IPCOMM_INT_CPU1_TO_CPU0		0x0F
+#define IPCOMM_INT_CPU0_TO_CPU1		SOC_SIG_CPU0_TO_CPU1
+#define IPCOMM_INT_CPU1_TO_CPU0		SOC_SIG_CPU1_TO_CPU0
 
+#define SYNC_FLAG  		(*(volatile unsigned long *)(SOC_CPU0_CPU1_SYNC_FLAG_ADR))
+//=============================================================================
+
+//=============================================================================
+/*--------------------------------- Globals ---------------------------------*/
+//=============================================================================
 XScuGic *InterruptControllerInst; 	     /* Instance of the Interrupt Controller */
-//static XScuGic_Config *GicConfig;    /* The configuration parameters of the controller */
-
-#define CPU1_ID 2
-
-#define COMM_VAL  (*(volatile unsigned long *)(0xFFFF0000))
 //=============================================================================
 
 
@@ -48,11 +53,9 @@ XScuGic *InterruptControllerInst; 	     /* Instance of the Interrupt Controller 
 /*-------------------------------- Prototypes -------------------------------*/
 //=============================================================================
 static int ipcommSysInit(void);
-
 void DeviceDriverHandler(void *CallbackRef);
 
-//static int SetUpInterruptSystem(XScuGic *XScuGicInstancePtr);
-
+static uint32_t ipcommCmdCpu1Blink(uifaceDataExchange_t *data);
 //=============================================================================
 
 //=============================================================================
@@ -68,7 +71,7 @@ void ipcomm(void *param){
 	while(1){
 		vTaskDelay(10000 / portTICK_PERIOD_MS);
 
-		XScuGic_SoftwareIntr ( InterruptControllerInst , IPCOMM_INT_CPU0_TO_CPU1 , CPU1_ID ) ;
+//		XScuGic_SoftwareIntr ( InterruptControllerInst , IPCOMM_INT_CPU0_TO_CPU1 , SOC_SIG_CPU1_ID ) ;
 	}
 }
 //-----------------------------------------------------------------------------
@@ -78,31 +81,7 @@ void ipcomm(void *param){
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-//int32_t ipcommRegisterHandle(uint32_t id, commHandle_t handle){
-//
-//	/* Cannot register ID as 0 */
-//	if( id == 0 ){
-//		return COMM_ERR_INVALID_ID;
-//	}
-//	/* Checks if ID is available */
-//	if( commFindID(id) != commControl.n ){
-//		return COMM_ERR_INVALID_ID;
-//	}
-//
-//	if( commControl.n >= COMM_CONFIG_IDS ) return COMM_ERR_EXCEEDED_MAX_ID;
-//
-//	//SERIAL_CRITICAL_ENTER;
-//
-//	commControl.id[commControl.n] = id;
-//	commControl.handle[commControl.n] = handle;
-//
-//	commControl.n++;
-//
-//	//SERIAL_CRITICAL_EXIT;
-//
-//	return 0;
-//}
+
 //-----------------------------------------------------------------------------
 //=============================================================================
 
@@ -113,110 +92,27 @@ void ipcomm(void *param){
 //-----------------------------------------------------------------------------
 static int ipcommSysInit(void){
 
-	int Status;
-
-	/*
-	 * Initialize the interrupt controller driver so that it is ready to
-	 * use.
-	 */
-//	GicConfig = XScuGic_LookupConfig(INTC_DEVICE_ID);
-//	if (NULL == GicConfig) {
-//		return XST_FAILURE;
-//	}
-//
-//	Status = XScuGic_CfgInitialize(&InterruptController, GicConfig,
-//					GicConfig->CpuBaseAddress);
-//	if (Status != XST_SUCCESS) {
-//		return XST_FAILURE;
-//	}
-
-//
-//	/*
-//	 * Perform a self-test to ensure that the hardware was built
-//	 * correctly
-//	 */
-//	Status = XScuGic_SelfTest(&InterruptController);
-//	if (Status != XST_SUCCESS) {
-//		return XST_FAILURE;
-//	}
-//
-//
-//	/*
-//	 * Setup the Interrupt System
-//	 */
-//	Status = SetUpInterruptSystem(&InterruptController);
-//	if (Status != XST_SUCCESS) {
-//		return XST_FAILURE;
-//	}
-//
-//	/*
-//	 * Connect a device driver handler that will be called when an
-//	 * interrupt for the device occurs, the device driver handler performs
-//	 * the specific interrupt processing for the device
-//	 */
-//	Status = XScuGic_Connect(&InterruptController, INTC_DEVICE_INT_ID,
-//			   (Xil_ExceptionHandler)DeviceDriverHandler,
-//			   (void *)&InterruptController);
-//
-//	if (Status != XST_SUCCESS) {
-//		return XST_FAILURE;
-//	}
-//
-//	/*
-//	 * Enable the interrupt for the device and then cause (simulate) an
-//	 * interrupt so the handlers will be called
-//	 */
-//	XScuGic_Enable(&InterruptController, INTC_DEVICE_INT_ID);
-
-	/*
-	 *  Simulate the Interrupt
-	 */
-//	Status = XScuGic_SoftwareIntr(&InterruptController,
-//			IPCOMM_INT_CPU0_TO_CPU1,
-//					CPU1_ID);
-//	if (Status != XST_SUCCESS) {
-//		return XST_FAILURE;
-//	}
-
-//	/*
-//	 * Wait for the interrupt to be processed, if the interrupt does not
-//	 * occur this loop will wait forever
-//	 */
-//	while (1) {
-//		/*
-//		 * If the interrupt occurred which is indicated by the global
-//		 * variable which is set in the device driver handler, then
-//		 * stop waiting
-//		 */
-//		if (InterruptProcessed) {
-//			break;
-//		}
-//	}
-
 	XScuGic_Connect(InterruptControllerInst, IPCOMM_INT_CPU1_TO_CPU0, (Xil_ExceptionHandler)DeviceDriverHandler, (void  *)InterruptControllerInst) ;
 	XScuGic_Enable(InterruptControllerInst, IPCOMM_INT_CPU1_TO_CPU0);
 
+	uifaceRegisterHandle(SOC_CMD_CPU0_CPU1_BLINK, ipcommCmdCpu1Blink);
 	return XST_SUCCESS;
 }
 //-----------------------------------------------------------------------------
-//static int SetUpInterruptSystem(XScuGic *XScuGicInstancePtr)
-//{
-//
-//	/*
-//	 * Connect the interrupt controller interrupt handler to the hardware
-//	 * interrupt handling logic in the ARM processor.
-//	 */
-//	Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_INT,
-//			(Xil_ExceptionHandler) XScuGic_InterruptHandler,
-//			XScuGicInstancePtr);
-//
-//	/*
-//	 * Enable interrupts in the ARM
-//	 */
-//	Xil_ExceptionEnable();
-//
-//	return XST_SUCCESS;
-//}
+static uint32_t ipcommCmdCpu1Blink(uifaceDataExchange_t *data){
+
+	uint32_t period;
+	uint32_t *p;
+
+	period = (data->buffer[0] << 8) | data->buffer[1];
+
+	p = (uint32_t *)SOC_MEM_CPU0_TO_CPU1_ADR;
+	*p = period;
+
+	XScuGic_SoftwareIntr ( InterruptControllerInst , IPCOMM_INT_CPU0_TO_CPU1 , SOC_SIG_CPU1_ID ) ;
+
+    return 0;
+}
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
@@ -232,9 +128,9 @@ static int ipcommSysInit(void){
 //=============================================================================
 void DeviceDriverHandler(void *CallbackRef){
 
-	while(COMM_VAL == 1);
+	while(SYNC_FLAG == 1);
 	xil_printf("CPU0: Got something from CPU1\n\r");
 
-	COMM_VAL = 1;
+	SYNC_FLAG = 1;
 }
 //=============================================================================

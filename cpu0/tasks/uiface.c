@@ -27,39 +27,36 @@
 #include "lwip/sockets.h"
 #include "lwipopts.h"
 
+#include "soc_defs.h"
 //=============================================================================
 
 //=============================================================================
-/*--------------------------------- Globals ---------------------------------*/
+/*--------------------------------- Defines ---------------------------------*/
 //=============================================================================
 #define UIFACE_ERR_INVALID_ID						-1
-#define UIFACE_ERR_EXCEEDED_MAX_ID					-2
 
-#define UIFACE_CONFIG_IDS							10
-
-
-
-typedef struct{
-
-	uint32_t id[UIFACE_CONFIG_IDS];
-	uifaceHandle_t handle[UIFACE_CONFIG_IDS];
-
-	uint32_t n;
-	uint32_t currentID;
-	uint32_t dataSize;
-
-}uifaceControl_t;
-
-uifaceControl_t uifaceControl;
-
-
-#define UIFACE_CONFIG_SERVER_PORT					8080
+#define UIFACE_CONFIG_SERVER_PORT					SOC_CONFIG_SERVER_PORT
 #define UIFACE_CONFIG_THREAD_STACK_SIZE_DEFAULT		1024
 #define UIFACE_CONFIG_THREAD_PRIO_DEFAULT			DEFAULT_THREAD_PRIO
 
 /* Ethernet settings */
 #define PLATFORM_EMAC_BASEADDR XPAR_XEMACPS_0_BASEADDR
 #define PLATFORM_ZYNQ
+//=============================================================================
+
+
+//=============================================================================
+/*--------------------------------- Globals ---------------------------------*/
+//=============================================================================
+
+static struct netif server_netif;
+struct netif *echo_netif;
+
+typedef struct{
+	uifaceHandle_t handle[SOC_CMD_CPU0_END];
+}uifaceControl_t;
+
+uifaceControl_t uifaceControl;
 
 //=============================================================================
 
@@ -78,27 +75,13 @@ static void uifaceNetworkThread(void *p);
 static void uifacePrintIP(char *msg, ip_addr_t *ip);
 static void uifacePrintIPSettings(ip_addr_t *ip, ip_addr_t *mask, ip_addr_t *gw);
 
-static uint32_t uifaceFindID(uint32_t id);
-
-
-//int main_thread();
-//void print_echo_app_header();
-//void echo_application_thread(void *);
-//void network_thread(void *p);
-
-/* Extern?*/
-void lwip_init();
-
 #if LWIP_IPV6==0
 #if LWIP_DHCP==1
 extern volatile int dhcp_timoutcntr;
 err_t dhcp_start(struct netif *netif);
 #endif
 #endif
-
-static struct netif server_netif;
-struct netif *echo_netif;
-
+void lwip_init();
 
 //=============================================================================
 
@@ -162,7 +145,7 @@ void uiface(void *param){
 #endif
 #endif
     vTaskDelete(NULL);
-//    return 0;
+
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
@@ -174,26 +157,9 @@ void uiface(void *param){
 //-----------------------------------------------------------------------------
 int32_t uifaceRegisterHandle(uint32_t id, uifaceHandle_t handle){
 
-	/* Cannot register ID as 0 */
-	if( id == 0 ){
-		return UIFACE_ERR_INVALID_ID;
-	}
-	/* Checks if ID is available */
-	if( uifaceFindID(id) != uifaceControl.n ){
-		return UIFACE_ERR_INVALID_ID;
-	}
+	if( id >= SOC_CMD_CPU0_END ) return UIFACE_ERR_INVALID_ID;
 
-	if( uifaceControl.n >= UIFACE_CONFIG_IDS ) return UIFACE_ERR_EXCEEDED_MAX_ID;
-
-	/*TODO: implement critical section here */
-	//SERIAL_CRITICAL_ENTER;
-
-	uifaceControl.id[uifaceControl.n] = id;
-	uifaceControl.handle[uifaceControl.n] = handle;
-
-	uifaceControl.n++;
-
-	//SERIAL_CRITICAL_EXIT;
+	uifaceControl.handle[id] = handle;
 
 	return 0;
 }
@@ -259,8 +225,8 @@ static void uifaceProcRecThread(void *p){
 	int sd = (int)p;
 	int RECV_BUF_SIZE = 2048;
 	char recv_buf[RECV_BUF_SIZE];
-	int n, nwrote;
-	uint32_t id, ididx;
+	int n;
+	uint32_t id;
 	uifaceDataExchange_t dataExchange;
 
 	while (1) {
@@ -280,34 +246,23 @@ static void uifaceProcRecThread(void *p){
 
 		/* handle request */
 		id = (recv_buf[0] << 24U) | (recv_buf[1] << 16U) | (recv_buf[2] << 8U) | recv_buf[3];
-		ididx = uifaceFindID(id);
-		if( ididx == uifaceControl.n ){
+		if( id >= SOC_CMD_CPU0_END ){
 			xil_printf("%s: bad id (%u), closing socket\r\n", __FUNCTION__, id);
 			break;
 		}
 		else{
+			/* Calls function registered to the received ID */
 			dataExchange.buffer = (uint8_t *)( &recv_buf[4] );
 			dataExchange.size = (uint32_t)(n - 4);
-			if( uifaceControl.handle[ididx] == 0 ){
+			if( uifaceControl.handle[id] == 0 ){
 				xil_printf("%s: no handle for id %u, closing socket\r\n", __FUNCTION__, id);
 				break;
 			}
-			uifaceControl.handle[ididx](&dataExchange);
-			lwip_write(sd, "Blink period updated", 20);
+			uifaceControl.handle[id](&dataExchange);
+			if( (n = lwip_write(sd, "Blink period updated", 20)) < 0){
+				xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
+			}
 		}
-
-//		if ((nwrote = lwip_write(sd, "Not today", 9)) < 0) {
-//			xil_printf("%s: ERROR responding to client echo request. received = %d, written = %d\r\n",
-//					__FUNCTION__, n, nwrote);
-//			xil_printf("Closing socket %d\r\n", sd);
-//			break;
-//		}
-		//		if ((nwrote = lwip_write(sd, recv_buf, n)) < 0) {
-//			xil_printf("%s: ERROR responding to client echo request. received = %d, written = %d\r\n",
-//					__FUNCTION__, n, nwrote);
-//			xil_printf("Closing socket %d\r\n", sd);
-//			break;
-//		}
 	}
 
 	/* close connection */
@@ -431,22 +386,6 @@ static void uifacePrintIPSettings(ip_addr_t *ip, ip_addr_t *mask, ip_addr_t *gw)
 	uifacePrintIP("Board IP: ", ip);
 	uifacePrintIP("Netmask : ", mask);
 	uifacePrintIP("Gateway : ", gw);
-}
-//-----------------------------------------------------------------------------
-static uint32_t uifaceFindID(uint32_t id){
-
-	uint32_t k;
-
-	k = 0;
-
-	while( k < uifaceControl.n ){
-		if( id == uifaceControl.id[k] ) break;
-		k++;
-	}
-
-	if( k == uifaceControl.n ) return uifaceControl.n;
-
-	return k;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
