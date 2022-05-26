@@ -17,7 +17,10 @@ class Commands:
     def __init__(self):
         self.cpu0_blink = 0x00
         self.cpu1_blink = 0x01
-
+        self.cpu1_adc_en = 0x02
+        self.cpu1_adc_spi_freq_set = 0x03
+        self.cpu1_adc_sampling_freq_set = 0x04
+        
 
 class Interface:
     """A class to provide an interface to the LRS-SOC platform.
@@ -116,5 +119,86 @@ class Interface:
         
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
         tx_data.extend( lrssoc.conversions.u16_to_u8(t, msb=True) )
+
+        self.hwc.comm(tx_data)
+
+
+    def cpu1_adc_en(self, en):
+        """Enables/disables the ADC.
+
+        Parameters
+        ----------
+        en : bool
+            If `True`, enables ADC. If `False`, disables ADC.
+
+        Raises
+        ------
+        TypeError
+            If `en` is not of `bool` type.
+
+        """        
+        if type(en) is not bool:
+            raise TypeError('`en` must be of bool type.')
+        
+        tx_data = []
+        cmd = self.cmd.cpu1_adc_en
+
+        if en == True:
+            en = [1]
+        else:
+            en = [0]
+        
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
+        tx_data.extend( en )
+
+        self.hwc.comm(tx_data)
+
+  
+    def cpu1_adc_spi_freq_set(self, freq=10):
+        """Changes ADC's SPI clock frequency.
+
+        The clock will be divided by 2 x `freq`.
+
+        Parameters
+        ----------
+        freq : int
+            Clock division factor. By default, it is 10.
+
+        Raises
+        ------
+        TypeError
+            If `freq` is not of `int` type.
+
+        """        
+        tx_data = []
+        cmd = self.cmd.cpu1_adc_spi_freq_set
+        
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(freq, msb=True) )
+
+        self.hwc.comm(tx_data)
+
+
+    def cpu1_adc_sampling_freq_set(self, freq=10000):
+        """Changes ADC's sampling frequency.
+
+        The frequency will be given by MAIN_CLOCK / (2 x `freq`).
+
+        Parameters
+        ----------
+        freq : int
+            Clock division factor. By default, it is 10000.
+
+        Raises
+        ------
+        TypeError
+            If `freq` is not of `int` type.
+
+        """        
+        tx_data = []
+        cmd = self.cmd.cpu1_adc_sampling_freq_set
+        
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(freq, msb=True) )
 
         self.hwc.comm(tx_data)

@@ -25,6 +25,8 @@
 #include "xil_types.h"
 
 #include "soc_defs.h"
+
+#include "axi_test.h"
 //=============================================================================
 
 //=============================================================================
@@ -67,8 +69,15 @@ static int mainSysInit(void);
 static int mainSetupIntrSystem(INTC *IntcInstancePtr);
 
 static uint32_t mainCmdBlink(uint32_t *data);
+static uint32_t mainCmdAdcEn(uint32_t *data);
+static uint32_t mainCmdAdcSpiFreq(uint32_t *data);
+static uint32_t mainCmdAdcSamplingFreq(uint32_t *data);
+
 
 void DeviceDriverHandler(void *CallbackRef);
+void PLirqHandler(void *CallbackRef);
+
+#define AXI_TEST_BASE_ADR	0x43C10000
 //=============================================================================
 
 //=============================================================================
@@ -128,6 +137,14 @@ static int mainSysInit(void){
 	XGpio_SetDataDirection(&led_device, LED_CHANNEL, 0);
 
 	mainControl.cmdHandle[SOC_CMD_CPU1_BLINK] = mainCmdBlink;
+	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_EN] = mainCmdAdcEn;
+	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SPI_FREQ] = mainCmdAdcSpiFreq;
+	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SAMPLING_FREQ] = mainCmdAdcSamplingFreq;
+
+	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0x00000001);
+	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 4, 0x0000000A);
+	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, 10000);
+	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 12, 0xFFFF8000);
 
 	SYNC_FLAG = 0;
 
@@ -177,6 +194,10 @@ static int mainSetupIntrSystem(INTC *IntcInstancePtr)
 	XScuGic_Connect(IntcInstancePtr, SOC_SIG_CPU0_TO_CPU1, (Xil_ExceptionHandler)DeviceDriverHandler, IntcInstancePtr) ;
 	XScuGic_Enable(IntcInstancePtr, SOC_SIG_CPU0_TO_CPU1);
 
+	XScuGic_SetPriorityTriggerType(IntcInstancePtr, SOC_IRQ_PL_TO_CPU1, 0xA0, 0x3);
+	XScuGic_Connect(IntcInstancePtr, SOC_IRQ_PL_TO_CPU1, (Xil_ExceptionHandler)PLirqHandler, IntcInstancePtr) ;
+	XScuGic_Enable(IntcInstancePtr, SOC_IRQ_PL_TO_CPU1);
+
 	return XST_SUCCESS;
 }
 //-----------------------------------------------------------------------------
@@ -187,11 +208,58 @@ static uint32_t mainCmdBlink(uint32_t *data){
 	return 0;
 }
 //-----------------------------------------------------------------------------
+static uint32_t mainCmdAdcEn(uint32_t *data){
+
+	uint32_t en;
+
+	en = *data;
+
+	if( en == 0 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0U);
+	else AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 1U);
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+static uint32_t mainCmdAdcSpiFreq(uint32_t *data){
+
+	uint32_t en, freq;
+
+	freq = *data;
+
+	en = AXI_TEST_mReadReg(AXI_TEST_BASE_ADR, 0);
+
+	if( en == 1 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0U);
+
+	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 4, freq);
+
+	if( en == 1 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 1U);
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+static uint32_t mainCmdAdcSamplingFreq(uint32_t *data){
+
+	uint32_t en, freq;
+
+	freq = *data;
+
+	en = AXI_TEST_mReadReg(AXI_TEST_BASE_ADR, 0);
+
+	if( en == 1 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0U);
+
+	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, freq);
+
+	if( en == 1 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 1U);
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
 //=============================================================================
 
 //=============================================================================
 /*----------------------------------- IRQ -----------------------------------*/
 //=============================================================================
+//-----------------------------------------------------------------------------
 void DeviceDriverHandler(void *CallbackRef){
 
 	uint32_t *p;
@@ -204,4 +272,10 @@ void DeviceDriverHandler(void *CallbackRef){
 	XScuGic_SoftwareIntr ( &IntcInstancePtr , SOC_SIG_CPU1_TO_CPU0 , SOC_SIG_CPU0_ID ) ;
 
 }
+//-----------------------------------------------------------------------------
+void PLirqHandler(void *CallbackRef){
+
+	XScuGic_SoftwareIntr ( &IntcInstancePtr , SOC_SIG_CPU1_TO_CPU0 , SOC_SIG_CPU0_ID ) ;
+}
+//-----------------------------------------------------------------------------
 //=============================================================================

@@ -20,6 +20,9 @@
 typedef enum{
 	SOC_CMD_CPU0_BLINK = 0,
 	SOC_CMD_CPU0_CPU1_BLINK,
+	SOC_CMD_CPU0_CPU1_ADC_EN,
+	SOC_CMD_CPU0_CPU1_ADC_SPI_FREQ,
+	SOC_CMD_CPU0_CPU1_ADC_SAMPLING_FREQ,
 	SOC_CMD_CPU0_END
 }socCPU0CommandsEnum_t;
 
@@ -30,6 +33,9 @@ typedef enum{
  */
 typedef enum{
     SOC_CMD_CPU1_BLINK = 0,
+	SOC_CMD_CPU1_ADC_EN,
+	SOC_CMD_CPU1_ADC_SPI_FREQ,
+	SOC_CMD_CPU1_ADC_SAMPLING_FREQ,
 	SOC_CMD_CPU1_END
 }socCPU1CommandsEnum_t;
 
@@ -51,8 +57,11 @@ typedef enum{
 #define SOC_CPU0_CPU1_SYNC_FLAG_ADR				0xFFFF0000
 
 /* Software generated interrupts between CPU0 and CPU1 */
-#define SOC_SIG_CPU0_TO_CPU1		0x0E
-#define SOC_SIG_CPU1_TO_CPU0		0x0F
+#define SOC_SIG_CPU0_TO_CPU1		0x0EU
+#define SOC_SIG_CPU1_TO_CPU0		0x0FU
+
+/* Interrupts from PL to CPU1 */
+#define SOC_IRQ_PL_TO_CPU1			61U
 
 /* CPU0 and CPU1 IDs for SGI */
 #define SOC_SIG_CPU0_ID				0x01
