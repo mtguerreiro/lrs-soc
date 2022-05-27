@@ -44,8 +44,18 @@
 
 typedef uint32_t(*mainCmdHandle_t)(uint32_t *data);
 
+
+typedef struct{
+	uint32_t size;
+	uint32_t *p;
+	uint32_t *end;
+}mainTrace_t;
+
+
 typedef struct{
 	mainCmdHandle_t cmdHandle[SOC_CMD_CPU1_END];
+
+	mainTrace_t trace;
 }mainControl_t;
 //=============================================================================
 
@@ -72,7 +82,7 @@ static uint32_t mainCmdBlink(uint32_t *data);
 static uint32_t mainCmdAdcEn(uint32_t *data);
 static uint32_t mainCmdAdcSpiFreq(uint32_t *data);
 static uint32_t mainCmdAdcSamplingFreq(uint32_t *data);
-
+static uint32_t mainCmdTraceStart(uint32_t *data);
 
 void DeviceDriverHandler(void *CallbackRef);
 void PLirqHandler(void *CallbackRef);
@@ -140,11 +150,17 @@ static int mainSysInit(void){
 	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_EN] = mainCmdAdcEn;
 	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SPI_FREQ] = mainCmdAdcSpiFreq;
 	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SAMPLING_FREQ] = mainCmdAdcSamplingFreq;
+	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_START] = mainCmdTraceStart;
 
-	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0x00000001);
+	mainControl.trace.size = 0;
+
+	mainControl.trace.p = (uint32_t *)( SOC_MEM_TRACE_ADR );
+	mainControl.trace.end = (uint32_t *)( SOC_MEM_TRACE_ADR + SOC_MEM_TRACE_SIZE );
+
+//	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0x00000001);
 	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 4, 0x0000000A);
 	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, 10000);
-	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 12, 0xFFFF8000);
+	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 12, SOC_MEM_PL_TO_CPU1_ADR);
 
 	SYNC_FLAG = 0;
 
@@ -254,6 +270,14 @@ static uint32_t mainCmdAdcSamplingFreq(uint32_t *data){
 	return 0;
 }
 //-----------------------------------------------------------------------------
+static uint32_t mainCmdTraceStart(uint32_t *data){
+
+	mainControl.trace.size = 0;
+	mainControl.trace.p = (uint32_t *)SOC_MEM_TRACE_ADR;
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
 //=============================================================================
 
 //=============================================================================
@@ -275,7 +299,20 @@ void DeviceDriverHandler(void *CallbackRef){
 //-----------------------------------------------------------------------------
 void PLirqHandler(void *CallbackRef){
 
-	XScuGic_SoftwareIntr ( &IntcInstancePtr , SOC_SIG_CPU1_TO_CPU0 , SOC_SIG_CPU0_ID ) ;
+	uint32_t *memp;
+	memp = (uint32_t *)(SOC_MEM_PL_TO_CPU1_ADR);
+
+	//AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0U);
+
+	if( mainControl.trace.p < mainControl.trace.end ){
+		*mainControl.trace.p++ = *memp++;
+//		*mainControl.trace.p++ = *memp++;
+//		*mainControl.trace.p++ = *memp++;
+//		*mainControl.trace.p++ = *memp++;
+
+	}
+
+	//XScuGic_SoftwareIntr ( &IntcInstancePtr , SOC_SIG_CPU1_TO_CPU0 , SOC_SIG_CPU0_ID ) ;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

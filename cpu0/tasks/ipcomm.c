@@ -73,6 +73,9 @@ static uint32_t ipcommCmdCpu1Blink(uifaceDataExchange_t *data);
 static uint32_t ipcommCmdCpu1AdcEn(uifaceDataExchange_t *data);
 static uint32_t ipcommCmdCpu1AdcSpiFreq(uifaceDataExchange_t *data);
 static uint32_t ipcommCmdCpu1AdcSamplingFreq(uifaceDataExchange_t *data);
+static uint32_t ipcommCmdCpu1TraceStart(uifaceDataExchange_t *data);
+
+static uint32_t ipcommCmdTraceRead(uifaceDataExchange_t *data);
 //=============================================================================
 
 //=============================================================================
@@ -158,6 +161,10 @@ static int ipcommSysInit(void){
 	uifaceRegisterHandle(SOC_CMD_CPU0_CPU1_ADC_EN, ipcommCmdCpu1AdcEn);
 	uifaceRegisterHandle(SOC_CMD_CPU0_CPU1_ADC_SPI_FREQ, ipcommCmdCpu1AdcSpiFreq);
 	uifaceRegisterHandle(SOC_CMD_CPU0_CPU1_ADC_SAMPLING_FREQ, ipcommCmdCpu1AdcSamplingFreq);
+	uifaceRegisterHandle(SOC_CMD_CPU0_TRACE_START, ipcommCmdCpu1TraceStart);
+
+	uifaceRegisterHandle(SOC_CMD_CPU0_TRACE_READ, ipcommCmdTraceRead);
+
 
 	return XST_SUCCESS;
 }
@@ -226,7 +233,25 @@ static uint32_t ipcommCmdCpu1AdcSamplingFreq(uifaceDataExchange_t *data){
 	return 0;
 }
 //-----------------------------------------------------------------------------
+static uint32_t ipcommCmdCpu1TraceStart(uifaceDataExchange_t *data){
 
+	uint32_t *p;
+
+	p = (uint32_t *)SOC_MEM_CPU0_TO_CPU1_ADR;
+	*p++ = SOC_CMD_CPU1_TRACE_START;
+
+	XScuGic_SoftwareIntr ( InterruptControllerInst , IPCOMM_INT_CPU0_TO_CPU1 , SOC_SIG_CPU1_ID ) ;
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+static uint32_t ipcommCmdTraceRead(uifaceDataExchange_t *data){
+
+	data->buffer = (uint8_t*)SOC_MEM_TRACE_ADR;
+	data->size = SOC_MEM_TRACE_SIZE;
+
+	return 1;
+}
 //-----------------------------------------------------------------------------
 //=============================================================================
 

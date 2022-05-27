@@ -23,6 +23,8 @@ typedef enum{
 	SOC_CMD_CPU0_CPU1_ADC_EN,
 	SOC_CMD_CPU0_CPU1_ADC_SPI_FREQ,
 	SOC_CMD_CPU0_CPU1_ADC_SAMPLING_FREQ,
+	SOC_CMD_CPU0_TRACE_START,
+	SOC_CMD_CPU0_TRACE_READ,
 	SOC_CMD_CPU0_END
 }socCPU0CommandsEnum_t;
 
@@ -36,6 +38,7 @@ typedef enum{
 	SOC_CMD_CPU1_ADC_EN,
 	SOC_CMD_CPU1_ADC_SPI_FREQ,
 	SOC_CMD_CPU1_ADC_SAMPLING_FREQ,
+	SOC_CMD_CPU1_TRACE_START,
 	SOC_CMD_CPU1_END
 }socCPU1CommandsEnum_t;
 
@@ -74,6 +77,15 @@ typedef enum{
 /* OCM memory for CPU1 to CPU0 data */
 #define SOC_MEM_CPU1_TO_CPU0_ADR	0xFFFF4000
 #define SOC_MEM_CPU1_TO_CPU0_SIZE	0x4000
+
+/* OCM memory for PL to CPU1 data */
+#define SOC_MEM_PL_TO_CPU1_ADR		0xFFFF8000
+#define SOC_MEM_PL_TO_CPU1_SIZE		0x4000
+
+/* RAM memory for scope data */
+#define SOC_MEM_TRACE_ADR			0x00B00000
+//#define SOC_MEM_TRACE_SIZE			0x00A00000
+#define SOC_MEM_TRACE_SIZE			0x00009C40
 //=============================================================================
 
 

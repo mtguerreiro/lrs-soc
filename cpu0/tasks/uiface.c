@@ -235,6 +235,7 @@ static void uifaceProcRecThread(void *p){
 	int n;
 	uint32_t id;
 	uifaceDataExchange_t dataExchange;
+	uint32_t ret;
 
 	while (1) {
 		/* read a max of RECV_BUF_SIZE bytes from socket */
@@ -265,10 +266,16 @@ static void uifaceProcRecThread(void *p){
 				xil_printf("%s: no handle for id %u, closing socket\r\n", __FUNCTION__, id);
 				break;
 			}
-			uifaceControl.handle[id](&dataExchange);
-			if( (n = lwip_write(sd, "Blink period updated", 20)) < 0){
-				xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
+			ret = uifaceControl.handle[id](&dataExchange);
+			if( ret != 0 ){
+				n = lwip_write(sd, dataExchange.buffer, dataExchange.size);
+				if( n < dataExchange.size ) xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
+				break;
 			}
+			break;
+//			if( (n = lwip_write(sd, "Blink period updated", 20)) < 0){
+//				xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
+//			}
 		}
 	}
 

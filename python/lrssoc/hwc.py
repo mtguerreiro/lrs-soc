@@ -80,4 +80,4 @@ class Ethernet:
             if n_rx != 0:
                 rx_data = s.recv(n_rx)
 
-        return list(rx_data)
+        return rx_data

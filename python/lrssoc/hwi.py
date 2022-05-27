@@ -20,6 +20,8 @@ class Commands:
         self.cpu1_adc_en = 0x02
         self.cpu1_adc_spi_freq_set = 0x03
         self.cpu1_adc_sampling_freq_set = 0x04
+        self.cpu0_trace_start = 0x05
+        self.cpu0_trace_read = 0x06
         
 
 class Interface:
@@ -202,3 +204,29 @@ class Interface:
         tx_data.extend( lrssoc.conversions.u32_to_u8(freq, msb=True) )
 
         self.hwc.comm(tx_data)
+
+
+    def cpu0_trace_start(self):
+        """Start recording data.
+
+        """        
+        tx_data = []
+        cmd = self.cmd.cpu0_trace_start
+        
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
+
+        self.hwc.comm(tx_data)
+
+
+    def cpu0_trace_read(self):
+        """Read recorded data.
+
+        """        
+        tx_data = []
+        cmd = self.cmd.cpu0_trace_read
+        
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
+
+        data = self.hwc.comm(tx_data, 10000 * 2)
+
+        return data
