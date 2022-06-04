@@ -27,6 +27,8 @@
 #include "soc_defs.h"
 
 #include "axi_test.h"
+
+#include "math.h"
 //=============================================================================
 
 //=============================================================================
@@ -38,15 +40,19 @@
 #define LED_CHANNEL 1
 #define LED_MASK 0b111
 
+#define RELAY_ID 			XPAR_AXI_GPIO_RGB_LED_DEVICE_ID
+#define RELAY_CHANNEL 		1
+
+#define GPIODEBUG_ID 		XPAR_AXI_GPIO_DEBUG_DEVICE_ID
+#define GPIODEBUG_CHANNEL 	1
+
 #define INTC		    XScuGic
 #define INTC_DEVICE_ID	XPAR_PS7_SCUGIC_0_DEVICE_ID
 #define INTC_HANDLER	XScuGic_InterruptHandler
 
 typedef uint32_t(*mainCmdHandle_t)(uint32_t *data);
 
-
 typedef struct{
-	uint32_t size;
 	uint32_t *p;
 	uint32_t *end;
 }mainTrace_t;
@@ -56,6 +62,13 @@ typedef struct{
 	mainCmdHandle_t cmdHandle[SOC_CMD_CPU1_END];
 
 	mainTrace_t trace;
+
+	uint32_t error;
+
+	uint32_t precharge;
+
+	uint32_t enable;
+
 }mainControl_t;
 //=============================================================================
 
@@ -68,8 +81,37 @@ INTC   IntcInstancePtr;
 
 XGpio_Config *cfg_ptr = 0;
 XGpio led_device;
+XGpio relay_device;
+XGpio gpioDebug_device;
 
 uint32_t blinkPeriod = 1000;
+
+
+float ts = 1/5e3;
+
+float e = 0.0, e_1 = 0.0;
+float u_pi = 0.0, u_pi_1 = 0.0;
+
+float ig_ref;
+
+float a1, b0, b1;
+
+float Kp = 0.01, Ki = 1.0;
+
+float v_dc_ref = 30.0;
+
+float Kp_pr = 0.01, Ki_pr = 10.0;
+float w0 = 2.0*3.141592653589793*50.0, wc = 15.0;
+float a1_pr, a2_pr;
+float b0_pr, b1_pr, b2_pr;
+
+float u_pr = 0.0, u_pr_1 = 0.0, u_pr_2 = 0.0, ei = 0.0, ei_1 = 0.0, ei_2 = 0.0;
+
+float vs_ref;
+float vs_ref_norm;
+
+float v_ac_peak;
+
 //=============================================================================
 
 //=============================================================================
@@ -78,16 +120,29 @@ uint32_t blinkPeriod = 1000;
 static int mainSysInit(void);
 static int mainSetupIntrSystem(INTC *IntcInstancePtr);
 
+static void mainInputRelayDisable(void);
+static void mainInputRelayEnable(void);
+
+static void mainOutputRelayDisable(void);
+static void mainOutputRelayEnable(void);
+
 static uint32_t mainCmdBlink(uint32_t *data);
 static uint32_t mainCmdAdcEn(uint32_t *data);
 static uint32_t mainCmdAdcSpiFreq(uint32_t *data);
 static uint32_t mainCmdAdcSamplingFreq(uint32_t *data);
+static uint32_t mainCmdAdcErrorRead(uint32_t *data);
+static uint32_t mainCmdAdcErrorClear(uint32_t *data);
 static uint32_t mainCmdTraceStart(uint32_t *data);
+static uint32_t mainCmdTraceSizeSet(uint32_t *data);
+static uint32_t mainCmdTraceSizeRead(uint32_t *data);
+
+static uint32_t mainCmdControlEn(uint32_t *data);
 
 void DeviceDriverHandler(void *CallbackRef);
 void PLirqHandler(void *CallbackRef);
 
-#define AXI_TEST_BASE_ADR	0x43C10000
+#define AXI_TEST_BASE_ADR			XPAR_ADC_PSCTL_0_S00_AXI_BASEADDR
+#define AXI_GPIO_DEBUG_BASE_ADR		XPAR_AXI_GPIO_DEBUG_BASEADDR
 //=============================================================================
 
 //=============================================================================
@@ -146,21 +201,77 @@ static int mainSysInit(void){
 	XGpio_CfgInitialize(&led_device, cfg_ptr, cfg_ptr->BaseAddress);
 	XGpio_SetDataDirection(&led_device, LED_CHANNEL, 0);
 
+	/* Initializes and turns relays off */
+	cfg_ptr = XGpio_LookupConfig(XPAR_AXI_GPIO_RELAY_DEVICE_ID);
+	XGpio_CfgInitialize(&relay_device, cfg_ptr, cfg_ptr->BaseAddress);
+	XGpio_SetDataDirection(&relay_device, RELAY_CHANNEL, 0);
+
+	cfg_ptr = XGpio_LookupConfig(XPAR_AXI_GPIO_DEBUG_DEVICE_ID);
+	XGpio_CfgInitialize(&gpioDebug_device, cfg_ptr, cfg_ptr->BaseAddress);
+	XGpio_SetDataDirection(&gpioDebug_device, GPIODEBUG_CHANNEL, 0);
+	XGpio_DiscreteWrite(&gpioDebug_device, GPIODEBUG_CHANNEL, 0);
+
+
+	mainInputRelayDisable();
+	mainOutputRelayDisable();
+
+
+//	mainInputRelayEnable();
+//	mainOutputRelayEnable();
+
+//	XGpio_DiscreteWrite(&relay_device, RELAY_CHANNEL, 0x03);
+//	XGpio_DiscreteWrite(&relay_device, RELAY_CHANNEL, 0x00);
+//	XGpio_DiscreteWrite(&relay_device, RELAY_CHANNEL, 0x07);
+
+	/* Commands */
 	mainControl.cmdHandle[SOC_CMD_CPU1_BLINK] = mainCmdBlink;
 	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_EN] = mainCmdAdcEn;
 	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SPI_FREQ] = mainCmdAdcSpiFreq;
 	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SAMPLING_FREQ] = mainCmdAdcSamplingFreq;
+	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_ERROR_READ] = mainCmdAdcErrorRead;
+	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_ERROR_CLEAR] = mainCmdAdcErrorClear;
 	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_START] = mainCmdTraceStart;
-
-	mainControl.trace.size = 0;
+	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_SIZE_SET] = mainCmdTraceSizeSet;
+	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_SIZE_READ] = mainCmdTraceSizeRead;
+	mainControl.cmdHandle[SOC_CMD_CPU1_CONTROL_EN] = mainCmdControlEn;
 
 	mainControl.trace.p = (uint32_t *)( SOC_MEM_TRACE_ADR );
-	mainControl.trace.end = (uint32_t *)( SOC_MEM_TRACE_ADR + SOC_MEM_TRACE_SIZE );
+	mainControl.trace.end = (uint32_t *)( SOC_MEM_TRACE_ADR + SOC_MEM_TRACE_SIZE_MAX );
 
-//	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0x00000001);
-	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 4, 0x0000000A);
-	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, 10000);
+	mainControl.error = 0;
+	mainControl.precharge = 0;
+	mainControl.enable = 0;
+
+	/* Sets ADC stuff */
+	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0x00000000);
+	//AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 4, 0x0000000A);
+	//AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, 10000);
+	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 4, 500);
+	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, 20000);
 	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 12, SOC_MEM_PL_TO_CPU1_ADR);
+
+
+	a1 = 1.0;
+	b0 = 1.0 / 2.0 * (2.0 * Kp + ts * Ki);
+	b1 = 1.0 / 2.0 * (ts * Ki - 2.0 * Kp);
+
+	//b0_pr = ts*ts*w0*w0 + 4.0*ts*wc + 4.0;
+	//
+	//a1_pr = 4.0 * Ki_pr * ts * wc / b0_pr;
+	//
+	//b1_pr = (2.0 * ts*ts * w0*w0 - 8.0) / b0_pr;
+	//b2_pr = (ts*ts*w0*w0 - 4.0*ts*wc + 4.0) / b0_pr;
+
+	b0_pr = ts*ts*w0*w0 + 4.0*ts*wc + 4.0;
+	b1_pr = (2.0 * ts*ts * w0*w0 - 8.0);
+	b2_pr = (ts*ts*w0*w0 - 4.0*ts*wc + 4.0);
+
+
+	a1_pr = 4.0 * Ki_pr * ts * wc;
+	a2_pr = -a1_pr;
+
+	v_ac_peak = 23.0 * sqrtf(2.0);
+	//v_ac_peak = 23;
 
 	SYNC_FLAG = 0;
 
@@ -272,10 +383,99 @@ static uint32_t mainCmdAdcSamplingFreq(uint32_t *data){
 //-----------------------------------------------------------------------------
 static uint32_t mainCmdTraceStart(uint32_t *data){
 
-	mainControl.trace.size = 0;
 	mainControl.trace.p = (uint32_t *)SOC_MEM_TRACE_ADR;
 
 	return 0;
+}
+//-----------------------------------------------------------------------------
+static uint32_t mainCmdTraceSizeSet(uint32_t *data){
+
+	uint32_t size;
+
+	size = *data;
+
+	if( size <= SOC_MEM_TRACE_SIZE_MAX ){
+		mainControl.trace.end = (uint32_t *)( SOC_MEM_TRACE_ADR + size );
+	}
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+static uint32_t mainCmdTraceSizeRead(uint32_t *data){
+
+	uint32_t *p;
+	uint32_t size;
+
+	p = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_ADR );
+
+	size = ((uint32_t)mainControl.trace.end) - SOC_MEM_TRACE_ADR;
+
+	*p = size;
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+static uint32_t mainCmdAdcErrorRead(uint32_t *data){
+
+	uint32_t *p;
+
+	p = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_ADR );
+
+	*p = mainControl.error;
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+static uint32_t mainCmdAdcErrorClear(uint32_t *data){
+
+	mainControl.error = 0;
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+static uint32_t mainCmdControlEn(uint32_t *data){
+
+	uint32_t en;
+
+	en = *data;
+
+	if( en == 0 ) mainControl.enable = 0;
+	else mainControl.enable = 1;
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+static void mainInputRelayDisable(void){
+
+	uint32_t data;
+
+	data = XGpio_DiscreteRead(&relay_device, RELAY_CHANNEL);
+	XGpio_DiscreteWrite(&relay_device, RELAY_CHANNEL, data | 0x06);
+
+}
+//-----------------------------------------------------------------------------
+static void mainInputRelayEnable(void){
+
+	uint32_t data;
+
+	data = XGpio_DiscreteRead(&relay_device, RELAY_CHANNEL);
+	XGpio_DiscreteWrite(&relay_device, RELAY_CHANNEL, data & 0x01);
+}
+//-----------------------------------------------------------------------------
+static void mainOutputRelayDisable(void){
+
+	uint32_t data;
+
+	data = XGpio_DiscreteRead(&relay_device, RELAY_CHANNEL);
+	XGpio_DiscreteWrite(&relay_device, RELAY_CHANNEL, data | 0x01);
+}
+//-----------------------------------------------------------------------------
+static void mainOutputRelayEnable(void){
+
+	uint32_t data;
+
+	data = XGpio_DiscreteRead(&relay_device, RELAY_CHANNEL);
+	XGpio_DiscreteWrite(&relay_device, RELAY_CHANNEL, data & 0x06);
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
@@ -300,17 +500,120 @@ void DeviceDriverHandler(void *CallbackRef){
 void PLirqHandler(void *CallbackRef){
 
 	uint32_t *memp;
+
+	float dcLinkVoltage;
+	float hbCurrent;
+	float gridVoltage;
+	float loadCurrent;
+
+	float v_dc;
+	float v_ac;
+	float i_ac;
+
+//	uint16_t hbInt;
+//	uint16_t gridVoltageInt;
+//	uint16_t loadCurrInt;
+
+	uint32_t en;
+
+	XGpio_DiscreteWrite(&gpioDebug_device, GPIODEBUG_CHANNEL, 3);
+
+
+	/* Temporary solution to annoying init bug */
+	en = AXI_TEST_mReadReg(AXI_TEST_BASE_ADR, 0);
+	if( en == 0 ) return;
+
+	/* Converts ADC values to the actual measurements */
+	dcLinkVoltage = SOC_ADC_TO_SIGNAL(*((uint16_t *)(SOC_AFE_DCLINK)), SOC_AFE_DCLINK_SENS_GAIN, SOC_AFE_DCLINK_SENS_OFFS);
+	hbCurrent = SOC_ADC_TO_SIGNAL(*((uint16_t *)(SOC_AFE_HB_CURRENT)), SOC_AFE_HB_CURRENT_SENS_GAIN, SOC_AFE_HB_CURRENT_SENS_OFFS);
+	gridVoltage = SOC_ADC_TO_SIGNAL(*((uint16_t *)(SOC_AFE_GRID_VOLTAGE)), SOC_AFE_GRID_VOLTAGE_SENS_GAIN, SOC_AFE_GRID_VOLTAGE_SENS_OFFS);
+	loadCurrent = SOC_ADC_TO_SIGNAL(*((uint16_t *)(SOC_AFE_LOAD_CURRENT)), SOC_AFE_LOAD_CURRENT_SENS_GAIN, SOC_AFE_LOAD_CURRENT_SENS_OFFS);
+
+	v_dc = dcLinkVoltage;
+	v_ac = gridVoltage;
+	i_ac = hbCurrent;
+
+	/* Checks if all is well */
+	if( mainControl.precharge == 0 ){
+		if( dcLinkVoltage > SOC_AFE_DC_LINK_PRECHARGE ) {
+			mainInputRelayEnable();
+			mainOutputRelayEnable();
+			mainControl.precharge = 1;
+		}
+	}
+	else{
+		if( dcLinkVoltage < SOC_AFE_DC_LINK_MIN ) mainControl.error |= SOC_AFE_ERR_DCLINK_UNDER;
+		if( dcLinkVoltage > SOC_AFE_DC_LINK_MAX ) mainControl.error |= SOC_AFE_ERR_DCLINK_OVER;
+	}
+
+	if( hbCurrent < SOC_AFE_HB_CURRENT_MIN ) mainControl.error |= SOC_AFE_ERR_HB_CURRENT_UNDER;
+	if( hbCurrent > SOC_AFE_HB_CURRENT_MAX ) mainControl.error |= SOC_AFE_ERR_HB_CURRENT_OVER;
+
+	if( gridVoltage < SOC_AFE_GRID_VOLTAGE_MIN ) mainControl.error |= SOC_AFE_ERR_GRID_VOLTAGE_UNDER;
+	if( gridVoltage > SOC_AFE_GRID_VOLTAGE_MAX ) mainControl.error |= SOC_AFE_ERR_GRID_VOLTAGE_OVER;
+
+	if( loadCurrent < SOC_AFE_LOAD_CURRENT_MIN ) mainControl.error |= SOC_AFE_ERR_LOAD_CURRENT_UNDER;
+	if( loadCurrent > SOC_AFE_LOAD_CURRENT_MAX ) mainControl.error |= SOC_AFE_ERR_LOAD_CURRENT_OVER;
+
+	if( mainControl.error != 0 ){
+		mainControl.enable = 0;
+		mainInputRelayDisable();
+		mainOutputRelayDisable();
+	}
+	else{
+		if( mainControl.precharge == 1 ){
+			mainInputRelayEnable();
+			mainOutputRelayEnable();
+		}
+	}
+
+	/* Saves data to memory */
 	memp = (uint32_t *)(SOC_MEM_PL_TO_CPU1_ADR);
 
 	//AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0U);
 
 	if( mainControl.trace.p < mainControl.trace.end ){
 		*mainControl.trace.p++ = *memp++;
-//		*mainControl.trace.p++ = *memp++;
-//		*mainControl.trace.p++ = *memp++;
-//		*mainControl.trace.p++ = *memp++;
-
+		*mainControl.trace.p++ = *memp++;
+		*mainControl.trace.p++ = *memp++;
+		*mainControl.trace.p++ = *memp++;
 	}
+
+	/* Executes control if there are no errors */
+	if( mainControl.error != 0 ) return;
+
+	if( mainControl.enable == 0 ) return;
+
+	e = v_dc_ref - v_dc;
+
+	u_pi = a1 * u_pi_1 + b0 * e + b1 * e_1;
+
+	ig_ref = u_pi * (v_ac / v_ac_peak);
+
+	ei = ig_ref - i_ac;
+
+	u_pr = (-b1_pr * u_pr_1 - b2_pr * u_pr_2 + Kp_pr * b0_pr * ei + (Kp_pr*b1_pr+a1_pr)*ei_1 + (Kp_pr*b2_pr+a2_pr)*ei_2) / b0_pr;
+
+	vs_ref = v_ac - u_pr;
+
+	vs_ref_norm = vs_ref / v_ac_peak;
+	if(vs_ref_norm >  1.0) vs_ref_norm = 1.0;
+	if(vs_ref_norm < -1.0) vs_ref_norm = -1.0;
+
+	u_pi_1 = u_pi;
+	e_1 = e;
+
+	ei_2 = ei_1;
+	ei_1 = ei;
+
+	u_pr_2 = u_pr_1;
+	u_pr_1 = u_pr;
+
+
+	XGpio_DiscreteWrite(&gpioDebug_device, GPIODEBUG_CHANNEL, 0);
+
+
+	//mainOutputRelayEnable();
 
 	//XScuGic_SoftwareIntr ( &IntcInstancePtr , SOC_SIG_CPU1_TO_CPU0 , SOC_SIG_CPU0_ID ) ;
 }

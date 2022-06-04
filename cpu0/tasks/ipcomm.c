@@ -60,6 +60,8 @@
 XScuGic *InterruptControllerInst; 	     /* Instance of the Interrupt Controller */
 
 uint32_t irqCounter = 0;
+
+uint32_t cpu1flag = 1;
 //=============================================================================
 
 
@@ -73,9 +75,17 @@ static uint32_t ipcommCmdCpu1Blink(uifaceDataExchange_t *data);
 static uint32_t ipcommCmdCpu1AdcEn(uifaceDataExchange_t *data);
 static uint32_t ipcommCmdCpu1AdcSpiFreq(uifaceDataExchange_t *data);
 static uint32_t ipcommCmdCpu1AdcSamplingFreq(uifaceDataExchange_t *data);
+static uint32_t ipcommCmdCpu1AdcErrorRead(uifaceDataExchange_t *data);
+static uint32_t ipcommCmdCpu1AdcErrorClear(uifaceDataExchange_t *data);
+static uint32_t ipcommCmdCpu1AdcSamplingFreq(uifaceDataExchange_t *data);
 static uint32_t ipcommCmdCpu1TraceStart(uifaceDataExchange_t *data);
+static uint32_t ipcommCmdTraceSizeSet(uifaceDataExchange_t *data);
+static uint32_t ipcommCmdTraceSizeRead(uifaceDataExchange_t *data);
 
 static uint32_t ipcommCmdTraceRead(uifaceDataExchange_t *data);
+
+static uint32_t ipcommCmdControlEn(uifaceDataExchange_t *data);
+
 //=============================================================================
 
 //=============================================================================
@@ -83,9 +93,6 @@ static uint32_t ipcommCmdTraceRead(uifaceDataExchange_t *data);
 //=============================================================================
 //-----------------------------------------------------------------------------
 void ipcomm(void *param){
-
-	uint32_t recv = 0;
-	uint32_t write = 0xFFFFFFFF;
 
 	InterruptControllerInst = param;
 
@@ -161,10 +168,14 @@ static int ipcommSysInit(void){
 	uifaceRegisterHandle(SOC_CMD_CPU0_CPU1_ADC_EN, ipcommCmdCpu1AdcEn);
 	uifaceRegisterHandle(SOC_CMD_CPU0_CPU1_ADC_SPI_FREQ, ipcommCmdCpu1AdcSpiFreq);
 	uifaceRegisterHandle(SOC_CMD_CPU0_CPU1_ADC_SAMPLING_FREQ, ipcommCmdCpu1AdcSamplingFreq);
+	uifaceRegisterHandle(SOC_CMD_CPU0_CPU1_ADC_SAMPLING_FREQ, ipcommCmdCpu1AdcSamplingFreq);
+	uifaceRegisterHandle(SOC_CMD_CPU0_CPU1_ADC_ERROR_READ, ipcommCmdCpu1AdcErrorRead);
+	uifaceRegisterHandle(SOC_CMD_CPU0_CPU1_ADC_ERROR_CLEAR, ipcommCmdCpu1AdcErrorClear);
 	uifaceRegisterHandle(SOC_CMD_CPU0_TRACE_START, ipcommCmdCpu1TraceStart);
-
 	uifaceRegisterHandle(SOC_CMD_CPU0_TRACE_READ, ipcommCmdTraceRead);
-
+	uifaceRegisterHandle(SOC_CMD_CPU0_TRACE_SIZE_SET, ipcommCmdTraceSizeSet);
+	uifaceRegisterHandle(SOC_CMD_CPU0_TRACE_SIZE_READ, ipcommCmdTraceSizeRead);
+	uifaceRegisterHandle(SOC_CMD_CPU0_CONTROL_EN, ipcommCmdControlEn);
 
 	return XST_SUCCESS;
 }
@@ -247,10 +258,121 @@ static uint32_t ipcommCmdCpu1TraceStart(uifaceDataExchange_t *data){
 //-----------------------------------------------------------------------------
 static uint32_t ipcommCmdTraceRead(uifaceDataExchange_t *data){
 
+	uint32_t size;
+	uint32_t *p;
+
+	cpu1flag = 1;
+
+	p = (uint32_t *)SOC_MEM_CPU0_TO_CPU1_ADR;
+	*p++ = SOC_CMD_CPU1_TRACE_SIZE_READ;
+
+	XScuGic_SoftwareIntr ( InterruptControllerInst , IPCOMM_INT_CPU0_TO_CPU1 , SOC_SIG_CPU1_ID ) ;
+
+	while(cpu1flag == 1);
+
+	p = (uint32_t *)SOC_MEM_CPU1_TO_CPU0_ADR;
+	size = *p;
+
 	data->buffer = (uint8_t*)SOC_MEM_TRACE_ADR;
-	data->size = SOC_MEM_TRACE_SIZE;
+	data->size = size;
 
 	return 1;
+}
+//-----------------------------------------------------------------------------
+static uint32_t ipcommCmdTraceSizeSet(uifaceDataExchange_t *data){
+
+	uint32_t *p;
+	uint32_t size;
+
+	size = (data->buffer[0] << 24) | (data->buffer[1] << 16) | (data->buffer[2] << 8) | data->buffer[3];
+
+	p = (uint32_t *)SOC_MEM_CPU0_TO_CPU1_ADR;
+	*p++ = SOC_CMD_CPU1_TRACE_SIZE_SET;
+	*p++ = size;
+
+	XScuGic_SoftwareIntr ( InterruptControllerInst , IPCOMM_INT_CPU0_TO_CPU1 , SOC_SIG_CPU1_ID ) ;
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+static uint32_t ipcommCmdTraceSizeRead(uifaceDataExchange_t *data){
+
+	uint32_t size;
+	uint32_t *p;
+
+	cpu1flag = 1;
+
+	p = (uint32_t *)SOC_MEM_CPU0_TO_CPU1_ADR;
+	*p++ = SOC_CMD_CPU1_TRACE_SIZE_READ;
+
+	XScuGic_SoftwareIntr ( InterruptControllerInst , IPCOMM_INT_CPU0_TO_CPU1 , SOC_SIG_CPU1_ID ) ;
+
+	while(cpu1flag == 1);
+
+	p = (uint32_t *)SOC_MEM_CPU1_TO_CPU0_ADR;
+	size = *p;
+
+	data->buffer[0] = (uint8_t)(size >> 24);
+	data->buffer[1] = (uint8_t)(size >> 16);
+	data->buffer[2] = (uint8_t)(size >> 8);
+	data->buffer[3] = (uint8_t)(size);
+	data->size = 4;
+
+	return 1;
+}
+//-----------------------------------------------------------------------------
+static uint32_t ipcommCmdCpu1AdcErrorRead(uifaceDataExchange_t *data){
+
+	uint32_t error;
+	uint32_t *p;
+
+	cpu1flag = 1;
+
+	p = (uint32_t *)SOC_MEM_CPU0_TO_CPU1_ADR;
+	*p++ = SOC_CMD_CPU1_ADC_ERROR_READ;
+
+	XScuGic_SoftwareIntr ( InterruptControllerInst , IPCOMM_INT_CPU0_TO_CPU1 , SOC_SIG_CPU1_ID ) ;
+
+	while(cpu1flag == 1);
+
+	p = (uint32_t *)SOC_MEM_CPU1_TO_CPU0_ADR;
+	error = *p;
+
+	data->buffer[0] = (uint8_t)(error >> 24);
+	data->buffer[1] = (uint8_t)(error >> 16);
+	data->buffer[2] = (uint8_t)(error >> 8);
+	data->buffer[3] = (uint8_t)(error);
+	data->size = 4;
+
+	return 1;
+}
+//-----------------------------------------------------------------------------
+static uint32_t ipcommCmdCpu1AdcErrorClear(uifaceDataExchange_t *data){
+
+	uint32_t *p;
+
+	p = (uint32_t *)SOC_MEM_CPU0_TO_CPU1_ADR;
+	*p++ = SOC_CMD_CPU1_ADC_ERROR_CLEAR;
+
+	XScuGic_SoftwareIntr ( InterruptControllerInst , IPCOMM_INT_CPU0_TO_CPU1 , SOC_SIG_CPU1_ID ) ;
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+static uint32_t ipcommCmdControlEn(uifaceDataExchange_t *data){
+
+	uint32_t en;
+	uint32_t *p;
+
+	en = data->buffer[0];
+
+	p = (uint32_t *)SOC_MEM_CPU0_TO_CPU1_ADR;
+	*p++ = SOC_CMD_CPU1_CONTROL_EN;
+	*p = en;
+
+	XScuGic_SoftwareIntr ( InterruptControllerInst , IPCOMM_INT_CPU0_TO_CPU1 , SOC_SIG_CPU1_ID ) ;
+
+	return 0;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
@@ -261,7 +383,7 @@ static uint32_t ipcommCmdTraceRead(uifaceDataExchange_t *data){
 //=============================================================================
 void DeviceDriverHandler(void *CallbackRef){
 
-
+	cpu1flag = 0;
 //	xil_printf("CPU0: Got something from CPU1\n\r");
 	irqCounter++;
 }

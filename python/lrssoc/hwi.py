@@ -15,13 +15,18 @@ class Commands:
     the commands that are defined in the `soc_defs.h` file from the hardware.
     """
     def __init__(self):
-        self.cpu0_blink = 0x00
-        self.cpu1_blink = 0x01
-        self.cpu1_adc_en = 0x02
-        self.cpu1_adc_spi_freq_set = 0x03
-        self.cpu1_adc_sampling_freq_set = 0x04
-        self.cpu0_trace_start = 0x05
-        self.cpu0_trace_read = 0x06
+        self.cpu0_blink = 0
+        self.cpu1_blink = 1
+        self.cpu1_adc_en = 2
+        self.cpu1_adc_spi_freq_set = 3
+        self.cpu1_adc_sampling_freq_set = 4
+        self.cpu1_adc_error_read = 5
+        self.cpu1_adc_error_clear = 6
+        self.cpu0_trace_start = 7
+        self.cpu0_trace_read = 8
+        self.cpu0_trace_size_set = 9
+        self.cpu0_trace_size_read = 10
+        self.cpu0_control_en = 11
         
 
 class Interface:
@@ -206,6 +211,44 @@ class Interface:
         self.hwc.comm(tx_data)
 
 
+    def cpu1_adc_error_read(self):
+        """Reads the ADC's error flag.
+
+        Returns
+        ------
+        int
+            Error flag.
+
+        """        
+        tx_data = []
+        cmd = self.cmd.cpu1_adc_error_read
+        
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
+
+        data = self.hwc.comm(tx_data)
+
+        error = lrssoc.conversions.u8_to_u32(data, msb=True)
+
+        return error
+
+
+    def cpu1_adc_error_clear(self):
+        """Reads the ADC's error flag.
+
+        Returns
+        ------
+        int
+            Error flag.
+
+        """        
+        tx_data = []
+        cmd = self.cmd.cpu1_adc_error_clear
+        
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
+
+        self.hwc.comm(tx_data)
+
+
     def cpu0_trace_start(self):
         """Start recording data.
 
@@ -218,7 +261,7 @@ class Interface:
         self.hwc.comm(tx_data)
 
 
-    def cpu0_trace_read(self):
+    def cpu0_trace_read(self, size=None):
         """Read recorded data.
 
         """        
@@ -227,6 +270,69 @@ class Interface:
         
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
 
-        data = self.hwc.comm(tx_data, 10000 * 2)
+        if size == None:
+            size = 20000
+            
+        data = self.hwc.comm(tx_data, size)
 
         return data
+
+
+    def cpu0_trace_size_set(self, size):
+        """Sets the number of bytes to save.
+
+        """
+        tx_data = []
+        cmd = self.cmd.cpu0_trace_size_set
+        
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(size, msb=True) )
+        
+        self.hwc.comm(tx_data)
+
+
+    def cpu0_trace_size_read(self):
+        """Gets the number of bytes saved
+
+        """
+        tx_data = []
+        cmd = self.cmd.cpu0_trace_size_read
+        
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
+        
+        data = self.hwc.comm(tx_data)
+
+        size = lrssoc.conversions.u8_to_u32(data, msb=True)
+
+        return size
+
+
+    def cpu1_control_en(self, en):
+        """Enables/disables the control algorithm.
+
+        Parameters
+        ----------
+        en : bool
+            If `True`, enables control. If `False`, disables control.
+
+        Raises
+        ------
+        TypeError
+            If `en` is not of `bool` type.
+
+        """        
+        if type(en) is not bool:
+            raise TypeError('`en` must be of bool type.')
+        
+        tx_data = []
+        cmd = self.cmd.cpu0_control_en
+
+        if en == True:
+            en = [1]
+        else:
+            en = [0]
+        
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
+        tx_data.extend( en )
+
+        self.hwc.comm(tx_data)
