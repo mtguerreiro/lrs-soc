@@ -102,17 +102,23 @@ float a1, b0, b1;
 //float Kp = 0.01, Ki = 0.01;
 //float Kp = 1.2, Ki = 10.0;
 //float Kp = 0.01, Ki = 1.0;
-float Kp = 0.01, Ki = 1.0;
-//float Kp = 0.8, Ki = 15.0;
+//float Kp = 0.1, Ki = 1.0;
+//float Kp = 0.4, Ki = 15.0;
 
-float v_dc_ref = 30.0;
+//float Kp = 0.01, Ki = 1.0; //for sure working
+float Kp = 0.4, Ki = 15.0; // for sure working - fast
 
+float v_dc_ref = 20.0;
+
+//float Kp_pr = 0.1, Ki_pr = 10.0; // for sure working
+float Kp_pr = 0.4, Ki_pr = 30.0; // for sure working - fast
 //float Kp_pr = 0.01, Ki_pr = 0.1;
 //float Kp_pr = 0.01, Ki_pr = 10.0;
 //float Kp_pr = 1.2, Ki_pr = 40.0;
 //float Kp_pr = 0.01, Ki_pr = 10.0;
-float Kp_pr = 0.05, Ki_pr = 20.0;
-//float Kp_pr = 0.8, Ki_pr = 40.0;
+//float Kp_pr = 0.1, Ki_pr = 10.0;
+//float Kp_pr = 0.2, Ki_pr = 15.0;
+
 float w0 = 2.0*3.141592653589793*50.0, wc = 15.0;
 float a0_pr, a1_pr, a2_pr;
 float b0_pr, b1_pr, b2_pr;
@@ -290,23 +296,23 @@ static int mainSysInit(void){
 //	a2_pr = -a1_pr;
 
 	/* PR with infinite gain */
-//	b0_pr = ts*ts*w0*w0 + 4.0;
-//	b1_pr = (2.0 * ts*ts * w0*w0 - 8.0);
-//	b2_pr = (ts*ts*w0*w0 + 4.0);
+	b0_pr = ts*ts*w0*w0 + 4.0;
+	b1_pr = (2.0 * ts*ts * w0*w0 - 8.0);
+	b2_pr = (ts*ts*w0*w0 + 4.0);
+
+
+	a0_pr = 4*Ki_pr*ts;
+	a1_pr = 0;
+	a2_pr = -a0_pr;
+
+//	b0_pr = Ki_pr*sinf(h*w0*ts)/(2.0*h*w0);
+//	b1_pr = Ki_pr*0.0;
+//	b2_pr = Ki_pr*(-sinf(h*w0*ts)/(2.0*h*w0));
 //
-//
-//	a0_pr = 4*Ki_pr*ts;
-//	a1_pr = 0;
-//	a2_pr = -a0_pr;
+//	a1_pr = -2.0*cosf(h*w0*ts);
+//	a2_pr = 1.000000000000000;
 
-	b0_pr = Ki_pr*sinf(h*w0*ts)/(2.0*h*w0);
-	b1_pr = Ki_pr*0.0;
-	b2_pr = Ki_pr*(-sinf(h*w0*ts)/(2.0*h*w0));
-
-	a1_pr = -2.0*cosf(h*w0*ts);
-	a2_pr = 1.000000000000000;
-
-	v_ac_peak = 15.0 * sqrtf(2.0);
+	v_ac_peak = 10.0 * sqrtf(2.0);
 	//v_ac_peak = 23;
 
 	SYNC_FLAG = 0;
@@ -653,7 +659,7 @@ void PLirqHandler(void *CallbackRef){
 
 	hbCurrent = SOC_ADC_TO_SIGNAL(*((uint16_t *)(SOC_AFE_HB_CURRENT)), SOC_AFE_HB_CURRENT_SENS_GAIN, SOC_AFE_HB_CURRENT_SENS_OFFS);
 	d_i = hbCurrent - hbCurrent_1;
-	if( (d_i > 4.5) || (d_i < (-4.5)) ) hbCurrent = hbCurrent_1;
+	if( (d_i > 5.0) || (d_i < (-5.0)) ) hbCurrent = hbCurrent_1;
 	else hbCurrent_1 = hbCurrent;
 
 	/* Converts ADC values to the actual measurements */
@@ -716,8 +722,8 @@ void PLirqHandler(void *CallbackRef){
 		ei = ig_ref - i_ac;
 
 		//u_pr = (-b1_pr * u_pr_1 - b2_pr * u_pr_2 + Kp_pr * b0_pr * ei + (Kp_pr*b1_pr+a1_pr)*ei_1 + (Kp_pr*b2_pr+a2_pr)*ei_2) / b0_pr;
-		//u_pr = (-b1_pr * u_pr_1 - b2_pr * u_pr_2 + (Kp_pr*b0_pr+a0_pr) * ei + (Kp_pr*b1_pr)*ei_1 + (Kp_pr*b2_pr+a2_pr)*ei_2) / b0_pr;
-		u_pr = b0_pr*ei + b1_pr*ei_1 + b2_pr*ei_2 - a1_pr*u_pr_1 - a2_pr*u_pr_2 + Kp_pr*ts*ei;
+		u_pr = (-b1_pr * u_pr_1 - b2_pr * u_pr_2 + (Kp_pr*b0_pr+a0_pr) * ei + (Kp_pr*b1_pr)*ei_1 + (Kp_pr*b2_pr+a2_pr)*ei_2) / b0_pr;
+		//u_pr = b0_pr*ei + b1_pr*ei_1 + b2_pr*ei_2 - a1_pr*u_pr_1 - a2_pr*u_pr_2 + Kp_pr*ts*ei;
 
 		vs_ref = v_ac - u_pr;
 
