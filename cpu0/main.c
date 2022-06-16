@@ -39,28 +39,41 @@
 //=============================================================================
 /*--------------------------------- Defines ---------------------------------*/
 //=============================================================================
-#define INTC		    XScuGic
-#define INTC_DEVICE_ID	XPAR_PS7_SCUGIC_0_DEVICE_ID
-#define INTC_HANDLER	XScuGic_InterruptHandler
-
+/* Command to wake CPU1 from CPU0. */
 #define sev()			__asm__("sev")
-#define SYNC_FLAG  		(*(volatile unsigned long *)(SOC_CPU0_CPU1_SYNC_FLAG_ADR))
+
+/* Definitions for the interrupt controller */
+#define MAIN_INTC_DEVICE_ID		XPAR_PS7_SCUGIC_0_DEVICE_ID
+#define MAIN_INTC_HANDLER		XScuGic_InterruptHandler
+
+/*
+ * This flag is used to synchronize CPU0 and CPU1. After CPU0 writes the start
+ * address for CPU1, it sets the sync flag and wakes CPU1. At this point, CPU1
+ * starts and does its initialization procedure. After CPU1 is initialized, it
+ * clears the sync flag. CPU0 only continues execution after the sync flag has
+ * been cleared by CPU1.
+ */
+#define MAIN_SYNC_FLAG  		(*(volatile unsigned long *)(SOC_CPU0_CPU1_SYNC_FLAG_ADR))
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Prototypes -------------------------------*/
 //=============================================================================
 static int mainSysInit(void);
-static int mainSetupIntrSystem(INTC *IntcInstancePtr);
+static int mainSetupIntrSystem(XScuGic *intcInstance);
 //=============================================================================
 
 //=============================================================================
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
 /*
- * Assign the driver structures for the interrupt controller
+ * Assign the driver structures for the interrupt controller.
+ *
+ * Before handling control to the OS, the interrupt controller is initialized.
+ * The initialized structure is then provided to tasks requiring the interrupt
+ * controller, such that they do not need to perform any initialization.
  */
-INTC   IntcInstancePtr;
+XScuGic   xINTCInstance;
 //=============================================================================
 
 //=============================================================================
@@ -75,7 +88,7 @@ int main(void){
 					UIFACE_CONFIG_TASK_STACK_SIZE,
 					UIFACE_CONFIG_TASK_PRIO);
 
-	sys_thread_new("ipcomm_thrd", (void(*)(void*))ipcomm, (void *)&IntcInstancePtr,
+	sys_thread_new("ipcomm_thrd", (void(*)(void*))ipcomm, (void *)&xINTCInstance,
 					IPCOMM_CONFIG_TASK_STACK_SIZE,
 					IPCOMM_CONFIG_TASK_PRIO);
 
@@ -98,40 +111,40 @@ static int mainSysInit(void){
 
 	int Status;
 
-    //Disable cache on OCM
+	xil_printf("%s: CPU0 is initializing...\r\n", __FUNCTION__);
+
+    /* Disables cache on OCM */
     Xil_SetTlbAttributes(0xFFFF0000,0x14de2);           // S=b1 TEX=b100 AP=b11, Domain=b1111, C=b0, B=b0
 
-
-    SYNC_FLAG = 0;
-
-	// Initialize the SCU Interrupt Distributer (ICD)
-	Status = mainSetupIntrSystem(&IntcInstancePtr);
+	/* Initializes the SCU Interrupt Distributer (ICD) */
+	Status = mainSetupIntrSystem(&xINTCInstance);
 	if (Status != XST_SUCCESS) {
 		return XST_FAILURE;
 	}
 
-    print("CPU0: writing startaddress for cpu1\n\r");
+	/* Sets sync flag (to be cleared by CPU1) */
+	MAIN_SYNC_FLAG = 1;
+
+	/*
+	 * Writes start address for CPU0, waits until it has been written (dmb)
+	 * and wakes CPU1 up.
+	 */
+	xil_printf("%s: Waking up CPU1...\r\n", __FUNCTION__);
     Xil_Out32(SOC_CPU1_RESET_ADR, SOC_CPU1_START_ADR);
-    dmb(); //waits until write has finished
-
-	print("CPU0: Hello World CPU 0\n\r");
-	SYNC_FLAG = 1;
-
-    print("CPU0: sending the SEV to wake up CPU1\n\r");
+    dmb();
     sev();
 
-	while(SYNC_FLAG == 1);
+    xil_printf("%s: Waiting for CPU1...\r\n", __FUNCTION__);
+	while(MAIN_SYNC_FLAG == 1);
 
-	SYNC_FLAG = 1;
+    xil_printf("%s: CPU1 has initialized.\r\n", __FUNCTION__);
 
     return XST_SUCCESS;
-
 }
 //-----------------------------------------------------------------------------
-static int mainSetupIntrSystem(INTC *IntcInstancePtr)
+static int mainSetupIntrSystem(XScuGic *intcInstance)
 {
 	int Status;
-
 
 	XScuGic_Config *IntcConfig;
 
@@ -139,12 +152,12 @@ static int mainSetupIntrSystem(INTC *IntcInstancePtr)
 	 * Initialize the interrupt controller driver so that it is ready to
 	 * use.
 	 */
-	IntcConfig = XScuGic_LookupConfig(INTC_DEVICE_ID);
+	IntcConfig = XScuGic_LookupConfig(MAIN_INTC_DEVICE_ID);
 	if (NULL == IntcConfig) {
 		return XST_FAILURE;
 	}
 
-	Status = XScuGic_CfgInitialize(IntcInstancePtr, IntcConfig,
+	Status = XScuGic_CfgInitialize(intcInstance, IntcConfig,
 					IntcConfig->CpuBaseAddress);
 	if (Status != XST_SUCCESS) {
 		return XST_FAILURE;
@@ -159,14 +172,13 @@ static int mainSetupIntrSystem(INTC *IntcInstancePtr)
 	 * Register the interrupt controller handler with the exception table
 	 */
 	Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_INT,
-			 (Xil_ExceptionHandler)INTC_HANDLER,
-			 IntcInstancePtr);
+			 (Xil_ExceptionHandler)MAIN_INTC_HANDLER,
+			 intcInstance);
 
 	/*
 	 * Enable non-critical exceptions
 	 */
 	Xil_ExceptionEnable();
-
 
 	return XST_SUCCESS;
 }
