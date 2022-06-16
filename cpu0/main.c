@@ -33,7 +33,6 @@
 #include "xscugic.h"
 
 #include "soc_defs.h"
-
 //=============================================================================
 
 //=============================================================================
@@ -43,8 +42,8 @@
 #define sev()			__asm__("sev")
 
 /* Definitions for the interrupt controller */
-#define MAIN_INTC_DEVICE_ID		XPAR_PS7_SCUGIC_0_DEVICE_ID
-#define MAIN_INTC_HANDLER		XScuGic_InterruptHandler
+#define MAIN_XIL_INTC_DEVICE_ID			XPAR_PS7_SCUGIC_0_DEVICE_ID
+#define MAIN_XIL_INTC_HANDLER			XScuGic_InterruptHandler
 
 /*
  * This flag is used to synchronize CPU0 and CPU1. After CPU0 writes the start
@@ -84,16 +83,19 @@ int main(void){
 
 	mainSysInit();
 
-	sys_thread_new("uiface_thrd", (void(*)(void*))uiface, 0,
+	sys_thread_new("uiface_thrd", uiface,
+					0,
 					UIFACE_CONFIG_TASK_STACK_SIZE,
 					UIFACE_CONFIG_TASK_PRIO);
 
-	sys_thread_new("ipcomm_thrd", (void(*)(void*))ipcomm, (void *)&xINTCInstance,
+	sys_thread_new("ipcomm_thrd", ipcomm,
+					(void *)&xINTCInstance,
 					IPCOMM_CONFIG_TASK_STACK_SIZE,
 					IPCOMM_CONFIG_TASK_PRIO);
 
 
-	sys_thread_new("blink_thrd", (void(*)(void*))blink, 0,
+	sys_thread_new("blink_thrd", blink,
+					0,
 					BLINK_CONFIG_TASK_STACK_SIZE,
 					BLINK_CONFIG_TASK_PRIO);
 
@@ -152,7 +154,7 @@ static int mainSetupIntrSystem(XScuGic *intcInstance)
 	 * Initialize the interrupt controller driver so that it is ready to
 	 * use.
 	 */
-	IntcConfig = XScuGic_LookupConfig(MAIN_INTC_DEVICE_ID);
+	IntcConfig = XScuGic_LookupConfig(MAIN_XIL_INTC_DEVICE_ID);
 	if (NULL == IntcConfig) {
 		return XST_FAILURE;
 	}
@@ -172,7 +174,7 @@ static int mainSetupIntrSystem(XScuGic *intcInstance)
 	 * Register the interrupt controller handler with the exception table
 	 */
 	Xil_ExceptionRegisterHandler(XIL_EXCEPTION_ID_INT,
-			 (Xil_ExceptionHandler)MAIN_INTC_HANDLER,
+			 (Xil_ExceptionHandler)MAIN_XIL_INTC_HANDLER,
 			 intcInstance);
 
 	/*

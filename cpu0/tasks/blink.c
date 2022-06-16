@@ -27,25 +27,37 @@
 //=============================================================================
 
 //=============================================================================
+/*--------------------------------- Defines ---------------------------------*/
+//=============================================================================
+typedef struct{
+	XGpio rgbled;
+	uint32_t period;
+} blinkControl_t;
+//=============================================================================
+
+//=============================================================================
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
-uint32_t blinkPeriod;
+blinkControl_t xblinkControl;
 
+/* Blink period */
+uint32_t ulblinkPeriod;
 
-#define LED_ID XPAR_AXI_GPIO_RGB_LED_DEVICE_ID
-#define LED_CHANNEL 1
-#define LED_MASK 0b111
+#define BLINK_XIL_LED_ID 		XPAR_AXI_GPIO_RGB_LED_DEVICE_ID
+#define BLINK_XIL_LED_CHANNEL 	1
+#define BLINK_XIL_LED_MASK 		0b111
 
-//#define BLINK_VAL  (*((volatile unsigned long *)(0xFFFF0000)+16))
-
+#define BLINK_LED_BLUE		(1 << 0)
+#define BLINK_LED_GREEN		(1 << 1)
+#define BLINK_LED_RED		(1 << 2)
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Prototypes -------------------------------*/
 //=============================================================================
-static void blinkInitialize(XGpio_Config *cfg, XGpio *led);
+static void blinkInitialize(void);
 static uint32_t blinkPeriodUpdate(uifaceDataExchange_t *data);
-//static uint32_t blinkPeriodUpdateCPU1(uifaceDataExchange_t *data);
+static void blinkToggleColor(uint32_t color);
 //=============================================================================
 
 //=============================================================================
@@ -54,30 +66,12 @@ static uint32_t blinkPeriodUpdate(uifaceDataExchange_t *data);
 //-----------------------------------------------------------------------------
 void blink(void *param){
 
-	uint32_t data;
-	uint32_t prevstate;
-
-	XGpio_Config *cfg_ptr = 0;
-	XGpio led_device;
-
-    blinkInitialize(cfg_ptr, &led_device);
-
-    blinkPeriod = 1000 / portTICK_PERIOD_MS;
-
-    uifaceRegisterHandle(SOC_CMD_CPU0_BLINK, blinkPeriodUpdate);
-//    uifaceRegisterHandle(SOC_CMD_CPU0_CPU1_BLINK, blinkPeriodUpdateCPU1);
+    blinkInitialize();
 
     while(1){
 
-    	prevstate = XGpio_DiscreteRead(&led_device, LED_CHANNEL);
-    	prevstate &= ~0b111;
-
-    	XGpio_DiscreteWrite(&led_device, LED_CHANNEL, (data & LED_MASK) | prevstate);
-
-    	data = data << 1;
-    	if( (data & (LED_MASK << 2 ) ) == 0 ) data = 0xFF;
-
-        vTaskDelay(blinkPeriod);
+    	blinkToggleColor(BLINK_LED_GREEN);
+        vTaskDelay(xblinkControl.period);
     }
 }
 //-----------------------------------------------------------------------------
@@ -87,35 +81,43 @@ void blink(void *param){
 /*---------------------------- Static functions -----------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-static void blinkInitialize(XGpio_Config *cfg, XGpio *led){
+static void blinkInitialize(void){
 
-//	XGpio_Config *cfg_ptr;
-//	XGpio led_device;
+	XGpio_Config *cfg;
 
 	/* Initializes PYNQ's (RGB) LEDs */
-	cfg = XGpio_LookupConfig(LED_ID);
-	XGpio_CfgInitialize(led, cfg, cfg->BaseAddress);
-	XGpio_SetDataDirection(led, LED_CHANNEL, 0);
+	cfg = XGpio_LookupConfig(BLINK_XIL_LED_ID);
+	XGpio_CfgInitialize(&xblinkControl.rgbled, cfg, cfg->BaseAddress);
+	XGpio_SetDataDirection(&xblinkControl.rgbled, BLINK_XIL_LED_CHANNEL, 0);
+
+	/* Sets default blinking period */
+	xblinkControl.period = BLINK_CONFIG_DEFAULT_PERIOD_MS / portTICK_PERIOD_MS;
+
+	/* Registers period update function with blink update command */
+    uifaceRegisterHandle(SOC_CMD_CPU0_BLINK, blinkPeriodUpdate);
 }
 //-----------------------------------------------------------------------------
 static uint32_t blinkPeriodUpdate(uifaceDataExchange_t *data){
 
-	blinkPeriod = (data->buffer[0] << 8) | data->buffer[1];
+	uint32_t period;
+	period = (data->buffer[0] << 8) | data->buffer[1];
 
-	blinkPeriod = blinkPeriod / portTICK_PERIOD_MS;
+	xblinkControl.period = period / portTICK_PERIOD_MS;
 
     return 0;
 }
 //-----------------------------------------------------------------------------
-//static uint32_t blinkPeriodUpdateCPU1(uifaceDataExchange_t *data){
-//
-//	uint32_t period;
-//
-//	period = (data->buffer[0] << 8) | data->buffer[1];
-//
-//	BLINK_VAL = period;
-//
-//    return 0;
-//}
+static void blinkToggleColor(uint32_t color){
+
+	uint32_t prev, new;
+
+	prev = XGpio_DiscreteRead(&xblinkControl.rgbled, BLINK_XIL_LED_CHANNEL);
+
+	new = (color & BLINK_XIL_LED_MASK) ^ prev;
+
+	XGpio_DiscreteWrite(&xblinkControl.rgbled,
+						BLINK_XIL_LED_CHANNEL,
+						new);
+}
 //-----------------------------------------------------------------------------
 //=============================================================================
