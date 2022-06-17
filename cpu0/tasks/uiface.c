@@ -253,13 +253,16 @@ static void uifaceProcRecThread(void *p){
 			break;
 
 		/* handle request */
-		id = (recv_buf[0] << 24U) | (recv_buf[1] << 16U) | (recv_buf[2] << 8U) | recv_buf[3];
+		//id = (recv_buf[0] << 24U) | (recv_buf[1] << 16U) | (recv_buf[2] << 8U) | recv_buf[3];
+		/* Maybe we should add a mutex here */
+		id = *((uint32_t *)recv_buf);
 		if( id >= SOC_CMD_CPU0_END ){
 			xil_printf("%s: bad id (%u), closing socket\r\n", __FUNCTION__, id);
 			break;
 		}
 		else{
 			/* Calls function registered to the received ID */
+			dataExchange.cmd = id;
 			dataExchange.buffer = (uint8_t *)( &recv_buf[4] );
 			dataExchange.size = (uint32_t)(n - 4);
 			if( uifaceControl.handle[id] == 0 ){

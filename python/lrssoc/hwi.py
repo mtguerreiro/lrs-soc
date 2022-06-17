@@ -98,8 +98,8 @@ class Interface:
         tx_data = []
         cmd = self.cmd.cpu0_blink
         
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
-        tx_data.extend( lrssoc.conversions.u16_to_u8(t, msb=True) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(t, msb=False) )
 
         self.hwc.comm(tx_data)
         
@@ -124,8 +124,8 @@ class Interface:
         tx_data = []
         cmd = self.cmd.cpu1_blink
         
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
-        tx_data.extend( lrssoc.conversions.u16_to_u8(t, msb=True) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(t, msb=False) )
 
         self.hwc.comm(tx_data)
 
@@ -155,7 +155,7 @@ class Interface:
         else:
             en = [0]
         
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
         tx_data.extend( en )
 
         self.hwc.comm(tx_data)
@@ -180,8 +180,8 @@ class Interface:
         tx_data = []
         cmd = self.cmd.cpu1_adc_spi_freq_set
         
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
-        tx_data.extend( lrssoc.conversions.u32_to_u8(freq, msb=True) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(freq, msb=False) )
 
         self.hwc.comm(tx_data)
 
@@ -205,8 +205,8 @@ class Interface:
         tx_data = []
         cmd = self.cmd.cpu1_adc_sampling_freq_set
         
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
-        tx_data.extend( lrssoc.conversions.u32_to_u8(freq, msb=True) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(freq, msb=False) )
 
         self.hwc.comm(tx_data)
 
@@ -223,11 +223,11 @@ class Interface:
         tx_data = []
         cmd = self.cmd.cpu1_adc_error_read
         
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
 
         data = self.hwc.comm(tx_data)
 
-        error = lrssoc.conversions.u8_to_u32(data, msb=True)
+        error = lrssoc.conversions.u8_to_u32(data, msb=False)
 
         return error
 
@@ -244,7 +244,7 @@ class Interface:
         tx_data = []
         cmd = self.cmd.cpu1_adc_error_clear
         
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
 
         self.hwc.comm(tx_data)
 
@@ -256,7 +256,7 @@ class Interface:
         tx_data = []
         cmd = self.cmd.cpu0_trace_start
         
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
 
         self.hwc.comm(tx_data)
 
@@ -268,7 +268,7 @@ class Interface:
         tx_data = []
         cmd = self.cmd.cpu0_trace_read
         
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
 
         if size == None:
             size = 20000
@@ -285,8 +285,8 @@ class Interface:
         tx_data = []
         cmd = self.cmd.cpu0_trace_size_set
         
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
-        tx_data.extend( lrssoc.conversions.u32_to_u8(size, msb=True) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(size, msb=False) )
         
         self.hwc.comm(tx_data)
 
@@ -298,11 +298,11 @@ class Interface:
         tx_data = []
         cmd = self.cmd.cpu0_trace_size_read
         
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
         
         data = self.hwc.comm(tx_data)
 
-        size = lrssoc.conversions.u8_to_u32(data, msb=True)
+        size = lrssoc.conversions.u8_to_u32(data, msb=False)
 
         return size
 
@@ -332,7 +332,7 @@ class Interface:
         else:
             en = [0]
         
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=True) )
-        tx_data.extend( en )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(en, msb=False) )
 
         self.hwc.comm(tx_data)

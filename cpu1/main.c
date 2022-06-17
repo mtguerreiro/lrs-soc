@@ -152,6 +152,7 @@ static uint32_t mainCmdAdcSamplingFreq(uint32_t *data);
 static uint32_t mainCmdAdcErrorRead(uint32_t *data);
 static uint32_t mainCmdAdcErrorClear(uint32_t *data);
 static uint32_t mainCmdTraceStart(uint32_t *data);
+static uint32_t mainCmdTraceRead(uint32_t *data);
 static uint32_t mainCmdTraceSizeSet(uint32_t *data);
 static uint32_t mainCmdTraceSizeRead(uint32_t *data);
 
@@ -248,11 +249,12 @@ static int mainSysInit(void){
 	/* Commands */
 	mainControl.cmdHandle[SOC_CMD_CPU1_BLINK] = mainCmdBlink;
 	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_EN] = mainCmdAdcEn;
-	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SPI_FREQ] = mainCmdAdcSpiFreq;
-	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SAMPLING_FREQ] = mainCmdAdcSamplingFreq;
+	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SPI_FREQ_SET] = mainCmdAdcSpiFreq;
+	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SAMPLING_FREQ_SET] = mainCmdAdcSamplingFreq;
 	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_ERROR_READ] = mainCmdAdcErrorRead;
 	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_ERROR_CLEAR] = mainCmdAdcErrorClear;
 	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_START] = mainCmdTraceStart;
+	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_READ] = mainCmdTraceRead;
 	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_SIZE_SET] = mainCmdTraceSizeSet;
 	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_SIZE_READ] = mainCmdTraceSizeRead;
 	mainControl.cmdHandle[SOC_CMD_CPU1_CONTROL_EN] = mainCmdControlEn;
@@ -469,6 +471,21 @@ static uint32_t mainCmdTraceStart(uint32_t *data){
 	return 0;
 }
 //-----------------------------------------------------------------------------
+static uint32_t mainCmdTraceRead(uint32_t *data){
+
+	uint32_t *p;
+	uint32_t size;
+
+	p = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_ADR );
+
+	size = ((uint32_t)mainControl.trace.end) - SOC_MEM_TRACE_ADR;
+
+	*p++ = SOC_MEM_TRACE_ADR;
+	*p++ = size;
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
 static uint32_t mainCmdTraceSizeSet(uint32_t *data){
 
 	uint32_t size;
@@ -491,6 +508,8 @@ static uint32_t mainCmdTraceSizeRead(uint32_t *data){
 
 	size = ((uint32_t)mainControl.trace.end) - SOC_MEM_TRACE_ADR;
 
+	*p++ = (SOC_MEM_CPU1_TO_CPU0_ADR + 8);
+	*p++ = 4;
 	*p = size;
 
 	return 0;
@@ -502,6 +521,8 @@ static uint32_t mainCmdAdcErrorRead(uint32_t *data){
 
 	p = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_ADR );
 
+	*p++ = (SOC_MEM_CPU1_TO_CPU0_ADR + 8);
+	*p++ = 4;
 	*p = mainControl.error;
 
 	return 0;

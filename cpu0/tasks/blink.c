@@ -29,20 +29,6 @@
 //=============================================================================
 /*--------------------------------- Defines ---------------------------------*/
 //=============================================================================
-typedef struct{
-	XGpio rgbled;
-	uint32_t period;
-} blinkControl_t;
-//=============================================================================
-
-//=============================================================================
-/*--------------------------------- Globals ---------------------------------*/
-//=============================================================================
-blinkControl_t xblinkControl;
-
-/* Blink period */
-uint32_t ulblinkPeriod;
-
 #define BLINK_XIL_LED_ID 		XPAR_AXI_GPIO_RGB_LED_DEVICE_ID
 #define BLINK_XIL_LED_CHANNEL 	1
 #define BLINK_XIL_LED_MASK 		0b111
@@ -50,6 +36,23 @@ uint32_t ulblinkPeriod;
 #define BLINK_LED_BLUE		(1 << 0)
 #define BLINK_LED_GREEN		(1 << 1)
 #define BLINK_LED_RED		(1 << 2)
+
+typedef struct{
+
+	/* RGB LED device */
+	XGpio rgbled;
+
+	/* Blink period */
+	uint32_t period;
+
+} blinkControl_t;
+//=============================================================================
+
+//=============================================================================
+/*--------------------------------- Globals ---------------------------------*/
+//=============================================================================
+/* Task control structure */
+blinkControl_t xblinkControl;
 //=============================================================================
 
 //=============================================================================
@@ -69,7 +72,6 @@ void blink(void *param){
     blinkInitialize();
 
     while(1){
-
     	blinkToggleColor(BLINK_LED_GREEN);
         vTaskDelay(xblinkControl.period);
     }
@@ -94,13 +96,15 @@ static void blinkInitialize(void){
 	xblinkControl.period = BLINK_CONFIG_DEFAULT_PERIOD_MS / portTICK_PERIOD_MS;
 
 	/* Registers period update function with blink update command */
-    uifaceRegisterHandle(SOC_CMD_CPU0_BLINK, blinkPeriodUpdate);
+    uifaceRegisterHandle(SOC_CMD_CPU0_BLINK_CPU0, blinkPeriodUpdate);
 }
 //-----------------------------------------------------------------------------
 static uint32_t blinkPeriodUpdate(uifaceDataExchange_t *data){
 
 	uint32_t period;
-	period = (data->buffer[0] << 8) | data->buffer[1];
+	//period = (data->buffer[0] << 8) | data->buffer[1];
+
+	period = *((uint32_t *)data->buffer);
 
 	xblinkControl.period = period / portTICK_PERIOD_MS;
 
