@@ -156,7 +156,7 @@ class Interface:
             en = [0]
         
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-        tx_data.extend( en )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(en, msb=False) )
 
         self.hwc.comm(tx_data)
 

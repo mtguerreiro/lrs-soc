@@ -25,7 +25,7 @@
 #if LWIP_IPV6==1
 #include "lwip/ip.h"
 #else
-#if LWIP_DHCP==1
+#if UIFACE_CONFIG_USE_DHCP==1
 #include "lwip/dhcp.h"
 #endif
 #endif
@@ -33,8 +33,6 @@
 /* lwip */
 #include "lwip/sockets.h"
 #include "lwipopts.h"
-
-#include "soc_defs.h"
 //=============================================================================
 
 //=============================================================================
@@ -46,25 +44,30 @@
 #define UIFACE_CONFIG_THREAD_STACK_SIZE_DEFAULT		1024
 #define UIFACE_CONFIG_THREAD_PRIO_DEFAULT			DEFAULT_THREAD_PRIO
 
+/* Ticks to wait to process new request */
+#define UIFACE_CONFIG_MUTEX_WAIT					UIFACE_CONFIG_MUTEX_WAIT_MS / portTICK_PERIOD_MS
+
 /* Ethernet settings */
-#define PLATFORM_EMAC_BASEADDR XPAR_XEMACPS_0_BASEADDR
-#define PLATFORM_ZYNQ
+#define UIFACE_PLAT_EMAC_BASEADDR					XPAR_XEMACPS_0_BASEADDR
+
+typedef struct{
+
+	/* Handles for received commands */
+	uifaceHandle_t handle[SOC_CMD_CPU0_END];
+
+	/* Server netif */
+	struct netif servernetif;
+
+	/* Mutex to ensure one request from the UI is processed at a time */
+	SemaphoreHandle_t mutex;
+}uifaceControl_t;
 //=============================================================================
 
 
 //=============================================================================
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
-
-static struct netif server_netif;
-struct netif *echo_netif;
-
-typedef struct{
-	uifaceHandle_t handle[SOC_CMD_CPU0_END];
-}uifaceControl_t;
-
-uifaceControl_t uifaceControl;
-
+uifaceControl_t xuifaceControl;
 //=============================================================================
 
 //=============================================================================
@@ -74,22 +77,35 @@ static void uifaceApplicationThread(void);
 
 /**
  * @brief Thread spawned for each connection.
+ *
+ * @param void *p Socket index.
  */
-static void uifaceProcRecThread(void *p);
+static void uifaceRequestProcessThread(void *p);
 
+/**
+ * @brief Initializes socket and updates DHCP timer.
+ */
 static void uifaceNetworkThread(void *p);
 
+/**
+ * @brief Prints the specified IP4.
+ * @param msg Message to print before printing the IP.
+ * @param ip IP to be printed.
+ */
 static void uifacePrintIP(char *msg, ip_addr_t *ip);
+
+/**
+ * @brief Prints IP settings
+ */
 static void uifacePrintIPSettings(ip_addr_t *ip, ip_addr_t *mask, ip_addr_t *gw);
 
 #if LWIP_IPV6==0
-#if LWIP_DHCP==1
+#if UIFACE_CONFIG_USE_DHCP==1
 extern volatile int dhcp_timoutcntr;
 err_t dhcp_start(struct netif *netif);
 #endif
 #endif
 void lwip_init();
-
 //=============================================================================
 
 //=============================================================================
@@ -98,13 +114,13 @@ void lwip_init();
 //-----------------------------------------------------------------------------
 void uiface(void *param){
 
-#if LWIP_DHCP==1
+	struct netif *netif;
+
+#if UIFACE_CONFIG_USE_DHCP==1
 	int mscnt = 0;
 #endif
 
-#ifdef XPS_BOARD_ZCU102
-	IicPhyReset();
-#endif
+	xuifaceControl.mutex = xSemaphoreCreateMutex();
 
 	/* initialize lwIP before calling sys_thread_new */
     lwip_init();
@@ -114,34 +130,38 @@ void uiface(void *param){
     		UIFACE_CONFIG_THREAD_STACK_SIZE_DEFAULT,
 			UIFACE_CONFIG_THREAD_PRIO_DEFAULT);
 
+    netif = &xuifaceControl.servernetif;
+
 #if LWIP_IPV6==0
-#if LWIP_DHCP==1
+#if UIFACE_CONFIG_USE_DHCP==1
     while (1) {
-	vTaskDelay(DHCP_FINE_TIMER_MSECS / portTICK_RATE_MS);
-		if (server_netif.ip_addr.addr) {
+
+    	vTaskDelay(DHCP_FINE_TIMER_MSECS / portTICK_RATE_MS);
+
+    	if (netif->ip_addr.addr) {
 			xil_printf("DHCP request success\r\n");
-			uifacePrintIPSettings(&(server_netif.ip_addr), &(server_netif.netmask), &(server_netif.gw));
-			//print_echo_app_header();
+			uifacePrintIPSettings(&(netif->ip_addr), &(netif->netmask), &(netif->gw));
 			xil_printf("\r\n");
 			sys_thread_new("uifAppThread", (void(*)(void*))uifaceApplicationThread, 0,
 					UIFACE_CONFIG_THREAD_STACK_SIZE_DEFAULT,
 					UIFACE_CONFIG_THREAD_PRIO_DEFAULT);
 			break;
 		}
+
 		mscnt += DHCP_FINE_TIMER_MSECS;
+
 		if (mscnt >= DHCP_COARSE_TIMER_SECS * 2000) {
 			xil_printf("ERROR: DHCP request timed out\r\n");
 			xil_printf("Configuring default IP of 192.168.1.10\r\n");
-			IP4_ADDR(&(server_netif.ip_addr),  192, 168, 1, 10);
-			IP4_ADDR(&(server_netif.netmask), 255, 255, 255,  0);
-			IP4_ADDR(&(server_netif.gw),  192, 168, 1, 1);
-			uifacePrintIPSettings(&(server_netif.ip_addr), &(server_netif.netmask), &(server_netif.gw));
+			IP4_ADDR(&(netif->ip_addr),  192, 168, 1, 10);
+			IP4_ADDR(&(netif->netmask), 255, 255, 255,  0);
+			IP4_ADDR(&(netif->gw),  192, 168, 1, 1);
+			uifacePrintIPSettings(&(netif->ip_addr), &(netif->netmask), &(netif->gw));
 			/* print all application headers */
 			xil_printf("\r\n");
 			xil_printf("%20s %6s %s\r\n", "Server", "Port", "Connect With..");
 			xil_printf("%20s %6s %s\r\n", "--------------------", "------", "--------------------");
 
-			//print_echo_app_header();
 			xil_printf("\r\n");
 			sys_thread_new("uifAppThread", (void(*)(void*))uifaceApplicationThread, 0,
 					UIFACE_CONFIG_THREAD_STACK_SIZE_DEFAULT,
@@ -152,7 +172,6 @@ void uiface(void *param){
 #endif
 #endif
     vTaskDelete(NULL);
-
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
@@ -166,13 +185,12 @@ int32_t uifaceRegisterHandle(uint32_t id, uifaceHandle_t handle){
 
 	if( id >= SOC_CMD_CPU0_END ) return UIFACE_ERR_INVALID_ID;
 
-	uifaceControl.handle[id] = handle;
+	xuifaceControl.handle[id] = handle;
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
-
 
 //=============================================================================
 /*---------------------------- Static functions -----------------------------*/
@@ -219,7 +237,7 @@ static void uifaceApplicationThread(void){
 		if ((new_sd = lwip_accept(sock, (struct sockaddr *)&remote, (socklen_t *)&size)) > 0) {
 			xil_printf("%s: received connection from", __FUNCTION__);
 			uifacePrintIP(": ", (ip_addr_t *)&remote.sin_addr);
-			sys_thread_new("uifProcRecThread", uifaceProcRecThread,
+			sys_thread_new("uifProcRecThread", uifaceRequestProcessThread,
 				(void*)new_sd,
 				UIFACE_CONFIG_THREAD_STACK_SIZE_DEFAULT,
 				UIFACE_CONFIG_THREAD_PRIO_DEFAULT);
@@ -227,34 +245,39 @@ static void uifaceApplicationThread(void){
 	}
 }
 //-----------------------------------------------------------------------------
-static void uifaceProcRecThread(void *p){
+static void uifaceRequestProcessThread(void *p){
 
 	int sd = (int)p;
-	int RECV_BUF_SIZE = 2048;
-	char recv_buf[RECV_BUF_SIZE];
+	char recv_buf[UIFACE_CONFIG_RECV_BUFFER];
 	int n;
 	uint32_t id;
 	uifaceDataExchange_t dataExchange;
 	uint32_t ret;
 
+	/*
+	 * A mutex is added here so that we can ensure that only one request is
+	 * processed at a time. This is important to prevent writes to any shared
+	 * memory that may being read.
+	 */
+	if( xSemaphoreTake( xuifaceControl.mutex, UIFACE_CONFIG_MUTEX_WAIT ) == pdFALSE ){
+		/* Can't process the request, so closes the connection */
+		xil_printf("%s: Couldn't take semaphore, closing socket\r\n", __FUNCTION__);
+		lwip_close(sd);
+		vTaskDelete(NULL);
+	}
+
 	while (1) {
-		/* read a max of RECV_BUF_SIZE bytes from socket */
-		if ((n = lwip_read(sd, recv_buf, RECV_BUF_SIZE)) < 0) {
+		/* Reads a max of UIFACE_CONFIG_RECV_BUFFER bytes from socket */
+		if ((n = lwip_read(sd, recv_buf, UIFACE_CONFIG_RECV_BUFFER)) < 0) {
 			xil_printf("%s: error reading from socket %d, closing socket\r\n", __FUNCTION__, sd);
 			break;
 		}
-
-		/* break if the recved message = "quit" */
-		if (!strncmp(recv_buf, "quit", 4))
-			break;
 
 		/* break if client closed connection */
 		if (n <= 0)
 			break;
 
-		/* handle request */
-		//id = (recv_buf[0] << 24U) | (recv_buf[1] << 16U) | (recv_buf[2] << 8U) | recv_buf[3];
-		/* Maybe we should add a mutex here */
+		/* Handles request */
 		id = *((uint32_t *)recv_buf);
 		if( id >= SOC_CMD_CPU0_END ){
 			xil_printf("%s: bad id (%u), closing socket\r\n", __FUNCTION__, id);
@@ -265,24 +288,22 @@ static void uifaceProcRecThread(void *p){
 			dataExchange.cmd = id;
 			dataExchange.buffer = (uint8_t *)( &recv_buf[4] );
 			dataExchange.size = (uint32_t)(n - 4);
-			if( uifaceControl.handle[id] == 0 ){
+			if( xuifaceControl.handle[id] == 0 ){
 				xil_printf("%s: no handle for id %u, closing socket\r\n", __FUNCTION__, id);
 				break;
 			}
-			ret = uifaceControl.handle[id](&dataExchange);
+			ret = xuifaceControl.handle[id](&dataExchange);
 			if( ret != 0 ){
 				n = lwip_write(sd, dataExchange.buffer, dataExchange.size);
 				if( n < dataExchange.size ) xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
 				break;
 			}
 			break;
-//			if( (n = lwip_write(sd, "Blink period updated", 20)) < 0){
-//				xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
-//			}
 		}
 	}
 
-	/* close connection */
+	/* Closes connection */
+	xSemaphoreGive( xuifaceControl.mutex );
 	lwip_close(sd);
 	vTaskDelete(NULL);
 }
@@ -293,18 +314,18 @@ static void uifaceNetworkThread(void *p){
     unsigned char mac_ethernet_address[] = { 0x00, 0x0a, 0x35, 0x00, 0x01, 0x02 };
 #if LWIP_IPV6==0
     ip_addr_t ipaddr, netmask, gw;
-#if LWIP_DHCP==1
+#if UIFACE_CONFIG_USE_DHCP==1
     int mscnt = 0;
 #endif
 #endif
 
-    netif = &server_netif;
+    netif = &xuifaceControl.servernetif;
 
     xil_printf("\r\n\r\n");
-    xil_printf("-----lwIP Socket Mode Echo server Demo Application ------\r\n");
+    xil_printf("----- LRS-SoC controller - initializing network settings ------\r\n");
 
 #if LWIP_IPV6==0
-#if LWIP_DHCP==0
+#if UIFACE_CONFIG_USE_DHCP==0
     /* initialize IP addresses to be used */
     IP4_ADDR(&ipaddr,  192, 168, 1, 10);
     IP4_ADDR(&netmask, 255, 255, 255,  0);
@@ -313,12 +334,12 @@ static void uifaceNetworkThread(void *p){
 
     /* print out IP settings of the board */
 
-#if LWIP_DHCP==0
+#if UIFACE_CONFIG_USE_DHCP==0
     print_ip_settings(&ipaddr, &netmask, &gw);
     /* print all application headers */
 #endif
 
-#if LWIP_DHCP==1
+#if UIFACE_CONFIG_USE_DHCP==1
 	ipaddr.addr = 0;
 	gw.addr = 0;
 	netmask.addr = 0;
@@ -327,13 +348,13 @@ static void uifaceNetworkThread(void *p){
 
 #if LWIP_IPV6==0
     /* Add network interface to the netif_list, and set it as default */
-    if (!xemac_add(netif, &ipaddr, &netmask, &gw, mac_ethernet_address, PLATFORM_EMAC_BASEADDR)) {
+    if (!xemac_add(netif, &ipaddr, &netmask, &gw, mac_ethernet_address, UIFACE_PLAT_EMAC_BASEADDR)) {
 	xil_printf("Error adding N/W interface\r\n");
 	return;
     }
 #else
     /* Add network interface to the netif_list, and set it as default */
-    if (!xemac_add(netif, NULL, NULL, NULL, mac_ethernet_address, PLATFORM_EMAC_BASEADDR)) {
+    if (!xemac_add(netif, NULL, NULL, NULL, mac_ethernet_address, UIFACE_PLAT_EMAC_BASEADDR)) {
 	xil_printf("Error adding N/W interface\r\n");
 	return;
     }
@@ -357,7 +378,7 @@ static void uifaceNetworkThread(void *p){
 			UIFACE_CONFIG_THREAD_PRIO_DEFAULT);
 
 #if LWIP_IPV6==0
-#if LWIP_DHCP==1
+#if UIFACE_CONFIG_USE_DHCP==1
     dhcp_start(netif);
     while (1) {
 		vTaskDelay(DHCP_FINE_TIMER_MSECS / portTICK_RATE_MS);

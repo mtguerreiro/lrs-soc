@@ -26,11 +26,11 @@
 #include "xstatus.h"
 #include "xscugic.h"
 
-/* Libs */
-#include "soc_defs.h"
-
 /* Tasks */
 #include "uiface.h"
+
+/* LRS SoC defs */
+#include "soc_defs.h"
 //=============================================================================
 
 //=============================================================================

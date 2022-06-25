@@ -32,6 +32,7 @@
 #include "xpseudo_asm.h"
 #include "xscugic.h"
 
+/* LRS SoC defs */
 #include "soc_defs.h"
 //=============================================================================
 
