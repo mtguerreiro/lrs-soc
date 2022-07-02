@@ -50,7 +50,7 @@
 #define INTC_DEVICE_ID	XPAR_PS7_SCUGIC_0_DEVICE_ID
 #define INTC_HANDLER	XScuGic_InterruptHandler
 
-typedef uint32_t(*mainCmdHandle_t)(uint32_t *data);
+typedef int32_t(*mainCmdHandle_t)(uint32_t **data);
 
 typedef struct{
 	uint32_t *p;
@@ -145,18 +145,18 @@ static void mainInputRelayEnable(void);
 static void mainOutputRelayDisable(void);
 static void mainOutputRelayEnable(void);
 
-static uint32_t mainCmdBlink(uint32_t *data);
-static uint32_t mainCmdAdcEn(uint32_t *data);
-static uint32_t mainCmdAdcSpiFreq(uint32_t *data);
-static uint32_t mainCmdAdcSamplingFreq(uint32_t *data);
-static uint32_t mainCmdAdcErrorRead(uint32_t *data);
-static uint32_t mainCmdAdcErrorClear(uint32_t *data);
-static uint32_t mainCmdTraceStart(uint32_t *data);
-static uint32_t mainCmdTraceRead(uint32_t *data);
-static uint32_t mainCmdTraceSizeSet(uint32_t *data);
-static uint32_t mainCmdTraceSizeRead(uint32_t *data);
+static int32_t mainCmdBlink(uint32_t **data);
+static int32_t mainCmdAdcEn(uint32_t **data);
+static int32_t mainCmdAdcSpiFreq(uint32_t **data);
+static int32_t mainCmdAdcSamplingFreq(uint32_t **data);
+static int32_t mainCmdAdcErrorRead(uint32_t **data);
+static int32_t mainCmdAdcErrorClear(uint32_t **data);
+static int32_t mainCmdTraceStart(uint32_t **data);
+static int32_t mainCmdTraceRead(uint32_t **data);
+static int32_t mainCmdTraceSizeSet(uint32_t **data);
+static int32_t mainCmdTraceSizeRead(uint32_t **data);
 
-static uint32_t mainCmdControlEn(uint32_t *data);
+static int32_t mainCmdControlEn(uint32_t **data);
 
 static void mainControlReset(void);
 
@@ -372,18 +372,18 @@ static int mainSetupIntrSystem(INTC *IntcInstancePtr)
 	return XST_SUCCESS;
 }
 //-----------------------------------------------------------------------------
-static uint32_t mainCmdBlink(uint32_t *data){
+static int32_t mainCmdBlink(uint32_t **data){
 
-	blinkPeriod = *data;
+	blinkPeriod = *(*data);
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
-static uint32_t mainCmdAdcEn(uint32_t *data){
+static int32_t mainCmdAdcEn(uint32_t **data){
 
 	uint32_t en;
 
-	en = *data;
+	en = *(*data);
 
 //	if( en == 0 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0U);
 //	else AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 1U);
@@ -394,11 +394,11 @@ static uint32_t mainCmdAdcEn(uint32_t *data){
 	return 0;
 }
 //-----------------------------------------------------------------------------
-static uint32_t mainCmdAdcSpiFreq(uint32_t *data){
+static int32_t mainCmdAdcSpiFreq(uint32_t **data){
 
 	uint32_t en, freq;
 
-	freq = *data;
+	freq = *(*data);
 
 	en = AXI_TEST_mReadReg(AXI_PWM_BASE_ADR, 0);
 
@@ -425,11 +425,11 @@ static uint32_t mainCmdAdcSpiFreq(uint32_t *data){
 //	return 0;
 }
 //-----------------------------------------------------------------------------
-static uint32_t mainCmdAdcSamplingFreq(uint32_t *data){
+static int32_t mainCmdAdcSamplingFreq(uint32_t **data){
 
 	uint32_t en, freq;
 
-	freq = *data;
+	freq = *(*data);
 
 	en = AXI_TEST_mReadReg(AXI_PWM_BASE_ADR, 0);
 
@@ -464,33 +464,29 @@ static uint32_t mainCmdAdcSamplingFreq(uint32_t *data){
 //	return 0;
 }
 //-----------------------------------------------------------------------------
-static uint32_t mainCmdTraceStart(uint32_t *data){
+static int32_t mainCmdTraceStart(uint32_t **data){
 
 	mainControl.trace.p = (uint32_t *)SOC_MEM_TRACE_ADR;
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
-static uint32_t mainCmdTraceRead(uint32_t *data){
+static int32_t mainCmdTraceRead(uint32_t **data){
 
-	uint32_t *p;
 	uint32_t size;
-
-	p = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_ADR );
 
 	size = ((uint32_t)mainControl.trace.end) - SOC_MEM_TRACE_ADR;
 
-	*p++ = SOC_MEM_TRACE_ADR;
-	*p++ = size;
+	*data = (uint32_t *)SOC_MEM_TRACE_ADR;
 
-	return 0;
+	return size;
 }
 //-----------------------------------------------------------------------------
-static uint32_t mainCmdTraceSizeSet(uint32_t *data){
+static int32_t mainCmdTraceSizeSet(uint32_t **data){
 
 	uint32_t size;
 
-	size = *data;
+	size = *(*data);
 
 	if( size <= SOC_MEM_TRACE_SIZE_MAX ){
 		mainControl.trace.end = (uint32_t *)( SOC_MEM_TRACE_ADR + size );
@@ -499,47 +495,44 @@ static uint32_t mainCmdTraceSizeSet(uint32_t *data){
 	return 0;
 }
 //-----------------------------------------------------------------------------
-static uint32_t mainCmdTraceSizeRead(uint32_t *data){
+static int32_t mainCmdTraceSizeRead(uint32_t **data){
 
 	uint32_t *p;
 	uint32_t size;
 
-	p = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_ADR );
-
+	p = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
 	size = ((uint32_t)mainControl.trace.end) - SOC_MEM_TRACE_ADR;
-
-	*p++ = (SOC_MEM_CPU1_TO_CPU0_ADR + 8);
-	*p++ = 4;
 	*p = size;
 
-	return 0;
+	*data = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
+
+	return 4;
 }
 //-----------------------------------------------------------------------------
-static uint32_t mainCmdAdcErrorRead(uint32_t *data){
+static int32_t mainCmdAdcErrorRead(uint32_t **data){
 
 	uint32_t *p;
 
-	p = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_ADR );
-
-	*p++ = (SOC_MEM_CPU1_TO_CPU0_ADR + 8);
-	*p++ = 4;
+	p = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
 	*p = mainControl.error;
 
-	return 0;
+	*data = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
+
+	return 4;
 }
 //-----------------------------------------------------------------------------
-static uint32_t mainCmdAdcErrorClear(uint32_t *data){
+static int32_t mainCmdAdcErrorClear(uint32_t **data){
 
 	mainControl.error = 0;
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
-static uint32_t mainCmdControlEn(uint32_t *data){
+static int32_t mainCmdControlEn(uint32_t **data){
 
 	uint32_t en;
 
-	en = *data;
+	en = *(*data);
 
 	if( en == 0 ) {
 		mainControl.enable = 0;
@@ -613,15 +606,33 @@ static void mainControlReset(void){
 //-----------------------------------------------------------------------------
 void DeviceDriverHandler(void *CallbackRef){
 
-	uint32_t *p;
-	uint32_t cmd;
+	uint32_t *p, *psrc;
+	uint32_t **dp;
 
-	p = (uint32_t *)SOC_MEM_CPU0_TO_CPU1_ADR;
-	cmd = *p++;
-	mainControl.cmdHandle[cmd](p);
+	uint32_t cmd;
+	int32_t ret;
+
+	/* Gets the command and data sent by CPU0 */
+	p = (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD;
+	cmd = *p;
+
+	p = (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_DATA;
+	dp = (uint32_t **)&p;
+
+	/* Executes the command */
+	ret = mainControl.cmdHandle[cmd](dp);
+	psrc = *dp;
+
+	/* Replies back to CPU0 */
+	p = (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_STATUS;
+	*p = ret;
+
+	if( ret > 0 ){
+		p = (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR;
+		*p = (uint32_t) psrc;
+	}
 
 	XScuGic_SoftwareIntr ( &IntcInstancePtr , SOC_SIG_CPU1_TO_CPU0 , SOC_SIG_CPU0_ID ) ;
-
 }
 //-----------------------------------------------------------------------------
 void PLirqHandler(void *CallbackRef){

@@ -59,7 +59,7 @@ blinkControl_t xblinkControl;
 /*-------------------------------- Prototypes -------------------------------*/
 //=============================================================================
 static void blinkInitialize(void);
-static uint32_t blinkPeriodUpdate(uifaceDataExchange_t *data);
+static int32_t blinkPeriodUpdate(uifaceDataExchange_t *data);
 static void blinkToggleColor(uint32_t color);
 //=============================================================================
 
@@ -99,7 +99,7 @@ static void blinkInitialize(void){
     uifaceRegisterHandle(SOC_CMD_CPU0_BLINK_CPU0, blinkPeriodUpdate);
 }
 //-----------------------------------------------------------------------------
-static uint32_t blinkPeriodUpdate(uifaceDataExchange_t *data){
+static int32_t blinkPeriodUpdate(uifaceDataExchange_t *data){
 
 	uint32_t period;
 	//period = (data->buffer[0] << 8) | data->buffer[1];

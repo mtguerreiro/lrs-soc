@@ -45,7 +45,12 @@ class Ethernet:
         response.
 
         Here, we rely on the fact that the host (controller) will close the
-        socket after receiving the data and sending a reply (if there is one).
+        socket after receiving the data and sending a reply.
+
+        We'll also rely on the fact that the host always replies at least
+        four bytes, indicating the status of the command. If the command
+        was properly executed, we should receive 0. Otherwise, we should
+        receive -1 (or any other value).
 
         Parameters
         ----------
@@ -73,11 +78,52 @@ class Ethernet:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((self.host, self.port))
             s.sendall(bytes(data))
-
+            
             if n_rx is None:
                 n_rx = 1024
-            
-            if n_rx != 0:
-                rx_data = s.recv(n_rx)
 
-        return rx_data
+            rx_data = b''
+            if n_rx != 0:
+                print('Attempting to read {:} bytes'.format(n_rx + 4))
+                rx_data = s.recv(n_rx + 4)
+                print('Got {:} bytes'.format(len(rx_data)))
+
+        if len(rx_data) < 4:
+            #print('No response from host.\n\r')
+            return (-1, 0)
+                
+        reply = int.from_bytes(rx_data[:4], 'little', signed=True)
+        if reply != 0:
+            #print('Error executing command.')
+            #print('Host replied error code {:}.\n\r'.format(reply))
+            return (-1, reply)
+
+        return (0, rx_data[4:])
+
+
+##            # First four bytes is the command status. If we get 0, the command
+##            # executed properly. Otherwise, there was an error.
+##            rx_data = s.recv(4)
+##
+##            #print(rx_data)
+##
+##            if len(rx_data) != 4:
+##                #print('No response from host.\n\r')
+##                return (-1, 0)
+##            
+##            reply = int.from_bytes(rx_data, 'little', signed=True)
+##            if reply != 0:
+##                #print('Error executing command.')
+##                #print('Host replied error code {:}.\n\r'.format(reply))
+##                return (-1, reply)
+##            
+##            if n_rx is None:
+##                n_rx = 1024
+##
+##            rx_data = b''
+##            if n_rx != 0:
+##                print('Attempting to read {:} bytes'.format(n_rx))
+##                rx_data = s.recv(n_rx)
+##                print('Got {:} bytes'.format(len(rx_data)))
+
+        return (0, rx_data)

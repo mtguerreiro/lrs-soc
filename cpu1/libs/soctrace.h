@@ -1,12 +1,12 @@
 /*
- * ipcomm.h
+ * soctrace.h
  *
- *  Created on: 23.05.2022
+ *  Created on: 25.06.2022
  *      Author: Marco Guerreiro
  */
 
-#ifndef TASKS_IPCOMM_H_
-#define TASKS_IPCOMM_H_
+#ifndef LIBS_SOCTRACE_H_
+#define LIBS_SOCTRACE_H_
 
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
@@ -17,27 +17,19 @@
 //=============================================================================
 /*--------------------------------- Defines ---------------------------------*/
 //=============================================================================
-/* Priority and stack size of this task */
-#define IPCOMM_CONFIG_TASK_PRIO					2
-#define IPCOMM_CONFIG_TASK_STACK_SIZE			1024
 
-/* CPU1->CPU0 timeout error code */
-#define IPCOMM_ERR_CPU1_REPLY_TO				-1
+typedef struct{
 
-/* Invalid CPU1 command */
-#define IPCOMM_ERR_CPU1_INVALID_CMD				-2
 
-/* Data received exceeds CPU0->CPU1 buffer */
-#define IPCOMM_ERR_CPU0_CPU1_BUFFER_OVERFLOW	-3
+}socctrace_t;
 
-/* CPU1->CPU0 reply timeout */
-#define IPCOMM_CONFIG_CPU1_REPLY_TO_MS			100
 //=============================================================================
 
 //=============================================================================
 /*---------------------------------- Task -----------------------------------*/
 //=============================================================================
-void ipcomm(void *intcInstance);
+
 //=============================================================================
 
-#endif /* TASKS_IPCOMM_H_ */
+
+#endif /* LIBS_SOCTRACE_H_ */

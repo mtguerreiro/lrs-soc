@@ -101,7 +101,13 @@ class Interface:
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
         tx_data.extend( lrssoc.conversions.u32_to_u8(t, msb=False) )
 
-        self.hwc.comm(tx_data)
+        status, _ = self.hwc.comm(tx_data)
+
+        if status != 0:
+            funcname = Interface.cpu0_blink.__name__
+            print('{:}: Error blink CPU0 LED. Error code {:}\r\n'.format(funcname, status))
+
+        return status
         
 
     def cpu1_blink(self, t=1000):
@@ -127,8 +133,14 @@ class Interface:
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
         tx_data.extend( lrssoc.conversions.u32_to_u8(t, msb=False) )
 
-        self.hwc.comm(tx_data)
+        status, _ = self.hwc.comm(tx_data)
 
+        if status != 0:
+            funcname = Interface.cpu1_blink.__name__
+            print('{:}: Error blink CPU1 LED. Error code {:}\r\n'.format(funcname, status))
+            
+        return status
+    
 
     def cpu1_adc_en(self, en):
         """Enables/disables the ADC.
@@ -158,9 +170,15 @@ class Interface:
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
         tx_data.extend( lrssoc.conversions.u32_to_u8(en, msb=False) )
 
-        self.hwc.comm(tx_data)
+        status, _ = self.hwc.comm(tx_data)
 
-  
+        if status != 0:
+            funcname = Interface.cpu1_adc_en.__name__
+            print('{:}: Error enabling ADC. Error code {:}\r\n'.format(funcname, status))
+            
+        return status
+
+    
     def cpu1_adc_spi_freq_set(self, freq=10):
         """Changes ADC's SPI clock frequency.
 
@@ -183,8 +201,14 @@ class Interface:
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
         tx_data.extend( lrssoc.conversions.u32_to_u8(freq, msb=False) )
 
-        self.hwc.comm(tx_data)
+        status, _ = self.hwc.comm(tx_data)
 
+        if status != 0:
+            funcname = Interface.cpu1_adc_spi_freq_set.__name__
+            print('{:}: Error setting ADC SPI frequency. Error code {:}\r\n'.format(funcname, status))
+            
+        return status
+    
 
     def cpu1_adc_sampling_freq_set(self, freq=10000):
         """Changes ADC's sampling frequency.
@@ -208,7 +232,13 @@ class Interface:
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
         tx_data.extend( lrssoc.conversions.u32_to_u8(freq, msb=False) )
 
-        self.hwc.comm(tx_data)
+        status, data = self.hwc.comm(tx_data)
+
+        if status != 0:
+            funcname = Interface.cpu1_adc_spi_freq_set.__name__
+            print('{:}: Error setting ADC sampling frequency. Error code {:}\r\n'.format(funcname, status))
+
+        return status, data
 
 
     def cpu1_adc_error_read(self):
@@ -225,11 +255,16 @@ class Interface:
         
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
 
-        data = self.hwc.comm(tx_data)
+        status, data = self.hwc.comm(tx_data)
+
+        if status != 0:
+            funcname = Interface.cpu1_adc_error_read.__name__
+            print('{:}: Error reading ADC error flag. Error code {:}\r\n'.format(cpu1_adc_error_read, status))
+            return (-1, status)
 
         error = lrssoc.conversions.u8_to_u32(data, msb=False)
 
-        return error
+        return (0, error)
 
 
     def cpu1_adc_error_clear(self):
@@ -246,8 +281,14 @@ class Interface:
         
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
 
-        self.hwc.comm(tx_data)
+        status, _ = self.hwc.comm(tx_data)
 
+        if status != 0:
+            funcname = Interface.cpu1_adc_error_clear.__name__   
+            print('{:}: Error clearing ADC error flag. Error code {:}\r\n'.format(funcname, status))
+
+        return status
+    
 
     def cpu0_trace_start(self):
         """Start recording data.
@@ -258,8 +299,14 @@ class Interface:
         
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
 
-        self.hwc.comm(tx_data)
+        status, _ = self.hwc.comm(tx_data)
 
+        if status != 0:
+            funcname = Interface.cpu0_trace_start.__name__
+            print('{:}: Error starting trace. Error code {:}\r\n'.format(funcname, status))
+
+        return status
+    
 
     def cpu0_trace_read(self, size=None):
         """Read recorded data.
@@ -273,9 +320,14 @@ class Interface:
         if size == None:
             size = 20000
             
-        data = self.hwc.comm(tx_data, size)
+        status, data = self.hwc.comm(tx_data, size)
 
-        return data
+        if status != 0:
+            funcname = Interface.cpu0_trace_read.__name__
+            print('{:}: Error reading trace. Error code {:}\r\n'.format(funcname, status))
+            return (-1, status)
+        
+        return (0, data)
 
 
     def cpu0_trace_size_set(self, size):
@@ -288,8 +340,14 @@ class Interface:
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
         tx_data.extend( lrssoc.conversions.u32_to_u8(size, msb=False) )
         
-        self.hwc.comm(tx_data)
+        status, _ = self.hwc.comm(tx_data)
 
+        if status != 0:
+            funcname = Interface.cpu0_trace_size_set.__name__
+            print('{:}: Error setting trace size. Error code {:}\r\n'.format(funcname, status))
+
+        return status
+    
 
     def cpu0_trace_size_read(self):
         """Gets the number of bytes saved
@@ -300,11 +358,16 @@ class Interface:
         
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
         
-        data = self.hwc.comm(tx_data)
+        status, data = self.hwc.comm(tx_data)
 
+        if status != 0:
+            funcname = Interface.cpu0_trace_size_read.__name__
+            print('{:}: Error reading trace size. Error code {:}\r\n'.format(funcname, status))
+            return (-1, status)
+        
         size = lrssoc.conversions.u8_to_u32(data, msb=False)
 
-        return size
+        return (0, size)
 
 
     def cpu1_control_en(self, en):
@@ -335,4 +398,11 @@ class Interface:
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
         tx_data.extend( lrssoc.conversions.u32_to_u8(en, msb=False) )
 
-        self.hwc.comm(tx_data)
+        status, _ = self.hwc.comm(tx_data)
+
+        if status != 0:
+            funcname = Interface.cpu1_control_en.__name__
+            print('{:}: Error enabling control. Error code {:}\r\n'.format(funcname, status))
+
+        return status
+    

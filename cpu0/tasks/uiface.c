@@ -252,7 +252,8 @@ static void uifaceRequestProcessThread(void *p){
 	int n;
 	uint32_t id;
 	uifaceDataExchange_t dataExchange;
-	uint32_t ret;
+	int32_t ret;
+	int32_t *ptr;
 
 	/*
 	 * A mutex is added here so that we can ensure that only one request is
@@ -261,7 +262,7 @@ static void uifaceRequestProcessThread(void *p){
 	 */
 	if( xSemaphoreTake( xuifaceControl.mutex, UIFACE_CONFIG_MUTEX_WAIT ) == pdFALSE ){
 		/* Can't process the request, so closes the connection */
-		xil_printf("%s: Couldn't take semaphore, closing socket\r\n", __FUNCTION__);
+		xil_printf("%s: Couldn't take mutex, closing socket\r\n", __FUNCTION__);
 		lwip_close(sd);
 		vTaskDelete(NULL);
 	}
@@ -293,10 +294,24 @@ static void uifaceRequestProcessThread(void *p){
 				break;
 			}
 			ret = xuifaceControl.handle[id](&dataExchange);
-			if( ret != 0 ){
+
+			ptr = (int32_t *)recv_buf;
+			if( ret >= 0 ){
+				*ptr = (int32_t)UFIACE_STATUS_CMD_EXEC_PASS;
+			}
+			else{
+				*ptr = ret;
+			}
+
+			n = lwip_write(sd, recv_buf, 4);
+			if( n < 4 ){
+				xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
+				break;
+			}
+
+			if( ret > 0 ){
 				n = lwip_write(sd, dataExchange.buffer, dataExchange.size);
 				if( n < dataExchange.size ) xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
-				break;
 			}
 			break;
 		}

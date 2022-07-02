@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 plt.ion()
 
+import time
+
 # --- Input ---
 host = '131.246.75.210'
 port = 8080
@@ -18,8 +20,8 @@ soc.cpu1_adc_spi_freq_set(40)
 soc.cpu0_trace_size_set(500000)
 
 def read_adc_data():
-    trace_size = soc.cpu0_trace_size_read()    
-    data = soc.cpu0_trace_read(trace_size)
+    status, trace_size = soc.cpu0_trace_size_read()    
+    status, data = soc.cpu0_trace_read(trace_size)
     n = int( len(data) / 2 )
     data = [[data[2*i], data[2*i+1]] for i in range(n)]
     data = lrssoc.conversions.u8_to_u16(data, msb=False)
@@ -33,12 +35,23 @@ def read_adc_data():
 
 
 def read_adc_data2():
-    trace_size = soc.cpu0_trace_size_read()
-    data = soc.cpu0_trace_read(trace_size)
-    n = int( len(data) / 4 )
-    data = [data[4*i:(4*i+4)][::-1] for i in range(n)]
-    data = [struct.unpack('!f', d) for d in data]
+    status, trace_size = soc.cpu0_trace_size_read()
+    status, data = soc.cpu0_trace_read(trace_size)
 
+    #ti = time.time()
+    #n = int( len(data) / 4 )
+    #data = [data[4*i:(4*i+4)][::-1] for i in range(n)]
+    #data = [struct.unpack('!f', d) for d in data]
+    #tf = time.time()
+    #print('\nTime to process data: {:2f}\n'.format(tf-ti))
+
+    ti = time.time()
+    n = round(trace_size / 4)
+    fmt = '<' + 'f' * n
+    data = struct.unpack(fmt, data)
+    tf = time.time()
+    print('\nTime to process data: {:2f}\n'.format(tf-ti))
+    
     ch1 = np.array(data[::12])
     ch2 = np.array(data[1::12])
     ch3 = np.array(data[2::12])
@@ -156,7 +169,7 @@ def plot_adc_data2(data=None):
 
     
 def plot_data():
-    data = soc.cpu0_trace_read()
+    status, data = soc.cpu0_trace_read()
     n = int( len(data) / 2 )
     data = [[data[2*i], data[2*i+1]] for i in range(n)]
     data = lrssoc.conversions.u8_to_u16(data, msb=False)
@@ -195,14 +208,14 @@ def plot_data():
 
 def plot_data_cont():
 
-    trace_size = soc.cpu0_trace_size_read()
+    status, trace_size = soc.cpu0_trace_size_read()
     soc.cpu0_trace_start()
     soc.cpu1_adc_en(True)
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2,2, figsize=(10,7))
 
     while True:
-        data = soc.cpu0_trace_read(trace_size)
+        status, data = soc.cpu0_trace_read(trace_size)
         n = int( len(data) / 2 )
         data = [[data[2*i], data[2*i+1]] for i in range(n)]
         data = lrssoc.conversions.u8_to_u16(data, msb=False)
@@ -287,14 +300,14 @@ def plot_data_cont():
 
 def plot_data_cont2():
 
-    trace_size = soc.cpu0_trace_size_read()
+    status, trace_size = soc.cpu0_trace_size_read()
     soc.cpu0_trace_start()
     soc.cpu1_adc_en(True)
 
     fig, ((ax1, ax2, ax3, ax4), (ax5, ax6, ax7, ax8), (ax9, ax10, ax11, ax12)) = plt.subplots(3,4, figsize=(10,7), sharex=True)
 
     while True:
-        data = soc.cpu0_trace_read(trace_size)
+        status, data = soc.cpu0_trace_read(trace_size)
         n = int( len(data) / 4 )
         data = [data[4*i:(4*i+4)][::-1] for i in range(n)]
         data = [struct.unpack('!f', d) for d in data]

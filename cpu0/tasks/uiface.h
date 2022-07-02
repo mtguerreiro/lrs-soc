@@ -44,12 +44,14 @@ typedef struct{
 /*
  * Function executed when data is received. The command, the buffer holding
  * the data and the number of bytes received are passed to the function on
- * the data structure. Additionally, should any message be sent back, this
- * function should return 1. The number of bytes should be written on the
- * structure, as well as the pointer to the buffer holding data to be sent
- * back. If there is no reply, this function must return 0.
+ * the data structure. Should any message be sent back, this function should
+ * return 1. The number of bytes should be written on the structure, as well
+ * as the pointer to the buffer holding data to be sent back. If there is no
+ * reply, this function must return 0. If there was any error executing the
+ * command, this function should return a negative value, that will be
+ * propagated forward.
  */
-typedef uint32_t(*uifaceHandle_t)(uifaceDataExchange_t *data);
+typedef int32_t(*uifaceHandle_t)(uifaceDataExchange_t *data);
 
 /*
  * Defines if DHCP should be used. For now, we've only tested with
@@ -69,6 +71,16 @@ typedef uint32_t(*uifaceHandle_t)(uifaceDataExchange_t *data);
  * will be closed upon time expiration.
  */
 #define UIFACE_CONFIG_MUTEX_WAIT_MS		10000
+
+/* */
+#define UIFACE_ERR_CMD_EXEC				-1
+
+/* Command execution success code */
+#define UFIACE_STATUS_CMD_EXEC_PASS		0
+
+/* Command execution error code */
+#define UFIACE_STATUS_CMD_EXEC_FAIL		1
+
 //=============================================================================
 
 //=============================================================================
