@@ -309,6 +309,20 @@ static void uifaceRequestProcessThread(void *p){
 				break;
 			}
 
+			ptr = (int32_t *)recv_buf;
+			if( ret > 0 ){
+				*ptr = (int32_t)dataExchange.size;
+			}
+			else{
+				*ptr = 0;
+			}
+
+			n = lwip_write(sd, recv_buf, 4);
+			if( n < 4 ){
+				xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
+				break;
+			}
+
 			if( ret > 0 ){
 				n = lwip_write(sd, dataExchange.buffer, dataExchange.size);
 				if( n < dataExchange.size ) xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
