@@ -95,13 +95,12 @@ class Interface:
         if type(t) is not int:
             raise TypeError('`t` must be of int type.')
 
-        tx_data = []
         cmd = self.cmd.cpu0_blink
-        
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+
+        tx_data = []        
         tx_data.extend( lrssoc.conversions.u32_to_u8(t, msb=False) )
 
-        status, _ = self.hwc.comm(tx_data)
+        status, _ = self.hwc.comm(cmd, tx_data)
 
         if status != 0:
             funcname = Interface.cpu0_blink.__name__
@@ -127,13 +126,12 @@ class Interface:
         if type(t) is not int:
             raise TypeError('`t` must be of int type.')
 
-        tx_data = []
         cmd = self.cmd.cpu1_blink
-        
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+
+        tx_data = []        
         tx_data.extend( lrssoc.conversions.u32_to_u8(t, msb=False) )
 
-        status, _ = self.hwc.comm(tx_data)
+        status, _ = self.hwc.comm(cmd, tx_data)
 
         if status != 0:
             funcname = Interface.cpu1_blink.__name__
@@ -159,18 +157,17 @@ class Interface:
         if type(en) is not bool:
             raise TypeError('`en` must be of bool type.')
         
-        tx_data = []
         cmd = self.cmd.cpu1_adc_en
 
         if en == True:
             en = [1]
         else:
             en = [0]
-        
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+
+        tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(en, msb=False) )
 
-        status, _ = self.hwc.comm(tx_data)
+        status, _ = self.hwc.comm(cmd, tx_data)
 
         if status != 0:
             funcname = Interface.cpu1_adc_en.__name__
@@ -195,13 +192,12 @@ class Interface:
             If `freq` is not of `int` type.
 
         """        
-        tx_data = []
         cmd = self.cmd.cpu1_adc_spi_freq_set
-        
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+
+        tx_data = []        
         tx_data.extend( lrssoc.conversions.u32_to_u8(freq, msb=False) )
 
-        status, _ = self.hwc.comm(tx_data)
+        status, _ = self.hwc.comm(cmd, tx_data)
 
         if status != 0:
             funcname = Interface.cpu1_adc_spi_freq_set.__name__
@@ -226,13 +222,12 @@ class Interface:
             If `freq` is not of `int` type.
 
         """        
-        tx_data = []
         cmd = self.cmd.cpu1_adc_sampling_freq_set
-        
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+
+        tx_data = []        
         tx_data.extend( lrssoc.conversions.u32_to_u8(freq, msb=False) )
 
-        status, data = self.hwc.comm(tx_data)
+        status, data = self.hwc.comm(cmd, tx_data)
 
         if status != 0:
             funcname = Interface.cpu1_adc_spi_freq_set.__name__
@@ -250,12 +245,8 @@ class Interface:
             Error flag.
 
         """        
-        tx_data = []
         cmd = self.cmd.cpu1_adc_error_read
-        
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-
-        status, data = self.hwc.comm(tx_data)
+        status, data = self.hwc.comm(cmd)
 
         if status != 0:
             funcname = Interface.cpu1_adc_error_read.__name__
@@ -276,12 +267,9 @@ class Interface:
             Error flag.
 
         """        
-        tx_data = []
         cmd = self.cmd.cpu1_adc_error_clear
         
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-
-        status, _ = self.hwc.comm(tx_data)
+        status, _ = self.hwc.comm(cmd)
 
         if status != 0:
             funcname = Interface.cpu1_adc_error_clear.__name__   
@@ -294,12 +282,9 @@ class Interface:
         """Start recording data.
 
         """        
-        tx_data = []
         cmd = self.cmd.cpu0_trace_start
-        
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
 
-        status, _ = self.hwc.comm(tx_data)
+        status, _ = self.hwc.comm(cmd)
 
         if status != 0:
             funcname = Interface.cpu0_trace_start.__name__
@@ -308,19 +293,13 @@ class Interface:
         return status
     
 
-    def cpu0_trace_read(self, size=None):
+    def cpu0_trace_read(self):
         """Read recorded data.
 
-        """        
-        tx_data = []
+        """
         cmd = self.cmd.cpu0_trace_read
-        
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-
-        if size == None:
-            size = 20000
             
-        status, data = self.hwc.comm(tx_data, size)
+        status, data = self.hwc.comm(cmd)
 
         if status != 0:
             funcname = Interface.cpu0_trace_read.__name__
@@ -334,13 +313,12 @@ class Interface:
         """Sets the number of bytes to save.
 
         """
-        tx_data = []
         cmd = self.cmd.cpu0_trace_size_set
-        
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+
+        tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(size, msb=False) )
         
-        status, _ = self.hwc.comm(tx_data)
+        status, _ = self.hwc.comm(cmd, tx_data)
 
         if status != 0:
             funcname = Interface.cpu0_trace_size_set.__name__
@@ -353,12 +331,9 @@ class Interface:
         """Gets the number of bytes saved
 
         """
-        tx_data = []
         cmd = self.cmd.cpu0_trace_size_read
-        
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-        
-        status, data = self.hwc.comm(tx_data)
+                
+        status, data = self.hwc.comm(cmd)
 
         if status != 0:
             funcname = Interface.cpu0_trace_size_read.__name__
@@ -387,18 +362,17 @@ class Interface:
         if type(en) is not bool:
             raise TypeError('`en` must be of bool type.')
         
-        tx_data = []
         cmd = self.cmd.cpu0_control_en
 
         if en == True:
             en = [1]
         else:
             en = [0]
-        
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+
+        tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(en, msb=False) )
 
-        status, _ = self.hwc.comm(tx_data)
+        status, _ = self.hwc.comm(cmd, tx_data)
 
         if status != 0:
             funcname = Interface.cpu1_control_en.__name__

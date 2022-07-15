@@ -7,6 +7,7 @@ only supports TCP/IP over Ethernet.
 
 """
 import socket
+import lrssoc
 
 class Ethernet:
     """A class to provide an interface to the LRS-SOC platform through
@@ -40,7 +41,7 @@ class Ethernet:
         self.port = port
 
 
-    def comm(self, data):
+    def comm(self, cmd, data=None):
         """Communicates with the hardware. It sends data and waits for a
         response.
 
@@ -54,9 +55,13 @@ class Ethernet:
 
         Parameters
         ----------
-        data : list of ints
+        cmd : int
+            Command to be sent. It must an integers.
+        
+        data : list of ints, None
             Data to be sent. It must be a list of integers, and each integer
-            must be between 0 and 255.
+            must be between 0 and 255. Can be set to `None` if there is no
+            data to be sent.
 
         Returns
         -------
@@ -64,12 +69,25 @@ class Ethernet:
             List with the bytes received.
             
         """
-        if type(data) is not list:
-            raise TypeError('`data` must be of `str` type.')
+        if type(cmd) is not int:
+            raise TypeError('`cmd` must be of `int` type.')
         
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        if (type(data) is not list) and (type(data) is not type(None)):
+            raise TypeError('`data` must be of `list` or `None` type.')
+
+        if type(data) is list:
+            size = len(data)
+        else:
+            size = 0
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(size, msb=False) )
+        if size != 0:
+            tx_data.extend(data)
+
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:    
             s.connect((self.host, self.port))
-            s.sendall(bytes(data))
+            s.sendall(bytes(tx_data))
 
             status = s.recv(4)
             status = int.from_bytes(status, 'little', signed=True)

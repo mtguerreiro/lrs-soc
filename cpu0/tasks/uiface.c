@@ -248,12 +248,14 @@ static void uifaceApplicationThread(void){
 static void uifaceRequestProcessThread(void *p){
 
 	int sd = (int)p;
-	char recv_buf[UIFACE_CONFIG_RECV_BUFFER];
-	int n;
+	char recvbuf[UIFACE_CONFIG_RECV_BUFFER];
+	int32_t n;
+	int32_t nrx;
 	uint32_t id;
 	uifaceDataExchange_t dataExchange;
 	int32_t ret;
 	int32_t *ptr;
+	int32_t size;
 
 	/*
 	 * A mutex is added here so that we can ensure that only one request is
@@ -268,67 +270,109 @@ static void uifaceRequestProcessThread(void *p){
 	}
 
 	while (1) {
-		/* Reads a max of UIFACE_CONFIG_RECV_BUFFER bytes from socket */
-		if ((n = lwip_read(sd, recv_buf, UIFACE_CONFIG_RECV_BUFFER)) < 0) {
-			xil_printf("%s: error reading from socket %d, closing socket\r\n", __FUNCTION__, sd);
+
+		/*
+		 * After receiving a connection, reads the first 8 bytes. They should
+		 * the command ID (4 bytes) and the number of bytes that were sent
+		 * (also 4 bytes).
+		 */
+		nrx = 0;
+		while( nrx < 8 ){
+			n = lwip_read(sd, &recvbuf[nrx], 8 - nrx);
+			if( n <= 0 ){
+				xil_printf("%s: error reading from socket %d, closing socket\r\n", __FUNCTION__, sd);
+				break;
+			}
+			nrx += n;
+		}
+		if( nrx != 8 ){
+			xil_printf("%s: error reading ID and size from socket %d, closing socket\r\n", __FUNCTION__, sd);
 			break;
 		}
 
-		/* break if client closed connection */
-		if (n <= 0)
-			break;
-
-		/* Handles request */
-		id = *((uint32_t *)recv_buf);
+		id = *((uint32_t *)recvbuf);
 		if( id >= SOC_CMD_CPU0_END ){
 			xil_printf("%s: bad id (%u), closing socket\r\n", __FUNCTION__, id);
 			break;
 		}
-		else{
-			/* Calls function registered to the received ID */
-			dataExchange.cmd = id;
-			dataExchange.buffer = (uint8_t *)( &recv_buf[4] );
-			dataExchange.size = (uint32_t)(n - 4);
-			if( xuifaceControl.handle[id] == 0 ){
-				xil_printf("%s: no handle for id %u, closing socket\r\n", __FUNCTION__, id);
-				break;
-			}
-			ret = xuifaceControl.handle[id](&dataExchange);
 
-			ptr = (int32_t *)recv_buf;
-			if( ret >= 0 ){
-				*ptr = (int32_t)UFIACE_STATUS_CMD_EXEC_PASS;
-			}
-			else{
-				*ptr = ret;
-			}
-
-			n = lwip_write(sd, recv_buf, 4);
-			if( n < 4 ){
-				xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
-				break;
-			}
-
-			ptr = (int32_t *)recv_buf;
-			if( ret > 0 ){
-				*ptr = (int32_t)dataExchange.size;
-			}
-			else{
-				*ptr = 0;
-			}
-
-			n = lwip_write(sd, recv_buf, 4);
-			if( n < 4 ){
-				xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
-				break;
-			}
-
-			if( ret > 0 ){
-				n = lwip_write(sd, dataExchange.buffer, dataExchange.size);
-				if( n < dataExchange.size ) xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
-			}
+		size = *((uint32_t *)&recvbuf[4]);
+		if( size > UIFACE_CONFIG_RECV_BUFFER ){
+			xil_printf("%s: data sent exceeds buffer size (command %u).\r\n", __FUNCTION__, id);
+			xil_printf("%s: Number of bytes sent: %u\t Buffer size: %u\r\n", __FUNCTION__, size, UIFACE_CONFIG_RECV_BUFFER);
+			xil_printf("%s: closing socket.\r\n", __FUNCTION__);
 			break;
 		}
+
+		/*
+		 * If everything checks out, proceed to read the number of expected
+		 * bytes.
+		 */
+		nrx = 0;
+		while( nrx < size ){
+			n = lwip_read(sd, &recvbuf[nrx], size - nrx);
+			if( n <= 0 ){
+				xil_printf("%s: error reading from socket %d, closing socket\r\n", __FUNCTION__, sd);
+				break;
+			}
+			nrx += n;
+		}
+		if( nrx != size ){
+			xil_printf("%s: error receiving all expected data from socket %d, closing socket\r\n", __FUNCTION__, sd);
+			break;
+		}
+
+		/* Calls function registered to the received ID */
+		dataExchange.cmd = id;
+		dataExchange.buffer = (uint8_t *)recvbuf;
+		dataExchange.size = (uint32_t)(size);
+		if( xuifaceControl.handle[id] == 0 ){
+			xil_printf("%s: no handle for id %u, closing socket\r\n", __FUNCTION__, id);
+			break;
+		}
+		ret = xuifaceControl.handle[id](&dataExchange);
+
+		/*
+		 * Now, sends the reply. The reply consists of the command status
+		 * (4 bytes), followed by the number of bytes to be sent (4 bytes)
+		 * and the actual data.
+		 */
+		// TODO: should we also do a while loop to send the data? Like in receiving?
+
+		/* Writes back command status */
+		ptr = (int32_t *)recvbuf;
+		if( ret >= 0 ){
+			*ptr = (int32_t)UFIACE_STATUS_CMD_EXEC_PASS;
+		}
+		else{
+			*ptr = ret;
+		}
+		n = lwip_write(sd, recvbuf, 4);
+		if( n < 4 ){
+			xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
+			break;
+		}
+
+		/* Writes back number of bytes to be sent */
+		ptr = (int32_t *)recvbuf;
+		if( ret > 0 ){
+			*ptr = (int32_t)dataExchange.size;
+		}
+		else{
+			*ptr = 0;
+		}
+		n = lwip_write(sd, recvbuf, 4);
+		if( n < 4 ){
+			xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
+			break;
+		}
+
+		/* Writes data */
+		if( ret > 0 ){
+			n = lwip_write(sd, dataExchange.buffer, dataExchange.size);
+			if( n < dataExchange.size ) xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
+		}
+		break;
 	}
 
 	/* Closes connection */

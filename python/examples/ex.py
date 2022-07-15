@@ -36,7 +36,7 @@ def read_adc_data():
 
 def read_adc_data2():
     status, trace_size = soc.cpu0_trace_size_read()
-    status, data = soc.cpu0_trace_read(trace_size)
+    status, data = soc.cpu0_trace_read()
 
     #ti = time.time()
     #n = int( len(data) / 4 )
