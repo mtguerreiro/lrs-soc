@@ -5,6 +5,9 @@ Module ``hwc``
 Hardware communication interface for the LRS-SOC platform. For now, it
 only supports TCP/IP over Ethernet.
 
+It follows the small protocol implemented on the SoC user interface firmware.
+For more details, refer to the uiface.c file.
+
 """
 import socket
 import lrssoc
@@ -56,7 +59,7 @@ class Ethernet:
         Parameters
         ----------
         cmd : int
-            Command to be sent. It must an integers.
+            Command to be sent. It must an integer.
         
         data : list of ints, None
             Data to be sent. It must be a list of integers, and each integer
@@ -65,8 +68,13 @@ class Ethernet:
 
         Returns
         -------
-        rx_data : list
-            List with the bytes received.
+        tuple : (status, data)
+            Returns a tuple, where the first element is the command status,
+            and the second element is the data received. The command status is
+            an integer value, where 0 represents that the command was executed
+            properly; otherwise, status is a negative value. `data` represents
+            the data received, as a binary string. If no data was `data` is
+            an empty binary string. 
             
         """
         if type(cmd) is not int:

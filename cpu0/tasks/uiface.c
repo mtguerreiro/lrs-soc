@@ -3,6 +3,38 @@
  *
  *  Created on: 23.05.2022
  *      Author: Marco Guerreiro
+ *
+ *
+ * The user interface is a simple mechanism that allows the user to directly
+ * send data to functions written on the SoC, either on CPU1 or CPU2. The
+ * basic idea is that functions on the SoC are binded to commands (or IDs).
+ * Whenever the user interface task receives a command, it will call the
+ * function binded to that command, forwarding any data received.
+ *
+ * Functions can be binded to commands using the uifaceRegisterHandle
+ * function. For now, the commands should be sequential and follow the
+ * pattern given on the SoC defs file (soc_defs.h).
+ *
+ * The user interface tasks implements a simple protocol to receive data from
+ * the outside. The expected message has the form:
+ *
+ * ---------------------------------------------------
+ * | CMD (4 bytes) | SIZE (4 bytes) | DATA (N bytes) |
+ * ---------------------------------------------------
+ *
+ * If command received has no data, SIZE be set to 0, but still be sent.
+ *
+ * After executing the command, the user interface replies a message with the
+ * following format:
+ *
+ * ------------------------------------------------------
+ * | STATUS (4 bytes) | SIZE (4 bytes) | DATA (N bytes) |
+ * ------------------------------------------------------
+ *
+ * The STATUS reports if the command was received and executed. It will
+ * either be 0 or a negative value. The negative value will depend on the
+ * error and can be used for debugging. The SIZE indicates how many bytes of
+ * data will be sent. If it is 0, no data is sent back.
  */
 
 //=============================================================================
