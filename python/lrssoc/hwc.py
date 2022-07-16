@@ -52,9 +52,9 @@ class Ethernet:
         socket after receiving the data and sending a reply.
 
         We'll also rely on the fact that the host always replies at least
-        eight bytes, indicating the status of the command and the amount of
-        data that it will send. If the command was properly executed, we
-        should receive 0. Otherwise, we should receive -1 (or any other value).
+        four bytes, indicating the status of the command. For more information
+        on the expected response, refer to the uiface.c file, which contains a
+        description of the protocol.
 
         Parameters
         ----------
@@ -70,11 +70,8 @@ class Ethernet:
         -------
         tuple : (status, data)
             Returns a tuple, where the first element is the command status,
-            and the second element is the data received. The command status is
-            an integer value, where 0 represents that the command was executed
-            properly; otherwise, status is a negative value. `data` represents
-            the data received, as a binary string. If no data was `data` is
-            an empty binary string. 
+            and the second element is the data received. If no data was
+            `data` is an empty binary string. 
             
         """
         if type(cmd) is not int:
@@ -87,9 +84,11 @@ class Ethernet:
             size = len(data)
         else:
             size = 0
+            
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
         tx_data.extend( lrssoc.conversions.u32_to_u8(size, msb=False) )
+        
         if size != 0:
             tx_data.extend(data)
 
@@ -100,15 +99,13 @@ class Ethernet:
             status = s.recv(4)
             status = int.from_bytes(status, 'little', signed=True)
             
-            size = s.recv(4)
-            size = int.from_bytes(size, 'little', signed=True)
-
             rx_data = b''
-            if size != 0:
+            if status > 0:
+                size = status
                 bytes_rcvd = 0
                 while bytes_rcvd < size:
                     rec = s.recv(size-bytes_rcvd)
                     bytes_rcvd += len(rec)
                     rx_data += rec
-
+        
         return (status, rx_data)

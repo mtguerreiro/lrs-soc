@@ -25,33 +25,21 @@
 #define UIFACE_CONFIG_TASK_STACK_SIZE	1024
 
 /*
- * This structure holds data received by the user interface. Whenever a
- * command is received, the data is saved on the buffer, and the corresponding
- * handle is called.
+ * Signature of the functions binded to commands on the user interface.
+ * Whenever a new command is received, the user interface task will call the
+ * function binded to the received ID, passing the received command, the
+ * buffer containing the data received and the number of data bytes received.
+ *
+ * The binded function should return an signed integer value. If there was
+ * no error with the received command, the binded function should return 0
+ * or a positive value. If the function wants to send data back, the positive
+ * value returned should be the number of bytes to send back, and the
+ * parameter pbuf should be modified to reflect the location of the data to
+ * be sent back. If there was an error executing the command, the binded
+ * function should return a negative value, representing the error. This
+ * negative value will be propagated forward.
  */
-typedef struct{
-	/* Command received */
-	uint32_t cmd;
-
-	/* Number of bytes received */
-    uint32_t size;
-
-    /* Buffer holding data received */
-    uint8_t *buffer;
-
-}uifaceDataExchange_t;
-
-/*
- * Function executed when data is received. The command, the buffer holding
- * the data and the number of bytes received are passed to the function on
- * the data structure. Should any message be sent back, this function should
- * return 1. The number of bytes should be written on the structure, as well
- * as the pointer to the buffer holding data to be sent back. If there is no
- * reply, this function must return 0. If there was any error executing the
- * command, this function should return a negative value, that will be
- * propagated forward.
- */
-typedef int32_t(*uifaceHandle_t)(uifaceDataExchange_t *data);
+typedef int32_t(*uifaceHandle_t)(uint32_t cmd, uint8_t **pbuf, uint32_t size);
 
 /*
  * Defines if DHCP should be used. For now, we've only tested with
@@ -72,15 +60,6 @@ typedef int32_t(*uifaceHandle_t)(uifaceDataExchange_t *data);
  */
 #define UIFACE_CONFIG_MUTEX_WAIT_MS		10000
 
-/* */
-#define UIFACE_ERR_CMD_EXEC				-1
-
-/* Command execution success code */
-#define UFIACE_STATUS_CMD_EXEC_PASS		0
-
-/* Command execution error code */
-#define UFIACE_STATUS_CMD_EXEC_FAIL		1
-
 //=============================================================================
 
 //=============================================================================
@@ -94,7 +73,7 @@ void uiface(void *param);
 //=============================================================================
 //-----------------------------------------------------------------------------
 /**
- * @brief Binds an command to a handle.
+ * @brief Binds a command to a handle.
  *
  * If a command was previously registered and this function is called with the
  * the same command again, the previous handle will be overwritten.

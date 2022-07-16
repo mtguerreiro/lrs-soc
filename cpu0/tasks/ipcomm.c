@@ -53,7 +53,7 @@
 #define IPCOMM_CONFIG_CPU1_REPLY_TO		(IPCOMM_CONFIG_CPU1_REPLY_TO_MS / portTICK_PERIOD_MS)
 
 /* Functions binding to CPU1 commands should have this signature */
-typedef int32_t(*ipcommCMDHandle_t)(uifaceDataExchange_t *data);
+typedef uifaceHandle_t ipcommCMDHandle_t;
 
 typedef struct{
 	/*
@@ -107,7 +107,7 @@ static void ipCommInitializeCMDs(void);
 
 static void ipcommCMDRegister(uint32_t cpu0cmd, uint32_t cpu1cmd, ipcommCMDHandle_t handle);
 static uint32_t ipcommCMDFind(uint32_t cpu0cmd);
-static int32_t ipcommCMDExecute(uifaceDataExchange_t *data);
+static int32_t ipcommCMDExecute(uint32_t cmd, uint8_t **pbuf, uint32_t size);
 
 void ipcommIRQCPU1(void *CallbackRef);
 //=============================================================================
@@ -189,20 +189,20 @@ static uint32_t ipcommCMDFind(uint32_t cpu0cmd){
 	return i;
 }
 //-----------------------------------------------------------------------------
-static int32_t ipcommCMDExecute(uifaceDataExchange_t *data){
+static int32_t ipcommCMDExecute(uint32_t cmd, uint8_t **pbuf, uint32_t size){
 
 	uint32_t cpu0cmd, cpu1cmd;
-	uint32_t *p;
 	uint8_t *src, *dst;
 	uint32_t i;
+	uint32_t status;
 
 	/*
 	 * If amount of data to be passed to CPU1 exceeds the available memory,
 	 * an error is generated.
 	 */
-	if( data->size > SOC_MEM_CPU0_TO_CPU1_SIZE ) return IPCOMM_ERR_CPU0_CPU1_BUFFER_OVERFLOW;
+	if( size > SOC_MEM_CPU0_TO_CPU1_SIZE ) return IPCOMM_ERR_CPU0_CPU1_BUFFER_OVERFLOW;
 
-	cpu0cmd = data->cmd;
+	cpu0cmd = cmd;
 	cpu1cmd = ipcommCMDFind(cpu0cmd);
 
 	/* If the command received does not exist, returns an error */
@@ -215,13 +215,12 @@ static int32_t ipcommCMDExecute(uifaceDataExchange_t *data){
 	 * of the CPU0->CPU1 buffer. After that, the data (if any) is copied to
 	 * the subsequent addresses of the buffer.
 	 */
-	p = (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD;
-	*p = cpu1cmd;
+	*( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD ) = cpu1cmd;
 
-	if( data->size != 0 ){
+	if( size > 0 ){
 		dst = (uint8_t *)(SOC_MEM_CPU0_TO_CPU1_CMD_DATA);
-		src = data->buffer;
-		for(i = 0; i < data->size; i++) *dst++ = *src++;
+		src = *pbuf;
+		for(i = 0; i < size; i++) *dst++ = *src++;
 	}
 
 	/* Generates a software interrupt on CPU1 */
@@ -232,16 +231,14 @@ static int32_t ipcommCMDExecute(uifaceDataExchange_t *data){
 		return IPCOMM_ERR_CPU1_REPLY_TO;
 	}
 
-	/* Checks the command status */
-	p = (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_STATUS;
-	if( *p <= 0 ) return *p;
+	/*
+	 * Gets the command status and writes to pbuf the address of where the
+	 * data (if any) is located at.
+	 */
+	status = *( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_STATUS );
+	*pbuf = (uint8_t *) ( *( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR ) );
 
-	data->size = *p;
-
-	p = (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR;
-	data->buffer = (uint8_t *)(*p);
-
-	return 1;
+	return status;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

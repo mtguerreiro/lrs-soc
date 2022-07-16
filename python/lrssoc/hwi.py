@@ -102,7 +102,7 @@ class Interface:
 
         status, _ = self.hwc.comm(cmd, tx_data)
 
-        if status != 0:
+        if status < 0:
             funcname = Interface.cpu0_blink.__name__
             print('{:}: Error blink CPU0 LED. Error code {:}\r\n'.format(funcname, status))
 
@@ -133,7 +133,7 @@ class Interface:
 
         status, _ = self.hwc.comm(cmd, tx_data)
 
-        if status != 0:
+        if status < 0:
             funcname = Interface.cpu1_blink.__name__
             print('{:}: Error blink CPU1 LED. Error code {:}\r\n'.format(funcname, status))
             
@@ -169,7 +169,7 @@ class Interface:
 
         status, _ = self.hwc.comm(cmd, tx_data)
 
-        if status != 0:
+        if status < 0:
             funcname = Interface.cpu1_adc_en.__name__
             print('{:}: Error enabling ADC. Error code {:}\r\n'.format(funcname, status))
             
@@ -199,7 +199,7 @@ class Interface:
 
         status, _ = self.hwc.comm(cmd, tx_data)
 
-        if status != 0:
+        if status < 0:
             funcname = Interface.cpu1_adc_spi_freq_set.__name__
             print('{:}: Error setting ADC SPI frequency. Error code {:}\r\n'.format(funcname, status))
             
@@ -227,13 +227,13 @@ class Interface:
         tx_data = []        
         tx_data.extend( lrssoc.conversions.u32_to_u8(freq, msb=False) )
 
-        status, data = self.hwc.comm(cmd, tx_data)
+        status, _ = self.hwc.comm(cmd, tx_data)
 
-        if status != 0:
+        if status < 0:
             funcname = Interface.cpu1_adc_spi_freq_set.__name__
             print('{:}: Error setting ADC sampling frequency. Error code {:}\r\n'.format(funcname, status))
 
-        return status, data
+        return status
 
 
     def cpu1_adc_error_read(self):
@@ -248,7 +248,7 @@ class Interface:
         cmd = self.cmd.cpu1_adc_error_read
         status, data = self.hwc.comm(cmd)
 
-        if status != 0:
+        if status < 0:
             funcname = Interface.cpu1_adc_error_read.__name__
             print('{:}: Error reading ADC error flag. Error code {:}\r\n'.format(cpu1_adc_error_read, status))
             return (-1, status)
@@ -286,7 +286,7 @@ class Interface:
 
         status, _ = self.hwc.comm(cmd)
 
-        if status != 0:
+        if status < 0:
             funcname = Interface.cpu0_trace_start.__name__
             print('{:}: Error starting trace. Error code {:}\r\n'.format(funcname, status))
 
@@ -301,7 +301,7 @@ class Interface:
             
         status, data = self.hwc.comm(cmd)
 
-        if status != 0:
+        if status < 0:
             funcname = Interface.cpu0_trace_read.__name__
             print('{:}: Error reading trace. Error code {:}\r\n'.format(funcname, status))
             return (-1, status)
@@ -320,7 +320,7 @@ class Interface:
         
         status, _ = self.hwc.comm(cmd, tx_data)
 
-        if status != 0:
+        if status < 0:
             funcname = Interface.cpu0_trace_size_set.__name__
             print('{:}: Error setting trace size. Error code {:}\r\n'.format(funcname, status))
 
@@ -335,7 +335,7 @@ class Interface:
                 
         status, data = self.hwc.comm(cmd)
 
-        if status != 0:
+        if status < 0:
             funcname = Interface.cpu0_trace_size_read.__name__
             print('{:}: Error reading trace size. Error code {:}\r\n'.format(funcname, status))
             return (-1, status)
@@ -374,7 +374,7 @@ class Interface:
 
         status, _ = self.hwc.comm(cmd, tx_data)
 
-        if status != 0:
+        if status < 0:
             funcname = Interface.cpu1_control_en.__name__
             print('{:}: Error enabling control. Error code {:}\r\n'.format(funcname, status))
 

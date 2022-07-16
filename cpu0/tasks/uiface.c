@@ -1,12 +1,12 @@
 /*
  * uiface.c
  *
- *  Created on: 23.05.2022
+ *  Initially created on: 23.05.2022
  *      Author: Marco Guerreiro
  *
  *
  * The user interface is a simple mechanism that allows the user to directly
- * send data to functions written on the SoC, either on CPU1 or CPU2. The
+ * send data to functions written on the SoC, either on CPU1, CPU2 or PL. The
  * basic idea is that functions on the SoC are binded to commands (or IDs).
  * Whenever the user interface task receives a command, it will call the
  * function binded to that command, forwarding any data received.
@@ -22,19 +22,20 @@
  * | CMD (4 bytes) | SIZE (4 bytes) | DATA (N bytes) |
  * ---------------------------------------------------
  *
- * If command received has no data, SIZE be set to 0, but still be sent.
+ * If the command received has no data, SIZE be set to 0, but still be sent.
  *
  * After executing the command, the user interface replies a message with the
  * following format:
  *
- * ------------------------------------------------------
- * | STATUS (4 bytes) | SIZE (4 bytes) | DATA (N bytes) |
- * ------------------------------------------------------
+ * ------------------------------------------
+ * | STATUS/SIZE (4 bytes) | DATA (N bytes) |
+ * ------------------------------------------
  *
- * The STATUS reports if the command was received and executed. It will
- * either be 0 or a negative value. The negative value will depend on the
- * error and can be used for debugging. The SIZE indicates how many bytes of
- * data will be sent. If it is 0, no data is sent back.
+ * The STATUS reports if the command was received and executed. If it is zero,
+ * or a positive value, the command was successfully executed, and the status
+ * value is the number of bytes that will be sent back. If it is a negative
+ * value, it means there was an issue with the command. The negative value
+ * will depend on the error and can be used for debugging.
  */
 
 //=============================================================================
@@ -284,10 +285,10 @@ static void uifaceRequestProcessThread(void *p){
 	int32_t n;
 	int32_t nrx;
 	uint32_t id;
-	uifaceDataExchange_t dataExchange;
 	int32_t ret;
-	int32_t *ptr;
 	int32_t size;
+
+	uint8_t *pbuf;
 
 	/*
 	 * A mutex is added here so that we can ensure that only one request is
@@ -355,44 +356,21 @@ static void uifaceRequestProcessThread(void *p){
 		}
 
 		/* Calls function registered to the received ID */
-		dataExchange.cmd = id;
-		dataExchange.buffer = (uint8_t *)recvbuf;
-		dataExchange.size = (uint32_t)(size);
 		if( xuifaceControl.handle[id] == 0 ){
 			xil_printf("%s: no handle for id %u, closing socket\r\n", __FUNCTION__, id);
 			break;
 		}
-		ret = xuifaceControl.handle[id](&dataExchange);
+		pbuf = (uint8_t *)( &recvbuf );
+		ret = xuifaceControl.handle[id](id, (uint8_t **)( &pbuf ), size);
 
 		/*
 		 * Now, sends the reply. The reply consists of the command status
-		 * (4 bytes), followed by the number of bytes to be sent (4 bytes)
-		 * and the actual data.
+		 * (4 bytes), followed by data (if any).
 		 */
 		// TODO: should we also do a while loop to send the data? Like in receiving?
 
-		/* Writes back command status */
-		ptr = (int32_t *)recvbuf;
-		if( ret >= 0 ){
-			*ptr = (int32_t)UFIACE_STATUS_CMD_EXEC_PASS;
-		}
-		else{
-			*ptr = ret;
-		}
-		n = lwip_write(sd, recvbuf, 4);
-		if( n < 4 ){
-			xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
-			break;
-		}
-
-		/* Writes back number of bytes to be sent */
-		ptr = (int32_t *)recvbuf;
-		if( ret > 0 ){
-			*ptr = (int32_t)dataExchange.size;
-		}
-		else{
-			*ptr = 0;
-		}
+		/* Writes back the command status */
+		*( (int32_t *)recvbuf ) = ret;
 		n = lwip_write(sd, recvbuf, 4);
 		if( n < 4 ){
 			xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
@@ -401,8 +379,8 @@ static void uifaceRequestProcessThread(void *p){
 
 		/* Writes data */
 		if( ret > 0 ){
-			n = lwip_write(sd, dataExchange.buffer, dataExchange.size);
-			if( n < dataExchange.size ) xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
+			n = lwip_write(sd, pbuf, ret);
+			if( n < ret ) xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
 		}
 		break;
 	}
