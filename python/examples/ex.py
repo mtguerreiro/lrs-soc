@@ -19,6 +19,13 @@ soc.cpu1_adc_spi_freq_set(40)
 #soc.cpu0_trace_size_set(250000)
 soc.cpu0_trace_size_set(500000)
 
+##soc.cpu0_trace_size_set(5000000)
+##soc.cpu1_adc_error_clear()
+##soc.cpu0_trace_start()
+##soc.cpu1_control_en(True)
+##soc.cpu1_control_en(False)
+##plot_adc_data2()
+
 def read_adc_data():
     status, trace_size = soc.cpu0_trace_size_read()    
     status, data = soc.cpu0_trace_read(trace_size)

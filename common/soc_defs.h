@@ -140,7 +140,8 @@ typedef enum{
  * 	  accessible by CPU1.
  *
  * 	- The next N bytes can be used to hold the actual data to be sent to
- * 	  CPU1, and is represented by the SOC_MEM_CPU0_TO_CPU1_DATA symbol.
+ * 	  CPU0. The starting address is represented by the
+ * 	  SOC_MEM_CPU0_TO_CPU1_DATA symbol.
  *
  * Thus, when CPU0 wants to execute a command on CPU1, it must write the
  * to the CPU0->CPU1 memory as above.
@@ -159,11 +160,6 @@ typedef enum{
  * | SOC_MEM_CPU1_TO_CPU0_ADR + 8	|   DATA    | SOC_MEM_CPU1_TO_CPU0_DATA 		 |
  * +--------------------------------+-----------+------------------------------------+
  *
- * The reply
- * is a bit more structured. CPU1 needs to reply whether the command was
- * received and executed properly, and it needs to send data back, if any.
- * To this end, the CPU1->CPU0 buffer is segmented as follows:
- *
  * 	- First four bytes are the command status. This is a numeric value that
  * 	  is a negative value if the command was not executed properly, or a
  * 	  value larger than or equal to 0 if the command was successful. If the
@@ -174,10 +170,12 @@ typedef enum{
  * 	- The next four bytes contain the address of where the data to be
  * 	  transfered to CPU0 is located. It could be on the OCM itself or
  * 	  elsewhere (for instance, RAM). It is important that this address is
- * 	  accessible by CPU0.
+ * 	  accessible by CPU0. This address is defined by the symbol
+ * 	  SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR.
  *
  * 	- The next N bytes can be used to hold the actual data to be sent to
- * 	  CPU0, and is represented by the SOC_MEM_CPU1_TO_CPU0_DATA symbol.
+ * 	  CPU0. The starting address is represented by the
+ * 	  SOC_MEM_CPU1_TO_CPU0_DATA symbol.
  *
  * Thus, when CPU1 replies to CPU0, it must write the to the CPU1->CPU0
  * memory as above.
@@ -191,6 +189,7 @@ typedef enum{
 #define SOC_MEM_CPU0_TO_CPU1_CMD_DATA_ADDR		(SOC_MEM_CPU0_TO_CPU1_ADR + 8U)
 #define SOC_MEM_CPU0_TO_CPU1_DATA				(SOC_MEM_CPU0_TO_CPU1_ADR + 12U)
 
+/* OCM memory for CPU1 to CPU0 data */
 #define SOC_MEM_CPU1_TO_CPU0_ADR				0xFFFF4000U
 #define SOC_MEM_CPU1_TO_CPU0_SIZE				(0x4000U - 8U)
 #define SOC_MEM_CPU1_TO_CPU0_CMD_STATUS			SOC_MEM_CPU1_TO_CPU0_ADR

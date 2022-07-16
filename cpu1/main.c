@@ -606,8 +606,7 @@ static void mainControlReset(void){
 //-----------------------------------------------------------------------------
 void DeviceDriverHandler(void *CallbackRef){
 
-	uint32_t *p, *psrc;
-	uint32_t **dp;
+	uint32_t *pbuf;
 
 	uint32_t cmd;
 	uint32_t size;
@@ -619,19 +618,16 @@ void DeviceDriverHandler(void *CallbackRef){
 	size = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_SIZE );
 	address = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_DATA_ADDR );
 
-	p = (uint32_t *)address;
-	dp = (uint32_t **)&p;
+	pbuf = (uint32_t *)address;
 
 	/* Executes the command */
-	ret = mainControl.cmdHandle[cmd](dp);
-	psrc = *dp;
+	ret = mainControl.cmdHandle[cmd]( (uint32_t **)&pbuf );
 
 	/* Replies back to CPU0 */
 	*( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_STATUS ) = ret;
 
 	if( ret > 0 ){
-		p = (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR;
-		*p = (uint32_t) psrc;
+		*( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR ) = (uint32_t)pbuf;
 	}
 
 	XScuGic_SoftwareIntr ( &IntcInstancePtr , SOC_SIG_CPU1_TO_CPU0 , SOC_SIG_CPU0_ID ) ;
