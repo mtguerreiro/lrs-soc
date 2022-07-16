@@ -610,13 +610,16 @@ void DeviceDriverHandler(void *CallbackRef){
 	uint32_t **dp;
 
 	uint32_t cmd;
+	uint32_t size;
+	uint32_t address;
 	int32_t ret;
 
 	/* Gets the command and data sent by CPU0 */
-	p = (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD;
-	cmd = *p;
+	cmd = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD );
+	size = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_SIZE );
+	address = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_DATA_ADDR );
 
-	p = (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_DATA;
+	p = (uint32_t *)address;
 	dp = (uint32_t **)&p;
 
 	/* Executes the command */
@@ -624,8 +627,7 @@ void DeviceDriverHandler(void *CallbackRef){
 	psrc = *dp;
 
 	/* Replies back to CPU0 */
-	p = (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_STATUS;
-	*p = ret;
+	*( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_STATUS ) = ret;
 
 	if( ret > 0 ){
 		p = (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR;

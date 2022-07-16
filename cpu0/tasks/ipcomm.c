@@ -211,14 +211,22 @@ static int32_t ipcommCMDExecute(uint32_t cmd, uint8_t **pbuf, uint32_t size){
 	xSemaphoreTake(xipcommControl.cpu1Semaphore, 0);
 
 	/*
-	 * First, the command to be executed by CPU1 is written in the first address
-	 * of the CPU0->CPU1 buffer. After that, the data (if any) is copied to
-	 * the subsequent addresses of the buffer.
+	 * Transferring data to CPU1 follows the procedure described in the
+	 * soc_defs.h file.
 	 */
+	/* Writes command to be executed */
 	*( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD ) = cpu1cmd;
 
+	/* Writes size of data (in number of bytes) */
+	*( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_SIZE ) = size;
+
+	/*
+	 * Writes where data will be located at. Here, we will always copy data
+	 * from the uiface buffer to the CPU0->CPU1 buffer.
+	 */
 	if( size > 0 ){
-		dst = (uint8_t *)(SOC_MEM_CPU0_TO_CPU1_CMD_DATA);
+		*( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_DATA_ADDR ) = SOC_MEM_CPU0_TO_CPU1_DATA;
+		dst = (uint8_t *)(SOC_MEM_CPU0_TO_CPU1_DATA);
 		src = *pbuf;
 		for(i = 0; i < size; i++) *dst++ = *src++;
 	}
