@@ -163,6 +163,8 @@ static void ipCommInitializeCMDs(void){
 
 	ipcommCMDRegister(SOC_CMD_CPU0_TRACE_START, SOC_CMD_CPU1_TRACE_START, ipcommCMDExecute);
 
+	ipcommCMDRegister(SOC_CMD_CPU0_TRACE_READ_TAGS, SOC_CMD_CPU1_TRACE_READ_TAGS, ipcommCMDExecute);
+
 	ipcommCMDRegister(SOC_CMD_CPU0_TRACE_READ, SOC_CMD_CPU1_TRACE_READ, ipcommCMDExecute);
 
 	ipcommCMDRegister(SOC_CMD_CPU0_TRACE_SIZE_SET, SOC_CMD_CPU1_TRACE_SIZE_SET, ipcommCMDExecute);
@@ -170,6 +172,7 @@ static void ipCommInitializeCMDs(void){
 	ipcommCMDRegister(SOC_CMD_CPU0_TRACE_SIZE_READ, SOC_CMD_CPU1_TRACE_SIZE_READ, ipcommCMDExecute);
 
 	ipcommCMDRegister(SOC_CMD_CPU0_CONTROL_EN, SOC_CMD_CPU1_CONTROL_EN, ipcommCMDExecute);
+
 }
 //-----------------------------------------------------------------------------
 static void ipcommCMDRegister(uint32_t cpu0cmd, uint32_t cpu1cmd, ipcommCMDHandle_t handle){

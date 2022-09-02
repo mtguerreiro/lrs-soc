@@ -29,6 +29,8 @@
 #include "axi_test.h"
 
 #include "math.h"
+
+#include "soc_trace.h"
 //=============================================================================
 
 //=============================================================================
@@ -131,6 +133,15 @@ float vs_ref_norm;
 
 float v_ac_peak;
 
+uint32_t *traceData[12] = {0};
+uint8_t tracedtypes[12];
+char traceTags[12 * 20];
+
+float hbCurrent;
+float dcLinkVoltage;
+float gridVoltage;
+float loadCurrent;
+float dclinkVoltageInst;
 //=============================================================================
 
 //=============================================================================
@@ -153,12 +164,15 @@ static int32_t mainCmdAdcErrorRead(uint32_t **data);
 static int32_t mainCmdAdcErrorClear(uint32_t **data);
 static int32_t mainCmdTraceStart(uint32_t **data);
 static int32_t mainCmdTraceRead(uint32_t **data);
+static int32_t mainCmdTraceReadTags(uint32_t **data);
 static int32_t mainCmdTraceSizeSet(uint32_t **data);
 static int32_t mainCmdTraceSizeRead(uint32_t **data);
 
 static int32_t mainCmdControlEn(uint32_t **data);
 
 static void mainControlReset(void);
+
+static void mainTraceInitialize(void);
 
 void DeviceDriverHandler(void *CallbackRef);
 void PLirqHandler(void *CallbackRef);
@@ -175,7 +189,7 @@ void PLirqHandler(void *CallbackRef);
 int main(){
 
 	uint32_t prevstate;
-	uint32_t data;
+	uint32_t data = 0;
 
 	mainSysInit();
 
@@ -255,6 +269,7 @@ static int mainSysInit(void){
 	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_ERROR_CLEAR] = mainCmdAdcErrorClear;
 	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_START] = mainCmdTraceStart;
 	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_READ] = mainCmdTraceRead;
+	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_READ_TAGS] = mainCmdTraceReadTags;
 	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_SIZE_SET] = mainCmdTraceSizeSet;
 	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_SIZE_READ] = mainCmdTraceSizeRead;
 	mainControl.cmdHandle[SOC_CMD_CPU1_CONTROL_EN] = mainCmdControlEn;
@@ -316,6 +331,8 @@ static int mainSysInit(void){
 
 	v_ac_peak = 10.0 * sqrtf(2.0);
 	//v_ac_peak = 23;
+
+	mainTraceInitialize();
 
 	SYNC_FLAG = 0;
 
@@ -468,6 +485,8 @@ static int32_t mainCmdTraceStart(uint32_t **data){
 
 	mainControl.trace.p = (uint32_t *)SOC_MEM_TRACE_ADR;
 
+	soctraceReset(SOC_TRACE_ID_1);
+
 	return 0;
 }
 //-----------------------------------------------------------------------------
@@ -482,6 +501,17 @@ static int32_t mainCmdTraceRead(uint32_t **data){
 	return size;
 }
 //-----------------------------------------------------------------------------
+static int32_t mainCmdTraceReadTags(uint32_t **data){
+
+	uint32_t n;
+
+	n = soctraceReadTags(SOC_TRACE_ID_1, (char *)SOC_MEM_TRACE_ADR);
+
+	*data = (uint32_t *)SOC_MEM_TRACE_ADR;
+
+	return n;
+}
+//-----------------------------------------------------------------------------
 static int32_t mainCmdTraceSizeSet(uint32_t **data){
 
 	uint32_t size;
@@ -490,6 +520,9 @@ static int32_t mainCmdTraceSizeSet(uint32_t **data){
 
 	if( size <= SOC_MEM_TRACE_SIZE_MAX ){
 		mainControl.trace.end = (uint32_t *)( SOC_MEM_TRACE_ADR + size );
+
+		soctraceSetSize(SOC_TRACE_ID_1, size);
+
 	}
 
 	return 0;
@@ -598,6 +631,48 @@ static void mainControlReset(void){
 	ei_2 = 0.0;
 }
 //-----------------------------------------------------------------------------
+static void mainTraceInitialize(void){
+
+	soctraceInitialize(SOC_TRACE_ID_1, (uint32_t *)SOC_MEM_TRACE_ADR, SOC_MEM_TRACE_SIZE_MAX,
+			traceData, tracedtypes, traceTags);
+
+	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &hbCurrent ), SOC_TRACE_DTYPE_FLOAT,
+			"HB current");
+
+	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &dcLinkVoltage ), SOC_TRACE_DTYPE_FLOAT,
+			"DC link");
+
+	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &gridVoltage ), SOC_TRACE_DTYPE_FLOAT,
+			"Grid voltage");
+
+	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &loadCurrent ), SOC_TRACE_DTYPE_FLOAT,
+			"Load current");
+
+	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &vs_ref_norm ), SOC_TRACE_DTYPE_FLOAT,
+			"Vs ref norm");
+
+	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &u_pi ), SOC_TRACE_DTYPE_FLOAT,
+			"u pi");
+
+	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &u_pr ), SOC_TRACE_DTYPE_FLOAT,
+			"u pr");
+
+	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &dclinkVoltageInst ), SOC_TRACE_DTYPE_FLOAT,
+			"DC link inst");
+
+	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &dclinkVoltageInst ), SOC_TRACE_DTYPE_FLOAT,
+			"DC link inst");
+
+	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &e ), SOC_TRACE_DTYPE_FLOAT,
+			"e");
+
+	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &ei ), SOC_TRACE_DTYPE_FLOAT,
+			"ei");
+
+	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &ig_ref ), SOC_TRACE_DTYPE_FLOAT,
+			"ig ref");
+}
+//-----------------------------------------------------------------------------
 //=============================================================================
 
 //=============================================================================
@@ -636,12 +711,12 @@ void DeviceDriverHandler(void *CallbackRef){
 void PLirqHandler(void *CallbackRef){
 
 	static float dcLinkVoltage_1 = 0.0;
-	float dcLinkVoltage;
-	float dclinkVoltageInst;
-	float hbCurrent;
+	//float dcLinkVoltage;
+	//float dclinkVoltageInst;
+	//float hbCurrent;
 	static float hbCurrent_1 = 0.0;
-	float gridVoltage;
-	float loadCurrent;
+	//float gridVoltage;
+	//float loadCurrent;
 
 	float v_dc;
 	float v_ac;
@@ -779,20 +854,21 @@ void PLirqHandler(void *CallbackRef){
 
 	/* Saves data to memory */
 
-	if( mainControl.trace.p < mainControl.trace.end ){
-		*mainControl.trace.p++ = *((uint32_t *)(&hbCurrent));
-		*mainControl.trace.p++ = *((uint32_t *)(&dcLinkVoltage));
-		*mainControl.trace.p++ = *((uint32_t *)(&gridVoltage));
-		*mainControl.trace.p++ = *((uint32_t *)(&loadCurrent));
-		*mainControl.trace.p++ = *((uint32_t *)(&vs_ref_norm));
-		*mainControl.trace.p++ = *((uint32_t *)(&u_pi));
-		*mainControl.trace.p++ = *((uint32_t *)(&u_pr));
-		*mainControl.trace.p++ = 0;
-		*mainControl.trace.p++ = *((uint32_t *)(&dclinkVoltageInst));
-		*mainControl.trace.p++ = *((uint32_t *)(&e));
-		*mainControl.trace.p++ = *((uint32_t *)(&ei));
-		*mainControl.trace.p++ = *((uint32_t *)(&ig_ref));
-	}
+	soctraceSave(SOC_TRACE_ID_1);
+//	if( mainControl.trace.p < mainControl.trace.end ){
+//		*mainControl.trace.p++ = *((uint32_t *)(&hbCurrent));
+//		*mainControl.trace.p++ = *((uint32_t *)(&dcLinkVoltage));
+//		*mainControl.trace.p++ = *((uint32_t *)(&gridVoltage));
+//		*mainControl.trace.p++ = *((uint32_t *)(&loadCurrent));
+//		*mainControl.trace.p++ = *((uint32_t *)(&vs_ref_norm));
+//		*mainControl.trace.p++ = *((uint32_t *)(&u_pi));
+//		*mainControl.trace.p++ = *((uint32_t *)(&u_pr));
+//		*mainControl.trace.p++ = 0;
+//		*mainControl.trace.p++ = *((uint32_t *)(&dclinkVoltageInst));
+//		*mainControl.trace.p++ = *((uint32_t *)(&e));
+//		*mainControl.trace.p++ = *((uint32_t *)(&ei));
+//		*mainControl.trace.p++ = *((uint32_t *)(&ig_ref));
+//	}
 
 	XGpio_DiscreteWrite(&gpioDebug_device, GPIODEBUG_CHANNEL, 0);
 

@@ -24,9 +24,10 @@ class Commands:
         self.cpu1_adc_error_clear = 6
         self.cpu0_trace_start = 7
         self.cpu0_trace_read = 8
-        self.cpu0_trace_size_set = 9
-        self.cpu0_trace_size_read = 10
-        self.cpu0_control_en = 11
+        self.cpu0_trace_read_tags = 9
+        self.cpu0_trace_size_set = 10
+        self.cpu0_trace_size_read = 11
+        self.cpu0_control_en = 12
         
 
 class Interface:
@@ -309,6 +310,26 @@ class Interface:
         return (0, data)
 
 
+    def cpu0_trace_read_tags(self):
+        """Reads traces' tags.
+
+        """
+        cmd = self.cmd.cpu0_trace_read_tags
+            
+        status, data = self.hwc.comm(cmd)
+
+        if status < 0:
+            funcname = Interface.cpu0_trace_read_tag.__name__
+            print('{:}: Error reading traces\' tags. Error code {:}\r\n'.format(funcname, status))
+            return (-1, status)
+
+        # Split creates an empty string because of the last \x00. Thus, we
+        # save the tags only up to the last element.
+        tags = data.split(b'\x00')[:-1]
+        
+        return (0, tags)
+
+    
     def cpu0_trace_size_set(self, size):
         """Sets the number of bytes to save.
 
