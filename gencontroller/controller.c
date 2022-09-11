@@ -11,7 +11,7 @@
 #include "controller.h"
 
 /* Controllers */
-#include "pictl.h"
+#include "pidctl.h"
 
 //=============================================================================
 
@@ -22,7 +22,6 @@ typedef void(*controllerInit)(void);
 typedef int32_t(*controllerSP)(void *params, int32_t n);
 typedef int32_t(*controllerGP)(void *in, void *out);
 typedef int32_t(*controllerR)(void *inputs, int32_t ninputs, void *meas, int32_t nmeas, void *outputs);
-
 
 typedef struct{
 
@@ -46,10 +45,10 @@ void controllerInitialize(void){
 
 	uint32_t k;
 
-	controllers.initialize[CONTROLLER_PID] = pictlInitialize;
-	controllers.setParams[CONTROLLER_PID] = pictlSetParams;
-	controllers.getParams[CONTROLLER_PID] = pictlGetParams;
-	controllers.run[CONTROLLER_PID] = pictlRun;
+	controllers.initialize[CONTROLLER_PID] = pidctlInitialize;
+	controllers.setParams[CONTROLLER_PID] = pidctlSetParams;
+	controllers.getParams[CONTROLLER_PID] = pidctlGetParams;
+	controllers.run[CONTROLLER_PID] = pidctlRun;
 
 	for(k = 0; k < CONTROLLER_END; k++){
 		controllers.initialize[k]();

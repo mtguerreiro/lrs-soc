@@ -1,5 +1,5 @@
 /*
- * pictl.c
+ * pidctl.c
  *
  *  Created on: 10 de set de 2022
  *      Author: marco
@@ -8,7 +8,7 @@
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
-#include "pictl.h"
+#include "pidctl.h"
 
 #include "pid.h"
 //=============================================================================
@@ -23,12 +23,12 @@ pid_t pid;
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void pictlInitialize(void){
+void pidctlInitialize(void){
 
 	pidInitialize(&pid, 0);
 }
 //-----------------------------------------------------------------------------
-int32_t pictlSetParams(void *params, int32_t n){
+int32_t pidctlSetParams(void *params, int32_t n){
 
 	uint32_t *p = (uint32_t *)params;
 
@@ -49,7 +49,7 @@ int32_t pictlSetParams(void *params, int32_t n){
 	return 0;
 }
 //-----------------------------------------------------------------------------
-int32_t pictlGetParams(void *in, void *out){
+int32_t pidctlGetParams(void *in, void *out){
 
 	int32_t n;
 	uint32_t *p;
@@ -67,7 +67,7 @@ int32_t pictlGetParams(void *in, void *out){
 	return 0;
 }
 //-----------------------------------------------------------------------------
-int32_t pictlRun(void *inputs, int32_t ninputs, void *meas, int32_t nmeas, void *outputs){
+int32_t pidctlRun(void *inputs, int32_t ninputs, void *meas, int32_t nmeas, void *outputs){
 
 	float r, y, e, u;
 

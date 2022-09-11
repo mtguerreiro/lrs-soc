@@ -1,12 +1,12 @@
 /*
- * pictl.h
+ * pidctl.h
  *
  *  Created on: 10 de set de 2022
  *      Author: marco
  */
 
-#ifndef PICTL_H_
-#define PICTL_H_
+#ifndef PIDCTL_H_
+#define PIDCTL_H_
 
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
@@ -19,14 +19,14 @@
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void pictlInitialize(void);
+void pidctlInitialize(void);
 //-----------------------------------------------------------------------------
-int32_t pictlSetParams(void *params, int32_t n);
+int32_t pidctlSetParams(void *params, int32_t n);
 //-----------------------------------------------------------------------------
-int32_t pictlGetParams(void *in, void *out);
+int32_t pidctlGetParams(void *in, void *out);
 //-----------------------------------------------------------------------------
-int32_t pictlRun(void *inputs, int32_t ninputs, void *meas, int32_t nmeas, void *outputs);
+int32_t pidctlRun(void *inputs, int32_t ninputs, void *meas, int32_t nmeas, void *outputs);
 //-----------------------------------------------------------------------------
 //=============================================================================
 
-#endif /* PICTL_H_ */
+#endif /* PIDCTL_H_ */
