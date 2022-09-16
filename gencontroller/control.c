@@ -10,9 +10,7 @@
 //=============================================================================
 #include "control.h"
 
-#include "controlsys.h"
 //=============================================================================
-
 
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
@@ -38,14 +36,9 @@ typedef struct socControl_t{
 	controlApplyOutputs_t fapplyOutputs;
 	controlOnEntry_t fonExit;
 
-	controlSetCtlParams_t fsetCtlParams;
-	controlGetCtlParams_t fgetCtlParams;
-	controlSetHwParams_t fsetHwParams;
-	controlGetHwParams_t fgetHwParams;
-
 }control_t;
 
-control_t control;
+control_t control = {.fonEntry = 0, .fonExit = 0};
 
 //=============================================================================
 
@@ -53,27 +46,34 @@ control_t control;
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void controlInitialize(void){
+void controlSetGetMeasFun(controlGetMeas_t getmeas){
 
-	controlsysInitialize();
+	control.fgetMeasurements = getmeas;
+}
+//-----------------------------------------------------------------------------
+void controlSetProcMeasFun(controlProcMeas_t procmeas){
 
-	control.fgetMeasurements = controlsysGetMeas;
-	control.fprocMeasurements = controlsysProcMeas;
+	control.fprocMeasurements = procmeas;
+}
+//-----------------------------------------------------------------------------
+void controlSetGetInputsFun(controlGetInputs_t getinputs){
 
-	control.fgetInputs = controlsysGetInputs;
+	control.fgetInputs = getinputs;
+}
+//-----------------------------------------------------------------------------
+void controlSetRunFun(controlRun_t run){
 
-	control.frun = controlsysRun;
+	control.frun = run;
+}
+//-----------------------------------------------------------------------------
+void controlSetProcOutputsFun(controlProcOutputs_t procOutputs){
 
-	control.fprocOutputs = controlsysProcOutputs;
-	control.fapplyOutputs = controlsysApplyOutputs;
+	control.fprocOutputs = procOutputs;
+}
+//-----------------------------------------------------------------------------
+void controlSetApplyOutputsFun(controlApplyOutputs_t applyOutputs){
 
-	control.fsetCtlParams = controlsysSetCtlParams;
-	control.fgetCtlParams = controlsysGetCtlParams;
-	control.fsetHwParams = controlsysSetHwParams;
-	control.fgetHwParams = controlsysGetHwParams;
-
-	control.fonEntry = 0;
-	control.fonExit = 0;
+	control.fapplyOutputs = applyOutputs;
 }
 //-----------------------------------------------------------------------------
 void controlRun(void){
@@ -99,32 +99,6 @@ void controlRun(void){
 	control.fapplyOutputs( control.bprocOutputs, noutputs );
 
 	if( control.fonExit ) control.fonExit();
-}
-//-----------------------------------------------------------------------------
-int32_t controlSetCtlParams(void *params, int32_t n){
-
-	return control.fsetCtlParams( params, n );
-}
-//-----------------------------------------------------------------------------
-int32_t controlGetCtlParams(void *in, void *out){
-
-	int32_t n;
-	n = control.fgetCtlParams( in, out );
-
-	return n;
-}
-//-----------------------------------------------------------------------------
-int32_t controlSetHwParams(void *params, int32_t n){
-
-	return control.fsetHwParams( params, n );
-}
-//-----------------------------------------------------------------------------
-int32_t controlGetHwParams(void *in, void *out){
-
-	int32_t n;
-	n = control.fgetHwParams( in, out );
-
-	return n;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

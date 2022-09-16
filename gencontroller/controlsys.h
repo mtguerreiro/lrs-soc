@@ -3,6 +3,7 @@
  *
  *  Created on: 04.09.2022
  *      Author: mguerreiro
+ *
  */
 
 #ifndef CONTROLSYS_H_
@@ -20,18 +21,6 @@
 //-----------------------------------------------------------------------------
 void controlsysInitialize(void);
 //-----------------------------------------------------------------------------
-int32_t controlsysGetMeas(void *meas);
-//-----------------------------------------------------------------------------
-void controlsysProcMeas(void *meas, void *procmeas, int32_t n);
-//-----------------------------------------------------------------------------
-int32_t controlsysGetInputs(void *inputs);
-//-----------------------------------------------------------------------------
-int32_t controlsysRun(void *inputs, int32_t ninputs, void *meas, int32_t nmeas, void *outputs);
-//-----------------------------------------------------------------------------
-void controlsysProcOutputs(void *outputs, void *procoutputs, int32_t n);
-//-----------------------------------------------------------------------------
-void controlsysApplyOutputs(void *outputs, int32_t n);
-//-----------------------------------------------------------------------------
 int32_t controlsysSetCtlParams(void *params, int32_t n);
 //-----------------------------------------------------------------------------
 int32_t controlsysGetCtlParams(void *in, void *out);
@@ -39,6 +28,8 @@ int32_t controlsysGetCtlParams(void *in, void *out);
 int32_t controlsysSetHwParams(void *params, int32_t n);
 //-----------------------------------------------------------------------------
 int32_t controlsysGetHwParams(void *in, void *out);
+//-----------------------------------------------------------------------------
+void controlsysRun(void);
 //-----------------------------------------------------------------------------
 //=============================================================================
 
