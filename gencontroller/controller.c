@@ -53,7 +53,6 @@ static int32_t controllerInterfaceGetController(void *in, uint32_t insize, void 
 static int32_t controllerInterfaceSetController(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t controllerInterfaceGetControllerParams(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t controllerInterfaceSetControllerParams(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
-
 //=============================================================================
 
 //=============================================================================

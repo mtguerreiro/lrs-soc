@@ -56,14 +56,9 @@ void controlsysInitialize(void){
 	controlsysInputIfInitialize();
 }
 //-----------------------------------------------------------------------------
-int32_t controlsysSetCtlParams(void *params, int32_t n){
+int32_t controlsysControllerInterface(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
 
-	return controlsysCtlIfSetParams( params, n );
-}
-//-----------------------------------------------------------------------------
-int32_t controlsysGetCtlParams(void *in, void *out){
-
-	return controlsysCtlIfGetParams( in, out );
+	return controlsysCtlIfInterface(in, insize, out, maxoutsize);
 }
 //-----------------------------------------------------------------------------
 int32_t controlsysSetHwParams(void *params, int32_t n){

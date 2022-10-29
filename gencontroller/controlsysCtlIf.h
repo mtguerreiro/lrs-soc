@@ -22,9 +22,7 @@ int32_t controlsysCtlIfInitialize(void);
 //-----------------------------------------------------------------------------
 int32_t controlsysCtlIfRun(void *inputs, int32_t ninputs, void *meas, int32_t nmeas, void *outputs);
 //-----------------------------------------------------------------------------
-int32_t controlsysCtlIfSetParams(void *params, int32_t n);
-//-----------------------------------------------------------------------------
-int32_t controlsysCtlIfGetParams(void *in, void *out);
+int32_t controlsysCtlIfInterface(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
 //=============================================================================
 

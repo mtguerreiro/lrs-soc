@@ -41,7 +41,6 @@ typedef enum{
 //-----------------------------------------------------------------------------
 void controllerInitialize(void);
 //-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 int32_t controllerInterface(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
 int32_t controllerRun(void *inputs, uint32_t ninputs, void *meas, uint32_t nmeas, void *outputs);
