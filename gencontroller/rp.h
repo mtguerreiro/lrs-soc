@@ -1,12 +1,12 @@
 /*
- * controller.h
+ * rp.h
  *
- *  Created on: 10 de set de 2022
- *      Author: marco
+ *  Created on: 07.10.2022
+ *      Author: mguerreiro
  */
 
-#ifndef CONTROLLER_H_
-#define CONTROLLER_H_
+#ifndef RP_H_
+#define RP_H_
 
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
@@ -17,35 +17,32 @@
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-typedef enum{
-	CONTROLLER_PID,
-	CONTROLLER_END
-}controllerTypesEnum_t;
+typedef uint8_t rpd_t;
+typedef uint32_t rpuint_t;
+typedef int32_t rpint_t;
+typedef rpuint_t rpid_t;
 
-typedef enum{
-	CONTROLLER_IF_SET,			/* Sets the active controller */
-	CONTROLLER_IF_GET,			/* Gets the active controller */
-	CONTROLLER_IF_SET_PARAMS,	/* Sets parameters for the specified controller */
-	CONTROLLER_IF_GET_PARAMS,	/* Gets parameters for the specified controller */
-	CONTROLLER_IF_END
-}controllerInterface_t;
+typedef rpint_t (*rphandle_t)(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
 
-#define CONTROLLER_ERR_INVALID_CMD		-1	/* Invalid command */
-#define CONTROLLER_ERR_INVALID_CTL		-2	/* Invalid controller */
-#define CONTROLLER_ERR_INACTIVE_CTL		-3	/* No controller active when trying to execute run function */
+typedef struct rpctx_t{
+	uint32_t maxid;
+	rphandle_t *handle;
+}rpctx_t;
+
+#define RP_ERR_INVALID_ID	-1
+#define RP_ERR_NO_HANDLE	-2
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void controllerInitialize(void);
+void rpInitialize(rpctx_t *rp, rpuint_t maxid, rphandle_t *handlebuffer);
 //-----------------------------------------------------------------------------
+rpint_t rpRegisterHandle(rpctx_t *rp, rpid_t id, rphandle_t handle);
 //-----------------------------------------------------------------------------
-int32_t controllerInterface(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
-//-----------------------------------------------------------------------------
-int32_t controllerRun(void *inputs, uint32_t ninputs, void *meas, uint32_t nmeas, void *outputs);
+rpint_t rpRequest(rpctx_t *rp, void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
 //-----------------------------------------------------------------------------
 //=============================================================================
 
-#endif /* CONTROLLER_H_ */
+#endif /* RP_H_ */

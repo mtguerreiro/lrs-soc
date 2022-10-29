@@ -28,7 +28,7 @@ void pidctlInitialize(void){
 	pidInitialize(&pid, 0);
 }
 //-----------------------------------------------------------------------------
-int32_t pidctlSetParams(void *params, int32_t n){
+int32_t pidctlSetParams(void *params, uint32_t n){
 
 	uint32_t *p = (uint32_t *)params;
 
@@ -49,7 +49,7 @@ int32_t pidctlSetParams(void *params, int32_t n){
 	return 0;
 }
 //-----------------------------------------------------------------------------
-int32_t pidctlGetParams(void *in, void *out){
+int32_t pidctlGetParams(void *in, uint32_t insize, void *out, uint32_t maxoutsize){
 
 	int32_t n;
 	uint32_t *p;
@@ -58,16 +58,19 @@ int32_t pidctlGetParams(void *in, void *out){
 
 	pidGetParams(&pid, &params);
 
-	n = sizeof(params);
+	/* We assume that the size of params is 32-bit aligned */
+	n = sizeof(params) >> 2;
+	if( n > maxoutsize ) return 0;
+
 	p = (uint32_t *)&params;
 	while(n--){
 		*pout++ = *p++;
 	}
 
-	return 0;
+	return sizeof(params) >> 2;
 }
 //-----------------------------------------------------------------------------
-int32_t pidctlRun(void *inputs, int32_t ninputs, void *meas, int32_t nmeas, void *outputs){
+int32_t pidctlRun(void *inputs, uint32_t ninputs, void *meas, uint32_t nmeas, void *outputs){
 
 	float r, y, e, u;
 

@@ -1,51 +1,67 @@
 /*
- * controller.h
+ * rp.c
  *
- *  Created on: 10 de set de 2022
- *      Author: marco
+ *  Created on: 07.10.2022
+ *      Author: mguerreiro
  */
-
-#ifndef CONTROLLER_H_
-#define CONTROLLER_H_
 
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
-#include "stdint.h"
+#include "rp.h"
+
 //=============================================================================
 
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-typedef enum{
-	CONTROLLER_PID,
-	CONTROLLER_END
-}controllerTypesEnum_t;
 
-typedef enum{
-	CONTROLLER_IF_SET,			/* Sets the active controller */
-	CONTROLLER_IF_GET,			/* Gets the active controller */
-	CONTROLLER_IF_SET_PARAMS,	/* Sets parameters for the specified controller */
-	CONTROLLER_IF_GET_PARAMS,	/* Gets parameters for the specified controller */
-	CONTROLLER_IF_END
-}controllerInterface_t;
 
-#define CONTROLLER_ERR_INVALID_CMD		-1	/* Invalid command */
-#define CONTROLLER_ERR_INVALID_CTL		-2	/* Invalid controller */
-#define CONTROLLER_ERR_INACTIVE_CTL		-3	/* No controller active when trying to execute run function */
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void controllerInitialize(void);
+void rpInitialize(rpctx_t *rp, rpuint_t maxid, rphandle_t *buffer){
+
+	uint32_t i;
+
+	rp->handle = buffer;
+	rp->maxid = maxid;
+
+	for( i = 0; i < maxid; i++ ){
+		rp->handle[i] = 0;
+	}
+
+}
 //-----------------------------------------------------------------------------
+rpint_t rpRegisterHandle(rpctx_t *rp, rpid_t id, rphandle_t handle){
+
+	if( id >= rp->maxid ) return RP_ERR_INVALID_ID;
+
+	rp->handle[id] = handle;
+
+	return 0;
+}
 //-----------------------------------------------------------------------------
-int32_t controllerInterface(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
-//-----------------------------------------------------------------------------
-int32_t controllerRun(void *inputs, uint32_t ninputs, void *meas, uint32_t nmeas, void *outputs);
+rpint_t rpRequest(rpctx_t *rp, void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
+
+	rpint_t status;
+
+	rpuint_t cmd;
+	rpuint_t *p;
+
+	p = (rpuint_t *)( in );
+	cmd = *p++;
+
+	if( cmd >= rp->maxid ) return RP_ERR_INVALID_ID;
+
+	if( rp->handle[cmd] == 0 ) return RP_ERR_NO_HANDLE;
+
+	status = rp->handle[cmd]( (void *)( p ), insize - sizeof(rpuint_t), out, maxoutsize);
+
+	return status;
+}
 //-----------------------------------------------------------------------------
 //=============================================================================
-
-#endif /* CONTROLLER_H_ */
