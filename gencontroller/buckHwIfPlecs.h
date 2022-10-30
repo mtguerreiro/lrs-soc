@@ -1,12 +1,12 @@
 /*
- * rp.h
+ * buckHwIfPlecs.h
  *
- *  Created on: 07.10.2022
+ *  Created on: 30.10.2022
  *      Author: mguerreiro
  */
 
-#ifndef RP_H_
-#define RP_H_
+#ifndef BUCKHWIFPLECS_H_
+#define BUCKHWIFPLECS_H_
 
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
@@ -17,31 +17,33 @@
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-typedef unsigned int rpuint_t;
-typedef signed int rpint_t;
-typedef rpuint_t rpid_t;
-
-typedef rpint_t (*rphandle_t)(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
-
-typedef struct rpctx_t{
-	uint32_t maxid;
-	rphandle_t *handle;
-}rpctx_t;
-
-#define RP_ERR_INVALID_ID	-1
-#define RP_ERR_NO_HANDLE	-2
+typedef enum{
+	BUCK_HW_IF_PLECS_SET_MEAS_BUFFER,	/* Sets the measuerments buffer */
+	BUCK_HW_IF_PLECS_SET_OUT_BUFFER,	/* Sets the output buffer */
+	BUCK_HW_IF_PLECS_END
+}buckHwIfPlecsInterface_t;
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void rpInitialize(rpctx_t *rp, rpuint_t maxid, rphandle_t *handlebuffer);
+int32_t buckHwIfPlecsInitialize(void);
 //-----------------------------------------------------------------------------
-rpint_t rpRegisterHandle(rpctx_t *rp, rpid_t id, rphandle_t handle);
+int32_t buckHwIfPlecsGetMeas(void *meas);
 //-----------------------------------------------------------------------------
-rpint_t rpRequest(rpctx_t *rp, void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
+void buckHwIfPlecsProcMeas(void *meas, void *procmeas, int32_t n);
+//-----------------------------------------------------------------------------
+void buckHwIfPlecsProcOutputs(void *outputs, void *procoutputs, int32_t n);
+//-----------------------------------------------------------------------------
+void buckHwIfPlecsApplyOutputs(void *outputs, int32_t n);
+//-----------------------------------------------------------------------------
+int32_t buckHwIfPlecsInterface(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+int32_t buckHwIfPlecsSetParams(void *params, int32_t n);
+//-----------------------------------------------------------------------------
+int32_t buckHwIfPlecsGetParams(void *in, void *out);
 //-----------------------------------------------------------------------------
 //=============================================================================
 
-#endif /* RP_H_ */
+#endif /* BUCKHWIFPLECS_H_ */

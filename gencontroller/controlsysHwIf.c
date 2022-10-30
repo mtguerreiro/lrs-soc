@@ -10,7 +10,8 @@
 //=============================================================================
 #include "controlsysHwIf.h"
 
-#include "buckHwIf.h"
+//#include "buckHwIf.h"
+#include "buckHwIfPlecs.h"
 //=============================================================================
 
 //=============================================================================
@@ -19,37 +20,32 @@
 //-----------------------------------------------------------------------------
 int32_t controlsysHwIfInitialize(void){
 
-	return 0;
+	return buckHwIfPlecsInitialize();
 }
 //-----------------------------------------------------------------------------
 int32_t controlsysHwIfGetMeas(void *meas){
 
-	return buckHwIfGetMeas( meas );
+	return buckHwIfPlecsGetMeas( meas );
 }
 //-----------------------------------------------------------------------------
 void controlsysHwIfProcMeas(void *meas, void *procmeas, int32_t n){
 
-	buckHwIfProcMeas( meas, procmeas, n );
+	buckHwIfPlecsProcMeas( meas, procmeas, n );
 }
 //-----------------------------------------------------------------------------
 void controlsysHwIfProcOutputs(void *outputs, void *procoutputs, int32_t n){
 
-	buckHwIfProcOutputs( outputs, procoutputs, n );
+	buckHwIfPlecsProcOutputs( outputs, procoutputs, n );
 }
 //-----------------------------------------------------------------------------
 void controlsysHwIfApplyOutputs(void *outputs, int32_t n){
 
-	buckHwIfApplyOutputs( outputs, n );
+	buckHwIfPlecsApplyOutputs( outputs, n );
 }
 //-----------------------------------------------------------------------------
-int32_t controlsysHwIfSetParams(void *params, int32_t n){
+int32_t controlsysHwIfInterface(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
 
-	return buckHwIfSetParams( params, n );
-}
-//-----------------------------------------------------------------------------
-int32_t controlsysHwIfGetParams(void *in, void *out){
-
-	return buckHwIfGetParams( in, out );
+	return buckHwIfPlecsInterface(in, insize, out, maxoutsize);
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

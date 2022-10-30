@@ -61,14 +61,9 @@ int32_t controlsysControllerInterface(void *in, uint32_t insize, void **out, uin
 	return controlsysCtlIfInterface(in, insize, out, maxoutsize);
 }
 //-----------------------------------------------------------------------------
-int32_t controlsysSetHwParams(void *params, int32_t n){
+int32_t controlsysHardwareInterface(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
 
-	return controlsysHwIfSetParams( params, n );
-}
-//-----------------------------------------------------------------------------
-int32_t controlsysGetHwParams(void *in, void *out){
-
-	return controlsysHwIfGetParams( in, out );
+	return controlsysHwIfInterface(in, insize, out, maxoutsize);
 }
 //-----------------------------------------------------------------------------
 void controlsysRun(void){

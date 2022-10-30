@@ -28,9 +28,7 @@ void controlsysHwIfProcOutputs(void *outputs, void *procoutputs, int32_t n);
 //-----------------------------------------------------------------------------
 void controlsysHwIfApplyOutputs(void *outputs, int32_t n);
 //-----------------------------------------------------------------------------
-int32_t controlsysHwIfSetParams(void *params, int32_t n);
-//-----------------------------------------------------------------------------
-int32_t controlsysHwIfGetParams(void *in, void *out);
+int32_t controlsysHwIfInterface(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
 //=============================================================================
 

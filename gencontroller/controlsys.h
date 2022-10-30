@@ -23,9 +23,7 @@ void controlsysInitialize(void);
 //-----------------------------------------------------------------------------
 int32_t controlsysControllerInterface(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
-int32_t controlsysSetHwParams(void *params, int32_t n);
-//-----------------------------------------------------------------------------
-int32_t controlsysGetHwParams(void *in, void *out);
+int32_t controlsysHardwareInterface(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
 void controlsysRun(void);
 //-----------------------------------------------------------------------------
