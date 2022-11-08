@@ -17,8 +17,8 @@
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-typedef unsigned int rpuint_t;
-typedef signed int rpint_t;
+typedef uint32_t rpuint_t;
+typedef int32_t rpint_t;
 typedef rpuint_t rpid_t;
 
 typedef rpint_t (*rphandle_t)(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);

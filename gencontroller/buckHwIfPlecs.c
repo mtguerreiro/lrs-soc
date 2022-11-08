@@ -114,10 +114,6 @@ int32_t buckHwIfPlecsInterface(void *in, uint32_t insize, void **out, uint32_t m
 //-----------------------------------------------------------------------------
 static int32_t buckHwIfPlecsSetMeasBuffer(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
 
-	//uint64_t *p;
-
-	//p = (uint64_t *)( in );
-
 	buckPlecs.measbuffer = (int *)( *( (uint64_t *)( in ) ) );
 
 	return 0;
