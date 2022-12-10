@@ -31,6 +31,8 @@
 #include "math.h"
 
 #include "soc_trace.h"
+
+#include "rp.h"
 //=============================================================================
 
 //=============================================================================
@@ -61,7 +63,8 @@ typedef struct{
 
 
 typedef struct{
-	mainCmdHandle_t cmdHandle[SOC_CMD_CPU1_END];
+	rphandle_t cmdHandle[SOC_CMD_CPU1_END];
+	//mainCmdHandle_t cmdHandle[SOC_CMD_CPU1_END];
 
 	mainTrace_t trace;
 
@@ -70,6 +73,8 @@ typedef struct{
 	uint32_t precharge;
 
 	uint32_t enable;
+
+	rpctx_t rp;
 
 }mainControl_t;
 //=============================================================================
@@ -156,19 +161,34 @@ static void mainInputRelayEnable(void);
 static void mainOutputRelayDisable(void);
 static void mainOutputRelayEnable(void);
 
-static int32_t mainCmdBlink(uint32_t **data);
-static int32_t mainCmdAdcEn(uint32_t **data);
-static int32_t mainCmdAdcSpiFreq(uint32_t **data);
-static int32_t mainCmdAdcSamplingFreq(uint32_t **data);
-static int32_t mainCmdAdcErrorRead(uint32_t **data);
-static int32_t mainCmdAdcErrorClear(uint32_t **data);
-static int32_t mainCmdTraceStart(uint32_t **data);
-static int32_t mainCmdTraceRead(uint32_t **data);
-static int32_t mainCmdTraceReadTags(uint32_t **data);
-static int32_t mainCmdTraceSizeSet(uint32_t **data);
-static int32_t mainCmdTraceSizeRead(uint32_t **data);
+static int mainRpInit(void);
 
-static int32_t mainCmdControlEn(uint32_t **data);
+static int32_t mainCmdBlink(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
+static int32_t mainCmdAdcEn(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
+static int32_t mainCmdAdcSpiFreq(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
+static int32_t mainCmdAdcSamplingFreq(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
+static int32_t mainCmdAdcErrorRead(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
+static int32_t mainCmdAdcErrorClear(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
+static int32_t mainCmdTraceStart(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
+static int32_t mainCmdTraceRead(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
+static int32_t mainCmdTraceReadTags(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
+static int32_t mainCmdTraceSizeSet(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
+static int32_t mainCmdTraceSizeRead(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
+
+static int32_t mainCmdControlEn(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
+//static int32_t mainCmdBlink(uint32_t **data);
+//static int32_t mainCmdAdcEn(uint32_t **data);
+//static int32_t mainCmdAdcSpiFreq(uint32_t **data);
+//static int32_t mainCmdAdcSamplingFreq(uint32_t **data);
+//static int32_t mainCmdAdcErrorRead(uint32_t **data);
+//static int32_t mainCmdAdcErrorClear(uint32_t **data);
+//static int32_t mainCmdTraceStart(uint32_t **data);
+//static int32_t mainCmdTraceRead(uint32_t **data);
+//static int32_t mainCmdTraceReadTags(uint32_t **data);
+//static int32_t mainCmdTraceSizeSet(uint32_t **data);
+//static int32_t mainCmdTraceSizeRead(uint32_t **data);
+//
+//static int32_t mainCmdControlEn(uint32_t **data);
 
 static void mainControlReset(void);
 
@@ -261,18 +281,19 @@ static int mainSysInit(void){
 //	XGpio_DiscreteWrite(&relay_device, RELAY_CHANNEL, 0x07);
 
 	/* Commands */
-	mainControl.cmdHandle[SOC_CMD_CPU1_BLINK] = mainCmdBlink;
-	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_EN] = mainCmdAdcEn;
-	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SPI_FREQ_SET] = mainCmdAdcSpiFreq;
-	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SAMPLING_FREQ_SET] = mainCmdAdcSamplingFreq;
-	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_ERROR_READ] = mainCmdAdcErrorRead;
-	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_ERROR_CLEAR] = mainCmdAdcErrorClear;
-	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_START] = mainCmdTraceStart;
-	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_READ] = mainCmdTraceRead;
-	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_READ_TAGS] = mainCmdTraceReadTags;
-	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_SIZE_SET] = mainCmdTraceSizeSet;
-	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_SIZE_READ] = mainCmdTraceSizeRead;
-	mainControl.cmdHandle[SOC_CMD_CPU1_CONTROL_EN] = mainCmdControlEn;
+	mainRpInit();
+//	mainControl.cmdHandle[SOC_CMD_CPU1_BLINK] = mainCmdBlink;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_EN] = mainCmdAdcEn;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SPI_FREQ_SET] = mainCmdAdcSpiFreq;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SAMPLING_FREQ_SET] = mainCmdAdcSamplingFreq;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_ERROR_READ] = mainCmdAdcErrorRead;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_ERROR_CLEAR] = mainCmdAdcErrorClear;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_START] = mainCmdTraceStart;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_READ] = mainCmdTraceRead;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_READ_TAGS] = mainCmdTraceReadTags;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_SIZE_SET] = mainCmdTraceSizeSet;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_SIZE_READ] = mainCmdTraceSizeRead;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_CONTROL_EN] = mainCmdControlEn;
 
 	mainControl.trace.p = (uint32_t *)( SOC_MEM_TRACE_ADR );
 	mainControl.trace.end = (uint32_t *)( SOC_MEM_TRACE_ADR + SOC_MEM_TRACE_SIZE_MAX );
@@ -389,18 +410,53 @@ static int mainSetupIntrSystem(INTC *IntcInstancePtr)
 	return XST_SUCCESS;
 }
 //-----------------------------------------------------------------------------
-static int32_t mainCmdBlink(uint32_t **data){
+static int mainRpInit(void){
 
-	blinkPeriod = *(*data);
+	rpInitialize(&mainControl.rp, SOC_CMD_CPU1_END, mainControl.cmdHandle);
+
+	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_BLINK, mainCmdBlink);
+	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_ADC_EN, mainCmdAdcEn);
+	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_ADC_SPI_FREQ_SET, mainCmdAdcSpiFreq);
+	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_ADC_SAMPLING_FREQ_SET, mainCmdAdcSamplingFreq);
+	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_ADC_ERROR_READ, mainCmdAdcErrorRead);
+	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_ADC_ERROR_CLEAR, mainCmdAdcErrorClear);
+	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_TRACE_START, mainCmdTraceStart);
+	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_TRACE_READ, mainCmdTraceRead);
+	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_TRACE_READ_TAGS, mainCmdTraceReadTags);
+	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_TRACE_SIZE_SET, mainCmdTraceSizeSet);
+	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_TRACE_SIZE_READ, mainCmdTraceSizeRead);
+	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_CONTROL_EN, mainCmdControlEn);
+
+//	mainControl.cmdHandle[SOC_CMD_CPU1_BLINK] = mainCmdBlink;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_EN] = mainCmdAdcEn;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SPI_FREQ_SET] = mainCmdAdcSpiFreq;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SAMPLING_FREQ_SET] = mainCmdAdcSamplingFreq;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_ERROR_READ] = mainCmdAdcErrorRead;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_ERROR_CLEAR] = mainCmdAdcErrorClear;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_START] = mainCmdTraceStart;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_READ] = mainCmdTraceRead;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_READ_TAGS] = mainCmdTraceReadTags;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_SIZE_SET] = mainCmdTraceSizeSet;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_SIZE_READ] = mainCmdTraceSizeRead;
+//	mainControl.cmdHandle[SOC_CMD_CPU1_CONTROL_EN] = mainCmdControlEn;
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t mainCmdAdcEn(uint32_t **data){
+static int32_t mainCmdBlink(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
+
+	blinkPeriod = *( (uint32_t *)in );
+	//blinkPeriod = *(*data);
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t mainCmdAdcEn(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
 
 	uint32_t en;
 
-	en = *(*data);
+	//en = *(*data);
+	en = *( (uint32_t *)in );
 
 //	if( en == 0 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0U);
 //	else AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 1U);
@@ -411,11 +467,13 @@ static int32_t mainCmdAdcEn(uint32_t **data){
 	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t mainCmdAdcSpiFreq(uint32_t **data){
+static int32_t mainCmdAdcSpiFreq(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
 
 	uint32_t en, freq;
 
-	freq = *(*data);
+	//freq = *(*data);
+	freq = *( (uint32_t *)in );
+
 
 	en = AXI_TEST_mReadReg(AXI_PWM_BASE_ADR, 0);
 
@@ -442,11 +500,12 @@ static int32_t mainCmdAdcSpiFreq(uint32_t **data){
 //	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t mainCmdAdcSamplingFreq(uint32_t **data){
+static int32_t mainCmdAdcSamplingFreq(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
 
 	uint32_t en, freq;
 
-	freq = *(*data);
+	//freq = *(*data);
+	freq = *( (uint32_t *)in );
 
 	en = AXI_TEST_mReadReg(AXI_PWM_BASE_ADR, 0);
 
@@ -481,7 +540,7 @@ static int32_t mainCmdAdcSamplingFreq(uint32_t **data){
 //	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t mainCmdTraceStart(uint32_t **data){
+static int32_t mainCmdTraceStart(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
 
 	mainControl.trace.p = (uint32_t *)SOC_MEM_TRACE_ADR;
 
@@ -490,33 +549,36 @@ static int32_t mainCmdTraceStart(uint32_t **data){
 	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t mainCmdTraceRead(uint32_t **data){
+static int32_t mainCmdTraceRead(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
 
 	uint32_t size;
 
 	size = ((uint32_t)mainControl.trace.end) - SOC_MEM_TRACE_ADR;
 
-	*data = (uint32_t *)SOC_MEM_TRACE_ADR;
+	//*data = (uint32_t *)SOC_MEM_TRACE_ADR;
+	*out = (uint32_t *)SOC_MEM_TRACE_ADR;
 
 	return size;
 }
 //-----------------------------------------------------------------------------
-static int32_t mainCmdTraceReadTags(uint32_t **data){
+static int32_t mainCmdTraceReadTags(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
 
 	uint32_t n;
 
 	n = soctraceReadTags(SOC_TRACE_ID_1, (char *)SOC_MEM_TRACE_ADR);
 
-	*data = (uint32_t *)SOC_MEM_TRACE_ADR;
+	//*data = (uint32_t *)SOC_MEM_TRACE_ADR;
+	*out = (uint32_t *)SOC_MEM_TRACE_ADR;
 
 	return n;
 }
 //-----------------------------------------------------------------------------
-static int32_t mainCmdTraceSizeSet(uint32_t **data){
+static int32_t mainCmdTraceSizeSet(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
 
 	uint32_t size;
 
-	size = *(*data);
+	//size = *(*data);
+	size = *( (uint32_t *)in );
 
 	if( size <= SOC_MEM_TRACE_SIZE_MAX ){
 		mainControl.trace.end = (uint32_t *)( SOC_MEM_TRACE_ADR + size );
@@ -528,7 +590,7 @@ static int32_t mainCmdTraceSizeSet(uint32_t **data){
 	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t mainCmdTraceSizeRead(uint32_t **data){
+static int32_t mainCmdTraceSizeRead(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
 
 	uint32_t *p;
 	uint32_t size;
@@ -537,35 +599,38 @@ static int32_t mainCmdTraceSizeRead(uint32_t **data){
 	size = ((uint32_t)mainControl.trace.end) - SOC_MEM_TRACE_ADR;
 	*p = size;
 
-	*data = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
+	//*data = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
+	*out = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
 
 	return 4;
 }
 //-----------------------------------------------------------------------------
-static int32_t mainCmdAdcErrorRead(uint32_t **data){
+static int32_t mainCmdAdcErrorRead(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
 
 	uint32_t *p;
 
 	p = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
 	*p = mainControl.error;
 
-	*data = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
+	//*data = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
+	*out = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
 
 	return 4;
 }
 //-----------------------------------------------------------------------------
-static int32_t mainCmdAdcErrorClear(uint32_t **data){
+static int32_t mainCmdAdcErrorClear(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
 
 	mainControl.error = 0;
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t mainCmdControlEn(uint32_t **data){
+static int32_t mainCmdControlEn(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
 
 	uint32_t en;
 
-	en = *(*data);
+	//en = *(*data);
+	en = *( (uint32_t *)in );
 
 	if( en == 0 ) {
 		mainControl.enable = 0;
@@ -581,6 +646,199 @@ static int32_t mainCmdControlEn(uint32_t **data){
 
 	return 0;
 }
+////-----------------------------------------------------------------------------
+//static int32_t mainCmdBlink(uint32_t **data){
+//
+//	blinkPeriod = *(*data);
+//
+//	return 0;
+//}
+////-----------------------------------------------------------------------------
+//static int32_t mainCmdAdcEn(uint32_t **data){
+//
+//	uint32_t en;
+//
+//	en = *(*data);
+//
+////	if( en == 0 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0U);
+////	else AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 1U);
+//
+//	if( en == 0 ) AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 0U);
+//	else AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 1U);
+//
+//	return 0;
+//}
+////-----------------------------------------------------------------------------
+//static int32_t mainCmdAdcSpiFreq(uint32_t **data){
+//
+//	uint32_t en, freq;
+//
+//	freq = *(*data);
+//
+//	en = AXI_TEST_mReadReg(AXI_PWM_BASE_ADR, 0);
+//
+//	if( (en & 1) == 1 ) AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 0U);
+//
+//	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 4, freq);
+//
+//	if( (en & 1) == 1 ) AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, en);
+//
+//	return 0;
+//
+////	uint32_t en, freq;
+////
+////	freq = *data;
+////
+////	en = AXI_TEST_mReadReg(AXI_TEST_BASE_ADR, 0);
+////
+////	if( en == 1 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0U);
+////
+////	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 4, freq);
+////
+////	if( en == 1 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 1U);
+////
+////	return 0;
+//}
+////-----------------------------------------------------------------------------
+//static int32_t mainCmdAdcSamplingFreq(uint32_t **data){
+//
+//	uint32_t en, freq;
+//
+//	freq = *(*data);
+//
+//	en = AXI_TEST_mReadReg(AXI_PWM_BASE_ADR, 0);
+//
+//	if( (en & 1) == 1 ) AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 0U);
+//
+//	//AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 1U);
+//	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 4, freq);
+//	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 8, 0);
+//
+//	//AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, freq);
+//
+//	if( (en & 1) == 1 ) AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, en);
+//
+//	return 0;
+//
+////	uint32_t en, freq;
+////
+////	freq = *data;
+////
+////	en = AXI_TEST_mReadReg(AXI_TEST_BASE_ADR, 0);
+////
+////	if( en == 1 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0U);
+////
+////	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 1U);
+////	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 4, freq);
+////	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 8, freq >> 4U);
+////
+////	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, freq);
+////
+////	if( en == 1 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 1U);
+////
+////	return 0;
+//}
+////-----------------------------------------------------------------------------
+//static int32_t mainCmdTraceStart(uint32_t **data){
+//
+//	mainControl.trace.p = (uint32_t *)SOC_MEM_TRACE_ADR;
+//
+//	soctraceReset(SOC_TRACE_ID_1);
+//
+//	return 0;
+//}
+////-----------------------------------------------------------------------------
+//static int32_t mainCmdTraceRead(uint32_t **data){
+//
+//	uint32_t size;
+//
+//	size = ((uint32_t)mainControl.trace.end) - SOC_MEM_TRACE_ADR;
+//
+//	*data = (uint32_t *)SOC_MEM_TRACE_ADR;
+//
+//	return size;
+//}
+////-----------------------------------------------------------------------------
+//static int32_t mainCmdTraceReadTags(uint32_t **data){
+//
+//	uint32_t n;
+//
+//	n = soctraceReadTags(SOC_TRACE_ID_1, (char *)SOC_MEM_TRACE_ADR);
+//
+//	*data = (uint32_t *)SOC_MEM_TRACE_ADR;
+//
+//	return n;
+//}
+////-----------------------------------------------------------------------------
+//static int32_t mainCmdTraceSizeSet(uint32_t **data){
+//
+//	uint32_t size;
+//
+//	size = *(*data);
+//
+//	if( size <= SOC_MEM_TRACE_SIZE_MAX ){
+//		mainControl.trace.end = (uint32_t *)( SOC_MEM_TRACE_ADR + size );
+//
+//		soctraceSetSize(SOC_TRACE_ID_1, size);
+//
+//	}
+//
+//	return 0;
+//}
+////-----------------------------------------------------------------------------
+//static int32_t mainCmdTraceSizeRead(uint32_t **data){
+//
+//	uint32_t *p;
+//	uint32_t size;
+//
+//	p = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
+//	size = ((uint32_t)mainControl.trace.end) - SOC_MEM_TRACE_ADR;
+//	*p = size;
+//
+//	*data = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
+//
+//	return 4;
+//}
+////-----------------------------------------------------------------------------
+//static int32_t mainCmdAdcErrorRead(uint32_t **data){
+//
+//	uint32_t *p;
+//
+//	p = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
+//	*p = mainControl.error;
+//
+//	*data = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
+//
+//	return 4;
+//}
+////-----------------------------------------------------------------------------
+//static int32_t mainCmdAdcErrorClear(uint32_t **data){
+//
+//	mainControl.error = 0;
+//
+//	return 0;
+//}
+////-----------------------------------------------------------------------------
+//static int32_t mainCmdControlEn(uint32_t **data){
+//
+//	uint32_t en;
+//
+//	en = *(*data);
+//
+//	if( en == 0 ) {
+//		mainControl.enable = 0;
+//		AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 1U);
+//	}
+//	else {
+//		mainControl.enable = 1;
+//		AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 8, 0);
+//		AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 3U);
+//	}
+//
+//	mainControlReset();
+//
+//	return 0;
+//}
 //-----------------------------------------------------------------------------
 static void mainInputRelayDisable(void){
 
@@ -687,26 +945,58 @@ void DeviceDriverHandler(void *CallbackRef){
 	uint32_t size;
 	uint32_t address;
 	int32_t ret;
+	uint32_t *out;
+	uint32_t data;
 
 	/* Gets the command and data sent by CPU0 */
-	cmd = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD );
 	size = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_SIZE );
-	address = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_DATA_ADDR );
+	data = (uint32_t )SOC_MEM_CPU0_TO_CPU1_CMD;
+	//address = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_DATA_ADDR );
 
-	pbuf = (uint32_t *)address;
+	out = (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR;
+	//pbuf = (uint32_t *)address;
 
 	/* Executes the command */
-	ret = mainControl.cmdHandle[cmd]( (uint32_t **)&pbuf );
+	ret = rpRequest(&mainControl.rp, (void *)data, size, (void **)&out, 32);
+	//ret = mainControl.cmdHandle[cmd]( (uint32_t **)&pbuf );
 
 	/* Replies back to CPU0 */
 	*( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_STATUS ) = ret;
 
 	if( ret > 0 ){
-		*( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR ) = (uint32_t)pbuf;
+		*( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR ) = (uint32_t)out;
 	}
 
 	XScuGic_SoftwareIntr ( &IntcInstancePtr , SOC_SIG_CPU1_TO_CPU0 , SOC_SIG_CPU0_ID ) ;
 }
+//void DeviceDriverHandler(void *CallbackRef){
+//
+//	uint32_t *pbuf;
+//
+//	uint32_t cmd;
+//	uint32_t size;
+//	uint32_t address;
+//	int32_t ret;
+//
+//	/* Gets the command and data sent by CPU0 */
+//	cmd = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD );
+//	size = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_SIZE );
+//	address = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_DATA_ADDR );
+//
+//	pbuf = (uint32_t *)address;
+//
+//	/* Executes the command */
+//	ret = mainControl.cmdHandle[cmd]( (uint32_t **)&pbuf );
+//
+//	/* Replies back to CPU0 */
+//	*( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_STATUS ) = ret;
+//
+//	if( ret > 0 ){
+//		*( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR ) = (uint32_t)pbuf;
+//	}
+//
+//	XScuGic_SoftwareIntr ( &IntcInstancePtr , SOC_SIG_CPU1_TO_CPU0 , SOC_SIG_CPU0_ID ) ;
+//}
 //-----------------------------------------------------------------------------
 void PLirqHandler(void *CallbackRef){
 

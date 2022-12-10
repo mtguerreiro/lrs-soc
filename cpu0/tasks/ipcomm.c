@@ -228,7 +228,7 @@ static int32_t ipcommCMDExecute(uint32_t cmd, uint8_t **pbuf, uint32_t size){
 	 * from the uiface buffer to the CPU0->CPU1 buffer.
 	 */
 	if( size > 0 ){
-		*( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_DATA_ADDR ) = SOC_MEM_CPU0_TO_CPU1_DATA;
+		//*( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_DATA_ADDR ) = SOC_MEM_CPU0_TO_CPU1_DATA;
 		dst = (uint8_t *)(SOC_MEM_CPU0_TO_CPU1_DATA);
 		src = *pbuf;
 		for(i = 0; i < size; i++) *dst++ = *src++;
