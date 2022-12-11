@@ -84,15 +84,17 @@ class Ethernet:
             size = len(data)
         else:
             size = 0
-            
+
+        size = size + 4
         tx_data = []
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
         tx_data.extend( lrssoc.conversions.u32_to_u8(size, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
         
         if size != 0:
             tx_data.extend(data)
 
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:    
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            print(tx_data)
             s.connect((self.host, self.port))
             s.sendall(bytes(tx_data))
 

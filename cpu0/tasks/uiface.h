@@ -39,7 +39,7 @@
  * function should return a negative value, representing the error. This
  * negative value will be propagated forward.
  */
-typedef int32_t(*uifaceHandle_t)(uint32_t cmd, uint8_t **pbuf, uint32_t size);
+typedef int32_t(*uifaceHandle_t)(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
 /*
  * Defines if DHCP should be used. For now, we've only tested with

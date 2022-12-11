@@ -32,6 +32,8 @@
 
 /* LRS SoC defs */
 #include "soc_defs.h"
+
+#include "ipcClient.h"
 //=============================================================================
 
 //=============================================================================
@@ -107,9 +109,14 @@ static void ipCommInitializeCMDs(void);
 
 static void ipcommCMDRegister(uint32_t cpu0cmd, uint32_t cpu1cmd, ipcommCMDHandle_t handle);
 static uint32_t ipcommCMDFind(uint32_t cpu0cmd);
-static int32_t ipcommCMDExecute(uint32_t cmd, uint8_t **pbuf, uint32_t size);
+static int32_t ipcommCMDExecute(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
 void ipcommIRQCPU1(void *CallbackRef);
+
+static void ipcommIpcInit(void);
+static int32_t ipcommIrqSend();
+static int32_t ipcommIrqReceive(uint32_t timeout);
+
 //=============================================================================
 
 //=============================================================================
@@ -145,6 +152,31 @@ static int ipcommInitialize(void){
 	xipcommControl.cpu1Semaphore = xSemaphoreCreateBinary();
 
 	return XST_SUCCESS;
+}
+//-----------------------------------------------------------------------------
+static void ipcommIpcInit(void){
+
+	ipcClientInitialize(ipcommIrqSend, ipcommIrqReceive,
+			SOC_MEM_CPU1_TO_CPU0_ADR, SOC_MEM_CPU1_TO_CPU0_SIZE,
+			SOC_MEM_CPU0_TO_CPU1_ADR, SOC_MEM_CPU0_TO_CPU1_SIZE);
+}
+//-----------------------------------------------------------------------------
+static int32_t ipcommIrqSend(void){
+
+	/* Generates a software interrupt on CPU1 */
+	XScuGic_SoftwareIntr ( xipcommControl.intcInstance, IPCOMM_INT_CPU0_TO_CPU1, SOC_SIG_CPU1_ID );
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t ipcommIrqReceive(uint32_t timeout){
+
+	/* Waits until CPU1 replies back */
+	if( xSemaphoreTake(xipcommControl.cpu1Semaphore, IPCOMM_CONFIG_CPU1_REPLY_TO) != pdTRUE ){
+		return IPCOMM_ERR_CPU1_REPLY_TO;
+	}
+
+	return 0;
 }
 //-----------------------------------------------------------------------------
 static void ipCommInitializeCMDs(void){
@@ -192,10 +224,11 @@ static uint32_t ipcommCMDFind(uint32_t cpu0cmd){
 	return i;
 }
 //-----------------------------------------------------------------------------
-static int32_t ipcommCMDExecute(uint32_t cmd, uint8_t **pbuf, uint32_t size){
+static int32_t ipcommCMDExecute(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
 
 	uint32_t cpu0cmd, cpu1cmd;
 	uint8_t *src, *dst;
+	uint32_t *p;
 	uint32_t i;
 	uint32_t status;
 
@@ -203,9 +236,10 @@ static int32_t ipcommCMDExecute(uint32_t cmd, uint8_t **pbuf, uint32_t size){
 	 * If amount of data to be passed to CPU1 exceeds the available memory,
 	 * an error is generated.
 	 */
-	if( size > SOC_MEM_CPU0_TO_CPU1_SIZE ) return IPCOMM_ERR_CPU0_CPU1_BUFFER_OVERFLOW;
+	if( insize > SOC_MEM_CPU0_TO_CPU1_SIZE ) return IPCOMM_ERR_CPU0_CPU1_BUFFER_OVERFLOW;
 
-	cpu0cmd = cmd;
+	p = (uint32_t)in;
+	cpu0cmd = *p++;
 	cpu1cmd = ipcommCMDFind(cpu0cmd);
 
 	/* If the command received does not exist, returns an error */
@@ -221,17 +255,17 @@ static int32_t ipcommCMDExecute(uint32_t cmd, uint8_t **pbuf, uint32_t size){
 	*( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD ) = cpu1cmd;
 
 	/* Writes size of data (in number of bytes) */
-	*( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_SIZE ) = size;
+	*( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_SIZE ) = insize;
 
 	/*
 	 * Writes where data will be located at. Here, we will always copy data
 	 * from the uiface buffer to the CPU0->CPU1 buffer.
 	 */
-	if( size > 0 ){
+	if( insize > 0 ){
 		//*( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_DATA_ADDR ) = SOC_MEM_CPU0_TO_CPU1_DATA;
 		dst = (uint8_t *)(SOC_MEM_CPU0_TO_CPU1_DATA);
-		src = *pbuf;
-		for(i = 0; i < size; i++) *dst++ = *src++;
+		src = (uint8_t *)p;
+		for(i = 0; i < insize; i++) *dst++ = *src++;
 	}
 
 	/* Generates a software interrupt on CPU1 */
@@ -246,8 +280,8 @@ static int32_t ipcommCMDExecute(uint32_t cmd, uint8_t **pbuf, uint32_t size){
 	 * Gets the command status and writes to pbuf the address of where the
 	 * data (if any) is located at.
 	 */
-	status = *( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_STATUS );
-	*pbuf = (uint8_t *) ( *( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR ) );
+	status = *( (uint32_t *)(SOC_MEM_CPU1_TO_CPU0_CMD_STATUS + 4U));
+	*out = (uint8_t *) ( *( (uint32_t *)(SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR + 4U) ) );
 
 	return status;
 }

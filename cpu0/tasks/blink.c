@@ -59,7 +59,7 @@ blinkControl_t xblinkControl;
 /*-------------------------------- Prototypes -------------------------------*/
 //=============================================================================
 static void blinkInitialize(void);
-static int32_t blinkPeriodUpdate(uint32_t cmd, uint8_t **pbuf, uint32_t size);
+static int32_t blinkPeriodUpdate(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static void blinkToggleColor(uint32_t color);
 //=============================================================================
 
@@ -99,11 +99,11 @@ static void blinkInitialize(void){
     uifaceRegisterHandle(SOC_CMD_CPU0_BLINK_CPU0, blinkPeriodUpdate);
 }
 //-----------------------------------------------------------------------------
-static int32_t blinkPeriodUpdate(uint32_t cmd, uint8_t **pbuf, uint32_t size){
+static int32_t blinkPeriodUpdate(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
 
 	uint32_t period;
 
-	period = *((uint32_t *)(*pbuf));
+	period = *((uint32_t *)(in));
 
 	xblinkControl.period = period / portTICK_PERIOD_MS;
 

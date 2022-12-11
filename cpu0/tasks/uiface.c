@@ -66,6 +66,8 @@
 /* lwip */
 #include "lwip/sockets.h"
 #include "lwipopts.h"
+
+#include "rp.h"
 //=============================================================================
 
 //=============================================================================
@@ -86,7 +88,9 @@
 typedef struct{
 
 	/* Handles for received commands */
-	uifaceHandle_t handle[SOC_CMD_CPU0_END];
+	rphandle_t handle[SOC_CMD_CPU0_END];
+	rpctx_t rp;
+	//uifaceHandle_t handle[SOC_CMD_CPU0_END];
 
 	/* Server netif */
 	struct netif servernetif;
@@ -139,6 +143,8 @@ err_t dhcp_start(struct netif *netif);
 #endif
 #endif
 void lwip_init();
+
+static void uifaceRpInitialize(void);
 //=============================================================================
 
 //=============================================================================
@@ -153,6 +159,7 @@ void uiface(void *param){
 	int mscnt = 0;
 #endif
 
+	uifaceRpInitialize();
 	xuifaceControl.mutex = xSemaphoreCreateMutex();
 
 	/* initialize lwIP before calling sys_thread_new */
@@ -216,11 +223,14 @@ void uiface(void *param){
 //-----------------------------------------------------------------------------
 int32_t uifaceRegisterHandle(uint32_t id, uifaceHandle_t handle){
 
-	if( id >= SOC_CMD_CPU0_END ) return UIFACE_ERR_INVALID_ID;
+	int32_t status;
 
-	xuifaceControl.handle[id] = handle;
+	status = rpRegisterHandle(&xuifaceControl.rp, id, handle);
+	//if( id >= SOC_CMD_CPU0_END ) return UIFACE_ERR_INVALID_ID;
 
-	return 0;
+	//xuifaceControl.handle[id] = handle;
+
+	return status;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
@@ -278,9 +288,14 @@ static void uifaceApplicationThread(void){
 	}
 }
 //-----------------------------------------------------------------------------
-static void uifaceRequestProcessThread(void *p){
+static void uifaceRpInitialize(void){
 
-	int sd = (int)p;
+	rpInitialize(&xuifaceControl.rp, SOC_CMD_CPU0_END, xuifaceControl.handle);
+}
+//-----------------------------------------------------------------------------
+static void uifaceRequestProcessThread(void *param){
+
+	int sd = (int)param;
 	char recvbuf[UIFACE_CONFIG_RECV_BUFFER];
 	int32_t n;
 	int32_t nrx;
@@ -288,7 +303,8 @@ static void uifaceRequestProcessThread(void *p){
 	int32_t ret;
 	int32_t size;
 
-	uint8_t *pbuf;
+
+	uint8_t *p;
 
 	/*
 	 * A mutex is added here so that we can ensure that only one request is
@@ -310,37 +326,21 @@ static void uifaceRequestProcessThread(void *p){
 		 * (also 4 bytes).
 		 */
 		nrx = 0;
-		while( nrx < 8 ){
-			n = lwip_read(sd, &recvbuf[nrx], 8 - nrx);
+		while( nrx < 4 ){
+			n = lwip_read(sd, &recvbuf[nrx], 4 - nrx);
 			if( n <= 0 ){
 				xil_printf("%s: error reading from socket %d, closing socket\r\n", __FUNCTION__, sd);
 				break;
 			}
 			nrx += n;
 		}
-		if( nrx != 8 ){
-			xil_printf("%s: error reading ID and size from socket %d, closing socket\r\n", __FUNCTION__, sd);
+		if( nrx != 4 ){
+			xil_printf("%s: error reading size from socket %d, closing socket\r\n", __FUNCTION__, sd);
 			break;
 		}
+		size = *((uint32_t *)recvbuf);
 
-		id = *((uint32_t *)recvbuf);
-		if( id >= SOC_CMD_CPU0_END ){
-			xil_printf("%s: bad id (%u), closing socket\r\n", __FUNCTION__, id);
-			break;
-		}
-
-		size = *((uint32_t *)&recvbuf[4]);
-		if( size > UIFACE_CONFIG_RECV_BUFFER ){
-			xil_printf("%s: data sent exceeds buffer size (command %u).\r\n", __FUNCTION__, id);
-			xil_printf("%s: Number of bytes sent: %u\t Buffer size: %u\r\n", __FUNCTION__, size, UIFACE_CONFIG_RECV_BUFFER);
-			xil_printf("%s: closing socket.\r\n", __FUNCTION__);
-			break;
-		}
-
-		/*
-		 * If everything checks out, proceed to read the number of expected
-		 * bytes.
-		 */
+		/* Read the number of expected bytes */
 		nrx = 0;
 		while( nrx < size ){
 			n = lwip_read(sd, &recvbuf[nrx], size - nrx);
@@ -355,13 +355,8 @@ static void uifaceRequestProcessThread(void *p){
 			break;
 		}
 
-		/* Calls function registered to the received ID */
-		if( xuifaceControl.handle[id] == 0 ){
-			xil_printf("%s: no handle for id %u, closing socket\r\n", __FUNCTION__, id);
-			break;
-		}
-		pbuf = (uint8_t *)( &recvbuf );
-		ret = xuifaceControl.handle[id](id, (uint8_t **)( &pbuf ), size);
+		p = (uint8_t *)( recvbuf );
+		ret = rpRequest(&xuifaceControl.rp, (void *)p, size, (void **)(&p), UIFACE_CONFIG_RECV_BUFFER);
 
 		/*
 		 * Now, sends the reply. The reply consists of the command status
@@ -379,10 +374,90 @@ static void uifaceRequestProcessThread(void *p){
 
 		/* Writes data */
 		if( ret > 0 ){
-			n = lwip_write(sd, pbuf, ret);
+			n = lwip_write(sd, p, ret);
 			if( n < ret ) xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
 		}
 		break;
+
+//		/*
+//		 * After receiving a connection, reads the first 8 bytes. They should
+//		 * the command ID (4 bytes) and the number of bytes that were sent
+//		 * (also 4 bytes).
+//		 */
+//		nrx = 0;
+//		while( nrx < 8 ){
+//			n = lwip_read(sd, &recvbuf[nrx], 8 - nrx);
+//			if( n <= 0 ){
+//				xil_printf("%s: error reading from socket %d, closing socket\r\n", __FUNCTION__, sd);
+//				break;
+//			}
+//			nrx += n;
+//		}
+//		if( nrx != 8 ){
+//			xil_printf("%s: error reading ID and size from socket %d, closing socket\r\n", __FUNCTION__, sd);
+//			break;
+//		}
+//
+//		id = *((uint32_t *)recvbuf);
+//		if( id >= SOC_CMD_CPU0_END ){
+//			xil_printf("%s: bad id (%u), closing socket\r\n", __FUNCTION__, id);
+//			break;
+//		}
+//
+//		size = *((uint32_t *)&recvbuf[4]);
+//		if( size > UIFACE_CONFIG_RECV_BUFFER ){
+//			xil_printf("%s: data sent exceeds buffer size (command %u).\r\n", __FUNCTION__, id);
+//			xil_printf("%s: Number of bytes sent: %u\t Buffer size: %u\r\n", __FUNCTION__, size, UIFACE_CONFIG_RECV_BUFFER);
+//			xil_printf("%s: closing socket.\r\n", __FUNCTION__);
+//			break;
+//		}
+//
+//		/*
+//		 * If everything checks out, proceed to read the number of expected
+//		 * bytes.
+//		 */
+//		nrx = 0;
+//		while( nrx < size ){
+//			n = lwip_read(sd, &recvbuf[nrx], size - nrx);
+//			if( n <= 0 ){
+//				xil_printf("%s: error reading from socket %d, closing socket\r\n", __FUNCTION__, sd);
+//				break;
+//			}
+//			nrx += n;
+//		}
+//		if( nrx != size ){
+//			xil_printf("%s: error receiving all expected data from socket %d, closing socket\r\n", __FUNCTION__, sd);
+//			break;
+//		}
+//
+//		/* Calls function registered to the received ID */
+//		if( xuifaceControl.handle[id] == 0 ){
+//			xil_printf("%s: no handle for id %u, closing socket\r\n", __FUNCTION__, id);
+//			break;
+//		}
+//		pbuf = (uint8_t *)( &recvbuf );
+//		ret = xuifaceControl.handle[id](id, (uint8_t **)( &pbuf ), size);
+//
+//		/*
+//		 * Now, sends the reply. The reply consists of the command status
+//		 * (4 bytes), followed by data (if any).
+//		 */
+//		// TODO: should we also do a while loop to send the data? Like in receiving?
+//
+//		/* Writes back the command status */
+//		*( (int32_t *)recvbuf ) = ret;
+//		n = lwip_write(sd, recvbuf, 4);
+//		if( n < 4 ){
+//			xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
+//			break;
+//		}
+//
+//		/* Writes data */
+//		if( ret > 0 ){
+//			n = lwip_write(sd, pbuf, ret);
+//			if( n < ret ) xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
+//		}
+//		break;
 	}
 
 	/* Closes connection */

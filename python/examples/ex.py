@@ -12,19 +12,19 @@ host = '131.246.75.210'
 port = 8080
 
 soc = lrssoc.hwi.Interface(host, port)
-
-soc.cpu1_adc_sampling_freq_set(20000)
-soc.cpu1_adc_spi_freq_set(40)
-#soc.cpu0_trace_size_set(10000)
-#soc.cpu0_trace_size_set(250000)
-soc.cpu0_trace_size_set(500000)
-
-##soc.cpu0_trace_size_set(5000000)
-##soc.cpu1_adc_error_clear()
-##soc.cpu0_trace_start()
-##soc.cpu1_control_en(True)
-##soc.cpu1_control_en(False)
-##plot_adc_data2()
+##
+##soc.cpu1_adc_sampling_freq_set(20000)
+##soc.cpu1_adc_spi_freq_set(40)
+###soc.cpu0_trace_size_set(10000)
+###soc.cpu0_trace_size_set(250000)
+##soc.cpu0_trace_size_set(500000)
+##
+####soc.cpu0_trace_size_set(5000000)
+####soc.cpu1_adc_error_clear()
+####soc.cpu0_trace_start()
+####soc.cpu1_control_en(True)
+####soc.cpu1_control_en(False)
+####plot_adc_data2()
 
 def read_adc_data():
     status, trace_size = soc.cpu0_trace_size_read()    

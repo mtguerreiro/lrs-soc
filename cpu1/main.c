@@ -33,6 +33,8 @@
 #include "soc_trace.h"
 
 #include "rp.h"
+
+#include "ipcServer.h"
 //=============================================================================
 
 //=============================================================================
@@ -64,6 +66,7 @@ typedef struct{
 
 typedef struct{
 	rphandle_t cmdHandle[SOC_CMD_CPU1_END];
+	rpctx_t rp;
 	//mainCmdHandle_t cmdHandle[SOC_CMD_CPU1_END];
 
 	mainTrace_t trace;
@@ -74,7 +77,6 @@ typedef struct{
 
 	uint32_t enable;
 
-	rpctx_t rp;
 
 }mainControl_t;
 //=============================================================================
@@ -176,6 +178,11 @@ static int32_t mainCmdTraceSizeSet(void *in, rpuint_t insize, void **out, rpuint
 static int32_t mainCmdTraceSizeRead(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
 
 static int32_t mainCmdControlEn(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
+
+static int32_t mainIpcIrqSend(void);
+static void mainIpcInit(void);
+static int32_t mainIpcHandle(uint32_t *req, int32_t reqsize, uint32_t *resp, int32_t maxrespsize);
+
 //static int32_t mainCmdBlink(uint32_t **data);
 //static int32_t mainCmdAdcEn(uint32_t **data);
 //static int32_t mainCmdAdcSpiFreq(uint32_t **data);
@@ -294,6 +301,8 @@ static int mainSysInit(void){
 //	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_SIZE_SET] = mainCmdTraceSizeSet;
 //	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_SIZE_READ] = mainCmdTraceSizeRead;
 //	mainControl.cmdHandle[SOC_CMD_CPU1_CONTROL_EN] = mainCmdControlEn;
+
+	mainIpcInit();
 
 	mainControl.trace.p = (uint32_t *)( SOC_MEM_TRACE_ADR );
 	mainControl.trace.end = (uint32_t *)( SOC_MEM_TRACE_ADR + SOC_MEM_TRACE_SIZE_MAX );
@@ -565,10 +574,10 @@ static int32_t mainCmdTraceReadTags(void *in, rpuint_t insize, void **out, rpuin
 
 	uint32_t n;
 
-	n = soctraceReadTags(SOC_TRACE_ID_1, (char *)SOC_MEM_TRACE_ADR);
+	n = soctraceReadTags(SOC_TRACE_ID_1, (char *)*out);
 
 	//*data = (uint32_t *)SOC_MEM_TRACE_ADR;
-	*out = (uint32_t *)SOC_MEM_TRACE_ADR;
+	//*out = (uint32_t *)SOC_MEM_TRACE_ADR;
 
 	return n;
 }
@@ -840,6 +849,38 @@ static int32_t mainCmdControlEn(void *in, rpuint_t insize, void **out, rpuint_t 
 //	return 0;
 //}
 //-----------------------------------------------------------------------------
+static int32_t mainIpcIrqSend(void){
+
+	XScuGic_SoftwareIntr ( &IntcInstancePtr , SOC_SIG_CPU1_TO_CPU0 , SOC_SIG_CPU0_ID ) ;
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+static void mainIpcInit(void){
+
+	ipcServerInitialize(mainIpcHandle, mainIpcIrqSend,
+			SOC_MEM_CPU0_TO_CPU1_ADR, SOC_MEM_CPU0_TO_CPU1_SIZE,
+			SOC_MEM_CPU1_TO_CPU0_ADR, SOC_MEM_CPU1_TO_CPU0_SIZE);
+
+}
+//-----------------------------------------------------------------------------
+static int32_t mainIpcHandle(uint32_t *req, int32_t reqsize, uint32_t *resp, int32_t maxrespsize){
+
+	int32_t ret;
+
+	uint32_t *respAddress;
+
+	respAddress = resp + 2;
+
+	/* Executes the command */
+	ret = rpRequest(&mainControl.rp, (void *)req, reqsize, (void **)&respAddress, maxrespsize - 8);
+
+	*resp++ = ret;
+	*resp++ = (uint32_t)respAddress;
+
+	return 8;
+}
+//-----------------------------------------------------------------------------
 static void mainInputRelayDisable(void){
 
 	uint32_t data;
@@ -939,35 +980,36 @@ static void mainTraceInitialize(void){
 //-----------------------------------------------------------------------------
 void DeviceDriverHandler(void *CallbackRef){
 
-	uint32_t *pbuf;
-
-	uint32_t cmd;
-	uint32_t size;
-	uint32_t address;
-	int32_t ret;
-	uint32_t *out;
-	uint32_t data;
-
-	/* Gets the command and data sent by CPU0 */
-	size = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_SIZE );
-	data = (uint32_t )SOC_MEM_CPU0_TO_CPU1_CMD;
-	//address = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_DATA_ADDR );
-
-	out = (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR;
-	//pbuf = (uint32_t *)address;
-
-	/* Executes the command */
-	ret = rpRequest(&mainControl.rp, (void *)data, size, (void **)&out, 32);
-	//ret = mainControl.cmdHandle[cmd]( (uint32_t **)&pbuf );
-
-	/* Replies back to CPU0 */
-	*( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_STATUS ) = ret;
-
-	if( ret > 0 ){
-		*( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR ) = (uint32_t)out;
-	}
-
-	XScuGic_SoftwareIntr ( &IntcInstancePtr , SOC_SIG_CPU1_TO_CPU0 , SOC_SIG_CPU0_ID ) ;
+	ipcServerRequest();
+//	uint32_t *pbuf;
+//
+//	uint32_t cmd;
+//	uint32_t size;
+//	uint32_t address;
+//	int32_t ret;
+//	uint32_t *out;
+//	uint32_t data;
+//
+//	/* Gets the command and data sent by CPU0 */
+//	size = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_SIZE );
+//	data = (uint32_t )SOC_MEM_CPU0_TO_CPU1_CMD;
+//	//address = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_DATA_ADDR );
+//
+//	out = (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR;
+//	//pbuf = (uint32_t *)address;
+//
+//	/* Executes the command */
+//	ret = rpRequest(&mainControl.rp, (void *)data, size, (void **)&out, 32);
+//	//ret = mainControl.cmdHandle[cmd]( (uint32_t **)&pbuf );
+//
+//	/* Replies back to CPU0 */
+//	*( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_STATUS ) = ret;
+//
+//	if( ret > 0 ){
+//		*( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR ) = (uint32_t)out;
+//	}
+//
+//	XScuGic_SoftwareIntr ( &IntcInstancePtr , SOC_SIG_CPU1_TO_CPU0 , SOC_SIG_CPU0_ID ) ;
 }
 //void DeviceDriverHandler(void *CallbackRef){
 //
