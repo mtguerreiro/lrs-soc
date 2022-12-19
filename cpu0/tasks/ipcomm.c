@@ -117,6 +117,10 @@ static void ipcommIpcInit(void);
 static int32_t ipcommIrqSend();
 static int32_t ipcommIrqReceive(uint32_t timeout);
 
+static int32_t ipcommCmdCpu1Blink(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t ipcommCmdTraceReadTags(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t ipcommCmdTraceSizeRead(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t ipcommRequest(uint32_t cmd, void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //=============================================================================
 
 //=============================================================================
@@ -151,6 +155,8 @@ static int ipcommInitialize(void){
 
 	xipcommControl.cpu1Semaphore = xSemaphoreCreateBinary();
 
+	ipcommIpcInit();
+
 	return XST_SUCCESS;
 }
 //-----------------------------------------------------------------------------
@@ -181,7 +187,7 @@ static int32_t ipcommIrqReceive(uint32_t timeout){
 //-----------------------------------------------------------------------------
 static void ipCommInitializeCMDs(void){
 
-	ipcommCMDRegister(SOC_CMD_CPU0_BLINK_CPU1, SOC_CMD_CPU1_BLINK, ipcommCMDExecute);
+	ipcommCMDRegister(SOC_CMD_CPU0_BLINK_CPU1, SOC_CMD_CPU1_BLINK, ipcommCmdCpu1Blink);
 
 	ipcommCMDRegister(SOC_CMD_CPU0_ADC_EN, SOC_CMD_CPU1_ADC_EN, ipcommCMDExecute);
 
@@ -195,13 +201,13 @@ static void ipCommInitializeCMDs(void){
 
 	ipcommCMDRegister(SOC_CMD_CPU0_TRACE_START, SOC_CMD_CPU1_TRACE_START, ipcommCMDExecute);
 
-	ipcommCMDRegister(SOC_CMD_CPU0_TRACE_READ_TAGS, SOC_CMD_CPU1_TRACE_READ_TAGS, ipcommCMDExecute);
+	ipcommCMDRegister(SOC_CMD_CPU0_TRACE_READ_TAGS, SOC_CMD_CPU1_TRACE_READ_TAGS, ipcommCmdTraceReadTags);
 
 	ipcommCMDRegister(SOC_CMD_CPU0_TRACE_READ, SOC_CMD_CPU1_TRACE_READ, ipcommCMDExecute);
 
 	ipcommCMDRegister(SOC_CMD_CPU0_TRACE_SIZE_SET, SOC_CMD_CPU1_TRACE_SIZE_SET, ipcommCMDExecute);
 
-	ipcommCMDRegister(SOC_CMD_CPU0_TRACE_SIZE_READ, SOC_CMD_CPU1_TRACE_SIZE_READ, ipcommCMDExecute);
+	ipcommCMDRegister(SOC_CMD_CPU0_TRACE_SIZE_READ, SOC_CMD_CPU1_TRACE_SIZE_READ, ipcommCmdTraceSizeRead);
 
 	ipcommCMDRegister(SOC_CMD_CPU0_CONTROL_EN, SOC_CMD_CPU1_CONTROL_EN, ipcommCMDExecute);
 
@@ -284,6 +290,136 @@ static int32_t ipcommCMDExecute(void *in, uint32_t insize, void **out, uint32_t 
 	*out = (uint8_t *) ( *( (uint32_t *)(SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR + 4U) ) );
 
 	return status;
+}
+//-----------------------------------------------------------------------------
+static int32_t ipcommRequest(uint32_t cmd, void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+	uint32_t buf[200];
+	uint32_t k;
+	uint32_t *p;
+
+	int32_t respSize;
+	uint32_t *resp;
+
+	int32_t ret;
+
+	p = (uint32_t *)in;
+
+	buf[0] = cmd;
+
+	k = 0;
+	while( k++ < insize ){
+		buf[k] = *p++;
+	}
+
+	xSemaphoreTake(xipcommControl.cpu1Semaphore, 0);
+
+	ret = ipcClientRequest((void *)buf, insize + 4, (void *)buf, 200, IPCOMM_CONFIG_CPU1_REPLY_TO);
+
+	//respSize = buf[0];
+	//resp = (uint32_t *)buf[1];
+
+	k = 0;
+	p = (uint32_t *)*out;
+	while( k++ < ret ){
+		*p++ = buf[k-1];
+	}
+
+	return ret;
+	//	uint32_t cpu0cmd, cpu1cmd;
+//	uint8_t *src, *dst;
+//	uint32_t *p;
+//	uint32_t i;
+//	uint32_t status;
+//
+//	/*
+//	 * If amount of data to be passed to CPU1 exceeds the available memory,
+//	 * an error is generated.
+//	 */
+//	if( insize > SOC_MEM_CPU0_TO_CPU1_SIZE ) return IPCOMM_ERR_CPU0_CPU1_BUFFER_OVERFLOW;
+//
+//	p = (uint32_t)in;
+//	cpu0cmd = *p++;
+//	cpu1cmd = ipcommCMDFind(cpu0cmd);
+//
+//	/* If the command received does not exist, returns an error */
+//	if( cpu1cmd >= SOC_CMD_CPU1_END) return IPCOMM_ERR_CPU1_INVALID_CMD;
+//
+//	xSemaphoreTake(xipcommControl.cpu1Semaphore, 0);
+//
+//	/*
+//	 * Transferring data to CPU1 follows the procedure described in the
+//	 * soc_defs.h file.
+//	 */
+//	/* Writes command to be executed */
+//	*( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD ) = cpu1cmd;
+//
+//	/* Writes size of data (in number of bytes) */
+//	*( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_SIZE ) = insize;
+//
+//	/*
+//	 * Writes where data will be located at. Here, we will always copy data
+//	 * from the uiface buffer to the CPU0->CPU1 buffer.
+//	 */
+//	if( insize > 0 ){
+//		//*( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_DATA_ADDR ) = SOC_MEM_CPU0_TO_CPU1_DATA;
+//		dst = (uint8_t *)(SOC_MEM_CPU0_TO_CPU1_DATA);
+//		src = (uint8_t *)p;
+//		for(i = 0; i < insize; i++) *dst++ = *src++;
+//	}
+//
+//	/* Generates a software interrupt on CPU1 */
+//	XScuGic_SoftwareIntr ( xipcommControl.intcInstance, IPCOMM_INT_CPU0_TO_CPU1, SOC_SIG_CPU1_ID );
+//
+//	/* Waits until CPU1 replies back */
+//	if( xSemaphoreTake(xipcommControl.cpu1Semaphore, IPCOMM_CONFIG_CPU1_REPLY_TO) != pdTRUE ){
+//		return IPCOMM_ERR_CPU1_REPLY_TO;
+//	}
+//
+//	/*
+//	 * Gets the command status and writes to pbuf the address of where the
+//	 * data (if any) is located at.
+//	 */
+//	status = *( (uint32_t *)(SOC_MEM_CPU1_TO_CPU0_CMD_STATUS + 4U));
+//	*out = (uint8_t *) ( *( (uint32_t *)(SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR + 4U) ) );
+//
+//	return status;
+}
+//-----------------------------------------------------------------------------
+static int32_t ipcommCmdCpu1Blink(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+	int32_t ret;
+	uint32_t cmd;
+
+	cmd = SOC_CMD_CPU1_BLINK;
+
+	ret = ipcommRequest(cmd, in, insize, out, maxoutsize);
+
+	return ret;
+}
+//-----------------------------------------------------------------------------
+static int32_t ipcommCmdTraceReadTags(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+	int32_t ret;
+	uint32_t cmd;
+
+	cmd = SOC_CMD_CPU1_TRACE_READ_TAGS;
+
+	ret = ipcommRequest(cmd, in, insize, out, maxoutsize);
+
+	return ret;
+}
+//-----------------------------------------------------------------------------
+static int32_t ipcommCmdTraceSizeRead(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+	int32_t ret;
+	uint32_t cmd;
+
+	cmd = SOC_CMD_CPU1_TRACE_SIZE_READ;
+
+	ret = ipcommRequest(cmd, in, insize, out, maxoutsize);
+
+	return ret;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

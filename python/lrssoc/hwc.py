@@ -90,7 +90,7 @@ class Ethernet:
         tx_data.extend( lrssoc.conversions.u32_to_u8(size, msb=False) )
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
         
-        if size != 0:
+        if (size - 4)!= 0:
             tx_data.extend(data)
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -109,5 +109,7 @@ class Ethernet:
                     rec = s.recv(size-bytes_rcvd)
                     bytes_rcvd += len(rec)
                     rx_data += rec
+
+            print(status)
         
         return (status, rx_data)

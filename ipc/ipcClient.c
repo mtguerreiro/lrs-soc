@@ -15,10 +15,10 @@
 //=============================================================================
 /*-------------------------------- Prototypes -------------------------------*/
 //=============================================================================
-static int32_t ipcClientMemRead(uint32_t *src, uint32_t *dst, int32_t size);
-static int32_t ipcClientMemWrite(uint32_t *src, uint32_t *dst, int32_t size);
-static int32_t ipcClientRequestSend(uint32_t *req, int32_t reqsize);
-static int32_t ipcClientRequestResponse(uint32_t *resp, int32_t maxrespsize,
+static int32_t ipcClientMemRead(void *src, void *dst, int32_t size);
+static int32_t ipcClientMemWrite(void *src, void *dst, int32_t size);
+static int32_t ipcClientRequestSend(void *req, int32_t reqsize);
+static int32_t ipcClientRequestResponse(void *resp, int32_t maxrespsize,
 		uint32_t timeout);
 //=============================================================================
 
@@ -57,14 +57,14 @@ void ipcClientInitialize(ipcClientIrqSend irqSend, ipcClientIrqReceive irqReceiv
 	ipcClientCtl.irqReceive = irqReceive;
 
 	ipcClientCtl.clientAdd = clientMemAdd;
-	ipcClientCtl.clientSize = clientMemSize - 1U;
+	ipcClientCtl.clientSize = clientMemSize - 4U;
 
 	ipcClientCtl.serverAdd = serverMemAdd;
-	ipcClientCtl.serverSize = serverMemSize - 1U;
+	ipcClientCtl.serverSize = serverMemSize - 4U;
 }
 //-----------------------------------------------------------------------------
-int32_t ipcClientRequest(uint32_t *req, int32_t reqsize,
-		uint32_t *resp, int32_t maxrespsize,
+int32_t ipcClientRequest(void *req, int32_t reqsize,
+		void *resp, int32_t maxrespsize,
 		uint32_t timeout){
 
 	int32_t status;
@@ -84,68 +84,66 @@ int32_t ipcClientRequest(uint32_t *req, int32_t reqsize,
 /*----------------------------- Static functions ----------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-static int32_t ipcClientMemRead(uint32_t *src, uint32_t *dst, int32_t size){
+static int32_t ipcClientMemRead(void *src, void *dst, int32_t size){
+
+	uint8_t *s = (uint8_t *)src;
+	uint8_t *d = (uint8_t *)dst;
 
 	while(size--){
-		*dst++ = *src++;
+		*d++ = *s++;
 	}
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t ipcClientMemWrite(uint32_t *src, uint32_t *dst, int32_t size){
+static int32_t ipcClientMemWrite(void *src, void *dst, int32_t size){
+
+	uint8_t *s = (uint8_t *)src;
+	uint8_t *d = (uint8_t *)dst;
 
 	while(size--){
-		*dst++ = *src++;
+		*d++ = *s++;
 	}
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t ipcClientRequestSend(uint32_t *req, int32_t reqsize){
+static int32_t ipcClientRequestSend(void *req, int32_t size){
 
-	int32_t status;
-	uint32_t *psv;
+	int32_t ret;
 
-	if( reqsize > ipcClientCtl.serverSize ) return IPC_CLIENT_ERR_SV_REQ_SIZE;
+	if( size > ipcClientCtl.serverSize ) return IPC_CLIENT_ERR_SV_REQ_SIZE;
 
-	psv = (uint32_t *)ipcClientCtl.serverAdd;
+	ret = ipcClientMemWrite((void *)( &size ), (void *)( ipcClientCtl.serverAdd ), 4);
+	if( ret != 0 ) return IPC_CLIENT_ERR_MEM_WRITE;
 
-	status = ipcClientMemWrite((uint32_t *)&reqsize, psv, 1);
-	if( status != 0 ) return IPC_CLIENT_ERR_MEM_WRITE;
+	ret = ipcClientMemWrite(req, (void *)( ipcClientCtl.serverAdd + 4 ), size);
+	if( ret != 0 ) return IPC_CLIENT_ERR_MEM_WRITE;
 
-	psv++;
-	status = ipcClientMemWrite(req, psv, reqsize);
-	if( status != 0 ) return IPC_CLIENT_ERR_MEM_WRITE;
-
-	status = ipcClientCtl.irqSend();
-	if( status != 0 ) return IPC_CLIENT_ERR_IRQ_SEND;
+	ret = ipcClientCtl.irqSend();
+	if( ret != 0 ) return IPC_CLIENT_ERR_IRQ_SEND;
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t ipcClientRequestResponse(uint32_t *resp, int32_t maxrespsize,
+static int32_t ipcClientRequestResponse(void *resp, int32_t maxrespsize,
 		uint32_t timeout){
 
-	int32_t status;
-	int32_t size;
-	uint32_t *pcl;
+	int32_t ret;
+	int32_t respsize;
 
-	status = ipcClientCtl.irqReceive(timeout);
-	if( status != 0 ) return IPC_CLIENT_ERR_IRQ_RECEIVE;
+	ret = ipcClientCtl.irqReceive(timeout);
+	if( ret != 0 ) return IPC_CLIENT_ERR_IRQ_RECEIVE;
 
-	pcl = (uint32_t *)ipcClientCtl.clientAdd;
+	ret = ipcClientMemRead((void *)( ipcClientCtl.clientAdd ), (void *)( &respsize ), 4);
+	if( ret != 0 ) return IPC_CLIENT_ERR_MEM_WRITE;
 
-	status = ipcClientMemRead(pcl, (uint32_t *)&size, 1);
-	if( status != 0 ) return IPC_CLIENT_ERR_MEM_WRITE;
+	if( respsize > maxrespsize ) return IPC_CLIENT_ERR_SV_RESP_SIZE;
 
-	if( size > maxrespsize ) return IPC_CLIENT_ERR_SV_RESP_SIZE;
+	ret = ipcClientMemWrite((void *)( ipcClientCtl.clientAdd + 4 ), resp, respsize);
+	if( ret != 0 ) return IPC_CLIENT_ERR_MEM_WRITE;
 
-	pcl++;
-	status = ipcClientMemWrite(pcl, resp, size);
-	if( status != 0 ) return IPC_CLIENT_ERR_MEM_WRITE;
-
-	return size;
+	return respsize;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

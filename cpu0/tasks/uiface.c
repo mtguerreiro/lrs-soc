@@ -365,8 +365,8 @@ static void uifaceRequestProcessThread(void *param){
 		// TODO: should we also do a while loop to send the data? Like in receiving?
 
 		/* Writes back the command status */
-		*( (int32_t *)recvbuf ) = ret;
-		n = lwip_write(sd, recvbuf, 4);
+		//*( (int32_t *)recvbuf ) = ret;
+		n = lwip_write(sd, &ret, 4);
 		if( n < 4 ){
 			xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
 			break;

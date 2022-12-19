@@ -181,7 +181,7 @@ static int32_t mainCmdControlEn(void *in, rpuint_t insize, void **out, rpuint_t 
 
 static int32_t mainIpcIrqSend(void);
 static void mainIpcInit(void);
-static int32_t mainIpcHandle(uint32_t *req, int32_t reqsize, uint32_t *resp, int32_t maxrespsize);
+static int32_t mainIpcHandle(void *req, int32_t reqsize, void *resp, int32_t maxrespsize);
 
 //static int32_t mainCmdBlink(uint32_t **data);
 //static int32_t mainCmdAdcEn(uint32_t **data);
@@ -864,21 +864,14 @@ static void mainIpcInit(void){
 
 }
 //-----------------------------------------------------------------------------
-static int32_t mainIpcHandle(uint32_t *req, int32_t reqsize, uint32_t *resp, int32_t maxrespsize){
+static int32_t mainIpcHandle(void *req, int32_t reqsize, void *resp, int32_t maxrespsize){
 
 	int32_t ret;
 
-	uint32_t *respAddress;
-
-	respAddress = resp + 2;
-
 	/* Executes the command */
-	ret = rpRequest(&mainControl.rp, (void *)req, reqsize, (void **)&respAddress, maxrespsize - 8);
+	ret = rpRequest(&mainControl.rp, (void *)req, reqsize, (void **)&resp, maxrespsize);
 
-	*resp++ = ret;
-	*resp++ = (uint32_t)respAddress;
-
-	return 8;
+	return ret;
 }
 //-----------------------------------------------------------------------------
 static void mainInputRelayDisable(void){
@@ -981,64 +974,7 @@ static void mainTraceInitialize(void){
 void DeviceDriverHandler(void *CallbackRef){
 
 	ipcServerRequest();
-//	uint32_t *pbuf;
-//
-//	uint32_t cmd;
-//	uint32_t size;
-//	uint32_t address;
-//	int32_t ret;
-//	uint32_t *out;
-//	uint32_t data;
-//
-//	/* Gets the command and data sent by CPU0 */
-//	size = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_SIZE );
-//	data = (uint32_t )SOC_MEM_CPU0_TO_CPU1_CMD;
-//	//address = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_DATA_ADDR );
-//
-//	out = (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR;
-//	//pbuf = (uint32_t *)address;
-//
-//	/* Executes the command */
-//	ret = rpRequest(&mainControl.rp, (void *)data, size, (void **)&out, 32);
-//	//ret = mainControl.cmdHandle[cmd]( (uint32_t **)&pbuf );
-//
-//	/* Replies back to CPU0 */
-//	*( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_STATUS ) = ret;
-//
-//	if( ret > 0 ){
-//		*( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR ) = (uint32_t)out;
-//	}
-//
-//	XScuGic_SoftwareIntr ( &IntcInstancePtr , SOC_SIG_CPU1_TO_CPU0 , SOC_SIG_CPU0_ID ) ;
 }
-//void DeviceDriverHandler(void *CallbackRef){
-//
-//	uint32_t *pbuf;
-//
-//	uint32_t cmd;
-//	uint32_t size;
-//	uint32_t address;
-//	int32_t ret;
-//
-//	/* Gets the command and data sent by CPU0 */
-//	cmd = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD );
-//	size = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_SIZE );
-//	address = *( (uint32_t *)SOC_MEM_CPU0_TO_CPU1_CMD_DATA_ADDR );
-//
-//	pbuf = (uint32_t *)address;
-//
-//	/* Executes the command */
-//	ret = mainControl.cmdHandle[cmd]( (uint32_t **)&pbuf );
-//
-//	/* Replies back to CPU0 */
-//	*( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_STATUS ) = ret;
-//
-//	if( ret > 0 ){
-//		*( (uint32_t *)SOC_MEM_CPU1_TO_CPU0_CMD_DATA_ADDR ) = (uint32_t)pbuf;
-//	}
-//
-//	XScuGic_SoftwareIntr ( &IntcInstancePtr , SOC_SIG_CPU1_TO_CPU0 , SOC_SIG_CPU0_ID ) ;
-//}
 //-----------------------------------------------------------------------------
 void PLirqHandler(void *CallbackRef){
 
