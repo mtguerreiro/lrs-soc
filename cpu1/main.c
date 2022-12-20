@@ -181,7 +181,7 @@ static int32_t mainCmdControlEn(void *in, rpuint_t insize, void **out, rpuint_t 
 
 static int32_t mainIpcIrqSend(void);
 static void mainIpcInit(void);
-static int32_t mainIpcHandle(void *req, int32_t reqsize, void *resp, int32_t maxrespsize);
+static int32_t mainIpcHandle(void *req, int32_t reqsize, void **resp, int32_t maxrespsize);
 
 //static int32_t mainCmdBlink(uint32_t **data);
 //static int32_t mainCmdAdcEn(uint32_t **data);
@@ -560,14 +560,14 @@ static int32_t mainCmdTraceStart(void *in, rpuint_t insize, void **out, rpuint_t
 //-----------------------------------------------------------------------------
 static int32_t mainCmdTraceRead(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
 
-	uint32_t size;
+	//uint32_t size;
 
-	size = ((uint32_t)mainControl.trace.end) - SOC_MEM_TRACE_ADR;
+	//size = ((uint32_t)mainControl.trace.end) - SOC_MEM_TRACE_ADR;
 
 	//*data = (uint32_t *)SOC_MEM_TRACE_ADR;
-	*out = (uint32_t *)SOC_MEM_TRACE_ADR;
+	*( (uint32_t *) *out ) = (uint32_t)SOC_MEM_TRACE_ADR;
 
-	return size;
+	return 4;
 }
 //-----------------------------------------------------------------------------
 static int32_t mainCmdTraceReadTags(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
@@ -604,12 +604,12 @@ static int32_t mainCmdTraceSizeRead(void *in, rpuint_t insize, void **out, rpuin
 	uint32_t *p;
 	uint32_t size;
 
-	p = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
+	p = (uint32_t *)( *out );
 	size = ((uint32_t)mainControl.trace.end) - SOC_MEM_TRACE_ADR;
 	*p = size;
 
 	//*data = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
-	*out = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
+	//*out = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
 
 	return 4;
 }
@@ -864,12 +864,12 @@ static void mainIpcInit(void){
 
 }
 //-----------------------------------------------------------------------------
-static int32_t mainIpcHandle(void *req, int32_t reqsize, void *resp, int32_t maxrespsize){
+static int32_t mainIpcHandle(void *req, int32_t reqsize, void **resp, int32_t maxrespsize){
 
 	int32_t ret;
 
 	/* Executes the command */
-	ret = rpRequest(&mainControl.rp, (void *)req, reqsize, (void **)&resp, maxrespsize);
+	ret = rpRequest(&mainControl.rp, req, reqsize, resp, maxrespsize);
 
 	return ret;
 }

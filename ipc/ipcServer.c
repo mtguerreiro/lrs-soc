@@ -67,16 +67,25 @@ int32_t ipcServerRequest(void){
 
 	int32_t ret;
 	int32_t reqsize;
+	int32_t respsize;
+	void *resp;
+
+	resp = (void *)(ipcServerCtl.clientAdd + 4);
 
 	ret = ipcServerMemRead((void *)( ipcServerCtl.serverAdd ), (void *)( &reqsize ), 4);
 	if( ret != 0 ) return IPC_SERVER_ERR_MEM_WRITE;
 
-	ret = ipcServerCtl.reqHandle((void *)( ipcServerCtl.serverAdd + 4 ), reqsize,
-			(void *)( ipcServerCtl.clientAdd + 4 ), ipcServerCtl.clientSize);
-	if( ret < 0 ) return ret;
+	respsize = ipcServerCtl.reqHandle((void *)( ipcServerCtl.serverAdd + 4 ), reqsize,
+			(void **)( &resp ), ipcServerCtl.clientSize);
+	if( respsize < 0 ) return respsize;
 
-	ret = ipcServerMemWrite((void *)( &ret ), (void *)( ipcServerCtl.clientAdd ), 4);
+	ret = ipcServerMemWrite((void *)( &respsize ), (void *)(ipcServerCtl.clientAdd), 4);
 	if( ret != 0 ) return IPC_SERVER_ERR_MEM_WRITE;
+
+	if( ((uint32_t)( resp )) != (ipcServerCtl.clientAdd + 4) ){
+		ret = ipcServerMemWrite( resp, (void *)(ipcServerCtl.clientAdd + 4), respsize);
+		if( ret != 0 ) return IPC_SERVER_ERR_MEM_WRITE;
+	}
 
 	ret = ipcServerCtl.irqSend();
 	if( ret != 0 ) return IPC_SERVER_ERR_IRQ_SEND;

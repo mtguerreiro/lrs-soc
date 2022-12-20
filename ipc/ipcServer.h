@@ -19,7 +19,7 @@
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
 typedef int32_t (*ipcServerIrqSend)(void);
-typedef int32_t (*ipcServerRequestHandle)(void *req, int32_t reqsize, void *resp, int32_t maxrespsize);
+typedef int32_t (*ipcServerRequestHandle)(void *req, int32_t reqsize, void **resp, int32_t maxrespsize);
 
 #define IPC_SERVER_ERR_MEM_WRITE		-1
 #define IPC_SERVER_ERR_MEM_READ			-2
