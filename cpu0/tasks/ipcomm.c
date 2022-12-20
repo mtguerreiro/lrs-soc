@@ -327,7 +327,7 @@ static int32_t ipcommRequest(uint32_t cmd, void *in, uint32_t insize, void **out
 	xSemaphoreTake(xipcommControl.cpu1Semaphore, 0);
 
 	ret = ipcClientRequest((void *)(xipcommControl.reqbuffer), insize + 4,
-			(void *)*out, maxoutsize,
+			out, maxoutsize,
 			IPCOMM_CONFIG_CPU1_REPLY_TO);
 
 	return ret;

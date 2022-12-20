@@ -18,7 +18,7 @@
 static int32_t ipcClientMemRead(void *src, void *dst, int32_t size);
 static int32_t ipcClientMemWrite(void *src, void *dst, int32_t size);
 static int32_t ipcClientRequestSend(void *req, int32_t reqsize);
-static int32_t ipcClientRequestResponse(void *resp, int32_t maxrespsize,
+static int32_t ipcClientRequestResponse(void **resp, int32_t maxrespsize,
 		uint32_t timeout);
 //=============================================================================
 
@@ -64,7 +64,7 @@ void ipcClientInitialize(ipcClientIrqSend irqSend, ipcClientIrqReceive irqReceiv
 }
 //-----------------------------------------------------------------------------
 int32_t ipcClientRequest(void *req, int32_t reqsize,
-		void *resp, int32_t maxrespsize,
+		void **resp, int32_t maxrespsize,
 		uint32_t timeout){
 
 	int32_t status;
@@ -126,7 +126,7 @@ static int32_t ipcClientRequestSend(void *req, int32_t size){
 	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t ipcClientRequestResponse(void *resp, int32_t maxrespsize,
+static int32_t ipcClientRequestResponse(void **resp, int32_t maxrespsize,
 		uint32_t timeout){
 
 	int32_t ret;
@@ -140,7 +140,7 @@ static int32_t ipcClientRequestResponse(void *resp, int32_t maxrespsize,
 
 	if( respsize > maxrespsize ) return IPC_CLIENT_ERR_SV_RESP_SIZE;
 
-	ret = ipcClientMemWrite((void *)( ipcClientCtl.clientAdd + 4 ), resp, respsize);
+	ret = ipcClientMemWrite((void *)( ipcClientCtl.clientAdd + 4 ), (void *)*resp, respsize);
 	if( ret != 0 ) return IPC_CLIENT_ERR_MEM_WRITE;
 
 	return respsize;

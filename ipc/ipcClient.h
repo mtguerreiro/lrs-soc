@@ -38,7 +38,7 @@ void ipcClientInitialize(ipcClientIrqSend irqSend, ipcClientIrqReceive irqReceiv
 		   	   	   	     uint32_t serverMemAdd, int32_t serverMemSize);
 //-----------------------------------------------------------------------------
 int32_t ipcClientRequest(void *req, int32_t reqsize,
-		void *resp, int32_t maxrespsize,
+		void **resp, int32_t maxrespsize,
 		uint32_t timeout);
 //-----------------------------------------------------------------------------
 //=============================================================================
