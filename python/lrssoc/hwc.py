@@ -12,6 +12,41 @@ For more details, refer to the uiface.c file.
 import socket
 import lrssoc
 
+class Comm:
+    def __init__(self, comm_type='ethernet', settings={}):
+
+        self.comm_type = comm_type
+        self.settigs = settings
+
+        if comm_type == 'ethernet':
+            self.comm = Ethernet(settings['host'], settings['port'])
+
+        else:
+            raise TypeError('Communication type \'{:}\' not supported.'.format(comm_type))
+        
+    
+    def connect(self):
+
+        self.comm.connect()
+
+    
+    def send(self, data):
+
+        self.comm.send(data)
+
+
+    def recv(self, size):
+
+        data = self.comm.recv(size)
+
+        return data
+    
+
+    def close(self):
+        
+        self.comm.close()
+            
+
 class Ethernet:
     """A class to provide an interface to the LRS-SOC platform through
     Ethernet over TCP/IP.
@@ -42,74 +77,27 @@ class Ethernet:
 
         self.host = host
         self.port = port
+        self.socket = None
 
 
-    def comm(self, cmd, data=None):
-        """Communicates with the hardware. It sends data and waits for a
-        response.
+    def connect(self):
 
-        Here, we rely on the fact that the host (controller) will close the
-        socket after receiving the data and sending a reply.
-
-        We'll also rely on the fact that the host always replies at least
-        four bytes, indicating the status of the command. For more information
-        on the expected response, refer to the uiface.c file, which contains a
-        description of the protocol.
-
-        Parameters
-        ----------
-        cmd : int
-            Command to be sent. It must an integer.
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.connect((self.host, self.port))
         
-        data : list of ints, None
-            Data to be sent. It must be a list of integers, and each integer
-            must be between 0 and 255. Can be set to `None` if there is no
-            data to be sent.
 
-        Returns
-        -------
-        tuple : (status, data)
-            Returns a tuple, where the first element is the command status,
-            and the second element is the data received. If no data was
-            `data` is an empty binary string. 
-            
-        """
-        if type(cmd) is not int:
-            raise TypeError('`cmd` must be of `int` type.')
-        
-        if (type(data) is not list) and (type(data) is not type(None)):
-            raise TypeError('`data` must be of `list` or `None` type.')
+    def send(self, data):
 
-        if type(data) is list:
-            size = len(data)
-        else:
-            size = 0
+        self.socket.sendall(bytes(data))
 
-        size = size + 4
-        tx_data = []
-        tx_data.extend( lrssoc.conversions.u32_to_u8(size, msb=False) )
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-        
-        if (size - 4)!= 0:
-            tx_data.extend(data)
 
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            print(tx_data)
-            s.connect((self.host, self.port))
-            s.sendall(bytes(tx_data))
+    def recv(self, size):
 
-            status = s.recv(4)
-            status = int.from_bytes(status, 'little', signed=True)
-            
-            rx_data = b''
-            if status > 0:
-                size = status
-                bytes_rcvd = 0
-                while bytes_rcvd < size:
-                    rec = s.recv(size-bytes_rcvd)
-                    bytes_rcvd += len(rec)
-                    rx_data += rec
+        data = self.socket.recv(size)
 
-            print(status)
-        
-        return (status, rx_data)
+        return data
+    
+
+    def close(self):
+
+        self.socket.close()

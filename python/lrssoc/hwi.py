@@ -35,46 +35,22 @@ class Interface:
 
     Parameters
     ----------
-    host : str
-        IP address of the controller.
-
-    port : int
-        Port of the controller. By default, it is `8080`.
 
     Raises
     ------
-    TypeError
-        If `host` is not of `str` type.
-
-    TypeError
-        If `port` is not of `int` type.
 
     Attributes
     ----------
-    host : str
-        IP address of the controller.
-
-    port : int
-        Port of the controller. By default, it is `8080`.
-
-    hwcomm : lrssoc.hwc.Ethernet
+    hwc : lrssoc.hwc.Ethernet
         Communication channel to the hardware.
 
     cmd : lrssoc.hwi.Commands
         Implemented hardware commands.
         
     """
-    def __init__(self, host, port=8080):
+    def __init__(self, comm_type='ethernet', settings={}):
 
-        if type(host) is not str:
-            raise TypeError('`host` must be of `str` type.')
-        
-        if type(port) is not int:
-            raise TypeError('`port` must be of `int` type.')
-
-        self.host = host
-        self.port = port
-        self.hwc = lrssoc.hwc.Ethernet(host, port)
+        self.hwp = lrssoc.hwp.Protocol(comm_type=comm_type, settings=settings)
         
         self.cmd = Commands()
 
@@ -101,7 +77,7 @@ class Interface:
         tx_data = []        
         tx_data.extend( lrssoc.conversions.u32_to_u8(t, msb=False) )
 
-        status, _ = self.hwc.comm(cmd, tx_data)
+        status, _ = self.hwp.request(cmd, tx_data)
 
         if status < 0:
             funcname = Interface.cpu0_blink.__name__
@@ -132,7 +108,7 @@ class Interface:
         tx_data = []        
         tx_data.extend( lrssoc.conversions.u32_to_u8(t, msb=False) )
 
-        status, _ = self.hwc.comm(cmd, tx_data)
+        status, _ = self.hwp.request(cmd, tx_data)
 
         if status < 0:
             funcname = Interface.cpu1_blink.__name__
@@ -168,7 +144,7 @@ class Interface:
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(en, msb=False) )
 
-        status, _ = self.hwc.comm(cmd, tx_data)
+        status, _ = self.hwp.request(cmd, tx_data)
 
         if status < 0:
             funcname = Interface.cpu1_adc_en.__name__
@@ -198,7 +174,7 @@ class Interface:
         tx_data = []        
         tx_data.extend( lrssoc.conversions.u32_to_u8(freq, msb=False) )
 
-        status, _ = self.hwc.comm(cmd, tx_data)
+        status, _ = self.hwp.request(cmd, tx_data)
 
         if status < 0:
             funcname = Interface.cpu1_adc_spi_freq_set.__name__
@@ -228,7 +204,7 @@ class Interface:
         tx_data = []        
         tx_data.extend( lrssoc.conversions.u32_to_u8(freq, msb=False) )
 
-        status, _ = self.hwc.comm(cmd, tx_data)
+        status, _ = self.hwp.request(cmd, tx_data)
 
         if status < 0:
             funcname = Interface.cpu1_adc_spi_freq_set.__name__
@@ -247,7 +223,7 @@ class Interface:
 
         """        
         cmd = self.cmd.cpu1_adc_error_read
-        status, data = self.hwc.comm(cmd)
+        status, data = self.hwp.request(cmd)
 
         if status < 0:
             funcname = Interface.cpu1_adc_error_read.__name__
@@ -270,7 +246,7 @@ class Interface:
         """        
         cmd = self.cmd.cpu1_adc_error_clear
         
-        status, _ = self.hwc.comm(cmd)
+        status, _ = self.hwp.request(cmd)
 
         if status != 0:
             funcname = Interface.cpu1_adc_error_clear.__name__   
@@ -285,7 +261,7 @@ class Interface:
         """        
         cmd = self.cmd.cpu0_trace_start
 
-        status, _ = self.hwc.comm(cmd)
+        status, _ = self.hwp.request(cmd)
 
         if status < 0:
             funcname = Interface.cpu0_trace_start.__name__
@@ -300,7 +276,7 @@ class Interface:
         """
         cmd = self.cmd.cpu0_trace_read
             
-        status, data = self.hwc.comm(cmd)
+        status, data = self.hwp.request(cmd)
 
         if status < 0:
             funcname = Interface.cpu0_trace_read.__name__
@@ -316,7 +292,7 @@ class Interface:
         """
         cmd = self.cmd.cpu0_trace_read_tags
             
-        status, data = self.hwc.comm(cmd)
+        status, data = self.hwp.request(cmd)
 
         if status < 0:
             funcname = Interface.cpu0_trace_read_tag.__name__
@@ -339,7 +315,7 @@ class Interface:
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(size, msb=False) )
         
-        status, _ = self.hwc.comm(cmd, tx_data)
+        status, _ = self.hwp.request(cmd, tx_data)
 
         if status < 0:
             funcname = Interface.cpu0_trace_size_set.__name__
@@ -354,7 +330,7 @@ class Interface:
         """
         cmd = self.cmd.cpu0_trace_size_read
                 
-        status, data = self.hwc.comm(cmd)
+        status, data = self.hwp.request(cmd)
 
         if status < 0:
             funcname = Interface.cpu0_trace_size_read.__name__
@@ -393,7 +369,7 @@ class Interface:
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(en, msb=False) )
 
-        status, _ = self.hwc.comm(cmd, tx_data)
+        status, _ = self.hwp.request(cmd, tx_data)
 
         if status < 0:
             funcname = Interface.cpu1_control_en.__name__
