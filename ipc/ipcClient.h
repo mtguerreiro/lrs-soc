@@ -3,6 +3,11 @@
  *
  *  Created on: 09.12.2022
  *      Author: mguerreiro
+ *
+ * Client for the inter-processor communication (IPC) library.
+ *
+ * For a description of how the inter-processor communication mechanism works,
+ * please refer to the server file (ipcServer.h).
  */
 
 #ifndef IPCCLIENT_H_

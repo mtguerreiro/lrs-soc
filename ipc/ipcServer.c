@@ -1,8 +1,7 @@
 /*
- * ipcServer.c
+ * @file ipcServer.c
  *
- *  Created on: 09.12.2022
- *      Author: mguerreiro
+ * @brief Server for the inter-processor communication (IPC) library.
  */
 
 //=============================================================================
@@ -15,8 +14,33 @@
 //=============================================================================
 /*-------------------------------- Prototypes -------------------------------*/
 //=============================================================================
+//-----------------------------------------------------------------------------
+/**
+ * @brief Reads from memory.
+ *
+ * @param src Pointer to memory to be read.
+ *
+ * @param dst Pointer to buffer to hold data read.
+ *
+ * @param size Number of bytes to be read.
+ *
+ * @return 0 if memory was read successfully, another value otherwise.
+ */
 static int32_t ipcServerMemRead(void *src, void *dst, int32_t size);
+//-----------------------------------------------------------------------------
+/**
+ * @brief Writes to memory.
+ *
+ * @param src Pointer to buffer holding data to be written.
+ *
+ * @param dst Pointer to memory.
+ *
+ * @param size Number of bytes to be write.
+ *
+ * @return 0 if memory was written successfully, another value otherwise.
+ */
 static int32_t ipcServerMemWrite(void *src, void *dst, int32_t size);
+//-----------------------------------------------------------------------------
 //=============================================================================
 
 //=============================================================================
