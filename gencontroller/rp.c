@@ -1,8 +1,7 @@
 /*
- * rp.c
+ * @file rp.c
  *
- *  Created on: 07.10.2022
- *      Author: mguerreiro
+ * @brief Request processor (RP).
  */
 
 //=============================================================================
