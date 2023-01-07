@@ -60,8 +60,9 @@
  * ================
  *
  * The library needs some hardware details to work properly, namely generating
- * interrupts, knowing shared memory addresses and generating interrupts. To
- * try to make the library portable, these aspects are configured by the user.
+ * interrupts, knowing shared memory addresses and writing/reading to memory.
+ * To try to make the library portable, these aspects are configured by the
+ * user.
  *
  * - The user must register callback functions that generate or detect
  *   interrupts (depending if client or server).
@@ -72,7 +73,8 @@
  * - Internally, the library uses a standard memory write/read function for
  *   memory accesses. These functions copy data 1 byte at a time. These
  *   functions can be changed to be adapted to specific platforms (for
- *   example, C2000 does not accept byte access).
+ *   example, C2000 does not accept byte access). Currently, they are private
+ *   functions, but can be easily modified to be set by the user.
  *
  */
 

@@ -1,8 +1,7 @@
 /*
- * ipcClient.c
+ * @file ipcClient.c
  *
- *  Created on: 09.12.2022
- *      Author: mguerreiro
+ * @brief Client for the inter-processor communication (IPC) library.
  */
 
 //=============================================================================
@@ -15,11 +14,57 @@
 //=============================================================================
 /*-------------------------------- Prototypes -------------------------------*/
 //=============================================================================
+//-----------------------------------------------------------------------------
+/**
+ * @brief Reads from memory.
+ *
+ * @param src Pointer to memory to be read.
+ *
+ * @param dst Pointer to buffer to hold data read.
+ *
+ * @param size Number of bytes to be read.
+ *
+ * @return 0 if memory was read successfully, another value otherwise.
+ */
 static int32_t ipcClientMemRead(void *src, void *dst, int32_t size);
+//-----------------------------------------------------------------------------
+/**
+ * @brief Writes to memory.
+ *
+ * @param src Pointer to buffer holding data to be written.
+ *
+ * @param dst Pointer to memory.
+ *
+ * @param size Number of bytes to be write.
+ *
+ * @return 0 if memory was written successfully, another value otherwise.
+ */
 static int32_t ipcClientMemWrite(void *src, void *dst, int32_t size);
+//-----------------------------------------------------------------------------
+/**
+ * @brief Sends a request to the server.
+ *
+ * @param req Pointer to buffer holding the request.
+ *
+ * @param reqsize Size of the request, in bytes.
+ *
+ * @return 0 if the request was sent, any other value otherwise.
+ */
 static int32_t ipcClientRequestSend(void *req, int32_t reqsize);
+//-----------------------------------------------------------------------------
+/**
+ * @brief Receives the server's response.
+ *
+ * @param resp Pointer to pointer holding the address of the buffer where data
+ * sent from the server should be stored.
+ *
+ * @param maxrespsize Size of the buffer to hold the server's response.
+ *
+ * @return The size of the request's response (>= 0) or an error (< 0).
+ */
 static int32_t ipcClientRequestResponse(void **resp, int32_t maxrespsize,
 		uint32_t timeout);
+//-----------------------------------------------------------------------------
 //=============================================================================
 
 //=============================================================================
