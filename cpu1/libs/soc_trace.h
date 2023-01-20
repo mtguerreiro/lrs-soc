@@ -27,6 +27,11 @@ typedef enum soctraceDTypes_t{
 	SOC_TRACE_DTYPE_UINT,
 	SOC_TRACE_DTYPE_FLOAT
 }soctraceDTypes_t;
+
+/*
+ * TODO: thread-safe?
+ * TODO: use void pointers?
+ */
 //===========================================================================
 
 //===========================================================================
