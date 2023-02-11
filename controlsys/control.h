@@ -76,6 +76,8 @@
  * break processing and applying outputs apart is the same used for getting and
  * processing measurements.
  *
+ * TODO: update description
+ *
  */
 
 #ifndef CONTROL_H_
@@ -93,49 +95,77 @@
 /* On entry hook */
 typedef void(*controlOnEntry_t)(void);
 
-/* Gets measurements */
-typedef int32_t(*controlGetMeas_t)(void *meas);
-
-/* Processes measurements */
-typedef void(*controlProcMeas_t)(void *meas, void *procmeas, int32_t n);
-
-/* Gets inputs */
+/* Get inputs */
 typedef int32_t(*controlGetInputs_t)(void *inputs);
 
+/* Process inputs */
+typedef int32_t(*controlProcInputs_t)(void *inputs, void *procinputs, int32_t n);
+
 /* Runs control algorithm */
-typedef int32_t(*controlRun_t)(void *inputs, int32_t ninputs, void *meas, int32_t nmeas, void *outputs);
+typedef int32_t(*controlRun_t)(void *inputs, int32_t ninputs, void *outputs);
 
 /* Processes outputs */
-typedef void(*controlProcOutputs_t)(void *outputs, void *procoutputs, int32_t n);
+typedef int32_t(*controlProcOutputs_t)(void *outputs, void *procoutputs, int32_t n);
 
 /* Applies outputs */
-typedef void(*controlApplyOutputs_t)(void *outputs, int32_t n);
+typedef int32_t(*controlApplyOutputs_t)(void *outputs, int32_t n);
 
 /* On exit hook */
 typedef void(*controlOnExit_t)(void);
 
-#define CONTROL_CONFIG_N_MEAS_MAX		20
-#define CONTROL_CONFIG_N_INPUTS_MAX		5
-#define CONTROL_CONFIG_N_OUTPUTS_MAX	5
+/* Config struct */
+typedef struct controlConfig_t{
+	void *binputs;
+	void *bprocInputs;
+	void *boutputs;
+	void *bprocOutputs;
+
+	controlOnEntry_t fonEntry;
+	controlGetInputs_t fgetInputs;
+	controlProcInputs_t fprocInputs;
+	controlRun_t frun;
+	controlProcOutputs_t fprocOutputs;
+	controlApplyOutputs_t fapplyOutputs;
+	controlOnEntry_t fonExit;
+
+}controlConfig_t;
+
+/* Controller context */
+typedef struct control_t{
+	void *binputs;
+	void *bprocInputs;
+	void *boutputs;
+	void *bprocOutputs;
+
+	controlOnEntry_t fonEntry;
+	controlGetInputs_t fgetInputs;
+	controlProcInputs_t fprocInputs;
+	controlRun_t frun;
+	controlProcOutputs_t fprocOutputs;
+	controlApplyOutputs_t fapplyOutputs;
+	controlOnEntry_t fonExit;
+
+}control_t;
+
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void controlSetGetMeasFun(controlGetMeas_t getmeas);
+void controlInitialize(control_t *control, controlConfig_t *config);
 //-----------------------------------------------------------------------------
-void controlSetProcMeasFun(controlProcMeas_t procmeas);
+void controlSetGetMeasFun(control_t *control, controlGetInputs_t getinputs);
 //-----------------------------------------------------------------------------
-void controlSetGetInputsFun(controlGetInputs_t getinputs);
+void controlSetProcMeasFun(control_t *control, controlProcInputs_t procinputs);
 //-----------------------------------------------------------------------------
-void controlSetRunFun(controlRun_t run);
+void controlSetRunFun(control_t *control, controlRun_t run);
 //-----------------------------------------------------------------------------
-void controlSetProcOutputsFun(controlProcOutputs_t procOutputs);
+void controlSetProcOutputsFun(control_t *control, controlProcOutputs_t procOutputs);
 //-----------------------------------------------------------------------------
-void controlSetApplyOutputsFun(controlApplyOutputs_t applyOutputs);
+void controlSetApplyOutputsFun(control_t *control, controlApplyOutputs_t applyOutputs);
 //-----------------------------------------------------------------------------
-void controlRun(void);
+int32_t controlRun(control_t *control);
 //-----------------------------------------------------------------------------
 //=============================================================================
 
