@@ -22,9 +22,21 @@ void ctracememInitialize(ctracemem_t *trace, void *mem, uint32_t size){
 	trace->p = mem;
 }
 //---------------------------------------------------------------------------
+void ctracememAddress(ctracemem_t *trace, void *address){
+
+	int *p = (int *)address;
+
+	*p = (int)( trace->start );
+}
+//---------------------------------------------------------------------------
 void ctracememSetSize(ctracemem_t *trace, uint32_t size){
 
 	trace->end = trace->start + size;
+	trace->p = trace->start;
+}
+//---------------------------------------------------------------------------
+void ctracememReset(ctracemem_t *trace){
+
 	trace->p = trace->start;
 }
 //---------------------------------------------------------------------------
@@ -32,16 +44,11 @@ void ctracememSave(ctracemem_t *trace, void **src, uint32_t size){
 
 	int **s = (int **)src;
 
-	if( (trace->p + size) >= trace->end ) return;
-
 	size = size / sizeof(void *);
 
-	while(size--) *trace->p++ = **s++;
-}
-//---------------------------------------------------------------------------
-void ctracememReset(ctracemem_t *trace){
+	if( (trace->p + size) > trace->end ) return;
 
-	trace->p = trace->start;
+	while(size--) *trace->p++ = **s++;
 }
 //---------------------------------------------------------------------------
 //===========================================================================

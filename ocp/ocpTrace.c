@@ -1,91 +1,75 @@
 /*
- * ctrace.c
+ * ocpTrace.c
  *
- *  Created on: 21 de ago de 2022
- *      Author: marco
+ *  Created on: 17.02.2023
+ *      Author: mguerreiro
  */
 
 //===========================================================================
 /*------------------------------- Includes --------------------------------*/
 //===========================================================================
-#include "ctrace.h"
+#include "stdint.h"
+
+#include "ocpTrace.h"
 //===========================================================================
 
 //===========================================================================
 /*------------------------------ Definitions ------------------------------*/
 //===========================================================================
 
+typedef ctrace_t ocpTrace_t;
+
 //===========================================================================
+
+//=============================================================================
+/*--------------------------------- Globals ---------------------------------*/
+//=============================================================================
+
+ocpTrace_t traces[OCPTRACE_CONFIG_N_TRACES];
+//=============================================================================
 
 //===========================================================================
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
 //---------------------------------------------------------------------------
-void ctraceInitialize(ctrace_t *trace, ctraceConfig_t *config){
+void ocpTraceInitialize(uint32_t id, ocpTraceConfig_t *config){
 
-	ctracememInitialize( &trace->mem, config->mem, config->size );
-
-	trace->data = config->data;
-	trace->tags = config->tags;
-	trace->tp = config->tags;
-
-	trace->n = 0;
+	ctraceInitialize( &traces[id] , config );
 }
 //---------------------------------------------------------------------------
-void ctraceAdd(ctrace_t *trace, void *src, char *tag){
+void ocpTraceAdd(uint32_t id, void *src, char *tag){
 
-	uint32_t n;
-
-	n = trace->n;
-
-	trace->data[n] = src;
-
-	while(*tag) *(trace->tp++) = *tag++;
-	*(trace->tp++) = 0;
-
-	trace->n++;
+	ctraceAdd( &traces[id] , src, tag);
 }
 //---------------------------------------------------------------------------
-void ctraceAddress(ctrace_t *trace, void *address){
+void ocpTraceAddress(uint32_t id, void *address){
 
-	ctracememAddress( &trace->mem, address );
+	ctraceAddress( &traces[id], address );
 }
 //---------------------------------------------------------------------------
-void ctraceReset(ctrace_t *trace){
+void ocpTraceReset(uint32_t id){
 
-	ctracememReset( &trace->mem );
+	ctraceReset( &traces[id] );
 }
 //---------------------------------------------------------------------------
-void ctraceSetSize(ctrace_t *trace, uint32_t size){
+void ocpTraceSetSize(uint32_t id, uint32_t size){
 
-	ctracememSetSize( &trace->mem, size );
+	ctraceSetSize( &traces[id], size );
 }
 //---------------------------------------------------------------------------
-uint32_t ctraceReadQtyTraces(ctrace_t *trace){
+uint32_t ocpTraceReadQtyTraces(uint32_t id){
 
-	return trace->n;
+	return ctraceReadQtyTraces( &traces[id] );
 }
 //---------------------------------------------------------------------------
-uint32_t ctraceReadTags(ctrace_t *trace, char *buffer){
+uint32_t ocpTraceReadTags(uint32_t id, char *buffer){
 
-	uint32_t k;
-	char *p;
-
-	p = trace->tags;
-	while( p <= trace->tp ) *buffer++ = *p++;
-
-	k = trace->tp - trace->tags;
-
-	return k;
+	return ctraceReadTags( &traces[id], buffer );
 }
 //---------------------------------------------------------------------------
-void ctraceSave(ctrace_t *trace){
+void ocpTraceSave(uint32_t id){
 
-	uint32_t size;
-
-	size = sizeof(void *) * trace->n;
-
-	ctracememSave( &trace->mem, trace->data, size );
+	ctraceSave( &traces[id] );
 }
 //---------------------------------------------------------------------------
 //===========================================================================

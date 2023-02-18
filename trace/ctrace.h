@@ -41,7 +41,6 @@ typedef struct ctrace_t{
 
 /*
  * TODO: thread-safe?
- * TODO: use void pointers?
  */
 //===========================================================================
 
@@ -52,6 +51,8 @@ typedef struct ctrace_t{
 void ctraceInitialize(ctrace_t *trace, ctraceConfig_t *config);
 //---------------------------------------------------------------------------
 void ctraceAdd(ctrace_t *trace, void *src, char *tag);
+//---------------------------------------------------------------------------
+void ctraceAddress(ctrace_t *trace, void *address);
 //---------------------------------------------------------------------------
 void ctraceReset(ctrace_t *trace);
 //---------------------------------------------------------------------------

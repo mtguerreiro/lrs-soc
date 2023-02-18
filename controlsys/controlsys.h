@@ -28,9 +28,17 @@ typedef controlProcOutputs_t controlsysProcOutputs_t;
 typedef controlApplyOutputs_t controlsysApplyOutputs_t;
 typedef controlOnExit_t controlsysOnExit_t;
 
+/* Controller interface */
 typedef int32_t(*controlsysControllerInterface_t)(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
+/* Hardware interface */
 typedef int32_t(*controlsysHardwareInterface_t)(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+
+/* Enable sampling */
+typedef void(*controlsysEnable_t)(void);
+
+/* Disable sampling */
+typedef void(*controlsysDisable_t)(void);
 
 typedef struct {
 
@@ -51,6 +59,9 @@ typedef struct {
 	controlsysOnEntry_t fonEntry;
 	controlsysOnEntry_t fonExit;
 
+	controlsysEnable_t fenable;
+	controlsysDisable_t fdisable;
+
 }controlsysConfig_t;
 
 typedef struct {
@@ -59,6 +70,9 @@ typedef struct {
 
 	controlsysHardwareInterface_t fhwInterface;
 	controlsysControllerInterface_t fcontrollerInterface;
+
+	controlsysEnable_t fenable;
+	controlsysDisable_t fdisable;
 
 	int32_t enable;
 }controlsys_t;
@@ -82,6 +96,12 @@ int32_t controlsysHardwareInterface(controlsys_t *sys,
 		void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
 int32_t controlsysRun(controlsys_t *sys);
+//-----------------------------------------------------------------------------
+void controlsysEnable(controlsys_t *sys);
+//-----------------------------------------------------------------------------
+void controlsysDisable(controlsys_t *sys);
+//-----------------------------------------------------------------------------
+int32_t controlsysStatus(controlsys_t *sys);
 //-----------------------------------------------------------------------------
 //=============================================================================
 

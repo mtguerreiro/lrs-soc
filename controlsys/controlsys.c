@@ -56,13 +56,10 @@ void controlsysInitialize(controlsys_t *sys, controlsysConfig_t *config){
 	sys->fhwInterface = config->fhwInterface;
 	sys->fcontrollerInterface = config->fcontrollerInterface;
 
-	sys->enable = 0;
-}
-//-----------------------------------------------------------------------------
-void controlsysEnable(controlsys_t *sys, int32_t en){
+	sys->fenable = config->fenable;
+	sys->fdisable = config->fdisable;
 
-	if( en ) sys->enable = 1;
-	else sys->enable = 0;
+	sys->enable = 0;
 }
 //-----------------------------------------------------------------------------
 int32_t controlsysControllerInterface(controlsys_t *sys,
@@ -91,6 +88,21 @@ int32_t controlsysRun(controlsys_t *sys){
 	else status = CONTROLSYS_ERR_DISABLED;
 
 	return status;
+}
+//-----------------------------------------------------------------------------
+void controlsysEnable(controlsys_t *sys){
+
+	sys->enable = 1;
+}
+//-----------------------------------------------------------------------------
+void controlsysDisable(controlsys_t *sys){
+
+	sys->enable = 0;
+}
+//-----------------------------------------------------------------------------
+int32_t controlsysStatus(controlsys_t *sys){
+
+	return sys->enable;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
