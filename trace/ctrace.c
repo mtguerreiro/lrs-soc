@@ -26,13 +26,13 @@ void ctraceInitialize(ctrace_t *trace, ctraceConfig_t *config){
 	ctracememInitialize( &trace->mem, config->mem, config->size );
 
 	trace->data = config->data;
-	trace->tags = config->tags;
-	trace->tp = config->tags;
+	trace->names = config->names;
+	trace->np = config->names;
 
 	trace->n = 0;
 }
 //---------------------------------------------------------------------------
-void ctraceAdd(ctrace_t *trace, void *src, char *tag){
+void ctraceAddSignal(ctrace_t *trace, void *src, char *name){
 
 	uint32_t n;
 
@@ -40,13 +40,13 @@ void ctraceAdd(ctrace_t *trace, void *src, char *tag){
 
 	trace->data[n] = src;
 
-	while(*tag) *(trace->tp++) = *tag++;
-	*(trace->tp++) = 0;
+	while( *name ) *(trace->np++) = *name++;
+	*(trace->np++) = 0;
 
 	trace->n++;
 }
 //---------------------------------------------------------------------------
-void ctraceAddress(ctrace_t *trace, void *address){
+void ctraceGetAddress(ctrace_t *trace, void *address){
 
 	ctracememAddress( &trace->mem, address );
 }
@@ -56,25 +56,30 @@ void ctraceReset(ctrace_t *trace){
 	ctracememReset( &trace->mem );
 }
 //---------------------------------------------------------------------------
-void ctraceSetSize(ctrace_t *trace, uint32_t size){
+uint32_t ctraceGetSize(ctrace_t *trace){
 
-	ctracememSetSize( &trace->mem, size );
+	return ctracememGetSize( &trace->mem );
 }
 //---------------------------------------------------------------------------
-uint32_t ctraceReadQtyTraces(ctrace_t *trace){
+int32_t ctraceSetSize(ctrace_t *trace, int32_t size){
+
+	return ctracememSetSize( &trace->mem, size );
+}
+//---------------------------------------------------------------------------
+int32_t ctraceGetNumberSignals(ctrace_t *trace){
 
 	return trace->n;
 }
 //---------------------------------------------------------------------------
-uint32_t ctraceReadTags(ctrace_t *trace, char *buffer){
+int32_t ctraceGetSignalsNames(ctrace_t *trace, char *buffer){
 
-	uint32_t k;
+	int32_t k;
 	char *p;
 
-	p = trace->tags;
-	while( p <= trace->tp ) *buffer++ = *p++;
+	p = trace->names;
+	while( p <= trace->np ) *buffer++ = *p++;
 
-	k = trace->tp - trace->tags;
+	k = trace->np - trace->names;
 
 	return k;
 }

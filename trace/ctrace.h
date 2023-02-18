@@ -26,7 +26,7 @@ typedef struct ctraceConfig_t{
 	uint32_t size;
 
 	void **data;
-	char *tags;
+	char *names;
 }ctraceConfig_t;
 
 /* Trace context */
@@ -34,8 +34,8 @@ typedef struct ctrace_t{
 
 	uint32_t n;
 	void **data;
-	char *tags;
-	char *tp;
+	char *names;
+	char *np;
 	ctracemem_t mem;
 }ctrace_t;
 
@@ -50,17 +50,19 @@ typedef struct ctrace_t{
 //---------------------------------------------------------------------------
 void ctraceInitialize(ctrace_t *trace, ctraceConfig_t *config);
 //---------------------------------------------------------------------------
-void ctraceAdd(ctrace_t *trace, void *src, char *tag);
+void ctraceAddSignal(ctrace_t *trace, void *src, char *name);
 //---------------------------------------------------------------------------
-void ctraceAddress(ctrace_t *trace, void *address);
+void ctraceGetAddress(ctrace_t *trace, void *address);
 //---------------------------------------------------------------------------
 void ctraceReset(ctrace_t *trace);
 //---------------------------------------------------------------------------
-void ctraceSetSize(ctrace_t *trace, uint32_t size);
+uint32_t ctraceGetSize(ctrace_t *trace);
 //---------------------------------------------------------------------------
-uint32_t ctraceReadQtyTraces(ctrace_t *trace);
+int32_t ctraceSetSize(ctrace_t *trace, int32_t size);
 //---------------------------------------------------------------------------
-uint32_t ctraceReadTags(ctrace_t *trace, char *buffer);
+int32_t ctraceGetNumberSignals(ctrace_t *trace);
+//---------------------------------------------------------------------------
+int32_t ctraceGetSignalsNames(ctrace_t *trace, char *buffer);
 //---------------------------------------------------------------------------
 void ctraceSave(ctrace_t *trace);
 //---------------------------------------------------------------------------

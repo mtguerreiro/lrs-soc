@@ -22,7 +22,13 @@
 
 typedef ctraceConfig_t ocpTraceConfig_t;
 
-#define OCPTRACE_CONFIG_N_TRACES	2
+#define OCPTRACE_CONFIG_TRACE_NAME_LEN_MAX	20
+
+typedef enum{
+	OCPTRACE_1 = 0,
+	OCPTRACE_2,
+	OCPTRACE_END
+}ocpTraceIDs_t;
 
 //===========================================================================
 
@@ -30,21 +36,27 @@ typedef ctraceConfig_t ocpTraceConfig_t;
 /*------------------------------- Functions -------------------------------*/
 //===========================================================================
 //---------------------------------------------------------------------------
-void ocpTraceInitialize(uint32_t id, ocpTraceConfig_t *config);
+int32_t ocpTraceInitialize(uint32_t id, ocpTraceConfig_t *config, char *name);
 //---------------------------------------------------------------------------
-void ocpTraceAdd(uint32_t id, void *src, char *tag);
+int32_t ocpTraceAddSignal(uint32_t id, void *src, char *name);
 //---------------------------------------------------------------------------
-void ocpTraceAddress(uint32_t id, void *address);
+int32_t ocpTraceGetAddress(uint32_t id, void *address);
 //---------------------------------------------------------------------------
-void ocpTraceReset(uint32_t id);
+int32_t ocpTraceReset(uint32_t id);
 //---------------------------------------------------------------------------
-void ocpTraceSetSize(uint32_t id, uint32_t size);
+int32_t ocpTraceGetSize(uint32_t id);
 //---------------------------------------------------------------------------
-uint32_t ocpTraceReadQtyTraces(uint32_t id);
+int32_t ocpTraceSetSize(uint32_t id, int32_t size);
 //---------------------------------------------------------------------------
-uint32_t ocpTraceReadTags(uint32_t id, char *buffer);
+int32_t ocpTraceGetNumberSignals(uint32_t id);
 //---------------------------------------------------------------------------
-void ocpTraceSave(uint32_t id);
+int32_t ocpTraceGetSignalsNames(uint32_t id, char *buffer);
+//---------------------------------------------------------------------------
+int32_t ocpTraceGetNumberTraces(void);
+//---------------------------------------------------------------------------
+int32_t ocpTraceGetTracesNames(char *buffer);
+//---------------------------------------------------------------------------
+int32_t ocpTraceSave(uint32_t id);
 //---------------------------------------------------------------------------
 //===========================================================================
 
