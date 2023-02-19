@@ -107,4 +107,22 @@ int32_t ocpCSStatus(uint32_t id){
 	return controlsysStatus( &xcontrol.cs[id] );
 }
 //-----------------------------------------------------------------------------
+int32_t ocpCSGetNumberControllers(void){
+
+	return OCP_CS_END;
+}
+//-----------------------------------------------------------------------------
+int32_t ocpCSGetControllersNames(char *buffer){
+
+	int32_t k;
+	char *p;
+
+	p = xcontrol.names;
+	while( p <= xcontrol.np ) *buffer++ = *p++;
+
+	k = xcontrol.np - xcontrol.names;
+
+	return k;
+}
+//-----------------------------------------------------------------------------
 //=============================================================================

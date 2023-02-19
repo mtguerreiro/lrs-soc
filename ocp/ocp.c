@@ -14,7 +14,6 @@
 #include "ocpCS.h"
 #include "ocpIf.h"
 
-#include "stdio.h"
 //=============================================================================
 
 //=============================================================================
@@ -59,6 +58,13 @@ static float sys1ProcInBuffer[3];
 static float sys1OutBuffer[3];
 static float sys1ProcOutBuffer[3];
 
+/* Control system #1 */
+static float sys2InBuffer[3];
+static float sys2ProcInBuffer[3];
+
+static float sys2OutBuffer[3];
+static float sys2ProcOutBuffer[3];
+
 //=============================================================================
 
 //=============================================================================
@@ -99,17 +105,6 @@ int32_t ocpInitializeTraces(void){
 
 	ocpTraceInitialize(OCP_TRACE_2, &config, "trace 2");
 
-
-	float x = 0.1f; float y = 0.2f; float z = 212334.3402f;
-
-	ocpTraceAddSignal(OCP_TRACE_1, (void *)&x, "xis");
-	ocpTraceAddSignal(OCP_TRACE_1, (void *)&y, "why");
-	ocpTraceAddSignal(OCP_TRACE_1, (void *)&z, "zhi");
-
-	printf("z's value: %f\n", z);
-
-	ocpTraceSave(OCP_TRACE_1);
-
 	return 0;
 }
 //-----------------------------------------------------------------------------
@@ -136,6 +131,9 @@ int32_t ocpInitializeControlSystem(void){
 	config.boutputs = sys1OutBuffer;
 	config.bprocOutputs = sys1ProcOutBuffer;
 
+	config.fenable = 0;
+	config.fdisable = 0;
+
 	ocpCSInitialize(OCP_CS_1, &config, "temp control");
 
 	config.fgetInputs = 0;
@@ -151,11 +149,15 @@ int32_t ocpInitializeControlSystem(void){
 	config.fhwInterface = 0;
 	config.fcontrollerInterface = 0;
 
-	config.binputs = sys1InBuffer;
-	config.bprocInputs = sys1ProcInBuffer;
+	config.binputs = sys2InBuffer;
+	config.bprocInputs = sys2ProcInBuffer;
 
-	config.boutputs = sys1OutBuffer;
-	config.bprocOutputs = sys1ProcOutBuffer;
+	config.boutputs = sys2OutBuffer;
+	config.bprocOutputs = sys2ProcOutBuffer;
+
+	config.fenable = 0;
+	config.fdisable = 0;
+
 
 	ocpCSInitialize(OCP_CS_2, &config, "another control");
 

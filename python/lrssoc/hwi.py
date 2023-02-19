@@ -9,6 +9,7 @@ import socket
 import time
 import struct
 import lrssoc
+#import enum
 
 class Commands:
     """Just a list with the commands accepted by the platform. They must match
@@ -23,6 +24,13 @@ class Commands:
         self.trace_get_signals_names = 5
         self.trace_get_number_traces = 6
         self.trace_get_traces_names = 7
+        self.cs_status = 8
+        self.cs_enable = 9
+        self.cs_disable = 10
+        self.cs_controller_if = 11
+        self.cs_hardware_if = 12
+        self.cs_get_number_controllers = 13
+        self.cs_get_controllers_names = 14
         
         self.cpu0_blink = 0
         self.cpu1_blink = 1
@@ -39,6 +47,18 @@ class Commands:
         self.cpu0_control_en = 12
         
 
+##class Commands(enum.Enum):
+##
+##    trace_read = 0
+##    trace_reset = auto()
+##    trace_get_size = auto()
+##    trace_set_size = auto()
+##    trace_get_number_signals = auto()
+##    trace_get_signals_names = auto()
+##    trace_get_number_traces = auto()
+##    trace_get_traces_names = auto()
+##    cs_status = auto()
+        
 class Interface:
     """A class to provide an interface to the LRS-SOC platform.
 
@@ -78,7 +98,7 @@ class Interface:
         Raises
         ------
         TypeError
-            If `id` or `size` are not of `int` type.
+            If `tr_id` is not of `int` type.
 
         Returns
         -------
@@ -99,7 +119,7 @@ class Interface:
         status, data = self.hwp.request(cmd, tx_data)
 
         if status < 0:
-            funcname = Interface.trace_set_size.__name__
+            funcname = Interface.trace_read.__name__
             print('{:}: Error reading trace. Error code {:}\r\n'.format(funcname, status))
             return (-1, status)
 
@@ -125,7 +145,7 @@ class Interface:
         Raises
         ------
         TypeError
-            If `id` or `size` are not of `int` type.
+            If `tr_id` is not of `int` type.
 
         Returns
         -------
@@ -146,7 +166,7 @@ class Interface:
         status, data = self.hwp.request(cmd, tx_data)
 
         if status < 0:
-            funcname = Interface.trace_set_size.__name__
+            funcname = Interface.trace_reset.__name__
             print('{:}: Error resetting trace. Error code {:}\r\n'.format(funcname, status))
             return (-1, status)
 
@@ -211,7 +231,7 @@ class Interface:
         Raises
         ------
         TypeError
-            If `id` or `size` are not of `int` type.
+            If `tr_id` or `size` are not of `int` type.
 
         Returns
         -------
@@ -255,7 +275,7 @@ class Interface:
         Raises
         ------
         TypeError
-            If `id` is not of `int` type.
+            If `tr_id` is not of `int` type.
 
         Returns
         -------
@@ -276,7 +296,7 @@ class Interface:
         status, data = self.hwp.request(cmd, tx_data)
 
         if status < 0:
-            funcname = Interface.trace_get_size.__name__
+            funcname = Interface.trace_get_number_signals.__name__
             print('{:}: Error getting number of signals. Error code {:}\r\n'.format(funcname, status))
             return (-1, status)
         
@@ -297,7 +317,7 @@ class Interface:
         Raises
         ------
         TypeError
-            If `id` is not of `int` type.
+            If `tr_id` is not of `int` type.
 
         Returns
         -------
@@ -319,7 +339,7 @@ class Interface:
         status, data = self.hwp.request(cmd, tx_data)
 
         if status < 0:
-            funcname = Interface.trace_get_size.__name__
+            funcname = Interface.trace_get_signals_names.__name__
             print('{:}: Error getting names of signals. Error code {:}\r\n'.format(funcname, status))
             return (-1, status)
 
@@ -331,11 +351,6 @@ class Interface:
 
     def trace_get_number_traces(self):
         """Gets the number of traces stored in the controller.
-
-        Raises
-        ------
-        TypeError
-            If `id` is not of `int` type.
 
         Returns
         -------
@@ -350,7 +365,7 @@ class Interface:
         status, data = self.hwp.request(cmd)
 
         if status < 0:
-            funcname = Interface.trace_get_size.__name__
+            funcname = Interface.trace_get_number_traces.__name__
             print('{:}: Error getting number of traces. Error code {:}\r\n'.format(funcname, status))
             return (-1, status)
         
@@ -361,11 +376,6 @@ class Interface:
 
     def trace_get_traces_names(self):
         """Gets the description of the traces stored in the controller.
-
-        Raises
-        ------
-        TypeError
-            If `id` is not of `int` type.
 
         Returns
         -------
@@ -380,8 +390,270 @@ class Interface:
         status, data = self.hwp.request(cmd)
 
         if status < 0:
-            funcname = Interface.trace_get_size.__name__
+            funcname = Interface.trace_get_traces_names.__name__
             print('{:}: Error getting names of traces. Error code {:}\r\n'.format(funcname, status))
+            return (-1, status)
+
+        names = data.split(b'\x00')
+        if names[-1] == b'': names = names[:-1]
+
+        return (0, names)
+
+
+    def cs_get_status(self, cs_id):
+        """Gets the status of the selected control system.
+
+        Parameters
+        ----------
+        cs_id : int
+            Control system's ID. This ID must exist in the controller,
+            otherwise an error will be returned.
+
+        Raises
+        ------
+        TypeError
+            If `cs_id` is not of `int` type.
+
+        Returns
+        -------
+        tuple
+            A tuple, where the first element is the command's status and the
+            second element is control systems's status or an error code. If
+            the command was executed successfully, status is zero.
+            
+        """
+        if type(cs_id) is not int:
+            raise TypeError('`cs_id` must be of int type.')
+        
+        cmd = self.cmd.cs_status
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cs_id, msb=False) )
+
+        status, data = self.hwp.request(cmd, tx_data)
+
+        if status < 0:
+            funcname = Interface.cs_get_status.__name__
+            print('{:}: Error getting control system status. Error code {:}\r\n'.format(funcname, status))
+            return (-1, status)
+        
+        status = lrssoc.conversions.u8_to_u32(data, msb=False)
+
+        return (0, status)
+
+
+    def cs_enable(self, cs_id):
+        """Enables the selected control system.
+
+        Parameters
+        ----------
+        cs_id : int
+            Control system's ID. This ID must exist in the controller,
+            otherwise an error will be returned.
+
+        Raises
+        ------
+        TypeError
+            If `cs_id` is not of `int` type.
+
+        Returns
+        -------
+        tuple
+            A tuple, where the first element is the command's status and the
+            second element an error code, if any. If the command was executed
+            successfully, status is zero.
+            
+        """
+        if type(cs_id) is not int:
+            raise TypeError('`cs_id` must be of int type.')
+        
+        cmd = self.cmd.cs_enable
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cs_id, msb=False) )
+
+        status, data = self.hwp.request(cmd, tx_data)
+
+        if status < 0:
+            funcname = Interface.cs_enable.__name__
+            print('{:}: Error enabling control system. Error code {:}\r\n'.format(funcname, status))
+            return (-1, status)
+        
+        return (0,)
+    
+
+    def cs_disable(self, cs_id):
+        """Disables the selected control system.
+
+        Parameters
+        ----------
+        cs_id : int
+            Control system's ID. This ID must exist in the controller,
+            otherwise an error will be returned.
+
+        Raises
+        ------
+        TypeError
+            If `cs_id` is not of `int` type.
+
+        Returns
+        -------
+        tuple
+            A tuple, where the first element is the command's status and the
+            second element an error code, if any. If the command was executed
+            successfully, status is zero.
+            
+        """
+        if type(cs_id) is not int:
+            raise TypeError('`cs_id` must be of int type.')
+        
+        cmd = self.cmd.cs_disable
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cs_id, msb=False) )
+
+        status, data = self.hwp.request(cmd, tx_data)
+
+        if status < 0:
+            funcname = Interface.cs_disable.__name__
+            print('{:}: Error disabling control system. Error code {:}\r\n'.format(funcname, status))
+            return (-1, status)
+        
+        return (0,)
+
+
+    def cs_controller_if(self, cs_id, data=None):
+        """Sends data to the selected controller's interface.
+
+        Parameters
+        ----------
+        cs_id : int
+            Control system's ID. This ID must exist in the controller,
+            otherwise an error will be returned.
+
+        data : list
+            Data to be sent. By default, it is `None`.
+
+        Raises
+        ------
+        TypeError
+            If `cs_id` is not of `int` type.
+
+        Returns
+        -------
+        tuple
+            A tuple, where the first element is the command's status and the
+            second element is the controller's response or an error code, if
+            any. If the command was executed successfully, status is zero.
+            
+        """
+        if type(cs_id) is not int:
+            raise TypeError('`cs_id` must be of int type.')
+        
+        cmd = self.cmd.cs_controller_if
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cs_id, msb=False) )
+        if data is not None: tx_data.extend( data )
+
+        status, rx_data = self.hwp.request(cmd, tx_data)
+
+        if status < 0:
+            funcname = Interface.cs_controller_if.__name__
+            print('{:}: Error accessing the controller\'s interface. Error {:}\r\n'.format(funcname, status))
+            return (-1, status)
+        
+        return (0, rx_data)
+
+
+    def cs_hardware_if(self, cs_id, data=None):
+        """Sends data to the selected controller's hardware interface.
+
+        Parameters
+        ----------
+        cs_id : int
+            Control system's ID. This ID must exist in the controller,
+            otherwise an error will be returned.
+
+        data : list
+            Data to be sent. By default, it is `None`.
+
+        Raises
+        ------
+        TypeError
+            If `cs_id` is not of `int` type.
+
+        Returns
+        -------
+        tuple
+            A tuple, where the first element is the command's status and the
+            second element is the controller's response or an error code, if
+            any. If the command was executed successfully, status is zero.
+            
+        """
+        if type(cs_id) is not int:
+            raise TypeError('`cs_id` must be of int type.')
+        
+        cmd = self.cmd.cs_hardware_if
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cs_id, msb=False) )
+        if data is not None: tx_data.extend( data )
+
+        status, rx_data = self.hwp.request(cmd, tx_data)
+
+        if status < 0:
+            funcname = Interface.cs_hardware_if.__name__
+            print('{:}: Error accessing the controller\'s hardware interface. Error {:}\r\n'.format(funcname, status))
+            return (-1, status)
+        
+        return (0, rx_data)
+
+
+    def cs_get_number_controllers(self):
+        """Gets the number of control systems stored in the controller.
+
+        Returns
+        -------
+        tuple
+            A tuple, where the first element is the command's status and the
+            second element is the number of controllers, or an error code. If
+            the command was executed successfully, status is zero.
+            
+        """       
+        cmd = self.cmd.cs_get_number_controllers
+
+        status, data = self.hwp.request(cmd)
+
+        if status < 0:
+            funcname = Interface.cs_get_number_controllers.__name__
+            print('{:}: Error getting number of controllers. Error code {:}\r\n'.format(funcname, status))
+            return (-1, status)
+        
+        n = lrssoc.conversions.u8_to_u32(data, msb=False)
+
+        return (0, n)
+
+
+    def cs_get_controllers_names(self):
+        """Gets the description of the controllers stored in the controller.
+
+        Returns
+        -------
+        tuple
+            A tuple, where the first element is the command's status and the
+            second element is a list with the name of each controller, or an
+            error code. If the command was executed successfully, status
+            is zero.
+            
+        """
+        cmd = self.cmd.cs_get_controllers_names
+
+        status, data = self.hwp.request(cmd)
+
+        if status < 0:
+            funcname = Interface.cs_get_controllers_names.__name__
+            print('{:}: Error getting names of controllers. Error code {:}\r\n'.format(funcname, status))
             return (-1, status)
 
         names = data.split(b'\x00')

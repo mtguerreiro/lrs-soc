@@ -46,6 +46,27 @@ static int32_t ocpIfTraceGetNumberTraces(void *in, uint32_t insize,
 static int32_t ocpIfTraceGetTracesNames(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
+static int32_t ocpIfCSStatus(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSEnable(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSDisable(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSControllerIf(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSHardwareIf(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSGetNumberControllers(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSGetNumberControllersNames(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
 //=============================================================================
 
 //=============================================================================
@@ -54,7 +75,7 @@ static int32_t ocpIfTraceGetTracesNames(void *in, uint32_t insize,
 
 typedef struct{
 
-	rphandle_t handles[OCPIF_CMD_END];
+	rphandle_t handles[OCP_IF_CMD_END];
 	rpctx_t rp;
 
 }ocpIfControl_t;
@@ -73,16 +94,24 @@ static ocpIfControl_t xcontrol;
 //-----------------------------------------------------------------------------
 int32_t ocpIfInitialize(void){
 
-	rpInitialize( &xcontrol.rp, OCPIF_CMD_END, xcontrol.handles );
+	rpInitialize( &xcontrol.rp, OCP_IF_CMD_END, xcontrol.handles );
 
-	rpRegisterHandle( &xcontrol.rp, OCPIF_CMD_TRACE_READ, ocpIfTraceRead );
-	rpRegisterHandle( &xcontrol.rp, OCPIF_CMD_TRACE_RESET, ocpIfTraceReset );
-	rpRegisterHandle( &xcontrol.rp, OCPIF_CMD_TRACE_GET_SIZE, ocpIfTraceGetSize );
-	rpRegisterHandle( &xcontrol.rp, OCPIF_CMD_TRACE_SET_SIZE, ocpIfTraceSetSize );
-	rpRegisterHandle( &xcontrol.rp, OCPIF_CMD_TRACE_GET_NUMBER_SIGNALS, ocpIfTraceGetNumberSignals );
-	rpRegisterHandle( &xcontrol.rp, OCPIF_CMD_TRACE_GET_SIGNALS_NAMES, ocpIfTraceGetSignalsNames );
-	rpRegisterHandle( &xcontrol.rp, OCPIF_CMD_TRACE_GET_NUMBER_TRACES, ocpIfTraceGetNumberTraces );
-	rpRegisterHandle( &xcontrol.rp, OCPIF_CMD_TRACE_GET_TRACES_NAMES, ocpIfTraceGetTracesNames );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_READ, ocpIfTraceRead );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_RESET, ocpIfTraceReset );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_GET_SIZE, ocpIfTraceGetSize );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_SET_SIZE, ocpIfTraceSetSize );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_GET_NUMBER_SIGNALS, ocpIfTraceGetNumberSignals );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_GET_SIGNALS_NAMES, ocpIfTraceGetSignalsNames );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_GET_NUMBER_TRACES, ocpIfTraceGetNumberTraces );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_GET_TRACES_NAMES, ocpIfTraceGetTracesNames );
+
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_STATUS, ocpIfCSStatus );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_ENABLE, ocpIfCSEnable );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_DISABLE, ocpIfCSDisable );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_CONTROLLER_IF, ocpIfCSControllerIf );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_HARDWARE_IF, ocpIfCSHardwareIf );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_GET_NUMBER_CONTROLLERS, ocpIfCSGetNumberControllers );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_GET_CONTROLLERS_NAMES, ocpIfCSGetNumberControllersNames );
 
 	return 0;
 }
@@ -220,6 +249,100 @@ static int32_t ocpIfTraceGetTracesNames(void *in, uint32_t insize,
 	char *o = (char *)( *out );
 
 	size = ocpTraceGetTracesNames(o);
+
+	return size;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSStatus(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+	uint32_t id;
+
+	int32_t status;
+
+	uint32_t *o = (uint32_t *)( *out );
+
+	id = *( (uint32_t *)in );
+
+	status = ocpCSStatus(id);
+
+	*o = status;
+
+	return 4;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSEnable(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+	uint32_t id;
+
+	int32_t status;
+
+	id = *( (uint32_t *)in );
+
+	status = ocpCSEnable(id);
+
+	return status;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSDisable(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+	uint32_t id;
+
+	int32_t status;
+
+	id = *( (uint32_t *)in );
+
+	status = ocpCSDisable(id);
+
+	return status;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSControllerIf(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+	uint32_t id;
+	uint32_t *p = (uint32_t *)in;
+
+	id = *p++;
+
+	return ocpCSControllerInterface(id, (void *)p, insize, out, maxoutsize);
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSHardwareIf(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+	uint32_t id;
+	uint32_t *p = (uint32_t *)in;
+
+	id = *p++;
+
+	return ocpCSHardwareInterface(id, (void *)p, insize, out, maxoutsize);
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSGetNumberControllers(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+	uint32_t n;
+
+	uint32_t *o = (uint32_t *)( *out );
+
+	n = ocpCSGetNumberControllers();
+
+	*o = n;
+
+	return 4;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSGetNumberControllersNames(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+	uint32_t size;
+
+	char *o = (char *)( *out );
+
+	size = ocpCSGetControllersNames(o);
 
 	return size;
 }
