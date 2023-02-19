@@ -93,11 +93,15 @@ int32_t controlsysRun(controlsys_t *sys){
 void controlsysEnable(controlsys_t *sys){
 
 	sys->enable = 1;
+
+	if( sys->fenable != 0 ) sys->fenable();
 }
 //-----------------------------------------------------------------------------
 void controlsysDisable(controlsys_t *sys){
 
 	sys->enable = 0;
+
+	if( sys->fdisable != 0 ) sys->fdisable();
 }
 //-----------------------------------------------------------------------------
 int32_t controlsysStatus(controlsys_t *sys){

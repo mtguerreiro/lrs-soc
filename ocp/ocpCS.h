@@ -22,14 +22,22 @@
 
 typedef controlsysConfig_t ocpCSConfig_t;
 
-#define OCPCS_CONFIG_N_CS		2
+#define OCP_CS_CONFIG_CS_NAME_MAX_LEN		20
+
+typedef enum{
+	OCP_CS_1 = 0,
+	OCP_CS_2,
+	OCP_CS_END
+}ocpCSIDs_t;
+
+//#define OCPCS_CONFIG_N_CS		2
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void ocpCSInitialize(uint32_t csid, ocpCSConfig_t *config);
+int32_t ocpCSInitialize(uint32_t id, ocpCSConfig_t *config, char *name);
 //-----------------------------------------------------------------------------
 int32_t ocpCSControllerInterface(uint32_t csid,
 		void *in, uint32_t insize,
@@ -41,9 +49,9 @@ int32_t ocpCSHardwareInterface(uint32_t id,
 //-----------------------------------------------------------------------------
 int32_t ocpCSRun(uint32_t id);
 //-----------------------------------------------------------------------------
-void ocpCSEnable(uint32_t id);
+int32_t ocpCSEnable(uint32_t id);
 //-----------------------------------------------------------------------------
-void ocpCSDisable(uint32_t id);
+int32_t ocpCSDisable(uint32_t id);
 //-----------------------------------------------------------------------------
 int32_t ocpCSStatus(uint32_t id);
 //-----------------------------------------------------------------------------

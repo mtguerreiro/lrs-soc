@@ -5,8 +5,8 @@
  *      Author: mguerreiro
  */
 
-#ifndef OCPTRACE_H_
-#define OCPTRACE_H_
+#ifndef OCP_TRACE_H_
+#define OCP_TRACE_H_
 
 //===========================================================================
 /*------------------------------- Includes --------------------------------*/
@@ -22,12 +22,12 @@
 
 typedef ctraceConfig_t ocpTraceConfig_t;
 
-#define OCPTRACE_CONFIG_TRACE_NAME_LEN_MAX	20
+#define OCP_TRACE_CONFIG_TRACE_NAME_MAX_LEN		20
 
 typedef enum{
-	OCPTRACE_1 = 0,
-	OCPTRACE_2,
-	OCPTRACE_END
+	OCP_TRACE_1 = 0,
+	OCP_TRACE_2,
+	OCP_TRACE_END
 }ocpTraceIDs_t;
 
 //===========================================================================
@@ -60,4 +60,4 @@ int32_t ocpTraceSave(uint32_t id);
 //---------------------------------------------------------------------------
 //===========================================================================
 
-#endif /* OCPTRACE_H_ */
+#endif /* OCP_TRACE_H_ */

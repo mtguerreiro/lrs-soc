@@ -34,12 +34,18 @@ void ctracememAddress(ctracemem_t *trace, void *address){
 //---------------------------------------------------------------------------
 int32_t ctracememGetSize(ctracemem_t *trace){
 
-	return trace->end - trace->start;
+	int32_t size;
+
+	size = (trace->end - trace->start) * sizeof(size_t);
+
+	return size;
 }
 //---------------------------------------------------------------------------
 int32_t ctracememSetSize(ctracemem_t *trace, int32_t size){
 
 	if( size > trace->maxsize ) return -1;
+
+	size = size / sizeof(size_t);
 
 	trace->end = trace->start + size;
 	trace->p = trace->start;

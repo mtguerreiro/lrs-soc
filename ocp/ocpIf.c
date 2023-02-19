@@ -64,7 +64,7 @@ typedef struct{
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
 
-ocpIfControl_t xcontrol;
+static ocpIfControl_t xcontrol;
 //=============================================================================
 
 //=============================================================================
@@ -89,7 +89,7 @@ int32_t ocpIfInitialize(void){
 //-----------------------------------------------------------------------------
 int32_t ocpIf(void *in, int32_t insize, void **out, int32_t maxoutsize){
 
-	return 0;
+	return rpRequest( &xcontrol.rp, in, insize, out, maxoutsize);
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
@@ -105,11 +105,15 @@ static int32_t ocpIfTraceRead(void *in, uint32_t insize,
 	uint32_t id;
 	size_t address;
 	uint32_t size;
+	int32_t status;
 
 	id = *( (uint32_t *)in );
 
-	ocpTraceGetAddress( id, (void *)(&address) );
+	status = ocpTraceGetAddress( id, (void *)(&address) );
+	if( status < 0 ) return -1;
+
 	size = ocpTraceGetSize( id );
+	if( size < 0 ) return -1;
 
 	*out = (void *)( address );
 
@@ -120,12 +124,13 @@ static int32_t ocpIfTraceReset(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize){
 
 	uint32_t id;
+	int32_t status;
 
 	id = *( (uint32_t *)in );
 
-	ocpTraceReset(id);
+	status = ocpTraceReset(id);
 
-	return 0;
+	return status;
 }
 //-----------------------------------------------------------------------------
 static int32_t ocpIfTraceGetSize(void *in, uint32_t insize,
@@ -158,9 +163,7 @@ static int32_t ocpIfTraceSetSize(void *in, uint32_t insize,
 
 	status = ocpTraceSetSize(id, size);
 
-	if( status != 0 ) return -1;
-
-	return 0;
+	return status;
 }
 //-----------------------------------------------------------------------------
 static int32_t ocpIfTraceGetNumberSignals(void *in, uint32_t insize,
