@@ -14,6 +14,8 @@
 #include "ocpCS.h"
 #include "ocpIf.h"
 
+#include "ipcServer.h"
+#include "ipcClient.h"
 //=============================================================================
 
 //=============================================================================
@@ -67,6 +69,29 @@ static float sys2ProcOutBuffer[3];
 
 //=============================================================================
 
+/* Simulating IPC */
+static uint32_t icpBufferServerClient[100];
+static uint32_t icpBufferClientServer[100];
+
+void ipcTestClientIrqSend(void){
+
+	ipcServerRequest();
+}
+
+void ipcTestClientIrqReceive(void){
+
+}
+
+
+void ipcTestServerIrqSend(void){
+
+	ipcTestClientIrqReceive();
+}
+
+int32_t ipcTestServerIrqReceive(void *req, int32_t reqsize, void **resp, int32_t maxrespsize){
+
+	return ocpIf(req, reqsize, resp, maxrespsize);
+}
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
@@ -77,6 +102,10 @@ int32_t ocpInitialize(void){
 	ocpInitializeTraces();
 	ocpInitializeControlSystem();
 	ocpInitializeInterface();
+
+	ipcClientInitialize(ipcTestClientIrqSend, ipcTestClientIrqReceive, icpBufferServerClient, 400, icpBufferClientServer, 400);
+
+	ipcServerInitialize(ipcTestServerIrqReceive, ipcTestServerIrqSend, icpBufferClientServer, 400, ipcTestClientIrqReceive, 400);
 
 	return 0;
 }

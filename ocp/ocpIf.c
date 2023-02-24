@@ -5,6 +5,7 @@
  *      Author: marco
  */
 
+#define OCP_IF_CONFIG_DUAL_CORE
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
@@ -16,11 +17,16 @@
 #include "stddef.h"
 
 #include "rp.h"
+
+#ifdef OCP_IF_CONFIG_DUAL_CORE
+#include "ipcClient.h"
+#endif
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Prototypes -------------------------------*/
 //=============================================================================
+//#ifndef OCP_IF_CONFIG_DUAL_CORE
 //-----------------------------------------------------------------------------
 static int32_t ocpIfTraceRead(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize);
@@ -67,6 +73,53 @@ static int32_t ocpIfCSGetNumberControllers(void *in, uint32_t insize,
 static int32_t ocpIfCSGetNumberControllersNames(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
+//#else
+static int32_t ocpIfDualCoreTraceRead(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreTraceReset(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreTraceGetSize(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreTraceSetSize(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreTraceGetNumberSignals(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreTraceGetSignalsNames(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreTraceGetNumberTraces(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreTraceGetTracesNames(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreCSStatus(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreCSEnable(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreCSDisable(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreCSControllerIf(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreCSHardwareIf(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreCSGetNumberControllers(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreCSGetNumberControllersNames(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+//#endif
 //=============================================================================
 
 //=============================================================================
@@ -96,6 +149,7 @@ int32_t ocpIfInitialize(void){
 
 	rpInitialize( &xcontrol.rp, OCP_IF_CMD_END, xcontrol.handles );
 
+//#ifndef OCP_IF_CONFIG_DUAL_CORE
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_READ, ocpIfTraceRead );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_RESET, ocpIfTraceReset );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_GET_SIZE, ocpIfTraceGetSize );
@@ -112,6 +166,24 @@ int32_t ocpIfInitialize(void){
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_HARDWARE_IF, ocpIfCSHardwareIf );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_GET_NUMBER_CONTROLLERS, ocpIfCSGetNumberControllers );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_GET_CONTROLLERS_NAMES, ocpIfCSGetNumberControllersNames );
+//#else
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_TRACE_READ, ocpIfDualCoreTraceRead );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_TRACE_RESET, ocpIfDualCoreTraceReset );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_TRACE_GET_SIZE, ocpIfDualCoreTraceGetSize );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_TRACE_SET_SIZE, ocpIfDualCoreTraceSetSize );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_TRACE_GET_NUMBER_SIGNALS, ocpIfDualCoreTraceGetNumberSignals );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_TRACE_GET_SIGNALS_NAMES, ocpIfDualCoreTraceGetSignalsNames );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_TRACE_GET_NUMBER_TRACES, ocpIfDualCoreTraceGetNumberTraces );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_TRACE_GET_TRACES_NAMES, ocpIfDualCoreTraceGetTracesNames );
+
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_CS_STATUS, ocpIfDualCoreCSStatus );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_CS_ENABLE, ocpIfDualCoreCSEnable );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_CS_DISABLE, ocpIfDualCoreCSDisable );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_CS_CONTROLLER_IF, ocpIfDualCoreCSControllerIf );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_CS_HARDWARE_IF, ocpIfDualCoreCSHardwareIf );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_CS_GET_NUMBER_CONTROLLERS, ocpIfDualCoreCSGetNumberControllers );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_CS_GET_CONTROLLERS_NAMES, ocpIfDualCoreCSGetNumberControllersNames );
+//#endif
 
 	return 0;
 }
@@ -127,6 +199,7 @@ int32_t ocpIf(void *in, int32_t insize, void **out, int32_t maxoutsize){
 //=============================================================================
 /*---------------------------- Static functions -----------------------------*/
 //=============================================================================
+//#ifndef OCP_IF_CONFIG_DUAL_CORE
 //-----------------------------------------------------------------------------
 static int32_t ocpIfTraceRead(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize){
@@ -346,5 +419,105 @@ static int32_t ocpIfCSGetNumberControllersNames(void *in, uint32_t insize,
 
 	return size;
 }
+//#else
 //-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreTraceRead(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreTraceReset(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+	uint32_t id;
+	int32_t status;
+
+	uint32_t nTracesC1;
+	uint32_t *p;
+	uint32_t cmd;
+
+	id = *( (uint32_t *)in );
+
+	cmd = OCP_IF_CMD_TRACE_GET_NUMBER_TRACES;
+	p = &nTracesC1;
+	status = ipcClientRequest((void *)cmd, 4, (void **)&p, 4, 100);
+	if( status < 0 ) return status;
+
+	if( id < nTracesC1){
+		cmd = OCP_IF_CMD_TRACE_RESET;
+		status = ipcClientRequest((void *)cmd, 4, (void **)&p, 4, 100);
+	}
+	else{
+		status = ocpTraceReset(id);
+	}
+
+	return status;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreTraceGetSize(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreTraceSetSize(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreTraceGetNumberSignals(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreTraceGetSignalsNames(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreTraceGetNumberTraces(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreTraceGetTracesNames(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreCSStatus(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreCSEnable(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreCSDisable(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreCSControllerIf(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreCSHardwareIf(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreCSGetNumberControllers(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfDualCoreCSGetNumberControllersNames(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+}
+//-----------------------------------------------------------------------------
+//#endif
 //=============================================================================
