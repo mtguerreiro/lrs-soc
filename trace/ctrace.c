@@ -80,7 +80,6 @@ int32_t ctraceGetSignalsNames(ctrace_t *trace, char *buffer, int32_t maxsize){
 	char *p;
 
 	p = trace->names;
-
 	k = 0;
 	while( (p < trace->np) && (k < maxsize) ){
 		*buffer++ = *p++;

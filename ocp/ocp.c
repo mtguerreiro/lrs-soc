@@ -125,15 +125,20 @@ int32_t ocpInitializeTraces(void){
 
 	ocpTraceConfig_t config;
 
+	float x = 0.1, y = 0.3, z = 0.667;
+
 	config.mem = trace1Buffer;
 	config.size = OCP_CONFIG_TRACE1_SIZE;
 	config.data = (void **)trace1Data;
 	config.names = trace1Names;
 
 	ocpTraceInitialize(OCP_TRACE_1, &config, "trace 1");
-	ocpTraceAddSignal(OCP_TRACE_1, 0, "T1 S1");
-	ocpTraceAddSignal(OCP_TRACE_1, 0, "T1 S2");
-	ocpTraceAddSignal(OCP_TRACE_1, 0, "T1 S3");
+	ocpTraceAddSignal(OCP_TRACE_1, (void *)&x, "T1 S1");
+	ocpTraceAddSignal(OCP_TRACE_1, (void *)&y, "T1 S2");
+	ocpTraceAddSignal(OCP_TRACE_1, (void *)&z, "T1 S3");
+
+	ocpTraceSave(OCP_TRACE_1);
+
 
 	config.mem = trace2Buffer;
 	config.size = OCP_CONFIG_TRACE2_SIZE;

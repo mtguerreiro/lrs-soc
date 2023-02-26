@@ -54,7 +54,7 @@ int32_t ocpTraceGetSignalsNames(uint32_t id, char *buffer, int32_t maxsize);
 //---------------------------------------------------------------------------
 int32_t ocpTraceGetNumberTraces(void);
 //---------------------------------------------------------------------------
-int32_t ocpTraceGetTracesNames(char *buffer);
+int32_t ocpTraceGetTracesNames(char *buffer, int32_t maxsize);
 //---------------------------------------------------------------------------
 int32_t ocpTraceSave(uint32_t id);
 //---------------------------------------------------------------------------

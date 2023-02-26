@@ -114,15 +114,17 @@ int32_t ocpTraceGetNumberTraces(void){
 	return OCP_TRACE_END;
 }
 //---------------------------------------------------------------------------
-int32_t ocpTraceGetTracesNames(char *buffer){
+int32_t ocpTraceGetTracesNames(char *buffer, int32_t maxsize){
 
 	int32_t k;
 	char *p;
 
 	p = xcontrol.names;
-	while( p <= xcontrol.np ) *buffer++ = *p++;
-
-	k = xcontrol.np - xcontrol.names;
+	k = 0;
+	while( (p < xcontrol.np) && (k < maxsize) ){
+		*buffer++ = *p++;
+		k++;
+	}
 
 	return k;
 }
