@@ -16,6 +16,8 @@
 
 #include "ipcServer.h"
 #include "ipcClient.h"
+
+#include "stddef.h"
 //=============================================================================
 
 //=============================================================================
@@ -73,19 +75,22 @@ static float sys2ProcOutBuffer[3];
 static uint32_t icpBufferServerClient[100];
 static uint32_t icpBufferClientServer[100];
 
-void ipcTestClientIrqSend(void){
+int32_t ipcTestClientIrqSend(void){
 
 	ipcServerRequest();
+
+	return 0;
 }
 
-void ipcTestClientIrqReceive(void){
+int32_t ipcTestClientIrqReceive(uint32_t timeout){
 
+	return 0;
 }
 
 
-void ipcTestServerIrqSend(void){
+int32_t ipcTestServerIrqSend(void){
 
-	ipcTestClientIrqReceive();
+	return 0;
 }
 
 int32_t ipcTestServerIrqReceive(void *req, int32_t reqsize, void **resp, int32_t maxrespsize){
@@ -103,9 +108,9 @@ int32_t ocpInitialize(void){
 	ocpInitializeControlSystem();
 	ocpInitializeInterface();
 
-	ipcClientInitialize(ipcTestClientIrqSend, ipcTestClientIrqReceive, icpBufferServerClient, 400, icpBufferClientServer, 400);
+	ipcClientInitialize(ipcTestClientIrqSend, ipcTestClientIrqReceive, (size_t)&icpBufferServerClient, 400, (size_t)&icpBufferClientServer, 400);
 
-	ipcServerInitialize(ipcTestServerIrqReceive, ipcTestServerIrqSend, icpBufferClientServer, 400, ipcTestClientIrqReceive, 400);
+	ipcServerInitialize(ipcTestServerIrqReceive, ipcTestServerIrqSend, (size_t)&icpBufferClientServer, 400, (size_t)&icpBufferServerClient, 400);
 
 	return 0;
 }
@@ -126,6 +131,9 @@ int32_t ocpInitializeTraces(void){
 	config.names = trace1Names;
 
 	ocpTraceInitialize(OCP_TRACE_1, &config, "trace 1");
+	ocpTraceAddSignal(OCP_TRACE_1, 0, "T1 S1");
+	ocpTraceAddSignal(OCP_TRACE_1, 0, "T1 S2");
+	ocpTraceAddSignal(OCP_TRACE_1, 0, "T1 S3");
 
 	config.mem = trace2Buffer;
 	config.size = OCP_CONFIG_TRACE2_SIZE;
@@ -133,6 +141,7 @@ int32_t ocpInitializeTraces(void){
 	config.names = trace2Names;
 
 	ocpTraceInitialize(OCP_TRACE_2, &config, "trace 2");
+	ocpTraceAddSignal(OCP_TRACE_2, 0, "T2 S1");
 
 	return 0;
 }

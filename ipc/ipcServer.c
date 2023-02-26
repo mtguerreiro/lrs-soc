@@ -101,14 +101,15 @@ int32_t ipcServerRequest(void){
 
 	respsize = ipcServerCtl.reqHandle((void *)( ipcServerCtl.serverAdd + 4 ), reqsize,
 			(void **)( &resp ), ipcServerCtl.clientSize);
-	if( respsize < 0 ) return respsize;
 
 	ret = ipcServerMemWrite((void *)( &respsize ), (void *)(ipcServerCtl.clientAdd), 4);
 	if( ret != 0 ) return IPC_SERVER_ERR_MEM_WRITE;
 
-	if( ((uint32_t)( resp )) != (ipcServerCtl.clientAdd + 4) ){
-		ret = ipcServerMemWrite( resp, (void *)(ipcServerCtl.clientAdd + 4), respsize);
-		if( ret != 0 ) return IPC_SERVER_ERR_MEM_WRITE;
+	if( respsize > 0 ){
+		if( ((uint32_t)( resp )) != (ipcServerCtl.clientAdd + 4) ){
+			ret = ipcServerMemWrite( resp, (void *)(ipcServerCtl.clientAdd + 4), respsize);
+			if( ret != 0 ) return IPC_SERVER_ERR_MEM_WRITE;
+		}
 	}
 
 	ret = ipcServerCtl.irqSend();
@@ -125,8 +126,11 @@ int32_t ipcServerRequest(void){
 //-----------------------------------------------------------------------------
 static int32_t ipcServerMemRead(void *src, void *dst, int32_t size){
 
-	uint8_t *s = (uint8_t *)src;
-	uint8_t *d = (uint8_t *)dst;
+	size_t *s = (size_t *)src;
+	size_t *d = (size_t *)dst;
+
+	/* Size is rounded up instead of being truncated */
+	size = (size + sizeof(size_t) - 1) / sizeof(size_t);
 
 	while(size--){
 		*d++ = *s++;
@@ -137,8 +141,11 @@ static int32_t ipcServerMemRead(void *src, void *dst, int32_t size){
 //-----------------------------------------------------------------------------
 static int32_t ipcServerMemWrite(void *src, void *dst, int32_t size){
 
-	uint8_t *s = (uint8_t *)src;
-	uint8_t *d = (uint8_t *)dst;
+	size_t *s = (size_t *)src;
+	size_t *d = (size_t *)dst;
+
+	/* Size is rounded up instead of being truncated */
+	size = (size + sizeof(size_t) - 1) / sizeof(size_t);
 
 	while(size--){
 		*d++ = *s++;

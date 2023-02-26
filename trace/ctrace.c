@@ -5,6 +5,9 @@
  *      Author: marco
  */
 
+/*
+ * TODO: limit signal name
+ */
 //===========================================================================
 /*------------------------------- Includes --------------------------------*/
 //===========================================================================
@@ -71,15 +74,18 @@ int32_t ctraceGetNumberSignals(ctrace_t *trace){
 	return trace->n;
 }
 //---------------------------------------------------------------------------
-int32_t ctraceGetSignalsNames(ctrace_t *trace, char *buffer){
+int32_t ctraceGetSignalsNames(ctrace_t *trace, char *buffer, int32_t maxsize){
 
 	int32_t k;
 	char *p;
 
 	p = trace->names;
-	while( p <= trace->np ) *buffer++ = *p++;
 
-	k = trace->np - trace->names;
+	k = 0;
+	while( (p < trace->np) && (k < maxsize) ){
+		*buffer++ = *p++;
+		k++;
+	}
 
 	return k;
 }
@@ -88,7 +94,7 @@ void ctraceSave(ctrace_t *trace){
 
 	uint32_t size;
 
-	size = sizeof(void *) * trace->n;
+	size = sizeof(size_t) * trace->n;
 
 	ctracememSave( &trace->mem, trace->data, size );
 }

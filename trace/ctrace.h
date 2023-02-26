@@ -62,7 +62,7 @@ int32_t ctraceSetSize(ctrace_t *trace, int32_t size);
 //---------------------------------------------------------------------------
 int32_t ctraceGetNumberSignals(ctrace_t *trace);
 //---------------------------------------------------------------------------
-int32_t ctraceGetSignalsNames(ctrace_t *trace, char *buffer);
+int32_t ctraceGetSignalsNames(ctrace_t *trace, char *buffer, int32_t maxsize);
 //---------------------------------------------------------------------------
 void ctraceSave(ctrace_t *trace);
 //---------------------------------------------------------------------------

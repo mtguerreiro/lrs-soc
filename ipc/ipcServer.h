@@ -85,6 +85,7 @@
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
 #include "stdint.h"
+#include "stddef.h"
 
 //=============================================================================
 
@@ -146,8 +147,8 @@ typedef int32_t (*ipcServerRequestHandle)(void *req, int32_t reqsize, void **res
  */
 void ipcServerInitialize(ipcServerRequestHandle reqHandle,
 		ipcServerIrqSend irqSend,
-		uint32_t serverMemAdd, int32_t serverMemSize,
-		uint32_t clientMemAdd, int32_t clientMemSize);
+		size_t serverMemAdd, int32_t serverMemSize,
+		size_t clientMemAdd, int32_t clientMemSize);
 //-----------------------------------------------------------------------------
 /**
  * @brief Processes a request.

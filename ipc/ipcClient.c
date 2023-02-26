@@ -75,10 +75,10 @@ typedef struct{
 	ipcClientIrqSend irqSend;
 	ipcClientIrqReceive irqReceive;
 
-	uint32_t serverAdd;
+	size_t serverAdd;
 	int32_t serverSize;
 
-	uint32_t clientAdd;
+	size_t clientAdd;
 	int32_t clientSize;
 }ipcClientCtl_t;
 //=============================================================================
@@ -95,8 +95,8 @@ static ipcClientCtl_t ipcClientCtl = {.serverAdd = 0, .serverSize = 0,
 //=============================================================================
 //-----------------------------------------------------------------------------
 void ipcClientInitialize(ipcClientIrqSend irqSend, ipcClientIrqReceive irqReceive,
-		   	   	   	     uint32_t clientMemAdd, int32_t clientMemSize,
-		   	   	   	     uint32_t serverMemAdd, int32_t serverMemSize){
+		size_t clientMemAdd, int32_t clientMemSize,
+		size_t serverMemAdd, int32_t serverMemSize){
 
 	ipcClientCtl.irqSend = irqSend;
 	ipcClientCtl.irqReceive = irqReceive;
@@ -131,8 +131,11 @@ int32_t ipcClientRequest(void *req, int32_t reqsize,
 //-----------------------------------------------------------------------------
 static int32_t ipcClientMemRead(void *src, void *dst, int32_t size){
 
-	uint8_t *s = (uint8_t *)src;
-	uint8_t *d = (uint8_t *)dst;
+	size_t *s = (size_t *)src;
+	size_t *d = (size_t *)dst;
+
+	/* Size is rounded up instead of being truncated */
+	size = (size + sizeof(size_t) - 1) / sizeof(size_t);
 
 	while(size--){
 		*d++ = *s++;
@@ -143,8 +146,11 @@ static int32_t ipcClientMemRead(void *src, void *dst, int32_t size){
 //-----------------------------------------------------------------------------
 static int32_t ipcClientMemWrite(void *src, void *dst, int32_t size){
 
-	uint8_t *s = (uint8_t *)src;
-	uint8_t *d = (uint8_t *)dst;
+	size_t *s = (size_t *)src;
+	size_t *d = (size_t *)dst;
+
+	/* Size is rounded up instead of being truncated */
+	size = (size + sizeof(size_t) - 1) / sizeof(size_t);
 
 	while(size--){
 		*d++ = *s++;
@@ -185,8 +191,10 @@ static int32_t ipcClientRequestResponse(void **resp, int32_t maxrespsize,
 
 	if( respsize > maxrespsize ) return IPC_CLIENT_ERR_SV_RESP_SIZE;
 
-	ret = ipcClientMemWrite((void *)( ipcClientCtl.clientAdd + 4 ), (void *)*resp, respsize);
-	if( ret != 0 ) return IPC_CLIENT_ERR_MEM_WRITE;
+	if( ( respsize > 0 ) && ( *resp != 0 ) ){
+		ret = ipcClientMemWrite((void *)( ipcClientCtl.clientAdd + 4 ), (void *)*resp, respsize);
+		if( ret != 0 ) return IPC_CLIENT_ERR_MEM_WRITE;
+	}
 
 	return respsize;
 }

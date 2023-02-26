@@ -46,7 +46,7 @@ int32_t ocpCSInitialize(uint32_t id, ocpCSConfig_t *config, char *name){
 
 	char *tplim;
 
-	if( id > OCP_CS_END ) return -1;
+	if( id >= OCP_CS_END ) return -1;
 
 	controlsysInitialize( &xcontrol.cs[id], config );
 
@@ -61,7 +61,7 @@ int32_t ocpCSControllerInterface(uint32_t id,
 		void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize){
 
-	if( id > OCP_CS_END ) return -1;
+	if( id >= OCP_CS_END ) return -1;
 
 	return controlsysControllerInterface( &xcontrol.cs[id], in, insize, out, maxoutsize );
 }
@@ -70,21 +70,21 @@ int32_t ocpCSHardwareInterface(uint32_t id,
 		void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize){
 
-	if( id > OCP_CS_END ) return -1;
+	if( id >= OCP_CS_END ) return -1;
 
 	return controlsysHardwareInterface( &xcontrol.cs[id], in, insize, out, maxoutsize);
 }
 //-----------------------------------------------------------------------------
 int32_t ocpCSRun(uint32_t id){
 
-	if( id > OCP_CS_END ) return -1;
+	if( id >= OCP_CS_END ) return -1;
 
 	return controlsysRun( &xcontrol.cs[id] );
 }
 //-----------------------------------------------------------------------------
 int32_t ocpCSEnable(uint32_t id){
 
-	if( id > OCP_CS_END ) return -1;
+	if( id >= OCP_CS_END ) return -1;
 
 	controlsysEnable( &xcontrol.cs[id] );
 
@@ -93,7 +93,7 @@ int32_t ocpCSEnable(uint32_t id){
 //-----------------------------------------------------------------------------
 int32_t ocpCSDisable(uint32_t id){
 
-	if( id > OCP_CS_END ) return -1;
+	if( id >= OCP_CS_END ) return -1;
 
 	controlsysDisable( &xcontrol.cs[id] );
 
@@ -102,7 +102,7 @@ int32_t ocpCSDisable(uint32_t id){
 //-----------------------------------------------------------------------------
 int32_t ocpCSStatus(uint32_t id){
 
-	if( id > OCP_CS_END ) return -1;
+	if( id >= OCP_CS_END ) return -1;
 
 	return controlsysStatus( &xcontrol.cs[id] );
 }

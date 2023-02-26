@@ -50,7 +50,7 @@ int32_t ocpTraceSetSize(uint32_t id, int32_t size);
 //---------------------------------------------------------------------------
 int32_t ocpTraceGetNumberSignals(uint32_t id);
 //---------------------------------------------------------------------------
-int32_t ocpTraceGetSignalsNames(uint32_t id, char *buffer);
+int32_t ocpTraceGetSignalsNames(uint32_t id, char *buffer, int32_t maxsize);
 //---------------------------------------------------------------------------
 int32_t ocpTraceGetNumberTraces(void);
 //---------------------------------------------------------------------------

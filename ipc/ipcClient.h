@@ -14,6 +14,7 @@
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
 #include "stdint.h"
+#include "stddef.h"
 
 //=============================================================================
 
@@ -67,8 +68,8 @@ typedef int32_t (*ipcClientIrqReceive)(uint32_t timeout);
  *
  */
 void ipcClientInitialize(ipcClientIrqSend irqSend, ipcClientIrqReceive irqReceive,
-		   	   	   	     uint32_t clientMemAdd, int32_t clientMemSize,
-		   	   	   	     uint32_t serverMemAdd, int32_t serverMemSize);
+		size_t clientMemAdd, int32_t clientMemSize,
+		size_t serverMemAdd, int32_t serverMemSize);
 //-----------------------------------------------------------------------------
 /**
  * @brief Sends a request to the server.
