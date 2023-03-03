@@ -142,6 +142,14 @@ static int32_t ocpIfTraceGetTracesNamesSecondCore(char *buffer, int32_t maxsize)
 //-----------------------------------------------------------------------------
 static int32_t ocpIfTraceGetAddressSecondCore(uint32_t id, void *address);
 //-----------------------------------------------------------------------------
+static int32_t ocpIfCSGetNumberControllersSecondCore(void);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSStatusSecondCore(uint32_t id, int32_t *status);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSEnableSecondCore(uint32_t id);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSDisableSecondCore(uint32_t id);
+//-----------------------------------------------------------------------------
 //#endif
 //=============================================================================
 
@@ -382,13 +390,14 @@ static int32_t ocpIfCSStatus(void *in, uint32_t insize,
 	uint32_t id;
 
 	int32_t status;
+	int32_t cmdStatus;
 
 	uint32_t *o = (uint32_t *)( *out );
 
 	id = *( (uint32_t *)in );
 
-	status = ocpCSStatus(id);
-	if( status < 0 ) return status;
+	cmdStatus = ocpCSStatus(id, &status);
+	if( cmdStatus < 0 ) return cmdStatus;
 
 	*o = status;
 
@@ -672,24 +681,86 @@ static int32_t ocpIfDualCoreTraceGetTracesNames(void *in, uint32_t insize,
 	return sizeThisCore + sizeSecondCore;
 }
 //-----------------------------------------------------------------------------
-//static int32_t ocpIfDualCoreTraceGetAddress(void *in, uint32_t insize,
-//		void **out, uint32_t maxoutsize){
-//
-//}
-//-----------------------------------------------------------------------------
 static int32_t ocpIfDualCoreCSStatus(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize){
 
+	uint32_t id;
+
+	int32_t status;
+	int32_t cmdStatus;
+
+	int32_t nControllersSecondCore;
+
+	uint32_t *o = (uint32_t *)( *out );
+
+	id = *( (uint32_t *)in );
+
+	nControllersSecondCore = ocpIfCSGetNumberControllersSecondCore();
+	if( nControllersSecondCore < 0 ) return nControllersSecondCore;
+
+	if( id < nControllersSecondCore ) {
+		cmdStatus = ocpIfCSStatusSecondCore(id, &status);
+	}
+	else{
+		id = id - nControllersSecondCore;
+		cmdStatus = ocpCSStatus(id, &status);
+	}
+
+	if( cmdStatus < 0 ) return cmdStatus;
+
+	*o = status;
+
+	return 4;
 }
 //-----------------------------------------------------------------------------
 static int32_t ocpIfDualCoreCSEnable(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize){
 
+	uint32_t id;
+	int32_t status;
+	int32_t nControllersSecondCore;
+
+	id = *( (uint32_t *)in );
+
+	nControllersSecondCore = ocpIfCSGetNumberControllersSecondCore();
+	if( nControllersSecondCore < 0 ) return nControllersSecondCore;
+
+	if( id < nControllersSecondCore ) {
+		status = ocpIfCSEnableSecondCore(id);
+	}
+	else{
+		id = id - nControllersSecondCore;
+		status = ocpCSEnable(id);
+	}
+
+	if( status < 0 ) return status;
+
+	return 0;
 }
 //-----------------------------------------------------------------------------
 static int32_t ocpIfDualCoreCSDisable(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize){
 
+	uint32_t id;
+	int32_t status;
+	int32_t nControllersSecondCore;
+
+	id = *( (uint32_t *)in );
+
+	nControllersSecondCore = ocpIfCSGetNumberControllersSecondCore();
+	if( nControllersSecondCore < 0 ) return nControllersSecondCore;
+
+	if( id < nControllersSecondCore ) {
+		status = ocpIfCSDisableSecondCore(id);
+	}
+	else{
+		id = id - nControllersSecondCore;
+		status = ocpCSDisable(id);
+	}
+
+	if( status < 0 ) return status;
+
+	return 0;
 }
 //-----------------------------------------------------------------------------
 static int32_t ocpIfDualCoreCSControllerIf(void *in, uint32_t insize,
@@ -705,6 +776,27 @@ static int32_t ocpIfDualCoreCSHardwareIf(void *in, uint32_t insize,
 static int32_t ocpIfDualCoreCSGetNumberControllers(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize){
 
+	uint32_t id;
+
+	uint32_t n;
+
+	int32_t status;
+
+	int32_t nControllersSecondCore, nControllersThisCore;
+
+	uint32_t *o = (uint32_t *)( *out );
+
+	id = *( (uint32_t *)in );
+
+	nControllersSecondCore = ocpIfCSGetNumberControllersSecondCore();
+	if( nControllersSecondCore < 0 ) return nControllersSecondCore;
+
+	nControllersThisCore = ocpCSGetNumberControllers();
+	if( nControllersThisCore < 0 ) return nControllersThisCore;
+
+	*o = nControllersThisCore + nControllersSecondCore;
+
+	return 4;
 }
 //-----------------------------------------------------------------------------
 static int32_t ocpIfDualCoreCSGetNumberControllersNames(void *in, uint32_t insize,
@@ -825,6 +917,62 @@ static int32_t ocpIfTraceGetAddressSecondCore(uint32_t id, void *address){
 	size = ipcClientRequest( (void *)&cmd, 8, (void **)&address, sizeof(void *), OCP_IF_CONFIG_DUAL_CORE_COMM_TO );
 
 	return size;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSGetNumberControllersSecondCore(void){
+
+	int32_t status;
+
+	uint32_t nControllersSecondCore;
+	uint32_t *p;
+	uint32_t cmd;
+
+	cmd = OCP_IF_CMD_CS_GET_NUMBER_CONTROLLERS;
+	p = &nControllersSecondCore;
+	status = ipcClientRequest( (void *)&cmd, 4, (void **)&p, 4, OCP_IF_CONFIG_DUAL_CORE_COMM_TO );
+	if( status < 0 ) return status;
+
+	return nControllersSecondCore;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSStatusSecondCore(uint32_t id, int32_t *status){
+
+	int32_t cmdStatus;
+	uint32_t cmd[2];
+
+	cmd[0] = OCP_IF_CMD_CS_STATUS;
+	cmd[1] = id;
+
+	cmdStatus = ipcClientRequest( (void *)&cmd, 8, (void **)&status, sizeof(void *), OCP_IF_CONFIG_DUAL_CORE_COMM_TO );
+	if( cmdStatus < 0 ) return cmdStatus;
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSEnableSecondCore(uint32_t id){
+
+	int32_t status;
+	uint32_t cmd[2];
+
+	cmd[0] = OCP_IF_CMD_CS_ENABLE;
+	cmd[1] = id;
+
+	status = ipcClientRequest( (void *)&cmd, 8, 0, 0, OCP_IF_CONFIG_DUAL_CORE_COMM_TO );
+
+	return status;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSDisableSecondCore(uint32_t id){
+
+	int32_t status;
+	uint32_t cmd[2];
+
+	cmd[0] = OCP_IF_CMD_CS_DISABLE;
+	cmd[1] = id;
+
+	status = ipcClientRequest( (void *)&cmd, 8, 0, 0, OCP_IF_CONFIG_DUAL_CORE_COMM_TO );
+
+	return status;
 }
 //-----------------------------------------------------------------------------
 //#endif

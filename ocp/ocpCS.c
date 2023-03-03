@@ -100,11 +100,13 @@ int32_t ocpCSDisable(uint32_t id){
 	return 0;
 }
 //-----------------------------------------------------------------------------
-int32_t ocpCSStatus(uint32_t id){
+int32_t ocpCSStatus(uint32_t id, int32_t *status){
 
 	if( id >= OCP_CS_END ) return -1;
 
-	return controlsysStatus( &xcontrol.cs[id] );
+	*status = controlsysStatus( &xcontrol.cs[id] );
+
+	return 0;
 }
 //-----------------------------------------------------------------------------
 int32_t ocpCSGetNumberControllers(void){
