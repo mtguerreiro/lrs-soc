@@ -32,6 +32,8 @@ class Commands:
         self.cs_hardware_if = 13
         self.cs_get_number_controllers = 14
         self.cs_get_controllers_names = 15
+        self.platform_id = 16
+        self.platform_if = 17
         
         self.cpu0_blink = 0
         self.cpu1_blink = 1
@@ -662,7 +664,63 @@ class Interface:
 
         return (0, names)
 
+
+    def platform_id(self):
+        """Gets a description of the connected platform.
+
+        Returns
+        -------
+        tuple
+            A tuple, where the first element is the command's status and the
+            second element is the platform's ID, or an error code. If the
+            command was executed successfully, status is zero.
+            
+        """
+        cmd = self.cmd.platform_id
+
+        status, data = self.hwp.request(cmd)
+
+        if status < 0:
+            funcname = Interface.platform_id.__name__
+            print('{:}: Error getting the platform\'s ID. Error code {:}\r\n'.format(funcname, status))
+            return (-1, status)
+
+        if data[-1] == b'': data = data[:-1]
+
+        return (0, data)
     
+
+    def platform_if(self, data=None):
+        """Sends data to the platform's interface.
+
+        Parameters
+        ----------
+        data : list
+            Data to be sent. By default, it is `None`.
+
+        Returns
+        -------
+        tuple
+            A tuple, where the first element is the command's status and the
+            second element is the controller's response or an error code, if
+            any. If the command was executed successfully, status is zero.
+            
+        """
+        cmd = self.cmd.platform_if
+
+        tx_data = []
+        if data is not None: tx_data.extend( data )
+
+        status, rx_data = self.hwp.request(cmd, tx_data)
+
+        if status < 0:
+            funcname = Interface.platform_if.__name__
+            print('{:}: Error accessing the platforms\'s interface. Error {:}\r\n'.format(funcname, status))
+            return (-1, status)
+        
+        return (0, rx_data)
+
+  
     def cpu0_blink(self, t=1000):
         """Changes the blinking period of CPU0.
 

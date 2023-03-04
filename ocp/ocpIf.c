@@ -12,6 +12,7 @@
 
 #include "ocpTrace.h"
 #include "ocpCS.h"
+#include "ocpPlatform.h"
 
 #include "stddef.h"
 
@@ -157,6 +158,12 @@ static int32_t ocpIfCSHardwareInterfaceSecondCore(uint32_t id,
 		void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
 #endif
+//-----------------------------------------------------------------------------
+static int32_t ocpIfPlatformID(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfPlatformIf(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
 //=============================================================================
 
 //=============================================================================
@@ -207,7 +214,8 @@ int32_t ocpIfInitialize(void){
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_HARDWARE_IF, ocpIfCSHardwareIf );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_GET_NUMBER_CONTROLLERS, ocpIfCSGetNumberControllers );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_GET_CONTROLLERS_NAMES, ocpIfCSGetControllersNames );
-#else
+
+	#else
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_READ, ocpIfDualCoreTraceRead );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_RESET, ocpIfDualCoreTraceReset );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_GET_SIZE, ocpIfDualCoreTraceGetSize );
@@ -225,6 +233,9 @@ int32_t ocpIfInitialize(void){
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_GET_NUMBER_CONTROLLERS, ocpIfDualCoreCSGetNumberControllers );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_GET_CONTROLLERS_NAMES, ocpIfDualCoreCSGetControllersNames );
 #endif
+
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_PLATFORM_ID, ocpIfPlatformID );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_PLATFORM_IF, ocpIfPlatformIf );
 
 	return 0;
 }
@@ -1084,4 +1095,22 @@ static int32_t ocpIfCSHardwareInterfaceSecondCore(uint32_t id,
 }
 //-----------------------------------------------------------------------------
 #endif
+//-----------------------------------------------------------------------------
+static int32_t ocpIfPlatformID(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+	uint32_t size;
+
+	char *o = (char *)( *out );
+
+	size = ocpPlatformID(o, maxoutsize);
+
+	return size;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfPlatformIf(void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+	return ocpPlatformIf(in, insize, out, maxoutsize);
+}
 //=============================================================================
