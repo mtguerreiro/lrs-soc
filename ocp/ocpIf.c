@@ -73,7 +73,7 @@ static int32_t ocpIfCSHardwareIf(void *in, uint32_t insize,
 static int32_t ocpIfCSGetNumberControllers(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
-static int32_t ocpIfCSGetNumberControllersNames(void *in, uint32_t insize,
+static int32_t ocpIfCSGetControllersNames(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
 //#else
@@ -101,9 +101,6 @@ static int32_t ocpIfDualCoreTraceGetNumberTraces(void *in, uint32_t insize,
 static int32_t ocpIfDualCoreTraceGetTracesNames(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
-//static int32_t ocpIfDualCoreTraceGetAddress(void *in, uint32_t insize,
-//		void **out, uint32_t maxoutsize);
-//-----------------------------------------------------------------------------
 static int32_t ocpIfDualCoreCSStatus(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
@@ -122,7 +119,7 @@ static int32_t ocpIfDualCoreCSHardwareIf(void *in, uint32_t insize,
 static int32_t ocpIfDualCoreCSGetNumberControllers(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
-static int32_t ocpIfDualCoreCSGetNumberControllersNames(void *in, uint32_t insize,
+static int32_t ocpIfDualCoreCSGetControllersNames(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
 static int32_t ocpIfTraceGetNumberTracesSecondCore(void);
@@ -149,6 +146,16 @@ static int32_t ocpIfCSStatusSecondCore(uint32_t id, int32_t *status);
 static int32_t ocpIfCSEnableSecondCore(uint32_t id);
 //-----------------------------------------------------------------------------
 static int32_t ocpIfCSDisableSecondCore(uint32_t id);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSGetControllersNamesSecondCore(char *buffer, int32_t maxsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSControllerInterfaceSecondCore(uint32_t id,
+		void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSHardwareInterfaceSecondCore(uint32_t id,
+		void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
 //#endif
 //=============================================================================
@@ -200,7 +207,7 @@ int32_t ocpIfInitialize(void){
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_CONTROLLER_IF, ocpIfCSControllerIf );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_HARDWARE_IF, ocpIfCSHardwareIf );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_GET_NUMBER_CONTROLLERS, ocpIfCSGetNumberControllers );
-	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_GET_CONTROLLERS_NAMES, ocpIfCSGetNumberControllersNames );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_GET_CONTROLLERS_NAMES, ocpIfCSGetControllersNames );
 //#else
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_TRACE_READ, ocpIfDualCoreTraceRead );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_TRACE_RESET, ocpIfDualCoreTraceReset );
@@ -218,7 +225,7 @@ int32_t ocpIfInitialize(void){
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_CS_CONTROLLER_IF, ocpIfDualCoreCSControllerIf );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_CS_HARDWARE_IF, ocpIfDualCoreCSHardwareIf );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_CS_GET_NUMBER_CONTROLLERS, ocpIfDualCoreCSGetNumberControllers );
-	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_CS_GET_CONTROLLERS_NAMES, ocpIfDualCoreCSGetNumberControllersNames );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_CS_GET_CONTROLLERS_NAMES, ocpIfDualCoreCSGetControllersNames );
 //#endif
 
 	return 0;
@@ -440,7 +447,7 @@ static int32_t ocpIfCSControllerIf(void *in, uint32_t insize,
 
 	id = *p++;
 
-	return ocpCSControllerInterface(id, (void *)p, insize, out, maxoutsize);
+	return ocpCSControllerInterface(id, (void *)p, insize - 4, out, maxoutsize);
 }
 //-----------------------------------------------------------------------------
 static int32_t ocpIfCSHardwareIf(void *in, uint32_t insize,
@@ -451,7 +458,7 @@ static int32_t ocpIfCSHardwareIf(void *in, uint32_t insize,
 
 	id = *p++;
 
-	return ocpCSHardwareInterface(id, (void *)p, insize, out, maxoutsize);
+	return ocpCSHardwareInterface(id, (void *)p, insize - 4, out, maxoutsize);
 }
 //-----------------------------------------------------------------------------
 static int32_t ocpIfCSGetNumberControllers(void *in, uint32_t insize,
@@ -469,14 +476,14 @@ static int32_t ocpIfCSGetNumberControllers(void *in, uint32_t insize,
 	return 4;
 }
 //-----------------------------------------------------------------------------
-static int32_t ocpIfCSGetNumberControllersNames(void *in, uint32_t insize,
+static int32_t ocpIfCSGetControllersNames(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize){
 
 	uint32_t size;
 
 	char *o = (char *)( *out );
 
-	size = ocpCSGetControllersNames(o);
+	size = ocpCSGetControllersNames(o, maxoutsize);
 
 	return size;
 }
@@ -766,27 +773,59 @@ static int32_t ocpIfDualCoreCSDisable(void *in, uint32_t insize,
 static int32_t ocpIfDualCoreCSControllerIf(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize){
 
+	int32_t status;
+	int32_t nControllersSecondCore;
+
+	uint32_t id;
+	uint32_t *p = (uint32_t *)in;
+
+	id = *p++;
+
+	nControllersSecondCore = ocpIfCSGetNumberControllersSecondCore();
+	if( nControllersSecondCore < 0 ) return nControllersSecondCore;
+
+	if( id < nControllersSecondCore ) {
+		status = ocpIfCSControllerInterfaceSecondCore(id, (void *)p, insize - 4, out, maxoutsize);
+	}
+	else{
+		id = id - nControllersSecondCore;
+		status = ocpCSControllerInterface(id, (void *)p, insize - 4, out, maxoutsize);
+	}
+
+	return status;
 }
 //-----------------------------------------------------------------------------
 static int32_t ocpIfDualCoreCSHardwareIf(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize){
 
+	int32_t status;
+	int32_t nControllersSecondCore;
+
+	uint32_t id;
+	uint32_t *p = (uint32_t *)in;
+
+	id = *p++;
+
+	nControllersSecondCore = ocpIfCSGetNumberControllersSecondCore();
+	if( nControllersSecondCore < 0 ) return nControllersSecondCore;
+
+	if( id < nControllersSecondCore ) {
+		status = ocpIfCSHardwareInterfaceSecondCore(id, (void *)p, insize - 4, out, maxoutsize);
+	}
+	else{
+		id = id - nControllersSecondCore;
+		status = ocpCSHardwareInterface(id, (void *)p, insize - 4, out, maxoutsize);
+	}
+
+	return status;
 }
 //-----------------------------------------------------------------------------
 static int32_t ocpIfDualCoreCSGetNumberControllers(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize){
 
-	uint32_t id;
-
-	uint32_t n;
-
-	int32_t status;
-
 	int32_t nControllersSecondCore, nControllersThisCore;
 
 	uint32_t *o = (uint32_t *)( *out );
-
-	id = *( (uint32_t *)in );
 
 	nControllersSecondCore = ocpIfCSGetNumberControllersSecondCore();
 	if( nControllersSecondCore < 0 ) return nControllersSecondCore;
@@ -799,8 +838,22 @@ static int32_t ocpIfDualCoreCSGetNumberControllers(void *in, uint32_t insize,
 	return 4;
 }
 //-----------------------------------------------------------------------------
-static int32_t ocpIfDualCoreCSGetNumberControllersNames(void *in, uint32_t insize,
+static int32_t ocpIfDualCoreCSGetControllersNames(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize){
+
+	int32_t sizeSecondCore;
+	int32_t sizeThisCore;
+
+	char *o = (char *)( *out );
+
+	sizeSecondCore = ocpIfCSGetControllersNamesSecondCore(o, maxoutsize);
+	if( sizeSecondCore < 0 ) return sizeSecondCore;
+
+	o = o + sizeSecondCore;
+	sizeThisCore = ocpCSGetControllersNames(o, maxoutsize - sizeSecondCore);
+	if( sizeThisCore < 0 ) return sizeThisCore;
+
+	return sizeThisCore + sizeSecondCore;
 
 }
 //-----------------------------------------------------------------------------
@@ -973,6 +1026,62 @@ static int32_t ocpIfCSDisableSecondCore(uint32_t id){
 	status = ipcClientRequest( (void *)&cmd, 8, 0, 0, OCP_IF_CONFIG_DUAL_CORE_COMM_TO );
 
 	return status;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSGetControllersNamesSecondCore(char *buffer, int32_t maxsize){
+
+	int32_t size;
+	uint32_t cmd;
+
+	cmd = OCP_IF_CMD_CS_GET_CONTROLLERS_NAMES;
+
+	size = ipcClientRequest( (void *)&cmd, 4, (void **)&buffer, maxsize, OCP_IF_CONFIG_DUAL_CORE_COMM_TO );
+
+	return size;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSControllerInterfaceSecondCore(uint32_t id,
+		void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+	int32_t size;
+	uint32_t k;
+	char buffer[insize + 8];
+	char *pin;
+	char *pb = buffer;
+
+	*( (uint32_t *)&buffer[0] ) = OCP_IF_CMD_CS_CONTROLLER_IF;
+	*( (uint32_t *)&buffer[4] ) = id;
+
+	pin = (char *)in;
+	pb = &buffer[8];
+	while( k++ < insize ) *pb++ = *pin++;
+
+	size = ipcClientRequest( (void *)buffer, insize + 8, out, maxoutsize, OCP_IF_CONFIG_DUAL_CORE_COMM_TO );
+
+	return size;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfCSHardwareInterfaceSecondCore(uint32_t id,
+		void *in, uint32_t insize,
+		void **out, uint32_t maxoutsize){
+
+	int32_t size;
+	uint32_t k;
+	char buffer[insize + 8];
+	char *pin;
+	char *pb = buffer;
+
+	*( (uint32_t *)&buffer[0] ) = OCP_IF_CMD_CS_HARDWARE_IF;
+	*( (uint32_t *)&buffer[4] ) = id;
+
+	pin = (char *)in;
+	pb = &buffer[8];
+	while( k++ < insize ) *pb++ = *pin++;
+
+	size = ipcClientRequest( (void *)buffer, insize + 8, out, maxoutsize, OCP_IF_CONFIG_DUAL_CORE_COMM_TO );
+
+	return size;
 }
 //-----------------------------------------------------------------------------
 //#endif

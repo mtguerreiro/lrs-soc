@@ -114,15 +114,17 @@ int32_t ocpCSGetNumberControllers(void){
 	return OCP_CS_END;
 }
 //-----------------------------------------------------------------------------
-int32_t ocpCSGetControllersNames(char *buffer){
+int32_t ocpCSGetControllersNames(char *buffer, int32_t maxsize){
 
 	int32_t k;
 	char *p;
 
 	p = xcontrol.names;
-	while( p <= xcontrol.np ) *buffer++ = *p++;
-
-	k = xcontrol.np - xcontrol.names;
+	k = 0;
+	while( (p < xcontrol.np) && (k < maxsize) ){
+		*buffer++ = *p++;
+		k++;
+	}
 
 	return k;
 }
