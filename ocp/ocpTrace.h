@@ -26,7 +26,6 @@ typedef ctraceConfig_t ocpTraceConfig_t;
 
 typedef enum{
 	OCP_TRACE_1 = 0,
-	OCP_TRACE_2,
 	OCP_TRACE_END
 }ocpTraceIDs_t;
 

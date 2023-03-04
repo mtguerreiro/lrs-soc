@@ -1,50 +1,64 @@
 /*
- * controller.h
+ * plecs.c
  *
- *  Created on: 10 de set de 2022
+ *  Created on: 4 de mar de 2023
  *      Author: marco
  */
-
-#ifndef CONTROLLER_H_
-#define CONTROLLER_H_
 
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
-#include "stdint.h"
-//=============================================================================
+#include "plecs.h"
+
+//============================================================================
 
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-typedef enum{
-	CONTROLLER_PID,
-	CONTROLLER_END
-}controllerTypesEnum_t;
+typedef struct{
 
-typedef enum{
-	CONTROLLER_IF_SET,			/* Sets the active controller */
-	CONTROLLER_IF_GET,			/* Gets the active controller */
-	CONTROLLER_IF_SET_PARAMS,	/* Sets parameters for the specified controller */
-	CONTROLLER_IF_GET_PARAMS,	/* Gets parameters for the specified controller */
-	CONTROLLER_IF_END
-}controllerInterface_t;
+	plecsGetInputs_t getInputs;
+	plecsProcInputs_t procInputs;
+	plecsProcOutputs_t procOutputs;
+	plecsApplyOutputs_t applyOutputs;
+}plecsControl_t;
 
-#define CONTROLLER_ERR_INVALID_CMD		-1	/* Invalid command */
-#define CONTROLLER_ERR_INVALID_CTL		-2	/* Invalid controller */
-#define CONTROLLER_ERR_INACTIVE_CTL		-3	/* No controller active when trying to execute run function */
+static plecsControl_t xcontrol;
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void controllerInitialize(void);
+int32_t plecsInitialize(plecsGetInputs_t getInputs, plecsProcInputs_t procInputs,
+		plecsProcOutputs_t procOutputs, plecsApplyOutputs_t applyOutputs){
+
+	xcontrol.getInputs = getInputs;
+	xcontrol.procInputs = procInputs;
+	xcontrol.procOutputs = procOutputs;
+	xcontrol.applyOutputs = applyOutputs;
+
+	return 0;
+}
 //-----------------------------------------------------------------------------
-int32_t controllerInterface(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+int32_t plecsGetInputs(void *inputs){
+
+	return xcontrol.getInputs(inputs);
+}
 //-----------------------------------------------------------------------------
-int32_t controllerRun(void *inputs, int32_t ninputs, void *outputs, int32_t nmaxoutputs);
+int32_t plecsProcInputs(void *inputs, void *procinputs, int32_t n){
+
+	return xcontrol.procInputs(inputs, procinputs, n);
+}
+//-----------------------------------------------------------------------------
+int32_t plecsProcOutputs(void *outputs, void *procoutputs, int32_t n){
+
+	return xcontrol.procOutputs(outputs, procoutputs, n);
+}
+//-----------------------------------------------------------------------------
+int32_t plecsApplyOutputs(void *outputs, int32_t n){
+
+	return xcontrol.applyOutputs(outputs, n);
+}
 //-----------------------------------------------------------------------------
 //=============================================================================
-
-#endif /* CONTROLLER_H_ */

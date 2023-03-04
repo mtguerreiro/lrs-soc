@@ -1,50 +1,46 @@
 /*
- * controller.h
+ * plecs.h
  *
- *  Created on: 10 de set de 2022
+ *  Created on: 4 de mar de 2023
  *      Author: marco
  */
 
-#ifndef CONTROLLER_H_
-#define CONTROLLER_H_
+#ifndef PLECS_H_
+#define PLECS_H_
 
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
 #include "stdint.h"
-//=============================================================================
+
+//============================================================================
 
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-typedef enum{
-	CONTROLLER_PID,
-	CONTROLLER_END
-}controllerTypesEnum_t;
 
-typedef enum{
-	CONTROLLER_IF_SET,			/* Sets the active controller */
-	CONTROLLER_IF_GET,			/* Gets the active controller */
-	CONTROLLER_IF_SET_PARAMS,	/* Sets parameters for the specified controller */
-	CONTROLLER_IF_GET_PARAMS,	/* Gets parameters for the specified controller */
-	CONTROLLER_IF_END
-}controllerInterface_t;
+typedef int32_t(*plecsGetInputs_t)(void *inputs);
+typedef int32_t(*plecsProcInputs_t)(void *inputs, void *procinputs, int32_t n);
+typedef int32_t(*plecsProcOutputs_t)(void *outputs, void *procoutputs, int32_t n);
+typedef int32_t(*plecsApplyOutputs_t)(void *outputs, int32_t n);
 
-#define CONTROLLER_ERR_INVALID_CMD		-1	/* Invalid command */
-#define CONTROLLER_ERR_INVALID_CTL		-2	/* Invalid controller */
-#define CONTROLLER_ERR_INACTIVE_CTL		-3	/* No controller active when trying to execute run function */
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void controllerInitialize(void);
+int32_t plecsInitialize(plecsGetInputs_t getInputs, plecsProcInputs_t procInputs,
+		plecsProcOutputs_t procOutputs, plecsApplyOutputs_t applyOutputs);
 //-----------------------------------------------------------------------------
-int32_t controllerInterface(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+int32_t plecsGetInputs(void *inputs);
 //-----------------------------------------------------------------------------
-int32_t controllerRun(void *inputs, int32_t ninputs, void *outputs, int32_t nmaxoutputs);
+int32_t plecsProcInputs(void *inputs, void *procinputs, int32_t n);
+//-----------------------------------------------------------------------------
+int32_t plecsProcOutputs(void *outputs, void *procoutputs, int32_t n);
+//-----------------------------------------------------------------------------
+int32_t plecsApplyOutputs(void *outputs, int32_t n);
 //-----------------------------------------------------------------------------
 //=============================================================================
 
-#endif /* CONTROLLER_H_ */
+#endif /* PLECS_H_ */

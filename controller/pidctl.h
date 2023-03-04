@@ -25,7 +25,7 @@ int32_t pidctlSetParams(void *params, uint32_t n);
 //-----------------------------------------------------------------------------
 int32_t pidctlGetParams(void *in, uint32_t insize, void *out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
-int32_t pidctlRun(void *inputs, uint32_t ninputs, void *meas, uint32_t nmeas, void *outputs);
+int32_t pidctlRun(void *inputs, int32_t ninputs, void *outputs, int32_t nmaxoutputs);
 //-----------------------------------------------------------------------------
 //=============================================================================
 

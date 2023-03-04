@@ -23,7 +23,7 @@
 typedef void(*controllerInit)(void);
 typedef int32_t(*controllerSP)(void *in, uint32_t insize);
 typedef int32_t(*controllerGP)(void *in, uint32_t insize, void *out, uint32_t maxoutsize);
-typedef int32_t(*controllerR)(void *inputs, uint32_t ninputs, void *meas, uint32_t nmeas, void *outputs);
+typedef int32_t(*controllerR)(void *inputs, int32_t ninputs, void *outputs, int32_t nmaxoutputs);
 
 typedef struct{
 	rphandle_t handles[CONTROLLER_IF_END];
@@ -91,13 +91,13 @@ int32_t controllerInterface(void *in, uint32_t insize, void **out, uint32_t maxo
 	return status;
 }
 //-----------------------------------------------------------------------------
-int32_t controllerRun(void *inputs, uint32_t ninputs, void *meas, uint32_t nmeas, void *outputs){
+int32_t controllerRun(void *inputs, int32_t ninputs, void *outputs, int32_t nmaxoutputs){
 
 	int32_t status = CONTROLLER_ERR_INACTIVE_CTL;
 	uint32_t ctl = controllers.active;
 
 	if( ctl != CONTROLLER_END ){
-		status = controllers.run[ctl](inputs, ninputs, meas, nmeas, outputs);
+		status = controllers.run[ctl](inputs, ninputs, outputs, nmaxoutputs);
 	}
 
 	return status;

@@ -26,11 +26,9 @@ typedef controlsysConfig_t ocpCSConfig_t;
 
 typedef enum{
 	OCP_CS_1 = 0,
-	OCP_CS_2,
 	OCP_CS_END
 }ocpCSIDs_t;
 
-//#define OCPCS_CONFIG_N_CS		2
 //=============================================================================
 
 //=============================================================================

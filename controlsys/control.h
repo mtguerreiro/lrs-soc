@@ -102,7 +102,7 @@ typedef int32_t(*controlGetInputs_t)(void *inputs);
 typedef int32_t(*controlProcInputs_t)(void *inputs, void *procinputs, int32_t n);
 
 /* Runs control algorithm */
-typedef int32_t(*controlRun_t)(void *inputs, int32_t ninputs, void *outputs);
+typedef int32_t(*controlRun_t)(void *inputs, int32_t ninputs, void *outputs, int32_t nmaxoutputs);
 
 /* Processes outputs */
 typedef int32_t(*controlProcOutputs_t)(void *outputs, void *procoutputs, int32_t n);

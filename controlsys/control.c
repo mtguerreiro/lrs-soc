@@ -89,7 +89,7 @@ int32_t controlRun(control_t *control){
 
 	nprocInputs = control->fprocInputs( control->binputs, control->bprocInputs, ninputs );
 
-	noutputs = control->frun( control->bprocInputs, nprocInputs, control->boutputs);
+	noutputs = control->frun( control->bprocInputs, nprocInputs, control->boutputs, -1 );
 
 	nprocOutputs = control->fprocOutputs( control->boutputs, control->bprocOutputs, noutputs );
 

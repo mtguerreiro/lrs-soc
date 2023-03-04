@@ -70,17 +70,19 @@ int32_t pidctlGetParams(void *in, uint32_t insize, void *out, uint32_t maxoutsiz
 	return sizeof(params) >> 2;
 }
 //-----------------------------------------------------------------------------
-int32_t pidctlRun(void *inputs, uint32_t ninputs, void *meas, uint32_t nmeas, void *outputs){
+int32_t pidctlRun(void *inputs, int32_t ninputs, void *outputs, int32_t nmaxoutputs){
 
 	float r, y, e, u;
+	float *p = (float *)inputs;
+	float *o = (float *)outputs;
 
-	r = *((float *)inputs);
-	y = *((float *)meas);
+	r = *p++;
+	y = *p++;
 	e = r - y;
 
 	u = pidRun(&pid, e);
 
-	*((float *)outputs) = u;
+	*o = u;
 
 	return 1;
 }
