@@ -5,7 +5,6 @@
  *      Author: marco
  */
 
-#define OCP_IF_CONFIG_DUAL_CORE
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
@@ -18,7 +17,7 @@
 
 #include "rp.h"
 
-#ifdef OCP_IF_CONFIG_DUAL_CORE
+#if( OCP_IF_CONFIG_CORE == 1 )
 #include "ipcClient.h"
 #endif
 //=============================================================================
@@ -26,7 +25,7 @@
 //=============================================================================
 /*-------------------------------- Prototypes -------------------------------*/
 //=============================================================================
-//#ifndef OCP_IF_CONFIG_DUAL_CORE
+#if( OCP_IF_CONFIG_CORE == 0 )
 //-----------------------------------------------------------------------------
 static int32_t ocpIfTraceRead(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize);
@@ -76,7 +75,7 @@ static int32_t ocpIfCSGetNumberControllers(void *in, uint32_t insize,
 static int32_t ocpIfCSGetControllersNames(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
-//#else
+#else
 static int32_t ocpIfDualCoreTraceRead(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
@@ -157,7 +156,7 @@ static int32_t ocpIfCSHardwareInterfaceSecondCore(uint32_t id,
 		void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
-//#endif
+#endif
 //=============================================================================
 
 //=============================================================================
@@ -189,7 +188,7 @@ int32_t ocpIfInitialize(void){
 
 	rpInitialize( &xcontrol.rp, OCP_IF_CMD_END, xcontrol.handles );
 
-//#ifndef OCP_IF_CONFIG_DUAL_CORE
+#if( OCP_IF_CONFIG_CORE == 0 )
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_READ, ocpIfTraceRead );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_RESET, ocpIfTraceReset );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_GET_SIZE, ocpIfTraceGetSize );
@@ -208,25 +207,24 @@ int32_t ocpIfInitialize(void){
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_HARDWARE_IF, ocpIfCSHardwareIf );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_GET_NUMBER_CONTROLLERS, ocpIfCSGetNumberControllers );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_GET_CONTROLLERS_NAMES, ocpIfCSGetControllersNames );
-//#else
-	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_TRACE_READ, ocpIfDualCoreTraceRead );
-	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_TRACE_RESET, ocpIfDualCoreTraceReset );
-	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_TRACE_GET_SIZE, ocpIfDualCoreTraceGetSize );
-	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_TRACE_SET_SIZE, ocpIfDualCoreTraceSetSize );
-	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_TRACE_GET_NUMBER_SIGNALS, ocpIfDualCoreTraceGetNumberSignals );
-	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_TRACE_GET_SIGNALS_NAMES, ocpIfDualCoreTraceGetSignalsNames );
-	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_TRACE_GET_NUMBER_TRACES, ocpIfDualCoreTraceGetNumberTraces );
-	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_TRACE_GET_TRACES_NAMES, ocpIfDualCoreTraceGetTracesNames );
-	//rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_TRACE_GET_ADDRESS, ocpIfDualCoreTraceGetAddress );
+#else
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_READ, ocpIfDualCoreTraceRead );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_RESET, ocpIfDualCoreTraceReset );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_GET_SIZE, ocpIfDualCoreTraceGetSize );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_SET_SIZE, ocpIfDualCoreTraceSetSize );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_GET_NUMBER_SIGNALS, ocpIfDualCoreTraceGetNumberSignals );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_GET_SIGNALS_NAMES, ocpIfDualCoreTraceGetSignalsNames );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_GET_NUMBER_TRACES, ocpIfDualCoreTraceGetNumberTraces );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_GET_TRACES_NAMES, ocpIfDualCoreTraceGetTracesNames );
 
-	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_CS_STATUS, ocpIfDualCoreCSStatus );
-	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_CS_ENABLE, ocpIfDualCoreCSEnable );
-	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_CS_DISABLE, ocpIfDualCoreCSDisable );
-	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_CS_CONTROLLER_IF, ocpIfDualCoreCSControllerIf );
-	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_CS_HARDWARE_IF, ocpIfDualCoreCSHardwareIf );
-	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_CS_GET_NUMBER_CONTROLLERS, ocpIfDualCoreCSGetNumberControllers );
-	rpRegisterHandle( &xcontrol.rp, OCP_IF_DUAL_CORE_CMD_CS_GET_CONTROLLERS_NAMES, ocpIfDualCoreCSGetControllersNames );
-//#endif
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_STATUS, ocpIfDualCoreCSStatus );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_ENABLE, ocpIfDualCoreCSEnable );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_DISABLE, ocpIfDualCoreCSDisable );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_CONTROLLER_IF, ocpIfDualCoreCSControllerIf );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_HARDWARE_IF, ocpIfDualCoreCSHardwareIf );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_GET_NUMBER_CONTROLLERS, ocpIfDualCoreCSGetNumberControllers );
+	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_GET_CONTROLLERS_NAMES, ocpIfDualCoreCSGetControllersNames );
+#endif
 
 	return 0;
 }
@@ -242,7 +240,7 @@ int32_t ocpIf(void *in, int32_t insize, void **out, int32_t maxoutsize){
 //=============================================================================
 /*---------------------------- Static functions -----------------------------*/
 //=============================================================================
-//#ifndef OCP_IF_CONFIG_DUAL_CORE
+#if( OCP_IF_CONFIG_CORE == 0 )
 //-----------------------------------------------------------------------------
 static int32_t ocpIfTraceRead(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize){
@@ -487,8 +485,9 @@ static int32_t ocpIfCSGetControllersNames(void *in, uint32_t insize,
 
 	return size;
 }
-//#else
+
 //-----------------------------------------------------------------------------
+#else
 static int32_t ocpIfDualCoreTraceRead(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize){
 
@@ -1084,5 +1083,5 @@ static int32_t ocpIfCSHardwareInterfaceSecondCore(uint32_t id,
 	return size;
 }
 //-----------------------------------------------------------------------------
-//#endif
+#endif
 //=============================================================================

@@ -24,13 +24,14 @@ class Commands:
         self.trace_get_signals_names = 5
         self.trace_get_number_traces = 6
         self.trace_get_traces_names = 7
-        self.cs_status = 8
-        self.cs_enable = 9
-        self.cs_disable = 10
-        self.cs_controller_if = 11
-        self.cs_hardware_if = 12
-        self.cs_get_number_controllers = 13
-        self.cs_get_controllers_names = 14
+        self.trace_get_address = 8
+        self.cs_status = 9
+        self.cs_enable = 10
+        self.cs_disable = 11
+        self.cs_controller_if = 12
+        self.cs_hardware_if = 13
+        self.cs_get_number_controllers = 14
+        self.cs_get_controllers_names = 15
         
         self.cpu0_blink = 0
         self.cpu1_blink = 1
