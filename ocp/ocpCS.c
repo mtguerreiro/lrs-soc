@@ -33,7 +33,7 @@ typedef struct ocpCSControl_t{
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
 
-static ocpCSControl_t xcontrol = {.np = xcontrol.names};
+static ocpCSControl_t xcscontrol = {.np = xcscontrol.names};
 
 //=============================================================================
 
@@ -48,11 +48,11 @@ int32_t ocpCSInitialize(uint32_t id, ocpCSConfig_t *config, char *name){
 
 	if( id >= OCP_CS_END ) return -1;
 
-	controlsysInitialize( &xcontrol.cs[id], config );
+	controlsysInitialize( &xcscontrol.cs[id], config );
 
-	tplim = xcontrol.names + OCP_CS_END * OCP_CS_CONFIG_CS_NAME_MAX_LEN;
-	while( *name && (xcontrol.np < tplim) ) *xcontrol.np++ = *name++;
-	*xcontrol.np++ = 0;
+	tplim = xcscontrol.names + OCP_CS_END * OCP_CS_CONFIG_CS_NAME_MAX_LEN;
+	while( *name && (xcscontrol.np < tplim) ) *xcscontrol.np++ = *name++;
+	*xcscontrol.np++ = 0;
 
 	return 0;
 }
@@ -63,7 +63,7 @@ int32_t ocpCSControllerInterface(uint32_t id,
 
 	if( id >= OCP_CS_END ) return -1;
 
-	return controlsysControllerInterface( &xcontrol.cs[id], in, insize, out, maxoutsize );
+	return controlsysControllerInterface( &xcscontrol.cs[id], in, insize, out, maxoutsize );
 }
 //-----------------------------------------------------------------------------
 int32_t ocpCSHardwareInterface(uint32_t id,
@@ -72,21 +72,21 @@ int32_t ocpCSHardwareInterface(uint32_t id,
 
 	if( id >= OCP_CS_END ) return -1;
 
-	return controlsysHardwareInterface( &xcontrol.cs[id], in, insize, out, maxoutsize);
+	return controlsysHardwareInterface( &xcscontrol.cs[id], in, insize, out, maxoutsize);
 }
 //-----------------------------------------------------------------------------
 int32_t ocpCSRun(uint32_t id){
 
 	if( id >= OCP_CS_END ) return -1;
 
-	return controlsysRun( &xcontrol.cs[id] );
+	return controlsysRun( &xcscontrol.cs[id] );
 }
 //-----------------------------------------------------------------------------
 int32_t ocpCSEnable(uint32_t id){
 
 	if( id >= OCP_CS_END ) return -1;
 
-	controlsysEnable( &xcontrol.cs[id] );
+	controlsysEnable( &xcscontrol.cs[id] );
 
 	return 0;
 }
@@ -95,7 +95,7 @@ int32_t ocpCSDisable(uint32_t id){
 
 	if( id >= OCP_CS_END ) return -1;
 
-	controlsysDisable( &xcontrol.cs[id] );
+	controlsysDisable( &xcscontrol.cs[id] );
 
 	return 0;
 }
@@ -104,7 +104,7 @@ int32_t ocpCSStatus(uint32_t id, int32_t *status){
 
 	if( id >= OCP_CS_END ) return -1;
 
-	*status = controlsysStatus( &xcontrol.cs[id] );
+	*status = controlsysStatus( &xcscontrol.cs[id] );
 
 	return 0;
 }
@@ -119,9 +119,9 @@ int32_t ocpCSGetControllersNames(char *buffer, int32_t maxsize){
 	int32_t k;
 	char *p;
 
-	p = xcontrol.names;
+	p = xcscontrol.names;
 	k = 0;
-	while( (p < xcontrol.np) && (k < maxsize) ){
+	while( (p < xcscontrol.np) && (k < maxsize) ){
 		*buffer++ = *p++;
 		k++;
 	}

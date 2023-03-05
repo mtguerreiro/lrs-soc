@@ -16,14 +16,15 @@
 #include "ocpIf.h"
 
 /* Inter-processor communication */
-#include "ipcServer.h"
-#include "ipcClient.h"
+#include "../ipc/ipcServer.h"
+#include "../ipc/ipcClient.h"
 
 /* Controller lib */
-#include "controller.h"
+#include "../controller/controller.h"
 
 /* Hardware lib */
-#include "plecs.h"
+#include "../hardware/plecs/plecs.h"
+//#include "plecs.h"
 
 #include "stddef.h"
 //=============================================================================

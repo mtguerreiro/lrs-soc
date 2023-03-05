@@ -30,8 +30,7 @@ typedef int32_t(*plecsApplyOutputs_t)(void *outputs, int32_t n);
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-int32_t plecsInitialize(plecsGetInputs_t getInputs, plecsProcInputs_t procInputs,
-		plecsProcOutputs_t procOutputs, plecsApplyOutputs_t applyOutputs);
+int32_t plecsInitialize(void *inputs, int32_t ninputs, void *outputs);
 //-----------------------------------------------------------------------------
 int32_t plecsGetInputs(void *inputs);
 //-----------------------------------------------------------------------------

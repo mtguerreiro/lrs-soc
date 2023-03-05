@@ -16,7 +16,7 @@
 
 #include "stddef.h"
 
-#include "rp.h"
+#include "../utils/rp.h"
 
 #if( OCP_IF_CONFIG_CORE == 1 )
 #include "ipcClient.h"

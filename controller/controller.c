@@ -10,7 +10,7 @@
 //=============================================================================
 #include "controller.h"
 
-#include "rp.h"
+#include "../utils/rp.h"
 
 /* Controllers */
 #include "pidctl.h"
@@ -42,7 +42,8 @@ typedef struct{
 	controllerIF_t interface;
 
 }controller_t;
-controller_t controllers = {.active = CONTROLLER_END};
+
+static controller_t controllers = {.active = CONTROLLER_END};
 
 //=============================================================================
 

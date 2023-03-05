@@ -17,48 +17,78 @@
 //=============================================================================
 typedef struct{
 
-	plecsGetInputs_t getInputs;
-	plecsProcInputs_t procInputs;
-	plecsProcOutputs_t procOutputs;
-	plecsApplyOutputs_t applyOutputs;
+	void *inputs;
+	int32_t ninputs;
+
+	void *outputs;
 }plecsControl_t;
 
-static plecsControl_t xcontrol;
+static plecsControl_t xplcontrol;
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-int32_t plecsInitialize(plecsGetInputs_t getInputs, plecsProcInputs_t procInputs,
-		plecsProcOutputs_t procOutputs, plecsApplyOutputs_t applyOutputs){
+int32_t plecsInitialize(void *inputs, int32_t ninputs, void *outputs){
 
-	xcontrol.getInputs = getInputs;
-	xcontrol.procInputs = procInputs;
-	xcontrol.procOutputs = procOutputs;
-	xcontrol.applyOutputs = applyOutputs;
+	xplcontrol.inputs = inputs;
+	xplcontrol.ninputs = ninputs;
+	xplcontrol.outputs = outputs;
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
 int32_t plecsGetInputs(void *inputs){
 
-	return xcontrol.getInputs(inputs);
+	int32_t k;
+	float *src;
+	float *dst;
+
+	src = (float *)xplcontrol.inputs;
+	dst = (float *)inputs;
+	for( k = 0; k < xplcontrol.ninputs; k++ ) *dst++ = *src++;
+
+	return xplcontrol.ninputs;
 }
 //-----------------------------------------------------------------------------
 int32_t plecsProcInputs(void *inputs, void *procinputs, int32_t n){
 
-	return xcontrol.procInputs(inputs, procinputs, n);
+	int32_t k;
+	float *src;
+	float *dst;
+
+	src = (float *)inputs;
+	dst = (float *)procinputs;
+	for(k = 0; k < n; k++) *dst++ = *src++;
+
+	return n;
 }
 //-----------------------------------------------------------------------------
 int32_t plecsProcOutputs(void *outputs, void *procoutputs, int32_t n){
 
-	return xcontrol.procOutputs(outputs, procoutputs, n);
+	int32_t k;
+	float *src;
+	float *dst;
+
+	src = (float *)outputs;
+	dst = (float *)procoutputs;
+	for(k = 0; k < n; k++) *dst++ = *src++;
+
+	return n;
 }
 //-----------------------------------------------------------------------------
 int32_t plecsApplyOutputs(void *outputs, int32_t n){
 
-	return xcontrol.applyOutputs(outputs, n);
+	int32_t k;
+	float *src;
+	float *dst;
+
+	src = (float *)outputs;
+	dst = (float *)xplcontrol.outputs;
+	for( k = 0; k < n; k++ ) *dst++ = *src++;
+
+	return n;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
