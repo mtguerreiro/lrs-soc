@@ -189,19 +189,6 @@ static int32_t mainIpcIrqSend(void);
 static void mainIpcInit(void);
 static int32_t mainIpcHandle(void *req, int32_t reqsize, void **resp, int32_t maxrespsize);
 
-//static int32_t mainCmdBlink(uint32_t **data);
-//static int32_t mainCmdAdcEn(uint32_t **data);
-//static int32_t mainCmdAdcSpiFreq(uint32_t **data);
-//static int32_t mainCmdAdcSamplingFreq(uint32_t **data);
-//static int32_t mainCmdAdcErrorRead(uint32_t **data);
-//static int32_t mainCmdAdcErrorClear(uint32_t **data);
-//static int32_t mainCmdTraceStart(uint32_t **data);
-//static int32_t mainCmdTraceRead(uint32_t **data);
-//static int32_t mainCmdTraceReadTags(uint32_t **data);
-//static int32_t mainCmdTraceSizeSet(uint32_t **data);
-//static int32_t mainCmdTraceSizeRead(uint32_t **data);
-//
-//static int32_t mainCmdControlEn(uint32_t **data);
 
 static void mainControlReset(void);
 
@@ -286,32 +273,13 @@ static int mainSysInit(void){
 	mainOutputRelayDisable();
 
 
-//	mainInputRelayEnable();
-//	mainOutputRelayEnable();
-
-//	XGpio_DiscreteWrite(&relay_device, RELAY_CHANNEL, 0x03);
-//	XGpio_DiscreteWrite(&relay_device, RELAY_CHANNEL, 0x00);
-//	XGpio_DiscreteWrite(&relay_device, RELAY_CHANNEL, 0x07);
-
 	/* Commands */
-	mainRpInit();
-//	mainControl.cmdHandle[SOC_CMD_CPU1_BLINK] = mainCmdBlink;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_EN] = mainCmdAdcEn;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SPI_FREQ_SET] = mainCmdAdcSpiFreq;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SAMPLING_FREQ_SET] = mainCmdAdcSamplingFreq;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_ERROR_READ] = mainCmdAdcErrorRead;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_ERROR_CLEAR] = mainCmdAdcErrorClear;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_START] = mainCmdTraceStart;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_READ] = mainCmdTraceRead;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_READ_TAGS] = mainCmdTraceReadTags;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_SIZE_SET] = mainCmdTraceSizeSet;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_SIZE_READ] = mainCmdTraceSizeRead;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_CONTROL_EN] = mainCmdControlEn;
-
-	mainIpcInit();
-
-	mainControl.trace.p = (uint32_t *)( SOC_MEM_TRACE_ADR );
-	mainControl.trace.end = (uint32_t *)( SOC_MEM_TRACE_ADR + SOC_MEM_TRACE_SIZE_MAX );
+//	mainRpInit();
+//
+//	mainIpcInit();
+//
+//	mainControl.trace.p = (uint32_t *)( SOC_MEM_TRACE_ADR );
+//	mainControl.trace.end = (uint32_t *)( SOC_MEM_TRACE_ADR + SOC_MEM_TRACE_SIZE_MAX );
 
 	mainControl.error = 0;
 	mainControl.precharge = 0;
@@ -370,6 +338,8 @@ static int mainSysInit(void){
 
 	mainTraceInitialize();
 
+	ocpZynqCpu1Initialize(&IntcInstancePtr);
+
 	SYNC_FLAG = 0;
 
 	return XST_SUCCESS;
@@ -418,9 +388,9 @@ static int mainSetupIntrSystem(INTC *IntcInstancePtr)
 //	XScuGic_Connect(IntcInstancePtr, SOC_SIG_CPU0_TO_CPU1, (Xil_ExceptionHandler)DeviceDriverHandler, IntcInstancePtr) ;
 //	XScuGic_Enable(IntcInstancePtr, SOC_SIG_CPU0_TO_CPU1);
 //
-	XScuGic_SetPriorityTriggerType(IntcInstancePtr, SOC_IRQ_PL_TO_CPU1, 0xA0, 0x3);
-	XScuGic_Connect(IntcInstancePtr, SOC_IRQ_PL_TO_CPU1, (Xil_ExceptionHandler)PLirqHandler, IntcInstancePtr) ;
-	XScuGic_Enable(IntcInstancePtr, SOC_IRQ_PL_TO_CPU1);
+//	XScuGic_SetPriorityTriggerType(IntcInstancePtr, SOC_IRQ_PL_TO_CPU1, 0xA0, 0x3);
+//	XScuGic_Connect(IntcInstancePtr, SOC_IRQ_PL_TO_CPU1, (Xil_ExceptionHandler)PLirqHandler, IntcInstancePtr) ;
+//	XScuGic_Enable(IntcInstancePtr, SOC_IRQ_PL_TO_CPU1);
 
 	return XST_SUCCESS;
 }
@@ -441,19 +411,6 @@ static int mainRpInit(void){
 	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_TRACE_SIZE_SET, mainCmdTraceSizeSet);
 	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_TRACE_SIZE_READ, mainCmdTraceSizeRead);
 	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_CONTROL_EN, mainCmdControlEn);
-
-//	mainControl.cmdHandle[SOC_CMD_CPU1_BLINK] = mainCmdBlink;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_EN] = mainCmdAdcEn;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SPI_FREQ_SET] = mainCmdAdcSpiFreq;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_SAMPLING_FREQ_SET] = mainCmdAdcSamplingFreq;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_ERROR_READ] = mainCmdAdcErrorRead;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_ADC_ERROR_CLEAR] = mainCmdAdcErrorClear;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_START] = mainCmdTraceStart;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_READ] = mainCmdTraceRead;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_READ_TAGS] = mainCmdTraceReadTags;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_SIZE_SET] = mainCmdTraceSizeSet;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_TRACE_SIZE_READ] = mainCmdTraceSizeRead;
-//	mainControl.cmdHandle[SOC_CMD_CPU1_CONTROL_EN] = mainCmdControlEn;
 
 	return 0;
 }
@@ -500,19 +457,6 @@ static int32_t mainCmdAdcSpiFreq(void *in, rpuint_t insize, void **out, rpuint_t
 
 	return 0;
 
-//	uint32_t en, freq;
-//
-//	freq = *data;
-//
-//	en = AXI_TEST_mReadReg(AXI_TEST_BASE_ADR, 0);
-//
-//	if( en == 1 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0U);
-//
-//	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 4, freq);
-//
-//	if( en == 1 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 1U);
-//
-//	return 0;
 }
 //-----------------------------------------------------------------------------
 static int32_t mainCmdAdcSamplingFreq(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
@@ -536,23 +480,7 @@ static int32_t mainCmdAdcSamplingFreq(void *in, rpuint_t insize, void **out, rpu
 
 	return 0;
 
-//	uint32_t en, freq;
-//
-//	freq = *data;
-//
-//	en = AXI_TEST_mReadReg(AXI_TEST_BASE_ADR, 0);
-//
-//	if( en == 1 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0U);
-//
-//	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 1U);
-//	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 4, freq);
-//	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 8, freq >> 4U);
-//
-//	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, freq);
-//
-//	if( en == 1 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 1U);
-//
-//	return 0;
+
 }
 //-----------------------------------------------------------------------------
 static int32_t mainCmdTraceStart(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
@@ -661,199 +589,6 @@ static int32_t mainCmdControlEn(void *in, rpuint_t insize, void **out, rpuint_t 
 
 	return 0;
 }
-////-----------------------------------------------------------------------------
-//static int32_t mainCmdBlink(uint32_t **data){
-//
-//	blinkPeriod = *(*data);
-//
-//	return 0;
-//}
-////-----------------------------------------------------------------------------
-//static int32_t mainCmdAdcEn(uint32_t **data){
-//
-//	uint32_t en;
-//
-//	en = *(*data);
-//
-////	if( en == 0 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0U);
-////	else AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 1U);
-//
-//	if( en == 0 ) AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 0U);
-//	else AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 1U);
-//
-//	return 0;
-//}
-////-----------------------------------------------------------------------------
-//static int32_t mainCmdAdcSpiFreq(uint32_t **data){
-//
-//	uint32_t en, freq;
-//
-//	freq = *(*data);
-//
-//	en = AXI_TEST_mReadReg(AXI_PWM_BASE_ADR, 0);
-//
-//	if( (en & 1) == 1 ) AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 0U);
-//
-//	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 4, freq);
-//
-//	if( (en & 1) == 1 ) AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, en);
-//
-//	return 0;
-//
-////	uint32_t en, freq;
-////
-////	freq = *data;
-////
-////	en = AXI_TEST_mReadReg(AXI_TEST_BASE_ADR, 0);
-////
-////	if( en == 1 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0U);
-////
-////	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 4, freq);
-////
-////	if( en == 1 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 1U);
-////
-////	return 0;
-//}
-////-----------------------------------------------------------------------------
-//static int32_t mainCmdAdcSamplingFreq(uint32_t **data){
-//
-//	uint32_t en, freq;
-//
-//	freq = *(*data);
-//
-//	en = AXI_TEST_mReadReg(AXI_PWM_BASE_ADR, 0);
-//
-//	if( (en & 1) == 1 ) AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 0U);
-//
-//	//AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 1U);
-//	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 4, freq);
-//	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 8, 0);
-//
-//	//AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, freq);
-//
-//	if( (en & 1) == 1 ) AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, en);
-//
-//	return 0;
-//
-////	uint32_t en, freq;
-////
-////	freq = *data;
-////
-////	en = AXI_TEST_mReadReg(AXI_TEST_BASE_ADR, 0);
-////
-////	if( en == 1 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0U);
-////
-////	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 1U);
-////	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 4, freq);
-////	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 8, freq >> 4U);
-////
-////	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, freq);
-////
-////	if( en == 1 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 1U);
-////
-////	return 0;
-//}
-////-----------------------------------------------------------------------------
-//static int32_t mainCmdTraceStart(uint32_t **data){
-//
-//	mainControl.trace.p = (uint32_t *)SOC_MEM_TRACE_ADR;
-//
-//	soctraceReset(SOC_TRACE_ID_1);
-//
-//	return 0;
-//}
-////-----------------------------------------------------------------------------
-//static int32_t mainCmdTraceRead(uint32_t **data){
-//
-//	uint32_t size;
-//
-//	size = ((uint32_t)mainControl.trace.end) - SOC_MEM_TRACE_ADR;
-//
-//	*data = (uint32_t *)SOC_MEM_TRACE_ADR;
-//
-//	return size;
-//}
-////-----------------------------------------------------------------------------
-//static int32_t mainCmdTraceReadTags(uint32_t **data){
-//
-//	uint32_t n;
-//
-//	n = soctraceReadTags(SOC_TRACE_ID_1, (char *)SOC_MEM_TRACE_ADR);
-//
-//	*data = (uint32_t *)SOC_MEM_TRACE_ADR;
-//
-//	return n;
-//}
-////-----------------------------------------------------------------------------
-//static int32_t mainCmdTraceSizeSet(uint32_t **data){
-//
-//	uint32_t size;
-//
-//	size = *(*data);
-//
-//	if( size <= SOC_MEM_TRACE_SIZE_MAX ){
-//		mainControl.trace.end = (uint32_t *)( SOC_MEM_TRACE_ADR + size );
-//
-//		soctraceSetSize(SOC_TRACE_ID_1, size);
-//
-//	}
-//
-//	return 0;
-//}
-////-----------------------------------------------------------------------------
-//static int32_t mainCmdTraceSizeRead(uint32_t **data){
-//
-//	uint32_t *p;
-//	uint32_t size;
-//
-//	p = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
-//	size = ((uint32_t)mainControl.trace.end) - SOC_MEM_TRACE_ADR;
-//	*p = size;
-//
-//	*data = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
-//
-//	return 4;
-//}
-////-----------------------------------------------------------------------------
-//static int32_t mainCmdAdcErrorRead(uint32_t **data){
-//
-//	uint32_t *p;
-//
-//	p = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
-//	*p = mainControl.error;
-//
-//	*data = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
-//
-//	return 4;
-//}
-////-----------------------------------------------------------------------------
-//static int32_t mainCmdAdcErrorClear(uint32_t **data){
-//
-//	mainControl.error = 0;
-//
-//	return 0;
-//}
-////-----------------------------------------------------------------------------
-//static int32_t mainCmdControlEn(uint32_t **data){
-//
-//	uint32_t en;
-//
-//	en = *(*data);
-//
-//	if( en == 0 ) {
-//		mainControl.enable = 0;
-//		AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 1U);
-//	}
-//	else {
-//		mainControl.enable = 1;
-//		AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 8, 0);
-//		AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 3U);
-//	}
-//
-//	mainControlReset();
-//
-//	return 0;
-//}
 //-----------------------------------------------------------------------------
 static int32_t mainIpcIrqSend(void){
 
@@ -866,25 +601,18 @@ static void mainIpcInit(void){
 
 	ocpZynqCpu1Initialize(&IntcInstancePtr);
 
-//	ocpInitialize();
-//
-//	ipcServerZynqInitialize(&IntcInstancePtr);
-//
-//	ipcServerInitialize(ocpIf, ipcServerZynqIrqSend,
-//			SOC_MEM_CPU0_TO_CPU1_ADR, SOC_MEM_CPU0_TO_CPU1_SIZE,
-//			SOC_MEM_CPU1_TO_CPU0_ADR, SOC_MEM_CPU1_TO_CPU0_SIZE);
 
 }
 //-----------------------------------------------------------------------------
-static int32_t mainIpcHandle(void *req, int32_t reqsize, void **resp, int32_t maxrespsize){
-
-	int32_t ret;
-
-	/* Executes the command */
-	ret = rpRequest(&mainControl.rp, req, reqsize, resp, maxrespsize);
-
-	return ret;
-}
+//static int32_t mainIpcHandle(void *req, int32_t reqsize, void **resp, int32_t maxrespsize){
+//
+//	int32_t ret;
+//
+//	/* Executes the command */
+//	ret = rpRequest(&mainControl.rp, req, reqsize, resp, maxrespsize);
+//
+//	return ret;
+//}
 //-----------------------------------------------------------------------------
 static void mainInputRelayDisable(void){
 
@@ -1134,7 +862,7 @@ void PLirqHandler(void *CallbackRef){
 
 	/* Saves data to memory */
 
-	soctraceSave(SOC_TRACE_ID_1);
+	//soctraceSave(SOC_TRACE_ID_1);
 //	if( mainControl.trace.p < mainControl.trace.end ){
 //		*mainControl.trace.p++ = *((uint32_t *)(&hbCurrent));
 //		*mainControl.trace.p++ = *((uint32_t *)(&dcLinkVoltage));

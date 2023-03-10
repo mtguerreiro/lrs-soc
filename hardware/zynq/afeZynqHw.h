@@ -1,14 +1,12 @@
 /*
- * @file ipcClientZynq.h
- *
- * @brief Client for the inter-processor communication (IPC) library.
+ * @file afeZynqHw.h
  *
  */
 
-#ifndef IPC_CLIENT_ZYNQ_H_
-#define IPC_CLIENT_ZYNQ_H_
+#ifndef AFE_ZYNQ_HW_H_
+#define AFE_ZYNQ_HW_H_
 
-#ifdef SOC_CPU0
+#ifdef SOC_CPU1
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
@@ -20,29 +18,23 @@
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-/* CPU1->CPU0 timeout error code */
-#define IPC_CLIENT_ZYNQ_ERR_CPU1_REPLY_TO				-1
 
-/* Invalid CPU1 command */
-#define IPC_CLIENT_ZYNQ_ERR_CPU1_INVALID_CMD			-2
 
-/* Data received exceeds CPU0->CPU1 buffer */
-#define IPC_CLIENT_ZYNQ_ERR_CPU0_CPU1_BUFFER_OVERFLOW	-3
-
-/* CPU1->CPU0 reply timeout */
-#define IPC_CLIENT_ZYNQ_CONFIG_CPU1_REPLY_TO_MS			100
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void ipcClientZynqInitialize(void *irqInst);
+void afeZynqHwInitialize(void * intcInst);
 //-----------------------------------------------------------------------------
-int32_t ipcClientZynqIrqSend(void);
+int32_t afeZynqHwAdcEn(uint32_t en);
 //-----------------------------------------------------------------------------
-int32_t ipcClientZynqIrqReceive(uint32_t timeout);
+int32_t afeZynqHwSetAdcSpiFreq(uint32_t freq);
+//-----------------------------------------------------------------------------
+int32_t afeZynqHwSetAdcSamplingFreq(uint32_t freq);
 //-----------------------------------------------------------------------------
 //=============================================================================
-#endif /* SOC_CPU0 */
-#endif /* IPC_CLIENT_ZYNQ_H_ */
+#endif /* SOC_CPU1 */
+
+#endif /* AFE_ZYNQ_HW_H_ */

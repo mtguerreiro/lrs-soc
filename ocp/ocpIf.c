@@ -1065,6 +1065,7 @@ static int32_t ocpIfCSControllerInterfaceSecondCore(uint32_t id,
 
 	pin = (char *)in;
 	pb = &buffer[8];
+	k = 0;
 	while( k++ < insize ) *pb++ = *pin++;
 
 	size = ipcClientRequest( (void *)buffer, insize + 8, out, maxoutsize, OCP_IF_CONFIG_DUAL_CORE_COMM_TO );
@@ -1087,6 +1088,7 @@ static int32_t ocpIfCSHardwareInterfaceSecondCore(uint32_t id,
 
 	pin = (char *)in;
 	pb = &buffer[8];
+	k = 0;
 	while( k++ < insize ) *pb++ = *pin++;
 
 	size = ipcClientRequest( (void *)buffer, insize + 8, out, maxoutsize, OCP_IF_CONFIG_DUAL_CORE_COMM_TO );

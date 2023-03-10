@@ -101,6 +101,9 @@ void ipcClientZynqInitialize(void *irqInst){
 //-----------------------------------------------------------------------------
 int32_t ipcClientZynqIrqSend(void){
 
+	/* Makes sure semaphore is taken */
+	xSemaphoreTake(xipcClientZynqControl.cpu1Semaphore, IPC_CLIENT_ZYNQ_CONFIG_CPU1_REPLY_TO);
+
 	/* Generates a software interrupt on CPU1 */
 	XScuGic_SoftwareIntr ( xipcClientZynqControl.intcInstance,
 			IPC_CLIENT_ZYNQ_INT_CPU0_TO_CPU1,  IPC_CLIENT_ZYNQ_CONFIG_SIG_CPU1_ID);
@@ -111,7 +114,7 @@ int32_t ipcClientZynqIrqSend(void){
 int32_t ipcClientZynqIrqReceive(uint32_t timeout){
 
 	/* Waits until CPU1 replies back */
-	if( xSemaphoreTake(xipcClientZynqControl.cpu1Semaphore,  IPC_CLIENT_ZYNQ_CONFIG_CPU1_REPLY_TO) != pdTRUE ){
+	if( xSemaphoreTake(xipcClientZynqControl.cpu1Semaphore, IPC_CLIENT_ZYNQ_CONFIG_CPU1_REPLY_TO) != pdTRUE ){
 		return IPC_CLIENT_ZYNQ_ERR_CPU1_REPLY_TO;
 	}
 

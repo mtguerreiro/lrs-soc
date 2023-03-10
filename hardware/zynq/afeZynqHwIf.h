@@ -1,14 +1,12 @@
 /*
- * @file ipcClientZynq.h
- *
- * @brief Client for the inter-processor communication (IPC) library.
+ * @file afeZynqHwIf.h
  *
  */
 
-#ifndef IPC_CLIENT_ZYNQ_H_
-#define IPC_CLIENT_ZYNQ_H_
+#ifndef AFE_ZYNQ_HW_IF_H_
+#define AFE_ZYNQ_HW_IF_H_
 
-#ifdef SOC_CPU0
+#ifdef SOC_CPU1
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
@@ -20,29 +18,26 @@
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-/* CPU1->CPU0 timeout error code */
-#define IPC_CLIENT_ZYNQ_ERR_CPU1_REPLY_TO				-1
 
-/* Invalid CPU1 command */
-#define IPC_CLIENT_ZYNQ_ERR_CPU1_INVALID_CMD			-2
+typedef enum{
+    AFE_ZYNQ_HW_IF_BLINK = 0,
+	AFE_ZYNQ_HW_IF_ADC_EN,
+	AFE_ZYNQ_HW_IF_ADC_SPI_FREQ_SET,
+	AFE_ZYNQ_HW_IF_ADC_SAMPLING_FREQ_SET,
+	AFE_ZYNQ_HW_IF_END
+}afeZynqHwIfCommands_t;
 
-/* Data received exceeds CPU0->CPU1 buffer */
-#define IPC_CLIENT_ZYNQ_ERR_CPU0_CPU1_BUFFER_OVERFLOW	-3
-
-/* CPU1->CPU0 reply timeout */
-#define IPC_CLIENT_ZYNQ_CONFIG_CPU1_REPLY_TO_MS			100
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void ipcClientZynqInitialize(void *irqInst);
+void afeZynqHwIfInitialize(void);
 //-----------------------------------------------------------------------------
-int32_t ipcClientZynqIrqSend(void);
-//-----------------------------------------------------------------------------
-int32_t ipcClientZynqIrqReceive(uint32_t timeout);
+int32_t afeZynqHwIf(void *in, int32_t insize, void **out, int32_t maxoutsize);
 //-----------------------------------------------------------------------------
 //=============================================================================
-#endif /* SOC_CPU0 */
-#endif /* IPC_CLIENT_ZYNQ_H_ */
+#endif /* SOC_CPU1 */
+
+#endif /* AFE_ZYNQ_HW_IF_H_ */

@@ -27,6 +27,9 @@
 
 /* */
 #include "soc_defs.h"
+
+#include "afeZynqHwIf.h"
+#include "afeZynqHw.h"
 //=============================================================================
 
 //=============================================================================
@@ -37,7 +40,7 @@ static int32_t ocpZynqCpu1InitializeIpc(void *intcInst);
 //-----------------------------------------------------------------------------
 static int32_t ocpZynqCpu1InitializeTraces(void);
 //-----------------------------------------------------------------------------
-static int32_t ocpZynqCpu1InitializeControlSystem(void);
+static int32_t ocpZynqCpu1InitializeControlSystem(void *intcInst);
 //-----------------------------------------------------------------------------
 static int32_t ocpZynqCpu1InitializeInterface(void);
 //-----------------------------------------------------------------------------
@@ -74,7 +77,7 @@ void ocpZynqCpu1Initialize(void *intcInst){
 
 	ocpZynqCpu1InitializeIpc(intcInst);
 	ocpZynqCpu1InitializeTraces();
-	ocpZynqCpu1InitializeControlSystem();
+	ocpZynqCpu1InitializeControlSystem(intcInst);
 	ocpZynqCpu1InitializeInterface();
 }
 //-----------------------------------------------------------------------------
@@ -101,7 +104,7 @@ static int32_t ocpZynqCpu1InitializeTraces(void){
 
 	ocpTraceConfig_t config;
 
-	config.mem = OCP_ZYNQ_C1_CONFIG_TRACE_0_ADDR;
+	config.mem = (void *)OCP_ZYNQ_C1_CONFIG_TRACE_0_ADDR;
 	config.size = OCP_ZYNQ_C1_CONFIG_TRACE_0_SIZE;
 	config.data = (void **)trace0Data;
 	config.names = trace0Names;
@@ -111,37 +114,23 @@ static int32_t ocpZynqCpu1InitializeTraces(void){
 	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t ocpZynqCpu1InitializeControlSystem(void){
+static int32_t ocpZynqCpu1InitializeControlSystem(void *intcInst){
 
-//	ocpCSConfig_t config;
-//
-//	/* Initializes controller lib */
-//	controllerInitialize();
-//
-//	/* Initializes control sys lib */
-//	config.fgetInputs = plecsGetInputs;
-//	config.fprocInputs = plecsProcInputs;
-//
-//	config.frun = controllerRun;
-//
-//	config.fprocOutputs = plecsProcOutputs;
-//	config.fapplyOutputs = plecsApplyOutputs;
-//
-//	config.fonEntry = 0;
-//	config.fonExit = 0;
-//	config.fhwInterface = 0;
-//	config.fcontrollerInterface = controllerInterface;
-//
-//	config.binputs = sys1InBuffer;
-//	config.bprocInputs = sys1ProcInBuffer;
-//
-//	config.boutputs = sys1OutBuffer;
-//	config.bprocOutputs = sys1ProcOutBuffer;
-//
-//	config.fenable = 0;
-//	config.fdisable = 0;
-//
-//	ocpCSInitialize(OCP_CS_1, &config, "Converter control");
+	ocpCSConfig_t config;
+
+	/* Initializes controller lib */
+	//controllerInitialize();
+
+	/* Initializes control sys lib */
+	config.fhwInterface = afeZynqHwIf;
+
+	config.fenable = 0;
+	config.fdisable = 0;
+
+	ocpCSInitialize(OCP_CS_1, &config, "Converter control");
+
+	afeZynqHwInitialize(intcInst);
+
 //
 	return 0;
 }
