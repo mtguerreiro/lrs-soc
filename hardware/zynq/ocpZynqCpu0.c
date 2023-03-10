@@ -1,93 +1,89 @@
 /*
- * ocp.c
+ * @file ocpZynqCpu0.c
  *
- *  Created on: 19 de fev de 2023
- *      Author: marco
  */
 
+#ifdef SOC_CPU0
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
-#include "ocp.h"
+#include "ocpZynqCpu0.h"
+
 
 /* Open controller project */
+#include "ocp.h"
 #include "ocpTrace.h"
 #include "ocpCS.h"
 #include "ocpIf.h"
 
 /* Inter-processor communication */
-#include "../ipc/ipcServer.h"
 #include "../ipc/ipcClient.h"
 
 /* Controller lib */
 #include "../controller/controller.h"
 
-/* Hardware lib */
-#include "../hardware/plecs/plecs.h"
-//#include "plecs.h"
+/* Zynq-specific stuff */
+#include "ipcClientZynq.h"
 
-#include "stddef.h"
-//=============================================================================
-
-//=============================================================================
-/*-------------------------------- Definitions ------------------------------*/
-//=============================================================================
-
-
+/* */
+#include "soc_defs.h"
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Prototypes -------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-static int32_t ocpInitializeTraces(void);
+static int32_t ocpZynqCpu0InitializeIpc(void *intcInst);
 //-----------------------------------------------------------------------------
-static int32_t ocpInitializeControlSystem(void);
+static int32_t ocpZynqCpu0InitializeTraces(void);
 //-----------------------------------------------------------------------------
-static int32_t ocpInitializeInterface(void);
+static int32_t ocpZynqCpu0InitializeControlSystem(void);
+//-----------------------------------------------------------------------------
+static int32_t ocpZynqCpu0InitializeInterface(void);
 //-----------------------------------------------------------------------------
 //=============================================================================
 
 //=============================================================================
-/*--------------------------------- Globals ---------------------------------*/
+/*------------------------------- Definitions -------------------------------*/
 //=============================================================================
+#define OCP_ZYNQ_C0_CONFIG_CPU0_TO_CPU1_ADDR		SOC_MEM_CPU0_TO_CPU1_ADR
+#define OCP_ZYNQ_C0_CONFIG_CPU0_TO_CPU1_SIZE		SOC_MEM_CPU0_TO_CPU1_SIZE
 
-///* Trace #1 */
-//static float trace1Buffer[20];
-//static float *trace1Data[8];
-//static char trace1Names[30];
-//#define OCP_CONFIG_TRACE1_SIZE		(1024)
-//
-///* Control system #1 */
-//static float sys1InBuffer[10];
-//static float sys1ProcInBuffer[10];
-//
-//static float sys1OutBuffer[10];
-//static float sys1ProcOutBuffer[10];
-
+#define OCP_ZYNQ_C0_CONFIG_CPU1_TO_CPU0_ADDR		SOC_MEM_CPU1_TO_CPU0_ADR
+#define OCP_ZYNQ_C0_CONFIG_CPU1_TO_CPU0_SIZE		SOC_MEM_CPU1_TO_CPU0_SIZE
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-int32_t ocpInitialize(void){
+void ocpZynqCpu0Initialize(void *intcInst){
 
-
-	ocpInitializeTraces();
-	ocpInitializeControlSystem();
-	ocpInitializeInterface();
-
-	return 0;
+	ocpZynqCpu0InitializeIpc(intcInst);
+	ocpZynqCpu0InitializeTraces();
+	ocpZynqCpu0InitializeControlSystem();
+	ocpZynqCpu0InitializeInterface();
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
+
 
 //=============================================================================
 /*---------------------------- Static functions -----------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-static int32_t ocpInitializeTraces(void){
+static int32_t ocpZynqCpu0InitializeIpc(void *intcInst){
+
+	ipcClientZynqInitialize(intcInst);
+
+	ipcClientInitialize( ipcClientZynqIrqSend, ipcClientZynqIrqReceive,
+			OCP_ZYNQ_C0_CONFIG_CPU1_TO_CPU0_ADDR, OCP_ZYNQ_C0_CONFIG_CPU1_TO_CPU0_SIZE,
+			OCP_ZYNQ_C0_CONFIG_CPU0_TO_CPU1_ADDR, OCP_ZYNQ_C0_CONFIG_CPU0_TO_CPU1_SIZE);
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpZynqCpu0InitializeTraces(void){
 
 //	ocpTraceConfig_t config;
 //
@@ -98,10 +94,10 @@ static int32_t ocpInitializeTraces(void){
 //
 //	ocpTraceInitialize(OCP_TRACE_1, &config, "Trace 1");
 //
-//	return 0;
+	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t ocpInitializeControlSystem(void){
+static int32_t ocpZynqCpu0InitializeControlSystem(void){
 
 //	ocpCSConfig_t config;
 //
@@ -133,10 +129,10 @@ static int32_t ocpInitializeControlSystem(void){
 //
 //	ocpCSInitialize(OCP_CS_1, &config, "Converter control");
 //
-//	return 0;
+	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t ocpInitializeInterface(void){
+static int32_t ocpZynqCpu0InitializeInterface(void){
 
 	ocpIfInitialize();
 
@@ -144,3 +140,4 @@ static int32_t ocpInitializeInterface(void){
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
+#endif /* SOC_CPU0 */

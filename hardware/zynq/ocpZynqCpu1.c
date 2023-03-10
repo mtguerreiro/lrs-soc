@@ -1,107 +1,117 @@
 /*
- * ocp.c
+ * @file ocpZynqCpu1.c
  *
- *  Created on: 19 de fev de 2023
- *      Author: marco
  */
 
+#ifdef SOC_CPU1
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
-#include "ocp.h"
+#include "ocpZynqCpu1.h"
+
 
 /* Open controller project */
+#include "ocp.h"
 #include "ocpTrace.h"
 #include "ocpCS.h"
 #include "ocpIf.h"
 
 /* Inter-processor communication */
 #include "../ipc/ipcServer.h"
-#include "../ipc/ipcClient.h"
 
 /* Controller lib */
 #include "../controller/controller.h"
 
-/* Hardware lib */
-#include "../hardware/plecs/plecs.h"
-//#include "plecs.h"
+/* Zynq-specific stuff */
+#include "ipcServerZynq.h"
 
-#include "stddef.h"
-//=============================================================================
-
-//=============================================================================
-/*-------------------------------- Definitions ------------------------------*/
-//=============================================================================
-
-
+/* */
+#include "soc_defs.h"
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Prototypes -------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-static int32_t ocpInitializeTraces(void);
+static int32_t ocpZynqCpu1InitializeIpc(void *intcInst);
 //-----------------------------------------------------------------------------
-static int32_t ocpInitializeControlSystem(void);
+static int32_t ocpZynqCpu1InitializeTraces(void);
 //-----------------------------------------------------------------------------
-static int32_t ocpInitializeInterface(void);
+static int32_t ocpZynqCpu1InitializeControlSystem(void);
 //-----------------------------------------------------------------------------
+static int32_t ocpZynqCpu1InitializeInterface(void);
+//-----------------------------------------------------------------------------
+//=============================================================================
+
+//=============================================================================
+/*------------------------------- Definitions -------------------------------*/
+//=============================================================================
+#define OCP_ZYNQ_C1_CONFIG_CPU0_TO_CPU1_ADDR		SOC_MEM_CPU0_TO_CPU1_ADR
+#define OCP_ZYNQ_C1_CONFIG_CPU0_TO_CPU1_SIZE		SOC_MEM_CPU0_TO_CPU1_SIZE
+
+#define OCP_ZYNQ_C1_CONFIG_CPU1_TO_CPU0_ADDR		SOC_MEM_CPU1_TO_CPU0_ADR
+#define OCP_ZYNQ_C1_CONFIG_CPU1_TO_CPU0_SIZE		SOC_MEM_CPU1_TO_CPU0_SIZE
+
+#define OCP_ZYNQ_C1_CONFIG_TRACE_0_ADDR				SOC_MEM_TRACE_ADR
+#define OCP_ZYNQ_C1_CONFIG_TRACE_0_SIZE				SOC_MEM_TRACE_SIZE_MAX
+
+#define OCP_ZYNQ_C1_CONFIG_TRACE_0_NAME_LEN			250
+#define OCP_ZYNQ_C1_CONFIG_TRACE_0_MAX_SIGNALS		20
 //=============================================================================
 
 //=============================================================================
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
-
-///* Trace #1 */
-//static float trace1Buffer[20];
-//static float *trace1Data[8];
-//static char trace1Names[30];
-//#define OCP_CONFIG_TRACE1_SIZE		(1024)
-//
-///* Control system #1 */
-//static float sys1InBuffer[10];
-//static float sys1ProcInBuffer[10];
-//
-//static float sys1OutBuffer[10];
-//static float sys1ProcOutBuffer[10];
-
+static char trace0Names[OCP_ZYNQ_C1_CONFIG_TRACE_0_NAME_LEN];
+static size_t trace0Data[OCP_ZYNQ_C1_CONFIG_TRACE_0_MAX_SIGNALS];
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-int32_t ocpInitialize(void){
+void ocpZynqCpu1Initialize(void *intcInst){
 
-
-	ocpInitializeTraces();
-	ocpInitializeControlSystem();
-	ocpInitializeInterface();
-
-	return 0;
+	ocpZynqCpu1InitializeIpc(intcInst);
+	ocpZynqCpu1InitializeTraces();
+	ocpZynqCpu1InitializeControlSystem();
+	ocpZynqCpu1InitializeInterface();
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
+
 
 //=============================================================================
 /*---------------------------- Static functions -----------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-static int32_t ocpInitializeTraces(void){
+static int32_t ocpZynqCpu1InitializeIpc(void *intcInst){
 
-//	ocpTraceConfig_t config;
-//
-//	config.mem = trace1Buffer;
-//	config.size = OCP_CONFIG_TRACE1_SIZE;
-//	config.data = (void **)trace1Data;
-//	config.names = trace1Names;
-//
-//	ocpTraceInitialize(OCP_TRACE_1, &config, "Trace 1");
-//
-//	return 0;
+
+	ipcServerZynqInitialize(intcInst);
+
+	ipcServerInitialize(ocpIf, ipcServerZynqIrqSend,
+			SOC_MEM_CPU0_TO_CPU1_ADR, SOC_MEM_CPU0_TO_CPU1_SIZE,
+			SOC_MEM_CPU1_TO_CPU0_ADR, SOC_MEM_CPU1_TO_CPU0_SIZE);
+
+	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t ocpInitializeControlSystem(void){
+static int32_t ocpZynqCpu1InitializeTraces(void){
+
+	ocpTraceConfig_t config;
+
+	config.mem = OCP_ZYNQ_C1_CONFIG_TRACE_0_ADDR;
+	config.size = OCP_ZYNQ_C1_CONFIG_TRACE_0_SIZE;
+	config.data = (void **)trace0Data;
+	config.names = trace0Names;
+
+	ocpTraceInitialize(OCP_TRACE_1, &config, "Main Trace");
+//
+	return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpZynqCpu1InitializeControlSystem(void){
 
 //	ocpCSConfig_t config;
 //
@@ -133,10 +143,10 @@ static int32_t ocpInitializeControlSystem(void){
 //
 //	ocpCSInitialize(OCP_CS_1, &config, "Converter control");
 //
-//	return 0;
+	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t ocpInitializeInterface(void){
+static int32_t ocpZynqCpu1InitializeInterface(void){
 
 	ocpIfInitialize();
 
@@ -144,3 +154,4 @@ static int32_t ocpInitializeInterface(void){
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
+#endif /* SOC_CPU0 */

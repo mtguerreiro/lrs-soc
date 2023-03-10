@@ -68,6 +68,8 @@
 #include "lwipopts.h"
 
 #include "rp.h"
+
+#include "ocpIf.h"
 //=============================================================================
 
 //=============================================================================
@@ -321,9 +323,8 @@ static void uifaceRequestProcessThread(void *param){
 	while (1) {
 
 		/*
-		 * After receiving a connection, reads the first 8 bytes. They should
-		 * the command ID (4 bytes) and the number of bytes that were sent
-		 * (also 4 bytes).
+		 * After receiving a connection, reads the first 4 bytes. They should
+		 * represent the number of bytes to come next.
 		 */
 		nrx = 0;
 		while( nrx < 4 ){
@@ -356,7 +357,9 @@ static void uifaceRequestProcessThread(void *param){
 		}
 
 		p = (uint8_t *)( recvbuf );
-		ret = rpRequest(&xuifaceControl.rp, (void *)p, size, (void **)(&p), UIFACE_CONFIG_RECV_BUFFER);
+		ret = ocpIf((void *)p, size, (void **)(&p), UIFACE_CONFIG_RECV_BUFFER);
+
+		//		ret = ocpIf(&xuifaceControl.rp, (void *)p, size, (void **)(&p), UIFACE_CONFIG_RECV_BUFFER);
 
 		/*
 		 * Now, sends the reply. The reply consists of the command status

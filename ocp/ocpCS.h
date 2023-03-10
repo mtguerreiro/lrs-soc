@@ -25,7 +25,9 @@ typedef controlsysConfig_t ocpCSConfig_t;
 #define OCP_CS_CONFIG_CS_NAME_MAX_LEN		20
 
 typedef enum{
+#ifdef SOC_CPU1
 	OCP_CS_1 = 0,
+#endif
 	OCP_CS_END
 }ocpCSIDs_t;
 

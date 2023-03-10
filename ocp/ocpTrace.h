@@ -25,7 +25,9 @@ typedef ctraceConfig_t ocpTraceConfig_t;
 #define OCP_TRACE_CONFIG_TRACE_NAME_MAX_LEN		20
 
 typedef enum{
+#ifdef SOC_CPU1
 	OCP_TRACE_1 = 0,
+#endif
 	OCP_TRACE_END
 }ocpTraceIDs_t;
 

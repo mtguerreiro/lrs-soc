@@ -17,6 +17,7 @@
 #include "blink.h"
 #include "uiface.h"
 #include "ipcomm.h"
+#include "sysinit.h"
 
 /* FreeRTOS */
 #include "FreeRTOS.h"
@@ -89,16 +90,20 @@ int main(void){
 					UIFACE_CONFIG_TASK_STACK_SIZE,
 					UIFACE_CONFIG_TASK_PRIO);
 
-	sys_thread_new("ipcomm_thrd", ipcomm,
-					(void *)&xINTCInstance,
-					IPCOMM_CONFIG_TASK_STACK_SIZE,
-					IPCOMM_CONFIG_TASK_PRIO);
-
+//	sys_thread_new("ipcomm_thrd", ipcomm,
+//					(void *)&xINTCInstance,
+//					IPCOMM_CONFIG_TASK_STACK_SIZE,
+//					IPCOMM_CONFIG_TASK_PRIO);
 
 	sys_thread_new("blink_thrd", blink,
 					0,
 					BLINK_CONFIG_TASK_STACK_SIZE,
 					BLINK_CONFIG_TASK_PRIO);
+
+	sys_thread_new("sysinit_thrd", sysinit,
+					(void *)&xINTCInstance,
+					SYSINIT_CONFIG_TASK_STACK_SIZE,
+					SYSINIT_CONFIG_TASK_PRIO);
 
 	vTaskStartScheduler();
 	while(1);

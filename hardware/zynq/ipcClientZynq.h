@@ -1,61 +1,48 @@
 /*
- * ocpIf.h
+ * @file ipcClientZynq.h
  *
- *  Created on: 17.02.2023
- *      Author: mguerreiro
+ * @brief Client for the inter-processor communication (IPC) library.
+ *
  */
 
-#ifndef OCP_IF_H_
-#define OCP_IF_H_
+#ifndef IPC_CLIENT_ZYNQ_H_
+#define IPC_CLIENT_ZYNQ_H_
 
+#ifdef SOC_CPU0
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
 #include "stdint.h"
+#include "stddef.h"
 
 //=============================================================================
 
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-#ifdef SOC_CPU0
-#define OCP_IF_CONFIG_CORE	1
-#else
-#define OCP_IF_CONFIG_CORE	0
-#endif
+/* CPU1->CPU0 timeout error code */
+#define IPC_CLIENT_ZYNQ_ERR_CPU1_REPLY_TO				-1
 
-typedef enum{
-	OCP_IF_CMD_TRACE_READ = 0,
-	OCP_IF_CMD_TRACE_RESET,
-	OCP_IF_CMD_TRACE_GET_SIZE,
-	OCP_IF_CMD_TRACE_SET_SIZE,
-	OCP_IF_CMD_TRACE_GET_NUMBER_SIGNALS,
-	OCP_IF_CMD_TRACE_GET_SIGNALS_NAMES,
-	OCP_IF_CMD_TRACE_GET_NUMBER_TRACES,
-	OCP_IF_CMD_TRACE_GET_TRACES_NAMES,
-	OCP_IF_CMD_TRACE_GET_ADDRESS,
-	OCP_IF_CMD_CS_STATUS,
-	OCP_IF_CMD_CS_ENABLE,
-	OCP_IF_CMD_CS_DISABLE,
-	OCP_IF_CMD_CS_CONTROLLER_IF,
-	OCP_IF_CMD_CS_HARDWARE_IF,
-	OCP_IF_CMD_CS_GET_NUMBER_CONTROLLERS,
-	OCP_IF_CMD_CS_GET_CONTROLLERS_NAMES,
-	OCP_IF_CMD_PLATFORM_ID,
-	OCP_IF_CMD_PLATFORM_IF,
-	OCP_IF_CMD_END
-}ocpIfCommands_t;
+/* Invalid CPU1 command */
+#define IPC_CLIENT_ZYNQ_ERR_CPU1_INVALID_CMD				-2
 
+/* Data received exceeds CPU0->CPU1 buffer */
+#define IPC_CLIENT_ZYNQ_ERR_CPU0_CPU1_BUFFER_OVERFLOW	-3
+
+/* CPU1->CPU0 reply timeout */
+#define IPC_CLIENT_ZYNQ_CONFIG_CPU1_REPLY_TO_MS			100
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-int32_t ocpIfInitialize(void);
+void ipcClientZynqInitialize(void *irqInst);
 //-----------------------------------------------------------------------------
-int32_t ocpIf(void *in, int32_t insize, void **out, int32_t maxoutsize);
+int32_t ipcClientZynqIrqSend(void);
+//-----------------------------------------------------------------------------
+int32_t ipcClientZynqIrqReceive(uint32_t timeout);
 //-----------------------------------------------------------------------------
 //=============================================================================
-
-#endif /* OCPIF_H_ */
+#endif /* SOC_CPU0 */
+#endif /* IPC_CLIENT_ZYNQ_H_ */

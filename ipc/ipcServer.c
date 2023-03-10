@@ -73,8 +73,8 @@ ipcServerCtl_t ipcServerCtl = {.serverAdd = 0, .serverSize = 0,
 //-----------------------------------------------------------------------------
 void ipcServerInitialize(ipcServerRequestHandle reqHandle,
 		ipcServerIrqSend irqSend,
-		uint32_t serverMemAdd, int32_t serverMemSize,
-		uint32_t clientMemAdd, int32_t clientMemSize){
+		size_t serverMemAdd, int32_t serverMemSize,
+		size_t clientMemAdd, int32_t clientMemSize){
 
 	ipcServerCtl.reqHandle = reqHandle;
 

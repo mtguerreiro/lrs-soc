@@ -35,6 +35,12 @@
 #include "rp.h"
 
 #include "ipcServer.h"
+#include "ipcServerZynq.h"
+
+#include "ocp.h"
+#include "ocpIf.h"
+
+#include "ocpZynqCpu1.h"
 //=============================================================================
 
 //=============================================================================
@@ -409,9 +415,9 @@ static int mainSetupIntrSystem(INTC *IntcInstancePtr)
 	Xil_ExceptionEnable();
 
 
-	XScuGic_Connect(IntcInstancePtr, SOC_SIG_CPU0_TO_CPU1, (Xil_ExceptionHandler)DeviceDriverHandler, IntcInstancePtr) ;
-	XScuGic_Enable(IntcInstancePtr, SOC_SIG_CPU0_TO_CPU1);
-
+//	XScuGic_Connect(IntcInstancePtr, SOC_SIG_CPU0_TO_CPU1, (Xil_ExceptionHandler)DeviceDriverHandler, IntcInstancePtr) ;
+//	XScuGic_Enable(IntcInstancePtr, SOC_SIG_CPU0_TO_CPU1);
+//
 	XScuGic_SetPriorityTriggerType(IntcInstancePtr, SOC_IRQ_PL_TO_CPU1, 0xA0, 0x3);
 	XScuGic_Connect(IntcInstancePtr, SOC_IRQ_PL_TO_CPU1, (Xil_ExceptionHandler)PLirqHandler, IntcInstancePtr) ;
 	XScuGic_Enable(IntcInstancePtr, SOC_IRQ_PL_TO_CPU1);
@@ -858,9 +864,15 @@ static int32_t mainIpcIrqSend(void){
 //-----------------------------------------------------------------------------
 static void mainIpcInit(void){
 
-	ipcServerInitialize(mainIpcHandle, mainIpcIrqSend,
-			SOC_MEM_CPU0_TO_CPU1_ADR, SOC_MEM_CPU0_TO_CPU1_SIZE,
-			SOC_MEM_CPU1_TO_CPU0_ADR, SOC_MEM_CPU1_TO_CPU0_SIZE);
+	ocpZynqCpu1Initialize(&IntcInstancePtr);
+
+//	ocpInitialize();
+//
+//	ipcServerZynqInitialize(&IntcInstancePtr);
+//
+//	ipcServerInitialize(ocpIf, ipcServerZynqIrqSend,
+//			SOC_MEM_CPU0_TO_CPU1_ADR, SOC_MEM_CPU0_TO_CPU1_SIZE,
+//			SOC_MEM_CPU1_TO_CPU0_ADR, SOC_MEM_CPU1_TO_CPU0_SIZE);
 
 }
 //-----------------------------------------------------------------------------
