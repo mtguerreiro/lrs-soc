@@ -26,6 +26,8 @@
 #include "axi_test.h"
 
 #include "afeZynqHwIf.h"
+
+#include "ocpTrace.h"
 //=============================================================================
 
 //=============================================================================
@@ -42,7 +44,7 @@
 //=============================================================================
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
-
+static float gridVoltage = 0.0f;
 //=============================================================================
 
 //=============================================================================
@@ -129,6 +131,8 @@ static int32_t afeZynqHwInitHw(void * intcInst){
 	XScuGic_Connect(intcInst, AFE_ZYNQ_HW_CONFIG_IRQ_PL_TO_CPU1, (Xil_ExceptionHandler)afeZynqHwPlToCpuIrq, intcInst) ;
 	XScuGic_Enable(intcInst, AFE_ZYNQ_HW_CONFIG_IRQ_PL_TO_CPU1);
 
+	ocpTraceAddSignal(OCP_TRACE_1, (void *)&gridVoltage, "Grid voltage");
+
 	return 0;
 }
 //-----------------------------------------------------------------------------
@@ -140,6 +144,9 @@ static int32_t afeZynqHwInitHw(void * intcInst){
 //-----------------------------------------------------------------------------
 void afeZynqHwPlToCpuIrq(void *callbackRef){
 
+	gridVoltage = SOC_ADC_TO_SIGNAL(*((uint16_t *)(SOC_AFE_GRID_VOLTAGE)), SOC_AFE_GRID_VOLTAGE_SENS_GAIN, SOC_AFE_GRID_VOLTAGE_SENS_OFFS);
+
+	ocpTraceSave(OCP_TRACE_1);
 
 }
 //-----------------------------------------------------------------------------
