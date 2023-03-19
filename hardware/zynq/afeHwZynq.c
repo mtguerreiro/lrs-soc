@@ -166,6 +166,7 @@ void afeHwZynqSetOutputRelay(uint32_t state){
 static int32_t afeHwZynqInitializeHw(void *intcInst){
 
 	afeHwZynqInitializeHwGpios();
+	afeHwZynqInitializeHwAdc();
 	afeHwZynqInitializeHwPlIrq(intcInst);
 
 	ocpTraceAddSignal(OCP_TRACE_1, (void *)&gridVoltage, "Grid voltage");

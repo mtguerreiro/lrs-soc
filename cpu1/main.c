@@ -37,6 +37,9 @@
 #include "ipcServer.h"
 #include "ipcServerZynq.h"
 
+#include "afe.h"
+#include "afeIf.h"
+
 #include "ocp.h"
 #include "ocpIf.h"
 
@@ -252,13 +255,16 @@ static int mainSysInit(void){
 		return XST_FAILURE;
 	}
 
+	/* Initializes OCP */
+	ocpZynqCpu1Initialize(&IntcInstancePtr);
+
 	/* Initializes the application */
 	afeInitialize((void *)&IntcInstancePtr);
 
-//	/* Initializes PYNQ's (RGB) LEDs */
-//    cfg_ptr = XGpio_LookupConfig(LED_ID);
-//	XGpio_CfgInitialize(&led_device, cfg_ptr, cfg_ptr->BaseAddress);
-//	XGpio_SetDataDirection(&led_device, LED_CHANNEL, 0);
+	/* Initializes PYNQ's (RGB) LEDs */
+    cfg_ptr = XGpio_LookupConfig(LED_ID);
+	XGpio_CfgInitialize(&led_device, cfg_ptr, cfg_ptr->BaseAddress);
+	XGpio_SetDataDirection(&led_device, LED_CHANNEL, 0);
 //
 //	/* Initializes and turns relays off */
 //	cfg_ptr = XGpio_LookupConfig(XPAR_AXI_GPIO_RELAY_DEVICE_ID);
@@ -340,7 +346,7 @@ static int mainSysInit(void){
 
 //	mainTraceInitialize();
 
-	ocpZynqCpu1Initialize(&IntcInstancePtr);
+//	ocpZynqCpu1Initialize(&IntcInstancePtr);
 
 	SYNC_FLAG = 0;
 

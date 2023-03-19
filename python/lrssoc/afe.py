@@ -18,8 +18,8 @@ class Commands:
     def __init__(self):
         self.blink = 0
         self.adc_en = 1
-        self.adc_set_spi_freq = 2
-        self.adc_set_sampling_freq = 3
+        self.set_adc = 2
+        self.set_pwm = 3
         
 class AFE:
     """A class to provide access to the active rectifier platform.
