@@ -1,10 +1,10 @@
 /*
- * @file afeZynqHw.h
+ * @file afeHw.h
  *
  */
 
-#ifndef AFE_ZYNQ_HW_H_
-#define AFE_ZYNQ_HW_H_
+#ifndef AFE_HW_H_
+#define AFE_HW_H_
 
 #ifdef SOC_CPU1
 //=============================================================================
@@ -26,15 +26,19 @@
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void afeZynqHwInitialize(void * intcInst);
+int32_t afeHwInitialize(void *initparams);
 //-----------------------------------------------------------------------------
-int32_t afeZynqHwAdcEn(uint32_t en);
+int32_t afeHwAdcEn(uint32_t enable);
 //-----------------------------------------------------------------------------
-int32_t afeZynqHwSetAdcSpiFreq(uint32_t freq);
+int32_t afeHwSetAdc(void *adcparams);
 //-----------------------------------------------------------------------------
-int32_t afeZynqHwSetAdcSamplingFreq(uint32_t freq);
+int32_t afeHwSetPwm(void *pwmparams);
+//-----------------------------------------------------------------------------
+void afeHwSetInputRelay(uint32_t state);
+//-----------------------------------------------------------------------------
+void afeHwSetOutputRelay(uint32_t state);
 //-----------------------------------------------------------------------------
 //=============================================================================
 #endif /* SOC_CPU1 */
 
-#endif /* AFE_ZYNQ_HW_H_ */
+#endif /* AFE_HW_H_ */

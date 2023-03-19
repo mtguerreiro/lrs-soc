@@ -108,14 +108,14 @@ class AFE:
         return status
 
     
-    def adc_set_spi_freq(self, freq=10):
-        """Changes ADC's SPI clock frequency.
+    def set_adc(self, spifreq=10):
+        """Sets the ADC's SPI clock frequency.
 
         The clock will be divided by 2 x `freq`.
 
         Parameters
         ----------
-        freq : int
+        spifreq : int
             Clock division factor. By default, it is 10.
 
         Raises
@@ -124,11 +124,11 @@ class AFE:
             If `freq` is not of `int` type.
 
         """        
-        cmd = self.cmd.adc_set_spi_freq
+        cmd = self.cmd.set_adc
 
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-        tx_data.extend( lrssoc.conversions.u32_to_u8(freq, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(spifreq, msb=False) )
 
         status, _ = self.hwi.cs_hardware_if(0, tx_data)
 
@@ -139,14 +139,14 @@ class AFE:
         return status
     
 
-    def adc_set_sampling_freq(self, freq=10000):
-        """Changes ADC's sampling frequency.
+    def set_pwm(self, pwmfreq=10000):
+        """Sets the PWM frequency. This is also the ADC's sampling frqeuency.
 
         The frequency will be given by MAIN_CLOCK / (2 x `freq`).
 
         Parameters
         ----------
-        freq : int
+        pwmfreq : int
             Clock division factor. By default, it is 10000.
 
         Raises
@@ -155,11 +155,11 @@ class AFE:
             If `freq` is not of `int` type.
 
         """        
-        cmd = self.cmd.adc_set_sampling_freq
+        cmd = self.cmd.set_pwm
 
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-        tx_data.extend( lrssoc.conversions.u32_to_u8(freq, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(pwmfreq, msb=False) )
 
         status, _ = self.hwi.cs_hardware_if(0, tx_data)
 

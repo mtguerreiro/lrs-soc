@@ -102,7 +102,7 @@ void ipcClientZynqInitialize(void *irqInst){
 int32_t ipcClientZynqIrqSend(void){
 
 	/* Makes sure semaphore is taken */
-	xSemaphoreTake(xipcClientZynqControl.cpu1Semaphore, IPC_CLIENT_ZYNQ_CONFIG_CPU1_REPLY_TO);
+	xSemaphoreTake(xipcClientZynqControl.cpu1Semaphore, 0);
 
 	/* Generates a software interrupt on CPU1 */
 	XScuGic_SoftwareIntr ( xipcClientZynqControl.intcInstance,

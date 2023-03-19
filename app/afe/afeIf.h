@@ -1,10 +1,10 @@
 /*
- * @file afeZynqHwIf.h
+ * @file afeIf.h
  *
  */
 
-#ifndef AFE_ZYNQ_HW_IF_H_
-#define AFE_ZYNQ_HW_IF_H_
+#ifndef AFE_IF_H_
+#define AFE_IF_H_
 
 #ifdef SOC_CPU1
 //=============================================================================
@@ -20,12 +20,12 @@
 //=============================================================================
 
 typedef enum{
-    AFE_ZYNQ_HW_IF_BLINK = 0,
-	AFE_ZYNQ_HW_IF_ADC_EN,
-	AFE_ZYNQ_HW_IF_ADC_SPI_FREQ_SET,
-	AFE_ZYNQ_HW_IF_ADC_SAMPLING_FREQ_SET,
-	AFE_ZYNQ_HW_IF_END
-}afeZynqHwIfCommands_t;
+    AFE_IF_BLINK = 0,
+	AFE_IF_ADC_EN,
+	AFE_IF_SET_ADC,
+	AFE_IF_SET_PWM,
+	AFE_IF_END
+}afeIfCommands_t;
 
 //=============================================================================
 
@@ -33,11 +33,11 @@ typedef enum{
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void afeZynqHwIfInitialize(void);
+void afeIfInitialize(void);
 //-----------------------------------------------------------------------------
-int32_t afeZynqHwIf(void *in, int32_t insize, void **out, int32_t maxoutsize);
+int32_t afeIf(void *in, int32_t insize, void **out, int32_t maxoutsize);
 //-----------------------------------------------------------------------------
 //=============================================================================
 #endif /* SOC_CPU1 */
 
-#endif /* AFE_ZYNQ_HW_IF_H_ */
+#endif /* AFE_IF_H_ */

@@ -51,12 +51,12 @@
 #define LED_ID XPAR_AXI_GPIO_RGB_LED_DEVICE_ID
 #define LED_CHANNEL 1
 #define LED_MASK 0b111
-
-#define RELAY_ID 			XPAR_AXI_GPIO_RGB_LED_DEVICE_ID
-#define RELAY_CHANNEL 		1
-
-#define GPIODEBUG_ID 		XPAR_AXI_GPIO_DEBUG_DEVICE_ID
-#define GPIODEBUG_CHANNEL 	1
+//
+//#define RELAY_ID 			XPAR_AXI_GPIO_RGB_LED_DEVICE_ID
+//#define RELAY_CHANNEL 		1
+//
+//#define GPIODEBUG_ID 		XPAR_AXI_GPIO_DEBUG_DEVICE_ID
+//#define GPIODEBUG_CHANNEL 	1
 
 #define INTC		    XScuGic
 #define INTC_DEVICE_ID	XPAR_PS7_SCUGIC_0_DEVICE_ID
@@ -96,8 +96,8 @@ INTC   IntcInstancePtr;
 
 XGpio_Config *cfg_ptr = 0;
 XGpio led_device;
-XGpio relay_device;
-XGpio gpioDebug_device;
+//XGpio relay_device;
+//XGpio gpioDebug_device;
 
 uint32_t blinkPeriod = 1000;
 
@@ -252,21 +252,23 @@ static int mainSysInit(void){
 		return XST_FAILURE;
 	}
 
+	/* Initializes the application */
+	afeInitialize((void *)&IntcInstancePtr);
 
-	/* Initializes PYNQ's (RGB) LEDs */
-    cfg_ptr = XGpio_LookupConfig(LED_ID);
-	XGpio_CfgInitialize(&led_device, cfg_ptr, cfg_ptr->BaseAddress);
-	XGpio_SetDataDirection(&led_device, LED_CHANNEL, 0);
-
-	/* Initializes and turns relays off */
-	cfg_ptr = XGpio_LookupConfig(XPAR_AXI_GPIO_RELAY_DEVICE_ID);
-	XGpio_CfgInitialize(&relay_device, cfg_ptr, cfg_ptr->BaseAddress);
-	XGpio_SetDataDirection(&relay_device, RELAY_CHANNEL, 0);
-
-	cfg_ptr = XGpio_LookupConfig(XPAR_AXI_GPIO_DEBUG_DEVICE_ID);
-	XGpio_CfgInitialize(&gpioDebug_device, cfg_ptr, cfg_ptr->BaseAddress);
-	XGpio_SetDataDirection(&gpioDebug_device, GPIODEBUG_CHANNEL, 0);
-	XGpio_DiscreteWrite(&gpioDebug_device, GPIODEBUG_CHANNEL, 0);
+//	/* Initializes PYNQ's (RGB) LEDs */
+//    cfg_ptr = XGpio_LookupConfig(LED_ID);
+//	XGpio_CfgInitialize(&led_device, cfg_ptr, cfg_ptr->BaseAddress);
+//	XGpio_SetDataDirection(&led_device, LED_CHANNEL, 0);
+//
+//	/* Initializes and turns relays off */
+//	cfg_ptr = XGpio_LookupConfig(XPAR_AXI_GPIO_RELAY_DEVICE_ID);
+//	XGpio_CfgInitialize(&relay_device, cfg_ptr, cfg_ptr->BaseAddress);
+//	XGpio_SetDataDirection(&relay_device, RELAY_CHANNEL, 0);
+//
+//	cfg_ptr = XGpio_LookupConfig(XPAR_AXI_GPIO_DEBUG_DEVICE_ID);
+//	XGpio_CfgInitialize(&gpioDebug_device, cfg_ptr, cfg_ptr->BaseAddress);
+//	XGpio_SetDataDirection(&gpioDebug_device, GPIODEBUG_CHANNEL, 0);
+//	XGpio_DiscreteWrite(&gpioDebug_device, GPIODEBUG_CHANNEL, 0);
 
 
 	mainInputRelayDisable();
@@ -285,15 +287,15 @@ static int mainSysInit(void){
 	mainControl.precharge = 0;
 	mainControl.enable = 0;
 
-	/* Sets ADC stuff */
-//	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0x00000000);
-	//AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 4, 0x0000000A);
-	//AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, 10000);
-	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 4, 500);
-//	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, 20000);
-	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 12, SOC_MEM_PL_TO_CPU1_ADR);
-
-	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 0U);
+//	/* Sets ADC stuff */
+////	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0x00000000);
+//	//AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 4, 0x0000000A);
+//	//AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, 10000);
+//	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 4, 500);
+////	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, 20000);
+//	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 12, SOC_MEM_PL_TO_CPU1_ADR);
+//
+//	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 0U);
 
 
 	a1 = 1.0;
@@ -336,7 +338,7 @@ static int mainSysInit(void){
 	v_ac_peak = 10.0 * sqrtf(2.0);
 	//v_ac_peak = 23;
 
-	mainTraceInitialize();
+//	mainTraceInitialize();
 
 	ocpZynqCpu1Initialize(&IntcInstancePtr);
 
@@ -616,35 +618,35 @@ static void mainIpcInit(void){
 //-----------------------------------------------------------------------------
 static void mainInputRelayDisable(void){
 
-	uint32_t data;
-
-	data = XGpio_DiscreteRead(&relay_device, RELAY_CHANNEL);
-	XGpio_DiscreteWrite(&relay_device, RELAY_CHANNEL, data | 0x06);
+//	uint32_t data;
+//
+//	data = XGpio_DiscreteRead(&relay_device, RELAY_CHANNEL);
+//	XGpio_DiscreteWrite(&relay_device, RELAY_CHANNEL, data | 0x06);
 
 }
 //-----------------------------------------------------------------------------
 static void mainInputRelayEnable(void){
 
-	uint32_t data;
-
-	data = XGpio_DiscreteRead(&relay_device, RELAY_CHANNEL);
-	XGpio_DiscreteWrite(&relay_device, RELAY_CHANNEL, data & 0x01);
+//	uint32_t data;
+//
+//	data = XGpio_DiscreteRead(&relay_device, RELAY_CHANNEL);
+//	XGpio_DiscreteWrite(&relay_device, RELAY_CHANNEL, data & 0x01);
 }
 //-----------------------------------------------------------------------------
 static void mainOutputRelayDisable(void){
 
-	uint32_t data;
-
-	data = XGpio_DiscreteRead(&relay_device, RELAY_CHANNEL);
-	XGpio_DiscreteWrite(&relay_device, RELAY_CHANNEL, data | 0x01);
+//	uint32_t data;
+//
+//	data = XGpio_DiscreteRead(&relay_device, RELAY_CHANNEL);
+//	XGpio_DiscreteWrite(&relay_device, RELAY_CHANNEL, data | 0x01);
 }
 //-----------------------------------------------------------------------------
 static void mainOutputRelayEnable(void){
 
-	uint32_t data;
-
-	data = XGpio_DiscreteRead(&relay_device, RELAY_CHANNEL);
-	XGpio_DiscreteWrite(&relay_device, RELAY_CHANNEL, data & 0x06);
+//	uint32_t data;
+//
+//	data = XGpio_DiscreteRead(&relay_device, RELAY_CHANNEL);
+//	XGpio_DiscreteWrite(&relay_device, RELAY_CHANNEL, data & 0x06);
 }
 //-----------------------------------------------------------------------------
 static void mainControlReset(void){
@@ -738,14 +740,14 @@ void PLirqHandler(void *CallbackRef){
 
 	uint32_t en;
 
-	XGpio_DiscreteWrite(&gpioDebug_device, GPIODEBUG_CHANNEL, 3);
+//	XGpio_DiscreteWrite(&gpioDebug_device, GPIODEBUG_CHANNEL, 3);
 
 
 
 	/* Temporary solution to annoying init bug */
 	en = AXI_TEST_mReadReg(AXI_PWM_BASE_ADR, 0);
 	if( en == 0 ){
-		XGpio_DiscreteWrite(&gpioDebug_device, GPIODEBUG_CHANNEL, 0);
+//		XGpio_DiscreteWrite(&gpioDebug_device, GPIODEBUG_CHANNEL, 0);
 		return;
 	}
 
@@ -878,7 +880,7 @@ void PLirqHandler(void *CallbackRef){
 //		*mainControl.trace.p++ = *((uint32_t *)(&ig_ref));
 //	}
 
-	XGpio_DiscreteWrite(&gpioDebug_device, GPIODEBUG_CHANNEL, 0);
+//	XGpio_DiscreteWrite(&gpioDebug_device, GPIODEBUG_CHANNEL, 0);
 
 
 	//mainOutputRelayEnable();

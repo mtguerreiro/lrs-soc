@@ -24,12 +24,14 @@
 
 /* Zynq-specific stuff */
 #include "ipcServerZynq.h"
-
-/* */
 #include "soc_defs.h"
 
-#include "afeZynqHwIf.h"
-#include "afeZynqHw.h"
+/* Application */
+#include "afe.h"
+#include "afeIf.h"
+
+//#include "afeZynqHwIf.h"
+//#include "afeZynqHw.h"
 //=============================================================================
 
 //=============================================================================
@@ -122,14 +124,14 @@ static int32_t ocpZynqCpu1InitializeControlSystem(void *intcInst){
 	//controllerInitialize();
 
 	/* Initializes control sys lib */
-	config.fhwInterface = afeZynqHwIf;
+	config.fhwInterface = afeIf;
 
 	config.fenable = 0;
 	config.fdisable = 0;
 
 	ocpCSInitialize(OCP_CS_1, &config, "Converter control");
 
-	afeZynqHwInitialize(intcInst);
+	//afeZynqHwInitialize(intcInst);
 
 //
 	return 0;
