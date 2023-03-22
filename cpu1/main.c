@@ -172,30 +172,11 @@ static void mainInputRelayEnable(void);
 static void mainOutputRelayDisable(void);
 static void mainOutputRelayEnable(void);
 
-static int mainRpInit(void);
-
 static int32_t mainCmdBlink(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
-static int32_t mainCmdAdcEn(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
-static int32_t mainCmdAdcSpiFreq(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
-static int32_t mainCmdAdcSamplingFreq(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
-static int32_t mainCmdAdcErrorRead(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
-static int32_t mainCmdAdcErrorClear(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
-static int32_t mainCmdTraceStart(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
-static int32_t mainCmdTraceRead(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
-static int32_t mainCmdTraceReadTags(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
-static int32_t mainCmdTraceSizeSet(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
-static int32_t mainCmdTraceSizeRead(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
-
-static int32_t mainCmdControlEn(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
-
-static int32_t mainIpcIrqSend(void);
-static void mainIpcInit(void);
-static int32_t mainIpcHandle(void *req, int32_t reqsize, void **resp, int32_t maxrespsize);
 
 
 static void mainControlReset(void);
 
-static void mainTraceInitialize(void);
 
 void DeviceDriverHandler(void *CallbackRef);
 void PLirqHandler(void *CallbackRef);
@@ -265,44 +246,10 @@ static int mainSysInit(void){
     cfg_ptr = XGpio_LookupConfig(LED_ID);
 	XGpio_CfgInitialize(&led_device, cfg_ptr, cfg_ptr->BaseAddress);
 	XGpio_SetDataDirection(&led_device, LED_CHANNEL, 0);
-//
-//	/* Initializes and turns relays off */
-//	cfg_ptr = XGpio_LookupConfig(XPAR_AXI_GPIO_RELAY_DEVICE_ID);
-//	XGpio_CfgInitialize(&relay_device, cfg_ptr, cfg_ptr->BaseAddress);
-//	XGpio_SetDataDirection(&relay_device, RELAY_CHANNEL, 0);
-//
-//	cfg_ptr = XGpio_LookupConfig(XPAR_AXI_GPIO_DEBUG_DEVICE_ID);
-//	XGpio_CfgInitialize(&gpioDebug_device, cfg_ptr, cfg_ptr->BaseAddress);
-//	XGpio_SetDataDirection(&gpioDebug_device, GPIODEBUG_CHANNEL, 0);
-//	XGpio_DiscreteWrite(&gpioDebug_device, GPIODEBUG_CHANNEL, 0);
-
-
-	mainInputRelayDisable();
-	mainOutputRelayDisable();
-
-
-	/* Commands */
-//	mainRpInit();
-//
-//	mainIpcInit();
-//
-//	mainControl.trace.p = (uint32_t *)( SOC_MEM_TRACE_ADR );
-//	mainControl.trace.end = (uint32_t *)( SOC_MEM_TRACE_ADR + SOC_MEM_TRACE_SIZE_MAX );
 
 	mainControl.error = 0;
 	mainControl.precharge = 0;
 	mainControl.enable = 0;
-
-//	/* Sets ADC stuff */
-////	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0x00000000);
-//	//AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 4, 0x0000000A);
-//	//AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, 10000);
-//	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 4, 500);
-////	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, 20000);
-//	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 12, SOC_MEM_PL_TO_CPU1_ADR);
-//
-//	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 0U);
-
 
 	a1 = 1.0;
 	b0 = 1.0 / 2.0 * (2.0 * Kp + ts * Ki);
@@ -343,10 +290,6 @@ static int mainSysInit(void){
 
 	v_ac_peak = 10.0 * sqrtf(2.0);
 	//v_ac_peak = 23;
-
-//	mainTraceInitialize();
-
-//	ocpZynqCpu1Initialize(&IntcInstancePtr);
 
 	SYNC_FLAG = 0;
 
@@ -392,35 +335,7 @@ static int mainSetupIntrSystem(INTC *IntcInstancePtr)
 	 */
 	Xil_ExceptionEnable();
 
-
-//	XScuGic_Connect(IntcInstancePtr, SOC_SIG_CPU0_TO_CPU1, (Xil_ExceptionHandler)DeviceDriverHandler, IntcInstancePtr) ;
-//	XScuGic_Enable(IntcInstancePtr, SOC_SIG_CPU0_TO_CPU1);
-//
-//	XScuGic_SetPriorityTriggerType(IntcInstancePtr, SOC_IRQ_PL_TO_CPU1, 0xA0, 0x3);
-//	XScuGic_Connect(IntcInstancePtr, SOC_IRQ_PL_TO_CPU1, (Xil_ExceptionHandler)PLirqHandler, IntcInstancePtr) ;
-//	XScuGic_Enable(IntcInstancePtr, SOC_IRQ_PL_TO_CPU1);
-
 	return XST_SUCCESS;
-}
-//-----------------------------------------------------------------------------
-static int mainRpInit(void){
-
-	rpInitialize(&mainControl.rp, SOC_CMD_CPU1_END, mainControl.cmdHandle);
-
-	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_BLINK, mainCmdBlink);
-	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_ADC_EN, mainCmdAdcEn);
-	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_ADC_SPI_FREQ_SET, mainCmdAdcSpiFreq);
-	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_ADC_SAMPLING_FREQ_SET, mainCmdAdcSamplingFreq);
-	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_ADC_ERROR_READ, mainCmdAdcErrorRead);
-	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_ADC_ERROR_CLEAR, mainCmdAdcErrorClear);
-	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_TRACE_START, mainCmdTraceStart);
-	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_TRACE_READ, mainCmdTraceRead);
-	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_TRACE_READ_TAGS, mainCmdTraceReadTags);
-	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_TRACE_SIZE_SET, mainCmdTraceSizeSet);
-	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_TRACE_SIZE_READ, mainCmdTraceSizeRead);
-	rpRegisterHandle(&mainControl.rp, SOC_CMD_CPU1_CONTROL_EN, mainCmdControlEn);
-
-	return 0;
 }
 //-----------------------------------------------------------------------------
 static int32_t mainCmdBlink(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
@@ -430,197 +345,6 @@ static int32_t mainCmdBlink(void *in, rpuint_t insize, void **out, rpuint_t maxo
 
 	return 0;
 }
-//-----------------------------------------------------------------------------
-static int32_t mainCmdAdcEn(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
-
-	uint32_t en;
-
-	//en = *(*data);
-	en = *( (uint32_t *)in );
-
-//	if( en == 0 ) AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 0U);
-//	else AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 0, 1U);
-
-	if( en == 0 ) AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 0U);
-	else AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 1U);
-
-	return 0;
-}
-//-----------------------------------------------------------------------------
-static int32_t mainCmdAdcSpiFreq(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
-
-	uint32_t en, freq;
-
-	//freq = *(*data);
-	freq = *( (uint32_t *)in );
-
-
-	en = AXI_TEST_mReadReg(AXI_PWM_BASE_ADR, 0);
-
-	if( (en & 1) == 1 ) AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 0U);
-
-	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 4, freq);
-
-	if( (en & 1) == 1 ) AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, en);
-
-	return 0;
-
-}
-//-----------------------------------------------------------------------------
-static int32_t mainCmdAdcSamplingFreq(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
-
-	uint32_t en, freq;
-
-	//freq = *(*data);
-	freq = *( (uint32_t *)in );
-
-	en = AXI_TEST_mReadReg(AXI_PWM_BASE_ADR, 0);
-
-	if( (en & 1) == 1 ) AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 0U);
-
-	//AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 1U);
-	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 4, freq);
-	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 8, 0);
-
-	//AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, freq);
-
-	if( (en & 1) == 1 ) AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, en);
-
-	return 0;
-
-
-}
-//-----------------------------------------------------------------------------
-static int32_t mainCmdTraceStart(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
-
-	mainControl.trace.p = (uint32_t *)SOC_MEM_TRACE_ADR;
-
-	soctraceReset(SOC_TRACE_ID_1);
-
-	return 0;
-}
-//-----------------------------------------------------------------------------
-static int32_t mainCmdTraceRead(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
-
-	//uint32_t size;
-
-	//size = ((uint32_t)mainControl.trace.end) - SOC_MEM_TRACE_ADR;
-
-	//*data = (uint32_t *)SOC_MEM_TRACE_ADR;
-	*( (uint32_t *) *out ) = (uint32_t)SOC_MEM_TRACE_ADR;
-
-	return 4;
-}
-//-----------------------------------------------------------------------------
-static int32_t mainCmdTraceReadTags(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
-
-	uint32_t n;
-
-	n = soctraceReadTags(SOC_TRACE_ID_1, (char *)*out);
-
-	//*data = (uint32_t *)SOC_MEM_TRACE_ADR;
-	//*out = (uint32_t *)SOC_MEM_TRACE_ADR;
-
-	return n;
-}
-//-----------------------------------------------------------------------------
-static int32_t mainCmdTraceSizeSet(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
-
-	uint32_t size;
-
-	//size = *(*data);
-	size = *( (uint32_t *)in );
-
-	if( size <= SOC_MEM_TRACE_SIZE_MAX ){
-		mainControl.trace.end = (uint32_t *)( SOC_MEM_TRACE_ADR + size );
-
-		soctraceSetSize(SOC_TRACE_ID_1, size);
-
-	}
-
-	return 0;
-}
-//-----------------------------------------------------------------------------
-static int32_t mainCmdTraceSizeRead(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
-
-	uint32_t *p;
-	uint32_t size;
-
-	p = (uint32_t *)( *out );
-	size = ((uint32_t)mainControl.trace.end) - SOC_MEM_TRACE_ADR;
-	*p = size;
-
-	//*data = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
-	//*out = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
-
-	return 4;
-}
-//-----------------------------------------------------------------------------
-static int32_t mainCmdAdcErrorRead(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
-
-	uint32_t *p;
-
-	p = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
-	*p = mainControl.error;
-
-	//*data = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
-	*out = (uint32_t *)( SOC_MEM_CPU1_TO_CPU0_CMD_DATA );
-
-	return 4;
-}
-//-----------------------------------------------------------------------------
-static int32_t mainCmdAdcErrorClear(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
-
-	mainControl.error = 0;
-
-	return 0;
-}
-//-----------------------------------------------------------------------------
-static int32_t mainCmdControlEn(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
-
-	uint32_t en;
-
-	//en = *(*data);
-	en = *( (uint32_t *)in );
-
-	if( en == 0 ) {
-		mainControl.enable = 0;
-		AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 1U);
-	}
-	else {
-		mainControl.enable = 1;
-		AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 8, 0);
-		AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 3U);
-	}
-
-	mainControlReset();
-
-	return 0;
-}
-//-----------------------------------------------------------------------------
-static int32_t mainIpcIrqSend(void){
-
-	XScuGic_SoftwareIntr ( &IntcInstancePtr , SOC_SIG_CPU1_TO_CPU0 , SOC_SIG_CPU0_ID ) ;
-
-	return 0;
-}
-//-----------------------------------------------------------------------------
-static void mainIpcInit(void){
-
-	ocpZynqCpu1Initialize(&IntcInstancePtr);
-
-
-}
-//-----------------------------------------------------------------------------
-//static int32_t mainIpcHandle(void *req, int32_t reqsize, void **resp, int32_t maxrespsize){
-//
-//	int32_t ret;
-//
-//	/* Executes the command */
-//	ret = rpRequest(&mainControl.rp, req, reqsize, resp, maxrespsize);
-//
-//	return ret;
-//}
 //-----------------------------------------------------------------------------
 static void mainInputRelayDisable(void){
 
@@ -669,48 +393,6 @@ static void mainControlReset(void){
 	ei = 0.0;
 	ei_1 = 0.0;
 	ei_2 = 0.0;
-}
-//-----------------------------------------------------------------------------
-static void mainTraceInitialize(void){
-
-	soctraceInitialize(SOC_TRACE_ID_1, (uint32_t *)SOC_MEM_TRACE_ADR, SOC_MEM_TRACE_SIZE_MAX,
-			traceData, tracedtypes, traceTags);
-
-	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &hbCurrent ), SOC_TRACE_DTYPE_FLOAT,
-			"HB current");
-
-	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &dcLinkVoltage ), SOC_TRACE_DTYPE_FLOAT,
-			"DC link");
-
-	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &gridVoltage ), SOC_TRACE_DTYPE_FLOAT,
-			"Grid voltage");
-
-	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &loadCurrent ), SOC_TRACE_DTYPE_FLOAT,
-			"Load current");
-
-	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &vs_ref_norm ), SOC_TRACE_DTYPE_FLOAT,
-			"Vs ref norm");
-
-	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &u_pi ), SOC_TRACE_DTYPE_FLOAT,
-			"u pi");
-
-	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &u_pr ), SOC_TRACE_DTYPE_FLOAT,
-			"u pr");
-
-	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &dclinkVoltageInst ), SOC_TRACE_DTYPE_FLOAT,
-			"DC link inst");
-
-	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &dclinkVoltageInst ), SOC_TRACE_DTYPE_FLOAT,
-			"DC link inst");
-
-	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &e ), SOC_TRACE_DTYPE_FLOAT,
-			"e");
-
-	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &ei ), SOC_TRACE_DTYPE_FLOAT,
-			"ei");
-
-	soctraceAdd(SOC_TRACE_ID_1, (uint32_t*)( &ig_ref ), SOC_TRACE_DTYPE_FLOAT,
-			"ig ref");
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
@@ -869,25 +551,6 @@ void PLirqHandler(void *CallbackRef){
 	}
 
 	/* Saves data to memory */
-
-	//soctraceSave(SOC_TRACE_ID_1);
-//	if( mainControl.trace.p < mainControl.trace.end ){
-//		*mainControl.trace.p++ = *((uint32_t *)(&hbCurrent));
-//		*mainControl.trace.p++ = *((uint32_t *)(&dcLinkVoltage));
-//		*mainControl.trace.p++ = *((uint32_t *)(&gridVoltage));
-//		*mainControl.trace.p++ = *((uint32_t *)(&loadCurrent));
-//		*mainControl.trace.p++ = *((uint32_t *)(&vs_ref_norm));
-//		*mainControl.trace.p++ = *((uint32_t *)(&u_pi));
-//		*mainControl.trace.p++ = *((uint32_t *)(&u_pr));
-//		*mainControl.trace.p++ = 0;
-//		*mainControl.trace.p++ = *((uint32_t *)(&dclinkVoltageInst));
-//		*mainControl.trace.p++ = *((uint32_t *)(&e));
-//		*mainControl.trace.p++ = *((uint32_t *)(&ei));
-//		*mainControl.trace.p++ = *((uint32_t *)(&ig_ref));
-//	}
-
-//	XGpio_DiscreteWrite(&gpioDebug_device, GPIODEBUG_CHANNEL, 0);
-
 
 	//mainOutputRelayEnable();
 

@@ -86,21 +86,23 @@ static int32_t afeIfCmdAdcEn(void *in, rpuint_t insize, void **out, rpuint_t max
 
 	uint32_t enable = *( (uint32_t *) in );
 
-	afeAdcEn(enable);
+	afeAdcEnable(enable);
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
 static int32_t afeIfCmdSetAdc(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
 
-	afeSetAdc(in);
+	afeAdcConfig(in);
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
 static int32_t afeIfCmdSetPwm(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
 
-	afeSetPwm(in);
+	uint32_t enable = *( (uint32_t *) in );
+
+	afePwmEnable(enable);
 
 	return 0;
 }

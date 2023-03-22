@@ -28,15 +28,19 @@
 //-----------------------------------------------------------------------------
 int32_t afeHwInitialize(void *initparams);
 //-----------------------------------------------------------------------------
-int32_t afeHwAdcEn(uint32_t enable);
+int32_t afeHwAdcEnable(uint32_t enable);
 //-----------------------------------------------------------------------------
-int32_t afeHwSetAdc(void *adcparams);
+int32_t afeHwAdcConfig(void *adcparams);
 //-----------------------------------------------------------------------------
-int32_t afeHwSetPwm(void *pwmparams);
+int32_t afeHwPwmEnable(uint32_t enable);
 //-----------------------------------------------------------------------------
-void afeHwSetInputRelay(uint32_t state);
+int32_t afeHwPwmSetDuty(uint32_t duty);
 //-----------------------------------------------------------------------------
-void afeHwSetOutputRelay(uint32_t state);
+int32_t afeHwPwmConfig(void *pwmparams);
+//-----------------------------------------------------------------------------
+void afeHwInputRelaySet(uint32_t state);
+//-----------------------------------------------------------------------------
+void afeHwOutputRelaySet(uint32_t state);
 //-----------------------------------------------------------------------------
 //=============================================================================
 #endif /* SOC_CPU1 */

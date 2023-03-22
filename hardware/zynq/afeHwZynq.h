@@ -28,15 +28,19 @@
 //-----------------------------------------------------------------------------
 int32_t afeHwZynqInitialize(void *intcInst);
 //-----------------------------------------------------------------------------
-int32_t afeHwZynqAdcEn(uint32_t en);
+int32_t afeHwZynqAdcEnable(uint32_t en);
 //-----------------------------------------------------------------------------
-int32_t afeHwZynqSetAdc(void *adcSpiFreq);
+int32_t afeHwZynqAdcConfig(void *adcSpiFreq);
 //-----------------------------------------------------------------------------
-int32_t afeHwZynqSetPwm(void *pwmfreq);
+int32_t afeHwZynqPwmEnable(uint32_t enable);
 //-----------------------------------------------------------------------------
-void afeHwZynqSetInputRelay(uint32_t state);
+int32_t afeHwZynqPwmSetDuty(uint32_t duty);
 //-----------------------------------------------------------------------------
-void afeHwZynqSetOutputRelay(uint32_t state);
+int32_t afeHwZynqPwmConfig(void *pwmfreq);
+//-----------------------------------------------------------------------------
+void afeHwZynqInputRelaySet(uint32_t state);
+//-----------------------------------------------------------------------------
+void afeHwZynqOutputRelaySet(uint32_t state);
 //-----------------------------------------------------------------------------
 //=============================================================================
 #endif /* SOC_CPU1 */

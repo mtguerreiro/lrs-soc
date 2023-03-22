@@ -42,35 +42,48 @@ int32_t afeHwInitialize(void *initparams){
 	return afeHwZynqInitialize(initparams);
 }
 //-----------------------------------------------------------------------------
-int32_t afeHwAdcEn(uint32_t enable){
+int32_t afeHwAdcEnable(uint32_t enable){
 
-	afeHwZynqAdcEn(enable);
-
-	return 0;
-}
-//-----------------------------------------------------------------------------
-int32_t afeHwSetAdc(void *adcparams){
-
-	afeHwZynqSetAdc(adcparams);
+	afeHwZynqAdcEnable(enable);
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
-int32_t afeHwSetPwm(void *pwmparams){
+int32_t afeHwAdcConfig(void *adcparams){
 
-	afeHwZynqSetPwm(pwmparams);
+	afeHwZynqAdcConfig(adcparams);
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
-void afeHwSetInputRelay(uint32_t state){
+int32_t afeHwPwmEnable(uint32_t enable){
 
-	afeHwZynqSetInputRelay(state);
+	afeHwZynqPwmEnable(enable);
+
+	return 0;
 }
 //-----------------------------------------------------------------------------
-void afeHwSetOutputRelay(uint32_t state){
+int32_t afeHwPwmSetDuty(uint32_t duty){
 
-	afeHwZynqSetOutputRelay(state);
+	afeHwZynqPwmSetDuty(duty);
+	return 0;
+}
+//-----------------------------------------------------------------------------
+int32_t afeHwPwmConfig(void *pwmparams){
+
+	afeHwZynqPwmConfig(pwmparams);
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+void afeHwInputRelaySet(uint32_t state){
+
+	afeHwZynqInputRelaySet(state);
+}
+//-----------------------------------------------------------------------------
+void afeHwOutputRelaySet(uint32_t state){
+
+	afeHwZynqOutputRelaySet(state);
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

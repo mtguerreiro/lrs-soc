@@ -46,35 +46,49 @@ int32_t afeInitialize(void *initparams){
 	return afeHwInitialize(initparams);
 }
 //-----------------------------------------------------------------------------
-int32_t afeAdcEn(uint32_t enable){
+int32_t afeAdcEnable(uint32_t enable){
 
-	afeHwAdcEn(enable);
-
-	return 0;
-}
-//-----------------------------------------------------------------------------
-int32_t afeSetAdc(void *adcparams){
-
-	afeHwSetAdc(adcparams);
+	afeHwAdcEnable(enable);
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
-int32_t afeSetPwm(void *pwmparams){
+int32_t afeAdcConfig(void *adcparams){
 
-	afeHwSetPwm(pwmparams);
+	afeHwAdcConfig(adcparams);
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
-void afeSetInputRelay(uint32_t state){
+int32_t afePwmEnable(uint32_t enable){
 
-	afeHwSetInputRelay(state);
+	afeHwPwmEnable(enable);
+
+	return 0;
 }
 //-----------------------------------------------------------------------------
-void afeSetOutputRelay(uint32_t state){
+int32_t afePwmSetDuty(uint32_t duty){
 
-	afeHwSetOutputRelay(state);
+	afeHwPwmSetDuty(duty);
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+int32_t afePwmConfig(void *pwmparams){
+
+	afeHwPwmConfig(pwmparams);
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+void afeInputRelaySet(uint32_t state){
+
+	afeHwInputRelaySet(state);
+}
+//-----------------------------------------------------------------------------
+void afeOutputRelaySet(uint32_t state){
+
+	afeHwOutputRelaySet(state);
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

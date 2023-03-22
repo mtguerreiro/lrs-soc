@@ -85,7 +85,7 @@ int32_t afeHwZynqInitialize(void *intcInst){
 	return afeHwZynqInitializeHw(intcInst);
 }
 //-----------------------------------------------------------------------------
-int32_t afeHwZynqAdcEn(uint32_t enable){
+int32_t afeHwZynqAdcEnable(uint32_t enable){
 
 	if( enable == 0 ) AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 0U);
 	else AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 1U);
@@ -93,7 +93,7 @@ int32_t afeHwZynqAdcEn(uint32_t enable){
 	return 0;
 }
 //-----------------------------------------------------------------------------
-int32_t afeHwZynqSetAdc(void *adcSpiFreq){
+int32_t afeHwZynqAdcConfig(void *adcSpiFreq){
 
 	uint32_t freq = *( (uint32_t *)adcSpiFreq );
 	uint32_t en;
@@ -109,7 +109,25 @@ int32_t afeHwZynqSetAdc(void *adcSpiFreq){
 	return 0;
 }
 //-----------------------------------------------------------------------------
-int32_t afeHwZynqSetPwm(void *pwmfreq){
+int32_t afeHwZynqPwmEnable(uint32_t enable){
+
+	if( enable == 0 ){
+		AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 1U);
+	}
+	else{
+		AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 8, 0);
+		AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 3U);
+	}
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+int32_t afeHwZynqPwmSetDuty(uint32_t duty){
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
+int32_t afeHwZynqPwmConfig(void *pwmfreq){
 
 	uint32_t freq = *( (uint32_t *)pwmfreq );
 	uint32_t en;
@@ -129,7 +147,7 @@ int32_t afeHwZynqSetPwm(void *pwmfreq){
 	return 0;
 }
 //-----------------------------------------------------------------------------
-void afeHwZynqSetInputRelay(uint32_t state){
+void afeHwZynqInputRelaySet(uint32_t state){
 
 	uint32_t data;
 
@@ -143,7 +161,7 @@ void afeHwZynqSetInputRelay(uint32_t state){
 	}
 }
 //-----------------------------------------------------------------------------
-void afeHwZynqSetOutputRelay(uint32_t state){
+void afeHwZynqOutputRelaySet(uint32_t state){
 
 	uint32_t data;
 
@@ -188,8 +206,8 @@ static int32_t afeHwZynqInitializeHwGpios(void){
 	XGpio_SetDataDirection(&gpioDebug_device, GPIODEBUG_CHANNEL, 0);
 	XGpio_DiscreteWrite(&gpioDebug_device, GPIODEBUG_CHANNEL, 0);
 
-	afeHwZynqSetInputRelay(0);
-	afeHwZynqSetOutputRelay(0);
+	afeHwZynqInputRelaySet(0);
+	afeHwZynqOutputRelaySet(0);
 
 	return 0;
 }
