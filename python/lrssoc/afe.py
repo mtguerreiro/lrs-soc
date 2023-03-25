@@ -18,8 +18,8 @@ class Commands:
     def __init__(self):
         self.blink = 0
         self.adc_en = 1
-        self.set_adc = 2
-        self.set_pwm = 3
+        self.adc_config = 2
+        self.pwm_config = 3
         
 class AFE:
     """A class to provide access to the active rectifier platform.
@@ -108,7 +108,7 @@ class AFE:
         return status
 
     
-    def set_adc(self, spifreq=10):
+    def adc_config(self, spifreq=10):
         """Sets the ADC's SPI clock frequency.
 
         The clock will be divided by 2 x `freq`.
@@ -124,7 +124,7 @@ class AFE:
             If `freq` is not of `int` type.
 
         """        
-        cmd = self.cmd.set_adc
+        cmd = self.cmd.adc_config
 
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
@@ -133,13 +133,13 @@ class AFE:
         status, _ = self.hwi.cs_hardware_if(0, tx_data)
 
         if status < 0:
-            funcname = AFE.adc_set_spi_freq.__name__
-            print('{:}: Error setting ADC SPI frequency. Error code {:}\r\n'.format(funcname, status))
+            funcname = AFE.adc_config.__name__
+            print('{:}: Error configuring ADC. Error code {:}\r\n'.format(funcname, status))
             
         return status
     
 
-    def set_pwm(self, pwmfreq=10000):
+    def pwm_config(self, pwmfreq=10000):
         """Sets the PWM frequency. This is also the ADC's sampling frqeuency.
 
         The frequency will be given by MAIN_CLOCK / (2 x `freq`).
@@ -155,7 +155,7 @@ class AFE:
             If `freq` is not of `int` type.
 
         """        
-        cmd = self.cmd.set_pwm
+        cmd = self.cmd.pwm_config
 
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
@@ -164,8 +164,8 @@ class AFE:
         status, _ = self.hwi.cs_hardware_if(0, tx_data)
 
         if status < 0:
-            funcname = Interface.adc_set_sampling_freq.__name__
-            print('{:}: Error setting ADC sampling frequency. Error code {:}\r\n'.format(funcname, status))
+            funcname = AFE.pwm_config.__name__
+            print('{:}: Error configuring PWM. Error code {:}\r\n'.format(funcname, status))
 
         return status
 ##

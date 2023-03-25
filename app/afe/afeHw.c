@@ -66,6 +66,7 @@ int32_t afeHwPwmEnable(uint32_t enable){
 int32_t afeHwPwmSetDuty(uint32_t duty){
 
 	afeHwZynqPwmSetDuty(duty);
+
 	return 0;
 }
 //-----------------------------------------------------------------------------

@@ -29,6 +29,9 @@
 /* Application */
 #include "afe.h"
 #include "afeIf.h"
+#include "afeHwZynq.h"
+
+#include "prpictl.h"
 
 //#include "afeZynqHwIf.h"
 //#include "afeZynqHw.h"
@@ -69,6 +72,11 @@ static int32_t ocpZynqCpu1InitializeInterface(void);
 //=============================================================================
 static char trace0Names[OCP_ZYNQ_C1_CONFIG_TRACE_0_NAME_LEN];
 static size_t trace0Data[OCP_ZYNQ_C1_CONFIG_TRACE_0_MAX_SIGNALS];
+
+static float bInputs[10];
+static float bProcInputs[10];
+static float bProcOutputs[10];
+static float bOutputs[10];
 //=============================================================================
 
 //=============================================================================
@@ -121,13 +129,30 @@ static int32_t ocpZynqCpu1InitializeControlSystem(void *intcInst){
 	ocpCSConfig_t config;
 
 	/* Initializes controller lib */
+	prpictlInitialize();
 	//controllerInitialize();
 
 	/* Initializes control sys lib */
+	config.binputs = (void *)bInputs;
+	config.bprocInputs = (void *)bProcInputs;
+	config.bprocOutputs = (void *)bProcOutputs;
+	config.boutputs = (void *)bOutputs;
+
 	config.fhwInterface = afeIf;
+
+	config.fgetInputs = afeHwZynqGetInputs;
+	config.fprocInputs = afeHwZynqProcInputs;
+
+	config.fprocOutputs = afeHwZynqProcOutputs;
+	config.fapplyOutputs = afeHwZynqApplyOutputs;
+
+	config.frun = prpictlRun;
 
 	config.fenable = 0;
 	config.fdisable = 0;
+
+	config.fonEntry = 0;
+	config.fonExit = 0;
 
 	ocpCSInitialize(OCP_CS_1, &config, "Converter control");
 

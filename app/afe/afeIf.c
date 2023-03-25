@@ -41,9 +41,9 @@ static int32_t afeIfCmdBlink(void *in, rpuint_t insize, void **out, rpuint_t max
 //-----------------------------------------------------------------------------
 static int32_t afeIfCmdAdcEn(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
 //-----------------------------------------------------------------------------
-static int32_t afeIfCmdSetAdc(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
+static int32_t afeIfCmdAdcConfig(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
 //-----------------------------------------------------------------------------
-static int32_t afeIfCmdSetPwm(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
+static int32_t afeIfCmdPwmConfig(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize);
 //-----------------------------------------------------------------------------
 //=============================================================================
 
@@ -56,7 +56,7 @@ void afeIfInitialize(void){
 	afeIfRpInit();
 }
 //-----------------------------------------------------------------------------
-int32_t afeIf(void *in, int32_t insize, void **out, int32_t maxoutsize){
+int32_t afeIf(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
 
 	return rpRequest(&xafeIfControl.rp, in, insize, out, maxoutsize);
 }
@@ -73,8 +73,8 @@ static void afeIfRpInit(void){
 
 	rpRegisterHandle(&xafeIfControl.rp, AFE_IF_BLINK, afeIfCmdBlink);
 	rpRegisterHandle(&xafeIfControl.rp, AFE_IF_ADC_EN, afeIfCmdAdcEn);
-	rpRegisterHandle(&xafeIfControl.rp, AFE_IF_SET_ADC, afeIfCmdSetAdc);
-	rpRegisterHandle(&xafeIfControl.rp, AFE_IF_SET_PWM, afeIfCmdSetPwm);
+	rpRegisterHandle(&xafeIfControl.rp, AFE_IF_ADC_CONFIG, afeIfCmdAdcConfig);
+	rpRegisterHandle(&xafeIfControl.rp, AFE_IF_PWM_CONFIG, afeIfCmdPwmConfig);
 }
 //-----------------------------------------------------------------------------
 static int32_t afeIfCmdBlink(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
@@ -91,18 +91,16 @@ static int32_t afeIfCmdAdcEn(void *in, rpuint_t insize, void **out, rpuint_t max
 	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t afeIfCmdSetAdc(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
+static int32_t afeIfCmdAdcConfig(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
 
 	afeAdcConfig(in);
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t afeIfCmdSetPwm(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
+static int32_t afeIfCmdPwmConfig(void *in, rpuint_t insize, void **out, rpuint_t maxoutsize){
 
-	uint32_t enable = *( (uint32_t *) in );
-
-	afePwmEnable(enable);
+	afePwmConfig(in);
 
 	return 0;
 }

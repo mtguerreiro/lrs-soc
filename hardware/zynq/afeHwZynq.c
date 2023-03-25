@@ -26,6 +26,7 @@
 #include "axi_test.h"
 
 #include "ocpTrace.h"
+#include "ocpCS.h"
 //=============================================================================
 
 //=============================================================================
@@ -53,7 +54,7 @@
 //=============================================================================
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
-static float gridVoltage = 0.0f;
+
 
 //XGpio led_device;
 XGpio relay_device;
@@ -124,6 +125,8 @@ int32_t afeHwZynqPwmEnable(uint32_t enable){
 //-----------------------------------------------------------------------------
 int32_t afeHwZynqPwmSetDuty(uint32_t duty){
 
+	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 8, (uint32_t)(duty));
+
 	return 0;
 }
 //-----------------------------------------------------------------------------
@@ -175,6 +178,76 @@ void afeHwZynqOutputRelaySet(uint32_t state){
 	}
 }
 //-----------------------------------------------------------------------------
+int32_t afeHwZynqGetInputs(void *inputs){
+
+	float *p = (float *)inputs;
+
+	static float dcLinkVoltage_1 = 0.0;
+	static float hbCurrent_1 = 0.0;
+
+	float hbCurrent;
+	float dcLinkVoltage;
+	float gridVoltage;
+	float loadCurrent;
+	float d_v, d_i;
+
+	gridVoltage = SOC_ADC_TO_SIGNAL(*((uint16_t *)(SOC_AFE_GRID_VOLTAGE)), SOC_AFE_GRID_VOLTAGE_SENS_GAIN, SOC_AFE_GRID_VOLTAGE_SENS_OFFS);
+	hbCurrent = SOC_ADC_TO_SIGNAL(*((uint16_t *)(SOC_AFE_HB_CURRENT)), SOC_AFE_HB_CURRENT_SENS_GAIN, SOC_AFE_HB_CURRENT_SENS_OFFS);
+	dcLinkVoltage = SOC_ADC_TO_SIGNAL(*((uint16_t *)(SOC_AFE_DCLINK)), SOC_AFE_DCLINK_SENS_GAIN, SOC_AFE_DCLINK_SENS_OFFS);
+	loadCurrent = SOC_ADC_TO_SIGNAL(*((uint16_t *)(SOC_AFE_LOAD_CURRENT)), SOC_AFE_LOAD_CURRENT_SENS_GAIN, SOC_AFE_LOAD_CURRENT_SENS_OFFS);
+
+	d_v = dcLinkVoltage - dcLinkVoltage_1;
+	if( (d_v > 6.0) || (d_v < (-6.0)) ) dcLinkVoltage = dcLinkVoltage_1;
+	else dcLinkVoltage_1 = dcLinkVoltage;
+
+	hbCurrent = SOC_ADC_TO_SIGNAL(*((uint16_t *)(SOC_AFE_HB_CURRENT)), SOC_AFE_HB_CURRENT_SENS_GAIN, SOC_AFE_HB_CURRENT_SENS_OFFS);
+	d_i = hbCurrent - hbCurrent_1;
+	if( (d_i > 5.0) || (d_i < (-5.0)) ) hbCurrent = hbCurrent_1;
+	else hbCurrent_1 = hbCurrent;
+
+	*p++ = hbCurrent;
+	*p++ = gridVoltage;
+	*p++ = dcLinkVoltage;
+	*p = loadCurrent;
+
+	return 4;
+}
+//-----------------------------------------------------------------------------
+int32_t afeHwZynqProcInputs(void *inputs, void *procinputs, int32_t n){
+
+	float *src = (float *)inputs;
+	float *dst = (float *)procinputs;
+
+	while(n--) *dst++ = *src++;
+
+	return 4;
+}
+//-----------------------------------------------------------------------------
+int32_t afeHwZynqProcOutputs(void *outputs, void *procoputs, int32_t n){
+
+	float duty = *( (float *)outputs );
+	uint32_t dutyint;
+
+	duty = duty * 10000.0f;
+	if(duty < 0.0 ) duty = 0.0;
+
+	dutyint = (uint32_t)duty;
+	dutyint = 10000 - dutyint;
+
+	*((uint32_t *)procoputs) = dutyint;
+
+	return 1;
+}
+//-----------------------------------------------------------------------------
+int32_t afeHwZynqApplyOutputs(void *outputs, int32_t n){
+
+	uint32_t duty = *( (uint32_t *)outputs );
+
+	afeHwZynqPwmSetDuty(duty);
+
+	return 0;
+}
+//-----------------------------------------------------------------------------
 //=============================================================================
 
 //=============================================================================
@@ -187,7 +260,7 @@ static int32_t afeHwZynqInitializeHw(void *intcInst){
 	afeHwZynqInitializeHwAdc();
 	afeHwZynqInitializeHwPlIrq(intcInst);
 
-	ocpTraceAddSignal(OCP_TRACE_1, (void *)&gridVoltage, "Grid voltage");
+	//ocpTraceAddSignal(OCP_TRACE_1, (void *)&gridVoltage, "Grid voltage");
 
 	return 0;
 }
@@ -244,7 +317,7 @@ static int32_t afeHwZynqInitializeHwPlIrq(void *intcInst){
 //-----------------------------------------------------------------------------
 void afeHwZynqPlToCpuIrq(void *callbackRef){
 
-	gridVoltage = SOC_ADC_TO_SIGNAL(*((uint16_t *)(SOC_AFE_GRID_VOLTAGE)), SOC_AFE_GRID_VOLTAGE_SENS_GAIN, SOC_AFE_GRID_VOLTAGE_SENS_OFFS);
+	ocpCSRun(OCP_CS_1);
 
 	ocpTraceSave(OCP_TRACE_1);
 }
