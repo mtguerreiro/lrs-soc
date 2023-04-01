@@ -13,14 +13,15 @@
 //=============================================================================
 #include <stdint.h>
 
-/* LRS SoC defs */
-#include "soc_defs.h"
 //=============================================================================
 
 //=============================================================================
 /*--------------------------------- Defines ---------------------------------*/
 //=============================================================================
-/* Priority and stack size of this task */
+/*
+ * Priority and stack size of this task. The stack size is given in number of
+ * ints, not bytes. So, 1024 means 1024 * 4 bytes if sizeof(int) is 4.
+ */
 #define UIFACE_CONFIG_TASK_PRIO			2
 #define UIFACE_CONFIG_TASK_STACK_SIZE	1024
 
@@ -42,23 +43,17 @@
 typedef int32_t(*uifaceHandle_t)(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
 /*
- * Defines if DHCP should be used. For now, we've only tested with
- * DHCP enabled.
+ * Size of the buffer used to receive data from the network. This size is in
+ * bytes. Bear in mind that one such buffer is allocated for each connection.
  */
-#define UIFACE_CONFIG_USE_DHCP			SOC_UIFACE_USE_DHCP
-
-/*
- * Size of the buffer used to receive data from the network. Bear in mind that
- * one such buffer is allocated for each connection.
- */
-#define UIFACE_CONFIG_RECV_BUFFER		2048
+#define UIFACE_CONFIG_RECV_BUFFER		128
 
 /*
  * Defines how long a new request should wait until the last one is processed.
  * If the time expires, the new request will be denied, i.e., the connection
  * will be closed upon time expiration.
  */
-#define UIFACE_CONFIG_MUTEX_WAIT_MS		10000
+#define UIFACE_CONFIG_MUTEX_WAIT_MS		2000
 
 //=============================================================================
 

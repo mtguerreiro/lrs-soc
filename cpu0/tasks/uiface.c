@@ -3,39 +3,6 @@
  *
  *  Initially created on: 23.05.2022
  *      Author: Marco Guerreiro
- *
- *
- * The user interface is a simple mechanism that allows the user to directly
- * send data to functions written on the SoC, either on CPU1, CPU2 or PL. The
- * basic idea is that functions on the SoC are binded to commands (or IDs).
- * Whenever the user interface task receives a command, it will call the
- * function binded to that command, forwarding any data received.
- *
- * Functions can be binded to commands using the uifaceRegisterHandle
- * function. For now, the commands should be sequential and follow the
- * pattern given on the SoC defs file (soc_defs.h).
- *
- * The user interface tasks implements a simple protocol to receive data from
- * the outside. The expected message has the form:
- *
- * -----------------------------------------------------------
- * | SIZE (4 bytes, signed) | CMD (4 bytes) | DATA (N bytes) |
- * -----------------------------------------------------------
- *
- * SIZE is the number of bytes of CMD and DATA, i.e., size = 4 + N.
- *
- * After executing the command, the user interface replies a message with the
- * following format:
- *
- * --------------------------------------------------
- * | STATUS/SIZE (4 bytes, signed) | DATA (N bytes) |
- * --------------------------------------------------
- *
- * The STATUS reports if the command was received and executed. If it is zero,
- * or a positive value, the command was successfully executed, and the status
- * value is the number of bytes that will be sent back. If it is a negative
- * value, it means there was an issue with the command. The negative value
- * will depend on the error and can be used for debugging.
  */
 
 //=============================================================================
@@ -75,8 +42,6 @@
 //=============================================================================
 /*--------------------------------- Defines ---------------------------------*/
 //=============================================================================
-
-
 #define UIFACE_ERR_INVALID_ID						-1
 
 #define UIFACE_CONFIG_SERVER_PORT					ZYNQ_CONFIG_TCP_SERVER_PORT
@@ -278,7 +243,6 @@ static void uifaceRequestProcessThread(void *param){
 	char recvbuf[UIFACE_CONFIG_RECV_BUFFER];
 	int32_t n;
 	int32_t nrx;
-	uint32_t id;
 	int32_t ret;
 	int32_t size;
 
@@ -333,13 +297,12 @@ static void uifaceRequestProcessThread(void *param){
 			break;
 		}
 
+		/* Calls the interface */
 		p = (uint8_t *)( recvbuf );
 		ret = ocpIf((void *)p, size, (void **)(&p), UIFACE_CONFIG_RECV_BUFFER);
 
-		//		ret = ocpIf(&xuifaceControl.rp, (void *)p, size, (void **)(&p), UIFACE_CONFIG_RECV_BUFFER);
-
 		/*
-		 * Now, sends the reply. The reply consists of the command status
+		 * Now, sends the reply. The reply consists of the command status/size
 		 * (4 bytes), followed by data (if any).
 		 */
 		// TODO: should we also do a while loop to send the data? Like in receiving?
@@ -348,14 +311,14 @@ static void uifaceRequestProcessThread(void *param){
 		//*( (int32_t *)recvbuf ) = ret;
 		n = lwip_write(sd, &ret, 4);
 		if( n < 4 ){
-			xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
+			xil_printf("%s: error responding to client\'s request\r\n", __FUNCTION__);
 			break;
 		}
 
 		/* Writes data */
 		if( ret > 0 ){
 			n = lwip_write(sd, p, ret);
-			if( n < ret ) xil_printf("%s: error responding to client request (id %u)\r\n", __FUNCTION__, id);
+			if( n < ret ) xil_printf("%s: error responding to client\'s request\r\n", __FUNCTION__);
 		}
 		break;
 	}

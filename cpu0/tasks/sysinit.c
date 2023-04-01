@@ -10,30 +10,12 @@
 //=============================================================================
 #include "sysinit.h"
 
+#include "ocpZynqCpu0.h"
+
 /* Kernel */
 #include "FreeRTOS.h"
 #include "task.h"
 
-/* Device and drivers */
-#include "xparameters.h"
-#include "xgpio.h"
-#include "xil_types.h"
-
-/* Tasks */
-#include "uiface.h"
-
-/* LRS SoC defs */
-#include "soc_defs.h"
-
-#include "ocpZynqCpu0.h"
-///* OCP */
-//#include "ocp.h"
-//
-///* IPC */
-//#include "ipcClient.h"
-//
-///* Zynq specif stuff */
-//#include "ipcClientZynq.h"
 //=============================================================================
 
 //=============================================================================
@@ -46,11 +28,7 @@
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-#define SYS_INIT_CONFIG_CPU0_TO_CPU1_ADDR		SOC_MEM_CPU0_TO_CPU1_ADR
-#define SYS_INIT_CONFIG_CPU0_TO_CPU1_SIZE		SOC_MEM_CPU0_TO_CPU1_SIZE
 
-#define SYS_INIT_CONFIG_CPU1_TO_CPU0_ADDR		SOC_MEM_CPU1_TO_CPU0_ADR
-#define SYS_INIT_CONFIG_CPU1_TO_CPU0_SIZE		SOC_MEM_CPU1_TO_CPU0_SIZE
 //=============================================================================
 
 //=============================================================================

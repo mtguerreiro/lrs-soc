@@ -94,7 +94,7 @@ static void blinkInitialize(void){
 	XGpio_SetDataDirection(&xblinkControl.rgbled, BLINK_XIL_LED_CHANNEL, 0);
 
 	/* Sets default blinking period */
-	//xblinkControl.period = BLINK_CONFIG_DEFAULT_PERIOD_MS / portTICK_PERIOD_MS;
+	xblinkControl.period = BLINK_CONFIG_DEFAULT_PERIOD_MS / portTICK_PERIOD_MS;
 
 }
 //-----------------------------------------------------------------------------

@@ -24,23 +24,8 @@
 #include "xgpio.h"
 #include "xil_types.h"
 
-#include "soc_defs.h"
-
-#include "axi_test.h"
-
-#include "math.h"
-
-#include "soc_trace.h"
-
-#include "rp.h"
-
-#include "ipcServer.h"
-#include "ipcServerZynq.h"
-
 #include "afe.h"
 #include "afeIf.h"
-
-#include "ocpIf.h"
 
 #include "ocpZynqCpu1.h"
 
@@ -82,12 +67,6 @@ uint32_t blinkPeriod = 1000;
 //=============================================================================
 static int mainSysInit(void);
 static int mainSetupIntrSystem(INTC *IntcInstancePtr);
-
-//void DeviceDriverHandler(void *CallbackRef);
-
-#define AXI_TEST_BASE_ADR			XPAR_ADC_PSCTL_0_S00_AXI_BASEADDR
-#define AXI_PWM_BASE_ADR			XPAR_AXI_PWM_0_S00_AXI_BASEADDR
-#define AXI_GPIO_DEBUG_BASE_ADR		XPAR_AXI_GPIO_DEBUG_BASEADDR
 //=============================================================================
 
 //=============================================================================
@@ -197,14 +176,3 @@ static int mainSetupIntrSystem(INTC *IntcInstancePtr)
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
-
-////=============================================================================
-///*----------------------------------- IRQ -----------------------------------*/
-////=============================================================================
-////-----------------------------------------------------------------------------
-//void DeviceDriverHandler(void *CallbackRef){
-//
-//	ipcServerRequest();
-//}
-////-----------------------------------------------------------------------------
-////=============================================================================

@@ -11,8 +11,6 @@
 //=============================================================================
 #include "prpictl.h"
 
-#include "soc_defs.h"
-
 #include "afe.h"
 
 #include "ocpConfig.h"

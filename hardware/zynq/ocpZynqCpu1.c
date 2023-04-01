@@ -24,19 +24,13 @@
 
 /* Zynq-specific stuff */
 #include "ipcServerZynq.h"
-#include "soc_defs.h"
 
 /* Application */
 #include "afe.h"
 #include "afeIf.h"
 #include "afeHwZynq.h"
 
-#include "prpictl.h"
-
 #include "zynqConfig.h"
-
-//#include "afeZynqHwIf.h"
-//#include "afeZynqHw.h"
 //=============================================================================
 
 //=============================================================================
