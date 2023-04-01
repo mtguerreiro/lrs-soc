@@ -11,7 +11,6 @@
 
 
 /* Open controller project */
-#include "ocp.h"
 #include "ocpTrace.h"
 #include "ocpCS.h"
 #include "ocpIf.h"
@@ -26,7 +25,8 @@
 #include "ipcClientZynq.h"
 
 /* */
-#include "soc_defs.h"
+//#include "soc_defs.h"
+#include "zynqConfig.h"
 //=============================================================================
 
 //=============================================================================
@@ -46,11 +46,11 @@ static int32_t ocpZynqCpu0InitializeInterface(void);
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-#define OCP_ZYNQ_C0_CONFIG_CPU0_TO_CPU1_ADDR		SOC_MEM_CPU0_TO_CPU1_ADR
-#define OCP_ZYNQ_C0_CONFIG_CPU0_TO_CPU1_SIZE		SOC_MEM_CPU0_TO_CPU1_SIZE
+#define OCP_ZYNQ_C0_CONFIG_CPU0_TO_CPU1_ADDR		ZYNQ_CONFIG_MEM_CPU0_TO_CPU1_ADR
+#define OCP_ZYNQ_C0_CONFIG_CPU0_TO_CPU1_SIZE		ZYNQ_CONFIG_MEM_CPU0_TO_CPU1_SIZE
 
-#define OCP_ZYNQ_C0_CONFIG_CPU1_TO_CPU0_ADDR		SOC_MEM_CPU1_TO_CPU0_ADR
-#define OCP_ZYNQ_C0_CONFIG_CPU1_TO_CPU0_SIZE		SOC_MEM_CPU1_TO_CPU0_SIZE
+#define OCP_ZYNQ_C0_CONFIG_CPU1_TO_CPU0_ADDR		ZYNQ_CONFIG_MEM_CPU1_TO_CPU0_ADR
+#define OCP_ZYNQ_C0_CONFIG_CPU1_TO_CPU0_SIZE		ZYNQ_CONFIG_MEM_CPU1_TO_CPU0_SIZE
 //=============================================================================
 
 //=============================================================================

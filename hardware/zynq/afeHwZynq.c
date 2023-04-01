@@ -9,7 +9,8 @@
 //=============================================================================
 #include "afeHwZynq.h"
 
-#include "soc_defs.h"
+//#include "soc_defs.h"
+#include "zynqConfig.h"
 
 #include "xparameters.h"
 #include <stdio.h>
@@ -25,15 +26,18 @@
 
 #include "axi_test.h"
 
+#include "ocpConfig.h"
 #include "ocpTrace.h"
 #include "ocpCS.h"
+#include "ocpIf.h"
+
+#include "ipcServer.h"
+#include "ipcServerZynq.h"
 //=============================================================================
 
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-
-#define AFE_HW_ZYNQ_CONFIG_IRQ_PL_TO_CPU1	SOC_IRQ_PL_TO_CPU1
 
 #define AXI_TEST_BASE_ADR					XPAR_ADC_PSCTL_0_S00_AXI_BASEADDR
 #define AXI_PWM_BASE_ADR					XPAR_AXI_PWM_0_S00_AXI_BASEADDR
@@ -48,6 +52,42 @@
 
 #define GPIODEBUG_ID 		XPAR_AXI_GPIO_DEBUG_DEVICE_ID
 #define GPIODEBUG_CHANNEL 	1
+
+/*
+ * AFE measurements.
+ *
+ * +-----+--------------+--------+
+ * | ADC |  Measurement | Offset |
+ * +-----+--------------+--------+
+ * |  1  |  HB current  |    0   |
+ * +-----+--------------+--------+
+ * |  2  |    DC link   |    2   |
+ * +-----+--------------+--------+
+ * |  3  | Grid voltage |    4   |
+ * +-----+--------------+--------+
+ * |  4  | Load current |    6   |
+ * +-----+--------------+--------+
+ *
+ */
+
+#define AFE_HW_ZYNQ_ADC_TO_SIGNAL(ADC, GAIN, OFFS) ((float)ADC) * ((float)GAIN) + ((float)OFFS)
+
+#define AFE_HW_ZYNQ_HB_CURRENT					ZYNQ_CONFIG_MEM_PL_TO_CPU1_ADR
+#define AFE_HW_ZYNQ_DCLINK						ZYNQ_CONFIG_MEM_PL_TO_CPU1_ADR + 4
+#define AFE_HW_ZYNQ_GRID_VOLTAGE				ZYNQ_CONFIG_MEM_PL_TO_CPU1_ADR + 8
+#define AFE_HW_ZYNQ_LOAD_CURRENT				ZYNQ_CONFIG_MEM_PL_TO_CPU1_ADR + 12
+
+#define AFE_HW_ZYNQ_HB_CURRENT_SENS_GAIN		(5.0 / 4095.0 / 0.185)
+#define AFE_HW_ZYNQ_HB_CURRENT_SENS_OFFS		(-2.5 / 0.185)
+
+#define AFE_HW_ZYNQ_DCLINK_SENS_GAIN			(5.0 / 4095.0 * 900.0 / 23.2)
+#define AFE_HW_ZYNQ_DCLINK_SENS_OFFS			(0.0)
+
+#define AFE_HW_ZYNQ_GRID_VOLTAGE_SENS_GAIN		(5.0 / 4095.0 * 2.2 / 150.0 * 1.0 / 2.5 * 5000.0)
+#define AFE_HW_ZYNQ_GRID_VOLTAGE_SENS_OFFS		(-2.5 * 2.2 / 150.0 * 1.0 / 2.5 * 5000.0)
+
+#define AFE_HW_ZYNQ_LOAD_CURRENT_SENS_GAIN		(5.0 / 4095.0 * 2.2 / 150.0 * 1000.0)
+#define AFE_HW_ZYNQ_LOAD_CURRENT_SENS_OFFS		(-2.5 * 2.2 / 150.0 * 1000.0)
 
 //=============================================================================
 
@@ -83,7 +123,19 @@ void afeHwZynqPlToCpuIrq(void *callbackRef);
 //-----------------------------------------------------------------------------
 int32_t afeHwZynqInitialize(void *intcInst){
 
-	return afeHwZynqInitializeHw(intcInst);
+	int32_t status;
+
+	/* Initializes inter-processor communication */
+	ipcServerZynqInitialize(intcInst);
+
+	ipcServerInitialize(ocpIf, ipcServerZynqIrqSend,
+			ZYNQ_CONFIG_MEM_CPU0_TO_CPU1_ADR, ZYNQ_CONFIG_MEM_CPU0_TO_CPU1_SIZE,
+			ZYNQ_CONFIG_MEM_CPU1_TO_CPU0_ADR, ZYNQ_CONFIG_MEM_CPU1_TO_CPU0_SIZE);
+
+	/* Initializes peripherals */
+	status = afeHwZynqInitializeHw(intcInst);
+
+	return status;
 }
 //-----------------------------------------------------------------------------
 int32_t afeHwZynqAdcEnable(uint32_t enable){
@@ -191,16 +243,16 @@ int32_t afeHwZynqGetInputs(void *inputs){
 	float loadCurrent;
 	float d_v, d_i;
 
-	gridVoltage = SOC_ADC_TO_SIGNAL(*((uint16_t *)(SOC_AFE_GRID_VOLTAGE)), SOC_AFE_GRID_VOLTAGE_SENS_GAIN, SOC_AFE_GRID_VOLTAGE_SENS_OFFS);
-	hbCurrent = SOC_ADC_TO_SIGNAL(*((uint16_t *)(SOC_AFE_HB_CURRENT)), SOC_AFE_HB_CURRENT_SENS_GAIN, SOC_AFE_HB_CURRENT_SENS_OFFS);
-	dcLinkVoltage = SOC_ADC_TO_SIGNAL(*((uint16_t *)(SOC_AFE_DCLINK)), SOC_AFE_DCLINK_SENS_GAIN, SOC_AFE_DCLINK_SENS_OFFS);
-	loadCurrent = SOC_ADC_TO_SIGNAL(*((uint16_t *)(SOC_AFE_LOAD_CURRENT)), SOC_AFE_LOAD_CURRENT_SENS_GAIN, SOC_AFE_LOAD_CURRENT_SENS_OFFS);
+	gridVoltage = AFE_HW_ZYNQ_ADC_TO_SIGNAL(*((uint16_t *)(AFE_HW_ZYNQ_GRID_VOLTAGE)), AFE_HW_ZYNQ_GRID_VOLTAGE_SENS_GAIN, AFE_HW_ZYNQ_GRID_VOLTAGE_SENS_OFFS);
+	hbCurrent = AFE_HW_ZYNQ_ADC_TO_SIGNAL(*((uint16_t *)(AFE_HW_ZYNQ_HB_CURRENT)), AFE_HW_ZYNQ_HB_CURRENT_SENS_GAIN, AFE_HW_ZYNQ_HB_CURRENT_SENS_OFFS);
+	dcLinkVoltage = AFE_HW_ZYNQ_ADC_TO_SIGNAL(*((uint16_t *)(AFE_HW_ZYNQ_DCLINK)), AFE_HW_ZYNQ_DCLINK_SENS_GAIN, AFE_HW_ZYNQ_DCLINK_SENS_OFFS);
+	loadCurrent = AFE_HW_ZYNQ_ADC_TO_SIGNAL(*((uint16_t *)(AFE_HW_ZYNQ_LOAD_CURRENT)), AFE_HW_ZYNQ_LOAD_CURRENT_SENS_GAIN, AFE_HW_ZYNQ_LOAD_CURRENT_SENS_OFFS);
 
 	d_v = dcLinkVoltage - dcLinkVoltage_1;
 	if( (d_v > 6.0) || (d_v < (-6.0)) ) dcLinkVoltage = dcLinkVoltage_1;
 	else dcLinkVoltage_1 = dcLinkVoltage;
 
-	hbCurrent = SOC_ADC_TO_SIGNAL(*((uint16_t *)(SOC_AFE_HB_CURRENT)), SOC_AFE_HB_CURRENT_SENS_GAIN, SOC_AFE_HB_CURRENT_SENS_OFFS);
+	hbCurrent = AFE_HW_ZYNQ_ADC_TO_SIGNAL(*((uint16_t *)(AFE_HW_ZYNQ_HB_CURRENT)), AFE_HW_ZYNQ_HB_CURRENT_SENS_GAIN, AFE_HW_ZYNQ_HB_CURRENT_SENS_OFFS);
 	d_i = hbCurrent - hbCurrent_1;
 	if( (d_i > 5.0) || (d_i < (-5.0)) ) hbCurrent = hbCurrent_1;
 	else hbCurrent_1 = hbCurrent;
@@ -293,7 +345,7 @@ static int32_t afeHwZynqInitializeHwAdc(void){
 	//AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, 10000);
 	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 4, 500);
 //	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 8, 20000);
-	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 12, SOC_MEM_PL_TO_CPU1_ADR);
+	AXI_TEST_mWriteReg(AXI_TEST_BASE_ADR, 12, ZYNQ_CONFIG_MEM_PL_TO_CPU1_ADR);
 
 	AXI_TEST_mWriteReg(AXI_PWM_BASE_ADR, 0, 0U);
 
@@ -302,9 +354,9 @@ static int32_t afeHwZynqInitializeHwAdc(void){
 //-----------------------------------------------------------------------------
 static int32_t afeHwZynqInitializeHwPlIrq(void *intcInst){
 
-	XScuGic_SetPriorityTriggerType(intcInst, AFE_HW_ZYNQ_CONFIG_IRQ_PL_TO_CPU1, 0xA0, 0x3);
-	XScuGic_Connect(intcInst, AFE_HW_ZYNQ_CONFIG_IRQ_PL_TO_CPU1, (Xil_ExceptionHandler)afeHwZynqPlToCpuIrq, intcInst) ;
-	XScuGic_Enable(intcInst, AFE_HW_ZYNQ_CONFIG_IRQ_PL_TO_CPU1);
+	XScuGic_SetPriorityTriggerType(intcInst, ZYNQ_CONFIG_IRQ_PL_TO_CPU1, 0xA0, 0x3);
+	XScuGic_Connect(intcInst, ZYNQ_CONFIG_IRQ_PL_TO_CPU1, (Xil_ExceptionHandler)afeHwZynqPlToCpuIrq, intcInst) ;
+	XScuGic_Enable(intcInst, ZYNQ_CONFIG_IRQ_PL_TO_CPU1);
 
 	return 0;
 }

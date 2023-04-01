@@ -11,7 +11,7 @@
 
 
 /* Open controller project */
-#include "ocp.h"
+#include "ocpConfig.h"
 #include "ocpTrace.h"
 #include "ocpCS.h"
 #include "ocpIf.h"
@@ -33,6 +33,8 @@
 
 #include "prpictl.h"
 
+#include "zynqConfig.h"
+
 //#include "afeZynqHwIf.h"
 //#include "afeZynqHw.h"
 //=============================================================================
@@ -41,11 +43,11 @@
 /*-------------------------------- Prototypes -------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-static int32_t ocpZynqCpu1InitializeIpc(void *intcInst);
+static int32_t ocpZynqCpu1InitializeHw(void *intcInst);
 //-----------------------------------------------------------------------------
 static int32_t ocpZynqCpu1InitializeTraces(void);
 //-----------------------------------------------------------------------------
-static int32_t ocpZynqCpu1InitializeControlSystem(void *intcInst);
+static int32_t ocpZynqCpu1InitializeControlSystem(void);
 //-----------------------------------------------------------------------------
 static int32_t ocpZynqCpu1InitializeInterface(void);
 //-----------------------------------------------------------------------------
@@ -54,14 +56,14 @@ static int32_t ocpZynqCpu1InitializeInterface(void);
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-#define OCP_ZYNQ_C1_CONFIG_CPU0_TO_CPU1_ADDR		SOC_MEM_CPU0_TO_CPU1_ADR
-#define OCP_ZYNQ_C1_CONFIG_CPU0_TO_CPU1_SIZE		SOC_MEM_CPU0_TO_CPU1_SIZE
+#define OCP_ZYNQ_C1_CONFIG_CPU0_TO_CPU1_ADDR		ZYNQ_CONFIG_MEM_CPU0_TO_CPU1_ADR
+#define OCP_ZYNQ_C1_CONFIG_CPU0_TO_CPU1_SIZE		ZYNQ_CONFIG_MEM_CPU0_TO_CPU1_SIZE
 
-#define OCP_ZYNQ_C1_CONFIG_CPU1_TO_CPU0_ADDR		SOC_MEM_CPU1_TO_CPU0_ADR
-#define OCP_ZYNQ_C1_CONFIG_CPU1_TO_CPU0_SIZE		SOC_MEM_CPU1_TO_CPU0_SIZE
+#define OCP_ZYNQ_C1_CONFIG_CPU1_TO_CPU0_ADDR		ZYNQ_CONFIG_MEM_CPU1_TO_CPU0_ADR
+#define OCP_ZYNQ_C1_CONFIG_CPU1_TO_CPU0_SIZE		ZYNQ_CONFIG_MEM_CPU1_TO_CPU0_SIZE
 
-#define OCP_ZYNQ_C1_CONFIG_TRACE_0_ADDR				SOC_MEM_TRACE_ADR
-#define OCP_ZYNQ_C1_CONFIG_TRACE_0_SIZE				SOC_MEM_TRACE_SIZE_MAX
+#define OCP_ZYNQ_C1_CONFIG_TRACE_0_ADDR				ZYNQ_CONFIG_MEM_TRACE_ADR
+#define OCP_ZYNQ_C1_CONFIG_TRACE_0_SIZE				ZYNQ_CONFIG_MEM_TRACE_SIZE_MAX
 
 #define OCP_ZYNQ_C1_CONFIG_TRACE_0_NAME_LEN			250
 #define OCP_ZYNQ_C1_CONFIG_TRACE_0_MAX_SIGNALS		20
@@ -85,9 +87,9 @@ static float bOutputs[10];
 //-----------------------------------------------------------------------------
 void ocpZynqCpu1Initialize(void *intcInst){
 
-	ocpZynqCpu1InitializeIpc(intcInst);
+	ocpZynqCpu1InitializeHw(intcInst);
 	ocpZynqCpu1InitializeTraces();
-	ocpZynqCpu1InitializeControlSystem(intcInst);
+	ocpZynqCpu1InitializeControlSystem();
 	ocpZynqCpu1InitializeInterface();
 }
 //-----------------------------------------------------------------------------
@@ -98,14 +100,9 @@ void ocpZynqCpu1Initialize(void *intcInst){
 /*---------------------------- Static functions -----------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-static int32_t ocpZynqCpu1InitializeIpc(void *intcInst){
+static int32_t ocpZynqCpu1InitializeHw(void *intcInst){
 
-
-	ipcServerZynqInitialize(intcInst);
-
-	ipcServerInitialize(ocpIf, ipcServerZynqIrqSend,
-			SOC_MEM_CPU0_TO_CPU1_ADR, SOC_MEM_CPU0_TO_CPU1_SIZE,
-			SOC_MEM_CPU1_TO_CPU0_ADR, SOC_MEM_CPU1_TO_CPU0_SIZE);
+	afeHwZynqInitialize(intcInst);
 
 	return 0;
 }
@@ -120,17 +117,16 @@ static int32_t ocpZynqCpu1InitializeTraces(void){
 	config.names = trace0Names;
 
 	ocpTraceInitialize(OCP_TRACE_1, &config, "Main Trace");
-//
+
 	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t ocpZynqCpu1InitializeControlSystem(void *intcInst){
+static int32_t ocpZynqCpu1InitializeControlSystem(void){
 
 	ocpCSConfig_t config;
 
 	/* Initializes controller lib */
-	prpictlInitialize();
-	//controllerInitialize();
+	controllerInitialize();
 
 	/* Initializes control sys lib */
 	config.binputs = (void *)bInputs;
@@ -146,7 +142,8 @@ static int32_t ocpZynqCpu1InitializeControlSystem(void *intcInst){
 	config.fprocOutputs = afeHwZynqProcOutputs;
 	config.fapplyOutputs = afeHwZynqApplyOutputs;
 
-	config.frun = prpictlRun;
+	config.frun = controllerRun;
+	config.fcontrollerInterface = controllerInterface;
 
 	config.fenable = 0;
 	config.fdisable = 0;
@@ -156,9 +153,6 @@ static int32_t ocpZynqCpu1InitializeControlSystem(void *intcInst){
 
 	ocpCSInitialize(OCP_CS_1, &config, "Converter control");
 
-	//afeZynqHwInitialize(intcInst);
-
-//
 	return 0;
 }
 //-----------------------------------------------------------------------------

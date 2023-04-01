@@ -43,6 +43,7 @@
 //=============================================================================
 #include "uiface.h"
 
+#include "zynqConfig.h"
 /* Kernel */
 #include "FreeRTOS.h"
 #include "task.h"
@@ -55,6 +56,7 @@
 #include "xil_types.h"
 
 /* Network settings */
+#define UIFACE_CONFIG_USE_DHCP		ZYNQ_CONFIG_USE_DHCP
 #if LWIP_IPV6==1
 #include "lwip/ip.h"
 #else
@@ -67,17 +69,17 @@
 #include "lwip/sockets.h"
 #include "lwipopts.h"
 
-#include "rp.h"
-
 #include "ocpIf.h"
 //=============================================================================
 
 //=============================================================================
 /*--------------------------------- Defines ---------------------------------*/
 //=============================================================================
+
+
 #define UIFACE_ERR_INVALID_ID						-1
 
-#define UIFACE_CONFIG_SERVER_PORT					SOC_CONFIG_SERVER_PORT
+#define UIFACE_CONFIG_SERVER_PORT					ZYNQ_CONFIG_TCP_SERVER_PORT
 #define UIFACE_CONFIG_THREAD_STACK_SIZE_DEFAULT		1024
 #define UIFACE_CONFIG_THREAD_PRIO_DEFAULT			DEFAULT_THREAD_PRIO
 
@@ -88,12 +90,6 @@
 #define UIFACE_PLAT_EMAC_BASEADDR					XPAR_XEMACPS_0_BASEADDR
 
 typedef struct{
-
-	/* Handles for received commands */
-	rphandle_t handle[SOC_CMD_CPU0_END];
-	rpctx_t rp;
-	//uifaceHandle_t handle[SOC_CMD_CPU0_END];
-
 	/* Server netif */
 	struct netif servernetif;
 
@@ -146,7 +142,6 @@ err_t dhcp_start(struct netif *netif);
 #endif
 void lwip_init();
 
-static void uifaceRpInitialize(void);
 //=============================================================================
 
 //=============================================================================
@@ -161,7 +156,6 @@ void uiface(void *param){
 	int mscnt = 0;
 #endif
 
-	uifaceRpInitialize();
 	xuifaceControl.mutex = xSemaphoreCreateMutex();
 
 	/* initialize lwIP before calling sys_thread_new */
@@ -223,18 +217,6 @@ void uiface(void *param){
 //=============================================================================
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-int32_t uifaceRegisterHandle(uint32_t id, uifaceHandle_t handle){
-
-	int32_t status;
-
-	status = rpRegisterHandle(&xuifaceControl.rp, id, handle);
-	//if( id >= SOC_CMD_CPU0_END ) return UIFACE_ERR_INVALID_ID;
-
-	//xuifaceControl.handle[id] = handle;
-
-	return status;
-}
-//-----------------------------------------------------------------------------
 //=============================================================================
 
 //=============================================================================
@@ -288,11 +270,6 @@ static void uifaceApplicationThread(void){
 				UIFACE_CONFIG_THREAD_PRIO_DEFAULT);
 		}
 	}
-}
-//-----------------------------------------------------------------------------
-static void uifaceRpInitialize(void){
-
-	rpInitialize(&xuifaceControl.rp, SOC_CMD_CPU0_END, xuifaceControl.handle);
 }
 //-----------------------------------------------------------------------------
 static void uifaceRequestProcessThread(void *param){

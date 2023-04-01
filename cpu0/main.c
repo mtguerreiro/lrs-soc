@@ -34,7 +34,7 @@
 #include "xscugic.h"
 
 /* LRS SoC defs */
-#include "soc_defs.h"
+#include "zynqConfig.h"
 //=============================================================================
 
 //=============================================================================
@@ -54,7 +54,7 @@
  * clears the sync flag. CPU0 only continues execution after the sync flag has
  * been cleared by CPU1.
  */
-#define MAIN_SYNC_FLAG  		(*(volatile unsigned long *)(SOC_CPU0_CPU1_SYNC_FLAG_ADR))
+#define MAIN_SYNC_FLAG  		(*(volatile unsigned long *)(ZYNQ_CONFIG_CPU0_CPU1_SYNC_FLAG_ADR))
 //=============================================================================
 
 //=============================================================================
@@ -138,7 +138,7 @@ static int mainSysInit(void){
 	 * and wakes CPU1 up.
 	 */
 	xil_printf("%s: Waking up CPU1...\r\n", __FUNCTION__);
-    Xil_Out32(SOC_CPU1_RESET_ADR, SOC_CPU1_START_ADR);
+    Xil_Out32(ZYNQ_CONFIG_CPU1_RESET_ADR, ZYNQ_CONFIG_CPU1_START_ADR);
     dmb();
     sev();
 

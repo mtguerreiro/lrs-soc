@@ -18,7 +18,7 @@
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
 typedef enum{
-	CONTROLLER_PID,
+	CONTROLLER_PRPI,
 	CONTROLLER_END
 }controllerTypesEnum_t;
 

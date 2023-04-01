@@ -23,7 +23,8 @@
 #include "uiface.h"
 
 /* LRS SoC defs */
-#include "soc_defs.h"
+//#include "soc_defs.h"
+#include "zynqConfig.h"
 //=============================================================================
 
 //=============================================================================
@@ -93,10 +94,8 @@ static void blinkInitialize(void){
 	XGpio_SetDataDirection(&xblinkControl.rgbled, BLINK_XIL_LED_CHANNEL, 0);
 
 	/* Sets default blinking period */
-	xblinkControl.period = BLINK_CONFIG_DEFAULT_PERIOD_MS / portTICK_PERIOD_MS;
+	//xblinkControl.period = BLINK_CONFIG_DEFAULT_PERIOD_MS / portTICK_PERIOD_MS;
 
-	/* Registers period update function with blink update command */
-    uifaceRegisterHandle(SOC_CMD_CPU0_BLINK_CPU0, blinkPeriodUpdate);
 }
 //-----------------------------------------------------------------------------
 static int32_t blinkPeriodUpdate(void *in, uint32_t insize, void **out, uint32_t maxoutsize){

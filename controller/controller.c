@@ -5,6 +5,7 @@
  *      Author: marco
  */
 
+#ifdef SOC_CPU1
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
@@ -14,6 +15,7 @@
 
 /* Controllers */
 #include "pidctl.h"
+#include "prpictl.h"
 
 //=============================================================================
 
@@ -72,10 +74,10 @@ void controllerInitialize(void){
 	rpRegisterHandle(&controllers.interface.rp, CONTROLLER_IF_SET_PARAMS, controllerInterfaceSetControllerParams);
 
 	/* Register the available controllers */
-	controllers.initialize[CONTROLLER_PID] = pidctlInitialize;
-	controllers.setParams[CONTROLLER_PID] = pidctlSetParams;
-	controllers.getParams[CONTROLLER_PID] = pidctlGetParams;
-	controllers.run[CONTROLLER_PID] = pidctlRun;
+	controllers.initialize[CONTROLLER_PRPI] = prpictlInitialize;
+	controllers.setParams[CONTROLLER_PRPI] = prpictlSetParams;
+	controllers.getParams[CONTROLLER_PRPI] = prpictlGetParams;
+	controllers.run[CONTROLLER_PRPI] = prpictlRun;
 
 	/* Initializes all registered controllers */
 	for(k = 0; k < CONTROLLER_END; k++){
@@ -166,3 +168,4 @@ static int32_t controllerInterfaceSetControllerParams(void *in, uint32_t insize,
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
+#endif /* SOC_CPU1 */

@@ -19,6 +19,30 @@
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
 
+#define AFE_ERR_DCLINK_OVER				(1 << 0)
+#define AFE_ERR_DCLINK_UNDER			(1 << 1)
+
+#define AFE_ERR_HB_CURRENT_OVER			(1 << 2)
+#define AFE_ERR_HB_CURRENT_UNDER		(1 << 3)
+
+#define AFE_ERR_GRID_VOLTAGE_OVER		(1 << 4)
+#define AFE_ERR_GRID_VOLTAGE_UNDER		(1 << 5)
+
+#define AFE_ERR_LOAD_CURRENT_OVER		(1 << 6)
+#define AFE_ERR_LOAD_CURRENT_UNDER		(1 << 7)
+
+#define AFE_HB_CURRENT_MAX				25.0
+#define AFE_HB_CURRENT_MIN				-25.0
+
+#define AFE_DC_LINK_MAX					300.0
+#define AFE_DC_LINK_MIN					2.0
+#define AFE_DC_LINK_PRECHARGE			8.0
+
+#define AFE_GRID_VOLTAGE_MAX			35.0
+#define AFE_GRID_VOLTAGE_MIN			-35.0
+
+#define AFE_LOAD_CURRENT_MAX			10.0
+#define AFE_LOAD_CURRENT_MIN			-1.0
 
 //=============================================================================
 

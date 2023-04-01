@@ -43,7 +43,7 @@ int32_t afeInitialize(void *initparams){
 
 	afeIfInitialize();
 
-	return afeHwInitialize(initparams);
+	return 0;
 }
 //-----------------------------------------------------------------------------
 int32_t afeAdcEnable(uint32_t enable){

@@ -15,6 +15,7 @@
 
 #include "afe.h"
 
+#include "ocpConfig.h"
 #include "ocpTrace.h"
 
 #include <math.h>
@@ -160,25 +161,25 @@ int32_t prpictlRun(void *inputs, int32_t ninputs, void *outputs, int32_t nmaxout
 
 	/* Checks if all is well */
 	if( precharge == 0 ){
-		if( v_dc > SOC_AFE_DC_LINK_PRECHARGE ){
+		if( v_dc > AFE_DC_LINK_PRECHARGE ){
 			precharge = 1;
 			afeInputRelaySet(1);
 			afeOutputRelaySet(1);
 		}
 	}
 	else{
-		if( v_dc < SOC_AFE_DC_LINK_MIN ) error |= SOC_AFE_ERR_DCLINK_UNDER;
-		if( v_dc > SOC_AFE_DC_LINK_MAX ) error |= SOC_AFE_ERR_DCLINK_OVER;
+		if( v_dc < AFE_DC_LINK_MIN ) error |= AFE_ERR_DCLINK_UNDER;
+		if( v_dc > AFE_DC_LINK_MAX ) error |= AFE_ERR_DCLINK_OVER;
 	}
 
-	if( i_ac < SOC_AFE_HB_CURRENT_MIN ) error |= SOC_AFE_ERR_HB_CURRENT_UNDER;
-	if( i_ac > SOC_AFE_HB_CURRENT_MAX ) error |= SOC_AFE_ERR_HB_CURRENT_OVER;
+	if( i_ac < AFE_HB_CURRENT_MIN ) error |= AFE_ERR_HB_CURRENT_UNDER;
+	if( i_ac > AFE_HB_CURRENT_MAX ) error |= AFE_ERR_HB_CURRENT_OVER;
 
-	if( v_ac < SOC_AFE_GRID_VOLTAGE_MIN ) error |= SOC_AFE_ERR_GRID_VOLTAGE_UNDER;
-	if( v_ac  > SOC_AFE_GRID_VOLTAGE_MAX ) error |= SOC_AFE_ERR_GRID_VOLTAGE_OVER;
+	if( v_ac < AFE_GRID_VOLTAGE_MIN ) error |= AFE_ERR_GRID_VOLTAGE_UNDER;
+	if( v_ac  > AFE_GRID_VOLTAGE_MAX ) error |= AFE_ERR_GRID_VOLTAGE_OVER;
 
-	if( i_load < SOC_AFE_LOAD_CURRENT_MIN ) error |= SOC_AFE_ERR_LOAD_CURRENT_UNDER;
-	if( i_load > SOC_AFE_LOAD_CURRENT_MAX ) error |= SOC_AFE_ERR_LOAD_CURRENT_OVER;
+	if( i_load < AFE_LOAD_CURRENT_MIN ) error |= AFE_ERR_LOAD_CURRENT_UNDER;
+	if( i_load > AFE_LOAD_CURRENT_MAX ) error |= AFE_ERR_LOAD_CURRENT_OVER;
 
 	if( error != 0 ){
 		enable = 0;
