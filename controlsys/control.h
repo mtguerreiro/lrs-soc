@@ -92,6 +92,12 @@
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
+typedef enum controlRunStatus_t{
+	CONTROL_RUN_STATUS_SUCCESS,
+	CONTROL_RUN_STATUS_HARDWARE_ERROR,
+	CONTROL_RUN_STATUS_CONTROLLER_ERROR
+}controlRunStatus_t;
+
 /* On entry hook */
 typedef void(*controlOnEntry_t)(void);
 

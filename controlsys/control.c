@@ -86,10 +86,12 @@ int32_t controlRun(control_t *control){
 	if( control->fonEntry ) control->fonEntry();
 
 	ninputs = control->fgetInputs( control->binputs );
+	if( ninputs < 0 ) return CONTROL_RUN_STATUS_HARDWARE_ERROR;
 
 	nprocInputs = control->fprocInputs( control->binputs, control->bprocInputs, ninputs );
 
 	noutputs = control->frun( control->bprocInputs, nprocInputs, control->boutputs, -1 );
+	if( noutputs < 0 ) return CONTROL_RUN_STATUS_CONTROLLER_ERROR;
 
 	nprocOutputs = control->fprocOutputs( control->boutputs, control->bprocOutputs, noutputs );
 
@@ -97,7 +99,7 @@ int32_t controlRun(control_t *control){
 
 	if( control->fonExit ) control->fonExit();
 
-	return 0;
+	return CONTROL_RUN_STATUS_SUCCESS;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

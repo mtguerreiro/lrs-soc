@@ -12,7 +12,8 @@
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
 /* Server's port that will be listening for connections */
-#define ZYNQ_CONFIG_TCP_SERVER_PORT				8080
+#define ZYNQ_CONFIG_TCP_SERVER_PORT_OCP				8080
+#define ZYNQ_CONFIG_TCP_SERVER_PORT_OPIL            8090
 
 /* Defines if DHCP should be used */
 #define ZYNQ_CONFIG_USE_DHCP					1

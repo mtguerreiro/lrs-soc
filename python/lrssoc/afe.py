@@ -168,6 +168,33 @@ class AFE:
             print('{:}: Error configuring PWM. Error code {:}\r\n'.format(funcname, status))
 
         return status
+
+
+    def set_controller(self, controller=0):
+        """Sets the controller.
+
+        Parameters
+        ----------
+        controller : int
+            Controller.
+
+        Raises
+        ------
+        TypeError
+            If `freq` is not of `int` type.
+
+        """
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(0, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(controller, msb=False) )
+
+        status, _ = self.hwi.cs_controller_if(0, tx_data)
+
+        if status < 0:
+            funcname = AFE.set_controller.__name__
+            print('{:}: Error setting the controller. Error code {:}\r\n'.format(funcname, status))
+            
+        return status
 ##
 ##
 ##    def cpu1_adc_error_read(self):

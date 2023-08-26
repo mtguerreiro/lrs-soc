@@ -54,12 +54,14 @@ void controlsysInitialize(controlsys_t *sys, controlsysConfig_t *config){
 	controlInitialize(&sys->control, &controlConfig);
 
 	sys->fhwInterface = config->fhwInterface;
+	sys->fhwStatus = config->fhwStatus;
 	sys->fcontrollerInterface = config->fcontrollerInterface;
+	sys->fcontrollerStatus = config->fcontrollerStatus;
 
 	sys->fenable = config->fenable;
 	sys->fdisable = config->fdisable;
 
-	sys->enable = 0;
+	sys->status = CONTROLSYS_STATUS_DISABLED;
 }
 //-----------------------------------------------------------------------------
 int32_t controlsysControllerInterface(controlsys_t *sys,
@@ -84,29 +86,41 @@ int32_t controlsysRun(controlsys_t *sys){
 
 	int32_t status;
 
-	if( sys->enable ) status = controlRun(&sys->control);
-	else status = CONTROLSYS_ERR_DISABLED;
+	if( sys->status == CONTROLSYS_STATUS_ENABLED ) status = controlRun(&sys->control);
 
-	return status;
+	if( status != CONTROL_RUN_STATUS_SUCCESS ){
+		if( status == CONTROL_RUN_STATUS_HARDWARE_ERROR)
+			sys->status = CONTROLSYS_STATUS_HARDWARE_ERROR;
+		else if( status == CONTROL_RUN_STATUS_CONTROLLER_ERROR )
+			sys->status = CONTROLSYS_STATUS_HARDWARE_ERROR;
+		else
+		    sys->status = CONTROLSYS_STATUS_UNKNOWN_RUN_ERROR;
+	}
+
+	return sys->status;
 }
 //-----------------------------------------------------------------------------
-void controlsysEnable(controlsys_t *sys){
+int32_t controlsysEnable(controlsys_t *sys){
 
-	sys->enable = 1;
+	if( (sys->fhwStatus() != 0) || (sys->fcontrollerStatus() != 0) ) return -1;
+
+	sys->status = CONTROLSYS_STATUS_ENABLED;
 
 	if( sys->fenable != 0 ) sys->fenable();
+
+	return 0;
 }
 //-----------------------------------------------------------------------------
 void controlsysDisable(controlsys_t *sys){
 
-	sys->enable = 0;
+	sys->status = CONTROLSYS_STATUS_DISABLED;
 
 	if( sys->fdisable != 0 ) sys->fdisable();
 }
 //-----------------------------------------------------------------------------
 int32_t controlsysStatus(controlsys_t *sys){
 
-	return sys->enable;
+    return sys->status;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

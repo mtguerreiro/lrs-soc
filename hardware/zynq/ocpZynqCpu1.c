@@ -81,8 +81,8 @@ static float bOutputs[10];
 //-----------------------------------------------------------------------------
 void ocpZynqCpu1Initialize(void *intcInst){
 
-	ocpZynqCpu1InitializeHw(intcInst);
 	ocpZynqCpu1InitializeTraces();
+	ocpZynqCpu1InitializeHw(intcInst);
 	ocpZynqCpu1InitializeControlSystem();
 	ocpZynqCpu1InitializeInterface();
 }

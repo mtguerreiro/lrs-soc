@@ -403,7 +403,7 @@ class Interface:
         return (0, names)
 
 
-    def cs_get_status(self, cs_id):
+    def cs_status(self, cs_id):
         """Gets the status of the selected control system.
 
         Parameters
@@ -436,7 +436,7 @@ class Interface:
         status, data = self.hwp.request(cmd, tx_data)
 
         if status < 0:
-            funcname = Interface.cs_get_status.__name__
+            funcname = Interface.cs_status.__name__
             print('{:}: Error getting control system status. Error code {:}\r\n'.format(funcname, status))
             return (-1, status)
         

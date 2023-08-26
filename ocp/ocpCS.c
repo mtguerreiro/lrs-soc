@@ -105,7 +105,7 @@ int32_t ocpCSStatus(uint32_t id, int32_t *status){
 
 	if( id >= OCP_CS_END ) return -1;
 
-	*status = controlsysStatus( &xcscontrol.cs[id] );
+	*status = controlsysStatus(&xcscontrol.cs[id]);
 
 	return 0;
 }

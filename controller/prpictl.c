@@ -189,10 +189,11 @@ int32_t prpictlRun(void *inputs, int32_t ninputs, void *outputs, int32_t nmaxout
 		if( precharge == 1 ){
 			afeInputRelaySet(1);
 			afeOutputRelaySet(1);
+			afePwmEnable(1);
 		}
 	}
 
-	error = 1;
+	//error = 1;
 	/* Main control */
 	if( (enable == 1) && (error == 0) ){
 
