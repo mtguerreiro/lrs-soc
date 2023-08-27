@@ -53,9 +53,6 @@ void ipcClientZynqIrq(void *callbackRef);
  */
 #define IPC_CLIENT_ZYNQ_INT_CPU1_TO_CPU0			ZYNQ_CONFIG_SIG_CPU1_TO_CPU0
 
-/* CPU1->CPU0 reply timeout, in system ticks */
-#define IPC_CLIENT_ZYNQ_CONFIG_CPU1_REPLY_TO		(IPC_CLIENT_ZYNQ_CONFIG_CPU1_REPLY_TO_MS / portTICK_PERIOD_MS)
-
 /**/
 #define IPC_CLIENT_ZYNQ_CONFIG_SIG_CPU1_ID			ZYNQ_CONFIG_SIG_CPU1_ID
 
@@ -74,6 +71,14 @@ typedef struct{
 	 * to a command issued by CPU0.
 	 */
 	SemaphoreHandle_t cpu1Semaphore;
+
+	/*
+	 * Semaphore used to lock/unlock the client.
+	 *
+	 * A request is only sent to the server if the semaphore is free. The
+	 * semaphore is freed after receiving the server's response.
+	 */
+	SemaphoreHandle_t lock;
 
 }ipcClientZynqControl_t;
 //=============================================================================
@@ -98,6 +103,9 @@ void ipcClientZynqInitialize(void *irqInst){
 	XScuGic_Enable(xipcClientZynqControl.intcInstance, IPC_CLIENT_ZYNQ_INT_CPU1_TO_CPU0);
 
 	xipcClientZynqControl.cpu1Semaphore = xSemaphoreCreateBinary();
+
+    xipcClientZynqControl.lock = xSemaphoreCreateMutex();
+    xSemaphoreGive(xipcClientZynqControl.lock);
 }
 //-----------------------------------------------------------------------------
 int32_t ipcClientZynqIrqSend(void){
@@ -115,13 +123,26 @@ int32_t ipcClientZynqIrqSend(void){
 int32_t ipcClientZynqIrqReceive(uint32_t timeout){
 
 	/* Waits until CPU1 replies back */
-	if( xSemaphoreTake(xipcClientZynqControl.cpu1Semaphore, IPC_CLIENT_ZYNQ_CONFIG_CPU1_REPLY_TO) != pdTRUE ){
+	if( xSemaphoreTake(xipcClientZynqControl.cpu1Semaphore, timeout) != pdTRUE ){
 		return IPC_CLIENT_ZYNQ_ERR_CPU1_REPLY_TO;
 	}
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
+int32_t ipcClientZynqLock(uint32_t timeout){
+
+    if( xSemaphoreTake(xipcClientZynqControl.lock, timeout) != pdTRUE ){
+        return IPC_CLIENT_ZYNQ_ERR_LOCK_TO;
+    }
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+void ipcClientZynqUnlock(void){
+
+    xSemaphoreGive(xipcClientZynqControl.lock);
+}
 //-----------------------------------------------------------------------------
 //=============================================================================
 

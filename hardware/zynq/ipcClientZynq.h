@@ -29,8 +29,8 @@
 /* Data received exceeds CPU0->CPU1 buffer */
 #define IPC_CLIENT_ZYNQ_ERR_CPU0_CPU1_BUFFER_OVERFLOW	-3
 
-/* CPU1->CPU0 reply timeout */
-#define IPC_CLIENT_ZYNQ_CONFIG_CPU1_REPLY_TO_MS			100
+/* Lock error code */
+#define IPC_CLIENT_ZYNQ_ERR_LOCK_TO                     -4
 //=============================================================================
 
 //=============================================================================
@@ -42,6 +42,10 @@ void ipcClientZynqInitialize(void *irqInst);
 int32_t ipcClientZynqIrqSend(void);
 //-----------------------------------------------------------------------------
 int32_t ipcClientZynqIrqReceive(uint32_t timeout);
+//-----------------------------------------------------------------------------
+int32_t ipcClientZynqLock(uint32_t timeout);
+//-----------------------------------------------------------------------------
+void ipcClientZynqUnlock(void);
 //-----------------------------------------------------------------------------
 //=============================================================================
 #endif /* SOC_CPU0 */
