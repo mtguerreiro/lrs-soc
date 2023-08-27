@@ -75,6 +75,9 @@ typedef struct{
 	ipcClientIrqSend irqSend;
 	ipcClientIrqReceive irqReceive;
 
+	ipcClientLock lock;
+    ipcClientUnlock unlock;
+
 	size_t serverAdd;
 	int32_t serverSize;
 
@@ -95,11 +98,15 @@ static ipcClientCtl_t ipcClientCtl = {.serverAdd = 0, .serverSize = 0,
 //=============================================================================
 //-----------------------------------------------------------------------------
 void ipcClientInitialize(ipcClientIrqSend irqSend, ipcClientIrqReceive irqReceive,
-		size_t clientMemAdd, int32_t clientMemSize,
-		size_t serverMemAdd, int32_t serverMemSize){
+        ipcClientLock lock, ipcClientUnlock unlock,
+        size_t clientMemAdd, int32_t clientMemSize,
+        size_t serverMemAdd, int32_t serverMemSize){
 
 	ipcClientCtl.irqSend = irqSend;
 	ipcClientCtl.irqReceive = irqReceive;
+
+	ipcClientCtl.lock = lock;
+    ipcClientCtl.unlock = unlock;
 
 	ipcClientCtl.clientAdd = clientMemAdd;
 	ipcClientCtl.clientSize = clientMemSize - 4U;
@@ -115,10 +122,20 @@ int32_t ipcClientRequest(void *req, int32_t reqsize,
 	int32_t status;
 	int32_t size;
 
-	status = ipcClientRequestSend(req, reqsize);
+	if( ipcClientCtl.lock != 0 ){
+	    status = ipcClientCtl.lock(timeout);
+	}
 	if( status != 0 ) return status;
 
+	status = ipcClientRequestSend(req, reqsize);
+	if( status != 0 ) {
+	    if( ipcClientCtl.unlock != 0 )  ipcClientCtl.unlock();
+	    return status;
+	}
+
 	size = ipcClientRequestResponse(resp, maxrespsize, timeout);
+
+    if( ipcClientCtl.unlock != 0 )  ipcClientCtl.unlock();
 
 	return size;
 }

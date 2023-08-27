@@ -37,6 +37,9 @@ typedef int32_t (*ipcClientIrqSend)(void);
  */
 typedef int32_t (*ipcClientIrqReceive)(uint32_t timeout);
 
+typedef int32_t (*ipcClientLock)(uint32_t timeout);
+typedef void (*ipcClientUnlock)(void);
+
 #define IPC_CLIENT_ERR_MEM_WRITE		-1	/*!< Failed to write to memory */
 #define IPC_CLIENT_ERR_MEM_READ			-2  /*!< Failed to read from memory */
 #define IPC_CLIENT_ERR_IRQ_SEND			-3	/*!< Failed to generate interrupt */
@@ -68,6 +71,7 @@ typedef int32_t (*ipcClientIrqReceive)(uint32_t timeout);
  *
  */
 void ipcClientInitialize(ipcClientIrqSend irqSend, ipcClientIrqReceive irqReceive,
+        ipcClientLock lock, ipcClientUnlock unlock,
 		size_t clientMemAdd, int32_t clientMemSize,
 		size_t serverMemAdd, int32_t serverMemSize);
 //-----------------------------------------------------------------------------
