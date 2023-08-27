@@ -77,6 +77,7 @@ static int32_t ocpZynqCpu0InitializeIpc(void *intcInst){
 	ipcClientZynqInitialize(intcInst);
 
 	ipcClientInitialize( ipcClientZynqIrqSend, ipcClientZynqIrqReceive,
+	        ipcClientZynqLock, ipcClientZynqUnlock,
 			OCP_ZYNQ_C0_CONFIG_CPU1_TO_CPU0_ADDR, OCP_ZYNQ_C0_CONFIG_CPU1_TO_CPU0_SIZE,
 			OCP_ZYNQ_C0_CONFIG_CPU0_TO_CPU1_ADDR, OCP_ZYNQ_C0_CONFIG_CPU0_TO_CPU1_SIZE);
 

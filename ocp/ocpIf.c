@@ -18,6 +18,9 @@
 
 #include "../utils/rp.h"
 
+#include "ctlrif/ctlrif.h"
+#include "ctlrif/pynq/buckcontrol.h"
+
 #ifdef OCP_CONFIG_MASTER_CORE
 #include "ipcClient.h"
 #endif
@@ -55,9 +58,6 @@ static int32_t ocpIfTraceGetTracesNames(void *in, uint32_t insize,
 static int32_t ocpIfTraceGetAddress(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
-//static int32_t ocpIfCSGetStatus(void *in, uint32_t insize,
-//		void **out, uint32_t maxoutsize);
-//-----------------------------------------------------------------------------
 static int32_t ocpIfCSStatus(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
@@ -78,6 +78,24 @@ static int32_t ocpIfCSGetNumberControllers(void *in, uint32_t insize,
 //-----------------------------------------------------------------------------
 static int32_t ocpIfCSGetControllersNames(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfOpilUpdateMeasurements(void *in, uint32_t insize,
+        void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfOpilUpdateSimData(void *in, uint32_t insize,
+        void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfOpilRunControl(void *in, uint32_t insize,
+        void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfOpilInitializeControl(void *in, uint32_t insize,
+        void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfOpilGetControl(void *in, uint32_t insize,
+        void **out, uint32_t maxoutsize);
+//-----------------------------------------------------------------------------
+static int32_t ocpIfOpilGetControllerData(void *in, uint32_t insize,
+        void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
 #else
 static int32_t ocpIfMasterTraceRead(void *in, uint32_t insize,
@@ -196,6 +214,11 @@ static ocpIfControl_t xcontrol;
 //-----------------------------------------------------------------------------
 int32_t ocpIfInitialize(void){
 
+
+
+    ctlrifInitialize(buckcontrolInitialize, buckcontrol);
+
+
 	rpInitialize( &xcontrol.rp, OCP_IF_CMD_END, xcontrol.handles );
 
 #ifndef OCP_CONFIG_MASTER_CORE
@@ -218,6 +241,13 @@ int32_t ocpIfInitialize(void){
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_HARDWARE_IF, ocpIfCSHardwareIf );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_GET_NUMBER_CONTROLLERS, ocpIfCSGetNumberControllers );
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_CS_GET_CONTROLLERS_NAMES, ocpIfCSGetControllersNames );
+
+    rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_OPIL_UPDATE_MEASUREMENTS, ocpIfOpilUpdateMeasurements );
+    rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_OPIL_UPDATE_SIM_DATA, ocpIfOpilUpdateSimData );
+    rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_OPIL_RUN_CONTROL, ocpIfOpilRunControl );
+    rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_OPIL_INITIALIZE_CONTROL, ocpIfOpilInitializeControl );
+    rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_OPIL_GET_CONTROL, ocpIfOpilGetControl );
+    rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_OPIL_GET_CONTROLLER_DATA, ocpIfOpilGetControllerData );
 
 #else
 	rpRegisterHandle( &xcontrol.rp, OCP_IF_CMD_TRACE_READ, ocpIfMasterTraceRead );
@@ -404,26 +434,6 @@ static int32_t ocpIfTraceGetAddress(void *in, uint32_t insize,
 	return sizeof(size_t);
 }
 //-----------------------------------------------------------------------------
-//static int32_t ocpIfCSGetStatus(void *in, uint32_t insize,
-//		void **out, uint32_t maxoutsize){
-//
-//	uint32_t id;
-//
-//	int32_t status;
-//	int32_t cmdStatus;
-//
-//	uint32_t *o = (uint32_t *)( *out );
-//
-//	id = *( (uint32_t *)in );
-//
-//	cmdStatus = ocpCSGetStatus(id, &status);
-//	if( cmdStatus < 0 ) return cmdStatus;
-//
-//	*o = status;
-//
-//	return 4;
-//}
-//-----------------------------------------------------------------------------
 static int32_t ocpIfCSStatus(void *in, uint32_t insize,
 		void **out, uint32_t maxoutsize){
 
@@ -522,7 +532,58 @@ static int32_t ocpIfCSGetControllersNames(void *in, uint32_t insize,
 
 	return size;
 }
+//-----------------------------------------------------------------------------
+static int32_t ocpIfOpilUpdateMeasurements(void *in, uint32_t insize,
+        void **out, uint32_t maxoutsize){
 
+    ctlrifUpdateMeasurements(in, insize);
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfOpilUpdateSimData(void *in, uint32_t insize,
+        void **out, uint32_t maxoutsize){
+
+    ctlrifUpdateSimData(in, insize);
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfOpilRunControl(void *in, uint32_t insize,
+        void **out, uint32_t maxoutsize){
+
+    ctlrifRunControl();
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfOpilInitializeControl(void *in, uint32_t insize,
+        void **out, uint32_t maxoutsize){
+
+    ctlrifInitializeControl();
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfOpilGetControl(void *in, uint32_t insize,
+        void **out, uint32_t maxoutsize){
+
+    int32_t size;
+
+    size = ctlrifGetControl(out);
+
+    return size;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpIfOpilGetControllerData(void *in, uint32_t insize,
+        void **out, uint32_t maxoutsize){
+
+    int32_t size;
+
+    size = ctlrifGetControllerData(out);
+
+    return size;
+}
 //-----------------------------------------------------------------------------
 #else
 static int32_t ocpIfMasterTraceRead(void *in, uint32_t insize,
