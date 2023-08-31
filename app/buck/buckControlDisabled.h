@@ -32,6 +32,8 @@ int32_t buckControlDisabledGetParams(void *in, uint32_t insize, void *out, uint3
 //-----------------------------------------------------------------------------
 int32_t buckControlDisabledRun(void *inputs, int32_t ninputs, void *outputs, int32_t nmaxoutputs);
 //-----------------------------------------------------------------------------
+void buckControlDisabledReset(void);
+//-----------------------------------------------------------------------------
 //=============================================================================
 
 #endif /* BUCK_CONTROL_DISABLED_H_ */

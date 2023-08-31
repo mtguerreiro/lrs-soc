@@ -23,6 +23,7 @@
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
 typedef void(*controllerInit)(void);
+typedef void(*controllerReset)(void);
 typedef int32_t(*controllerSP)(void *in, uint32_t insize);
 typedef int32_t(*controllerGP)(void *in, uint32_t insize, void *out, uint32_t maxoutsize);
 typedef int32_t(*controllerR)(void *inputs, int32_t ninputs, void *outputs, int32_t nmaxoutputs);
@@ -38,6 +39,7 @@ typedef struct{
 	controllerSP setParams[BUCK_CONTROLLER_END];
 	controllerGP getParams[BUCK_CONTROLLER_END];
 	controllerR run[BUCK_CONTROLLER_END];
+	controllerReset reset[BUCK_CONTROLLER_END];
 
 	uint32_t active;
 
@@ -45,7 +47,7 @@ typedef struct{
 
 }controller_t;
 
-static controller_t controllers = {.active = BUCK_CONTROLLER_SFB};
+static controller_t controllers = {.active = BUCK_CONTROLLER_DISABLED};
 
 //=============================================================================
 
@@ -56,6 +58,7 @@ static int32_t buckControllerInterfaceGetController(void *in, uint32_t insize, v
 static int32_t buckControllerInterfaceSetController(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t buckControllerInterfaceGetControllerParams(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t buckControllerInterfaceSetControllerParams(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t buckControllerInterfaceReset(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //=============================================================================
 
 //=============================================================================
@@ -72,17 +75,20 @@ void buckControllerInitialize(void){
 	rpRegisterHandle(&controllers.interface.rp, BUCK_CONTROLLER_IF_SET, buckControllerInterfaceSetController);
 	rpRegisterHandle(&controllers.interface.rp, BUCK_CONTROLLER_IF_GET_PARAMS, buckControllerInterfaceGetControllerParams);
 	rpRegisterHandle(&controllers.interface.rp, BUCK_CONTROLLER_IF_SET_PARAMS, buckControllerInterfaceSetControllerParams);
+    rpRegisterHandle(&controllers.interface.rp, BUCK_CONTROLLER_IF_RESET, buckControllerInterfaceReset);
 
 	/* Register the available controllers */
-	controllers.initialize[BUCK_CONTROLLER_SFB] = buckControlSfbInitialize;
-	controllers.setParams[BUCK_CONTROLLER_SFB] = buckControlSfbSetParams;
-	controllers.getParams[BUCK_CONTROLLER_SFB] = buckControlSfbGetParams;
-	controllers.run[BUCK_CONTROLLER_SFB] = buckControlSfbRun;
-
     controllers.initialize[BUCK_CONTROLLER_DISABLED] = buckControlDisabledInitialize;
     controllers.setParams[BUCK_CONTROLLER_DISABLED] = buckControlDisabledSetParams;
     controllers.getParams[BUCK_CONTROLLER_DISABLED] = buckControlDisabledGetParams;
     controllers.run[BUCK_CONTROLLER_DISABLED] = buckControlDisabledRun;
+    controllers.reset[BUCK_CONTROLLER_DISABLED] = buckControlDisabledReset;
+
+    controllers.initialize[BUCK_CONTROLLER_SFB] = buckControlSfbInitialize;
+    controllers.setParams[BUCK_CONTROLLER_SFB] = buckControlSfbSetParams;
+    controllers.getParams[BUCK_CONTROLLER_SFB] = buckControlSfbGetParams;
+    controllers.run[BUCK_CONTROLLER_SFB] = buckControlSfbRun;
+    controllers.reset[BUCK_CONTROLLER_SFB] = buckControlSfbReset;
 
 	/* Initializes all registered controllers */
 	for(k = 0; k < BUCK_CONTROLLER_END; k++){
@@ -175,6 +181,21 @@ static int32_t buckControllerInterfaceSetControllerParams(void *in, uint32_t ins
 	status = controllers.setParams[ctl]((void *)p, insize - sizeof( ctl ) );
 
 	return status;
+}
+//-----------------------------------------------------------------------------
+static int32_t buckControllerInterfaceReset(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    uint32_t *p;
+    uint32_t ctl;
+
+    p = (uint32_t *)in;
+    ctl = *p++;
+
+    if( ctl >= BUCK_CONTROLLER_END ) return BUCK_CONTROLLER_ERR_INVALID_CTL;
+
+    controllers.reset[ctl]();
+
+    return 0;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

@@ -1,157 +1,105 @@
-##"""
-##Module ``buck``
-##==============
-##
-##
-##"""
-##import lrssoc
-##
-##class Commands:
-##    """
-##    """
-##    def __init__(self):
-##        self.blink = 0
-##        self.adc_en = 1
-##        self.adc_config = 2
-##        self.pwm_config = 3
-##        
-##class Buck:
-##    """
-##
-##    Parameters
-##    ----------
-##
-##    Raises
-##    ------
-##
-##    Attributes
-##    ----------
-##        
-##    """
-##
-##
-##    def adc_en(self, en):
-##        """Enables/disables the ADC.
-##
-##        Parameters
-##        ----------
-##        en : bool
-##            If `True`, enables ADC. If `False`, disables ADC.
-##
-##        Raises
-##        ------
-##        TypeError
-##            If `en` is not of `bool` type.
-##
-##        """        
-##        if type(en) is not bool:
-##            raise TypeError('`en` must be of bool type.')
-##        
-##        cmd = self.cmd.adc_en
-##
-##        if en == True:
-##            en = [1]
-##        else:
-##            en = [0]
-##
-##        tx_data = []
-##        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-##        tx_data.extend( lrssoc.conversions.u32_to_u8(en, msb=False) )
-##
-##        status, _ = self.hwi.cs_hardware_if(0, tx_data)
-##
-##        if status < 0:
-##            funcname = AFE.adc_en.__name__
-##            print('{:}: Error enabling ADC. Error code {:}\r\n'.format(funcname, status))
-##            
-##        return status
-##
-##    
-##    def adc_config(self, spifreq=10):
-##        """Sets the ADC's SPI clock frequency.
-##
-##        The clock will be divided by 2 x `freq`.
-##
-##        Parameters
-##        ----------
-##        spifreq : int
-##            Clock division factor. By default, it is 10.
-##
-##        Raises
-##        ------
-##        TypeError
-##            If `freq` is not of `int` type.
-##
-##        """        
-##        cmd = self.cmd.adc_config
-##
-##        tx_data = []
-##        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-##        tx_data.extend( lrssoc.conversions.u32_to_u8(spifreq, msb=False) )
-##
-##        status, _ = self.hwi.cs_hardware_if(0, tx_data)
-##
-##        if status < 0:
-##            funcname = AFE.adc_config.__name__
-##            print('{:}: Error configuring ADC. Error code {:}\r\n'.format(funcname, status))
-##            
-##        return status
-##    
-##
-##    def pwm_config(self, pwmfreq=10000):
-##        """Sets the PWM frequency. This is also the ADC's sampling frqeuency.
-##
-##        The frequency will be given by MAIN_CLOCK / (2 x `freq`).
-##
-##        Parameters
-##        ----------
-##        pwmfreq : int
-##            Clock division factor. By default, it is 10000.
-##
-##        Raises
-##        ------
-##        TypeError
-##            If `freq` is not of `int` type.
-##
-##        """        
-##        cmd = self.cmd.pwm_config
-##
-##        tx_data = []
-##        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-##        tx_data.extend( lrssoc.conversions.u32_to_u8(pwmfreq, msb=False) )
-##
-##        status, _ = self.hwi.cs_hardware_if(0, tx_data)
-##
-##        if status < 0:
-##            funcname = AFE.pwm_config.__name__
-##            print('{:}: Error configuring PWM. Error code {:}\r\n'.format(funcname, status))
-##
-##        return status
-##
-##
-##    def set_controller(self, controller=0):
-##        """Sets the controller.
-##
-##        Parameters
-##        ----------
-##        controller : int
-##            Controller.
-##
-##        Raises
-##        ------
-##        TypeError
-##            If `freq` is not of `int` type.
-##
-##        """
-##        tx_data = []
-##        tx_data.extend( lrssoc.conversions.u32_to_u8(0, msb=False) )
-##        tx_data.extend( lrssoc.conversions.u32_to_u8(controller, msb=False) )
-##
-##        status, _ = self.hwi.cs_controller_if(0, tx_data)
-##
-##        if status < 0:
-##            funcname = AFE.set_controller.__name__
-##            print('{:}: Error setting the controller. Error code {:}\r\n'.format(funcname, status))
-##            
-##        return status
-##
+"""
+Module ``buck``
+==============
+
+
+"""
+import lrssoc
+
+class Commands:
+    """
+    """
+    def __init__(self):
+        self.blink = 0
+        self.adc_en = 1
+        self.adc_config = 2
+        self.pwm_config = 3
+
+
+class Buck:
+    """
+
+    Parameters
+    ----------
+
+    Raises
+    ------
+
+    Attributes
+    ----------
+        
+    """
+    def __init__(self, cs_id, comm, comm_settings):
+
+        self._cs_id = 0
+        self._ocp_if = lrssoc.hwi.Interface(comm_type=comm, settings=comm_settings)
+        self._ctl_if = lrssoc.buck.buck_controller.BuckController(ocp_if=self._ocp_if, cs_id=cs_id)
+
+
+    def cs_enable(self):
+        """
+        """
+        status, = self._ocp_if.cs_enable( self._cs_id )
+
+        return status
+        
+
+    def cs_disable(self):
+        """
+        """
+        status, = self._ocp_if.cs_disable( self._cs_id )
+
+        return status
+
+
+    def cs_status(self):
+        """
+        """
+        status, = self._ocp_if.cs_status( self._cs_id )
+
+        return status
+        
+
+    def controller_disable(self):
+        """
+        """
+        status, = self._ctl_if.set( 0 )
+
+        return status
+
+    
+    def controller_enable(self, controller, reset=True):
+        """
+        """
+        status, = self._ctl_if.reset( controller )
+        if status < 0:
+            return status
+        
+        status, = self._ctl_if.set( controller )
+        
+        return status
+
+
+    def controller_set_params(self, controller, params):
+        """
+        """
+        status, new_params = self._ctl_if.get_params( controller )
+        if status < 0:
+            return status
+
+        for param, val in params.items():
+            if param in new_params:
+                new_params[param] = val
+                
+        status, = self._ctl_if.set_params( controller, new_params )
+        
+        return status
+
+    def controller_get(self):
+        """
+        """
+        status, = self._ctl_if.get()
+
+        return status
+
+

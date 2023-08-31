@@ -41,6 +41,8 @@ int32_t buckControlSfbGetParams(void *in, uint32_t insize, void *out, uint32_t m
 //-----------------------------------------------------------------------------
 int32_t buckControlSfbRun(void *inputs, int32_t ninputs, void *outputs, int32_t nmaxoutputs);
 //-----------------------------------------------------------------------------
+void buckControlSfbReset(void);
+//-----------------------------------------------------------------------------
 //=============================================================================
 
 #endif /* BUCK_CONTROL_SFB_H_ */

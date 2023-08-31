@@ -58,5 +58,9 @@ int32_t buckControlDisabledRun(void *inputs, int32_t ninputs, void *outputs, int
     return sizeof(buckConfigControlSignals_t);
 }
 //-----------------------------------------------------------------------------
+void buckControlDisabledReset(void){
+
+}
+//-----------------------------------------------------------------------------
 //=============================================================================
 #endif /* SOC_CPU1 */

@@ -161,7 +161,7 @@ static int32_t ocpZynqCpu1InitializeControlSystem(void){
     config.fcontrollerStatus = buckControllerStatus;
 
     config.fenable = 0;
-    config.fdisable = 0;
+    config.fdisable = buckOpilDisable;
 
     config.fonEntry = 0;
     config.fonExit = 0;

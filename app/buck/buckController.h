@@ -18,8 +18,8 @@
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
 typedef enum{
-	BUCK_CONTROLLER_SFB,
 	BUCK_CONTROLLER_DISABLED,
+    BUCK_CONTROLLER_SFB,
 	BUCK_CONTROLLER_END
 }buckControllers_t;
 
@@ -28,6 +28,7 @@ typedef enum{
 	BUCK_CONTROLLER_IF_GET,			/* Gets the active controller */
 	BUCK_CONTROLLER_IF_SET_PARAMS,	/* Sets parameters for the specified controller */
 	BUCK_CONTROLLER_IF_GET_PARAMS,	/* Gets parameters for the specified controller */
+	BUCK_CONTROLLER_IF_RESET,       /* Resets the specified controller */
 	BUCK_CONTROLLER_IF_END
 }buckControllerInterface_t;
 

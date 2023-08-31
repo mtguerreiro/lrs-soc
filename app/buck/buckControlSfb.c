@@ -103,5 +103,9 @@ int32_t buckControlSfbRun(void *inputs, int32_t ninputs, void *outputs, int32_t 
     return sizeof(buckConfigControlSignals_t);
 }
 //-----------------------------------------------------------------------------
+void buckControlSfbReset(void){
+
+}
+//-----------------------------------------------------------------------------
 //=============================================================================
 #endif /* SOC_CPU1 */
