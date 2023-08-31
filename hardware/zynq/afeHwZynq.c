@@ -125,13 +125,6 @@ int32_t afeHwZynqInitialize(void *intcInst){
 
 	int32_t status;
 
-	/* Initializes inter-processor communication */
-	ipcServerZynqInitialize(intcInst);
-
-	ipcServerInitialize(ocpIf, ipcServerZynqIrqSend,
-			ZYNQ_CONFIG_MEM_CPU0_TO_CPU1_ADR, ZYNQ_CONFIG_MEM_CPU0_TO_CPU1_SIZE,
-			ZYNQ_CONFIG_MEM_CPU1_TO_CPU0_ADR, ZYNQ_CONFIG_MEM_CPU1_TO_CPU0_SIZE);
-
 	/* Initializes peripherals */
 	status = afeHwZynqInitializeHw(intcInst);
 

@@ -30,6 +30,10 @@
 #include "afeIf.h"
 #include "afeHwZynq.h"
 
+#include "buckOpil.h"
+#include "buckController.h"
+#include "buckHw.h"
+
 #include "zynqConfig.h"
 //=============================================================================
 
@@ -38,6 +42,8 @@
 //=============================================================================
 //-----------------------------------------------------------------------------
 static int32_t ocpZynqCpu1InitializeHw(void *intcInst);
+//-----------------------------------------------------------------------------
+static int32_t ocpZynqCpu1InitializeIpc(void *intcInst);
 //-----------------------------------------------------------------------------
 static int32_t ocpZynqCpu1InitializeTraces(void);
 //-----------------------------------------------------------------------------
@@ -82,6 +88,7 @@ static float bOutputs[10];
 void ocpZynqCpu1Initialize(void *intcInst){
 
 	ocpZynqCpu1InitializeTraces();
+	ocpZynqCpu1InitializeIpc(intcInst);
 	ocpZynqCpu1InitializeHw(intcInst);
 	ocpZynqCpu1InitializeControlSystem();
 	ocpZynqCpu1InitializeInterface();
@@ -99,6 +106,18 @@ static int32_t ocpZynqCpu1InitializeHw(void *intcInst){
 	afeHwZynqInitialize(intcInst);
 
 	return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpZynqCpu1InitializeIpc(void *intcInst){
+
+    /* Initializes inter-processor communication */
+    ipcServerZynqInitialize(intcInst);
+
+    ipcServerInitialize(ocpIf, ipcServerZynqIrqSend,
+            ZYNQ_CONFIG_MEM_CPU0_TO_CPU1_ADR, ZYNQ_CONFIG_MEM_CPU0_TO_CPU1_SIZE,
+            ZYNQ_CONFIG_MEM_CPU1_TO_CPU0_ADR, ZYNQ_CONFIG_MEM_CPU1_TO_CPU0_SIZE);
+
+    return 0;
 }
 //-----------------------------------------------------------------------------
 static int32_t ocpZynqCpu1InitializeTraces(void){
@@ -119,31 +138,53 @@ static int32_t ocpZynqCpu1InitializeControlSystem(void){
 
 	ocpCSConfig_t config;
 
-	/* Initializes controller lib */
-	controllerInitialize();
-
+//	/* Initializes controller lib */
+	buckControllerInitialize();
+//
 	/* Initializes control sys lib */
 	config.binputs = (void *)bInputs;
 	config.bprocInputs = (void *)bProcInputs;
 	config.bprocOutputs = (void *)bProcOutputs;
 	config.boutputs = (void *)bOutputs;
 
-	config.fhwInterface = afeIf;
+    config.fhwInterface = 0;
+    config.fhwStatus = buckHwStatus;
 
-	config.fgetInputs = afeHwZynqGetInputs;
-	config.fprocInputs = afeHwZynqProcInputs;
+    config.fgetInputs = buckOpilGetMeasurements;
+    config.fprocInputs = buckOpilProcInputs;
 
-	config.fprocOutputs = afeHwZynqProcOutputs;
-	config.fapplyOutputs = afeHwZynqApplyOutputs;
+    config.fprocOutputs = buckOpilProcOutputs;
+    config.fapplyOutputs = buckOpilUpdateControl;
 
-	config.frun = controllerRun;
-	config.fcontrollerInterface = controllerInterface;
+    config.frun = buckControllerRun;
+    config.fcontrollerInterface = buckControllerInterface;
+    config.fcontrollerStatus = buckControllerStatus;
 
-	config.fenable = 0;
-	config.fdisable = 0;
+    config.fenable = 0;
+    config.fdisable = 0;
 
-	config.fonEntry = 0;
-	config.fonExit = 0;
+    config.fonEntry = 0;
+    config.fonExit = 0;
+
+
+//	controllerInitialize();
+//	config.fhwInterface = afeIf;
+//
+//	config.fgetInputs = afeHwZynqGetInputs;
+//	config.fprocInputs = afeHwZynqProcInputs;
+//
+//	config.fprocOutputs = afeHwZynqProcOutputs;
+//	config.fapplyOutputs = afeHwZynqApplyOutputs;
+//
+//	config.frun = controllerRun;
+//	config.fcontrollerInterface = controllerInterface;
+//
+//	config.fenable = 0;
+//	config.fdisable = 0;
+//
+//	config.fonEntry = 0;
+//	config.fonExit = 0;
+
 
 	ocpCSInitialize(OCP_CS_1, &config, "Converter control");
 

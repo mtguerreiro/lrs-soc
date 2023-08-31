@@ -10,3 +10,4 @@ from . import hwc
 from . import hwi
 from . import conversions
 from . import afe
+from . import buck

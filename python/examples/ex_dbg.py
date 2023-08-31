@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 plt.ion()
 
 # --- Input ---
-host = '131.246.75.192'
+host = '131.246.75.169'
 port = 8080
 settings = {'host':host, 'port':port}
 
