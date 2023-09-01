@@ -36,7 +36,7 @@ class AFE:
     """
     def __init__(self, comm_type='ethernet', settings={}):
 
-        self.hwi = lrssoc.hwi.Interface(comm_type='ethernet', settings=settings)
+        self.hwi = lrssoc.ocp.iface.Interface(comm_type='ethernet', settings=settings)
         
         self.cmd = Commands()
 

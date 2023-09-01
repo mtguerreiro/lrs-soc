@@ -36,6 +36,8 @@
 //#define k1               (k1_raw/adc_gain_i)
 //#define k2               (k2_raw/adc_gain_v_out)
 //#define kr               kr_raw
+
+static float v = 0.0f, i = 0.0f, u = 0.0f;
 //=============================================================================
 
 //=============================================================================
@@ -55,7 +57,10 @@ buckControlSfbParams_t ctl = {
 //-----------------------------------------------------------------------------
 void buckControlSfbInitialize(void){
 
-	//ocpTraceAddSignal(OCP_TRACE_1, (void *)&i_ac, "Grid current");
+	ocpTraceAddSignal(OCP_TRACE_1, (void *)&v, "Output voltage");
+    ocpTraceAddSignal(OCP_TRACE_1, (void *)&i, "Inductor current");
+    ocpTraceAddSignal(OCP_TRACE_1, (void *)&u, "Duty-cycle");
+    ocpTraceAddSignal(OCP_TRACE_1, (void *)&ctl.r, "Reference");
 }
 //-----------------------------------------------------------------------------
 int32_t buckControlSfbSetParams(void *params, uint32_t n){
@@ -89,9 +94,10 @@ int32_t buckControlSfbRun(void *inputs, int32_t ninputs, void *outputs, int32_t 
     buckConfigMeasurements_t *m = (buckConfigMeasurements_t *)inputs;
     buckConfigControlSignals_t *o = (buckConfigControlSignals_t *)outputs;
 
-    float u;
+    v = m->v_out;
+    i = m->i;
 
-    u = ctl.r * ctl.kr - m->i * ctl.k1 - m->v_out * ctl.k2;
+    u = ctl.r * ctl.kr - i * ctl.k1 - v * ctl.k2;
 
     if( u < 0.0f )
         o->u = 0.0f;

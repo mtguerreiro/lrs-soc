@@ -10,9 +10,11 @@ host = '131.246.75.169'
 port = 8080
 settings = {'host':host, 'port':port}
 
-soc = lrssoc.hwi.Interface(comm_type='ethernet', settings=settings)
+#soc = lrssoc.hwi.Interface(comm_type='ethernet', settings=settings)
 
-afe = lrssoc.afe.AFE(comm_type='ethernet', settings=settings)
+soc = lrssoc.ocp.iface.Interface(comm_type='ethernet', settings=settings)
+
+afe = lrssoc.afe.afe.AFE(comm_type='ethernet', settings=settings)
 
 
 def config():

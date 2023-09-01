@@ -1,23 +1,11 @@
 """
-Module ``afe``
-==============
+Module ``buck_controller``
+==========================
 
-Application for the active rectifier platform
 
 """
 import lrssoc
 import struct
-
-class Commands:
-    """
-    """
-    def __init__(self):
-        self.set = 0
-        self.get = 1
-        self.set_params = 2
-        self.get_params = 3
-        self.reset = 4
-
 
 class Controllers:
     """
@@ -58,7 +46,7 @@ class SFB:
         return params
     
 
-class BuckController:
+class Controller:
     """
 
     Parameters
@@ -73,10 +61,11 @@ class BuckController:
     """
     def __init__(self, ocp_if, cs_id=0):
 
-        self.cmd = Commands()
-        self.ctl = Controllers().ctl
-        self.cs_id = cs_id
-        self.ocp_if = ocp_if
+        self._ocp_if = ocp_if
+        self._ctl_if = lrssoc.controller.controller.Controller(self._ocp_if)
+
+        self._cs_id = cs_id
+        self._ctl = Controllers().ctl
         
 
     def set(self, controller):
@@ -89,26 +78,18 @@ class BuckController:
         ------
 
         """
-        if controller not in self.ctl:
+        if controller not in self._ctl:
             print('Uknown controller')
             return -1
-        
-        cmd = self.cmd.set
-        cs_id = self.cs_id
 
-        ctl_id = self.ctl[controller]['id']
+        ctl_id = self._ctl[controller]['id']
 
-        tx_data = []
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-        tx_data.extend( lrssoc.conversions.u32_to_u8(ctl_id, msb=False) )
+        status, = self._ctl_if.set(self._cs_id, ctl_id)
 
-        status, _ = self.ocp_if.cs_controller_if(cs_id, tx_data)
-
-        if status < 0:
-            funcname = BuckController.set.__name__
-            print('{:}: Error setting the controller. Error code {:}\r\n'.format(funcname, status))
+        if status < 0 :
+            return (-1, status)
             
-        return (status,)
+        return (0,)
 
 
     def get(self):
@@ -121,20 +102,8 @@ class BuckController:
         ------
 
         """
-        cmd = self.cmd.get
-        cs_id = self.cs_id
 
-        tx_data = []
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-
-        status, rx_data = self.ocp_if.cs_controller_if(cs_id, tx_data)
-
-        if status < 0:
-            funcname = BuckController.get.__name__
-            print('{:}: Error getting the controller. Error code {:}\r\n'.format(funcname, status))
-            return (status,)
-        
-        controller = lrssoc.conversions.u8_to_u32(rx_data, msb=False)
+        status, controller = self._ctl_if.get(self._cs_id)
         
         return (status, controller)
 
@@ -148,94 +117,54 @@ class BuckController:
         Raises
         ------
         """
-        if controller not in self.ctl:
+        if controller not in self._ctl:
             print('Uknown controller')
-            return -1
+            return (-1,)
 
-        if self.ctl[controller]['if'] is None:
-            funcname = BuckController.set_params.__name__
-            print('{:}: Error setting controller params. Undefined interface\r\n'.format(funcname, status))
-            return -1
+        if self._ctl[controller]['if'] is None:
+            print('Error setting controller params. Undefined interface\r\n'.format(status))
+            return (-1,)
 
-        cmd = self.cmd.set_params
-        cs_id = self.cs_id
+        ctl_id = self._ctl[controller]['id']
+        ctl_data = self._ctl[controller]['if'].set(params)
 
-        ctl_id = self.ctl[controller]['id']
-            
-        ctl_data = self.ctl[controller]['if'].set(params)
-
-        tx_data = []
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-        tx_data.extend( lrssoc.conversions.u32_to_u8(ctl_id, msb=False) )
-        tx_data.extend( ctl_data )
-
-        status, _ = self.ocp_if.cs_controller_if(cs_id, tx_data)
-
-        if status < 0:
-            funcname = BuckController.set_params.__name__
-            print('{:}: Error setting controller params. Error code {:}\r\n'.format(funcname, status))
-            
-        return (status,)
+        status = self._ctl_if.set_params(self._cs_id, ctl_id, ctl_data)
+          
+        return status
 
 
     def get_params(self, controller):
         """
         """
-        if controller not in self.ctl:
+        if controller not in self._ctl:
             print('Uknown controller')
-            return -1
+            return (-1,)
 
-        if self.ctl[controller]['if'] is None:
-            funcname = BuckController.set_params.__name__
-            print('{:}: Error getting controller params. Undefined interface.\r\n'.format(funcname, status))
-            return -1
+        if self._ctl[controller]['if'] is None:
+            print('Error getting controller params. Undefined interface.\r\n'.format(status))
+            return (-1,)
 
-        cmd = self.cmd.get_params
-        cs_id = self.cs_id
+        ctl_id = self._ctl[controller]['id']
 
-        ctl_id = self.ctl[controller]['id']
+        status, data = self._ctl_if.get_params(self._cs_id, ctl_id)
 
-        tx_data = []
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-        tx_data.extend( lrssoc.conversions.u32_to_u8(ctl_id, msb=False) )
-
-        status, rx_data = self.ocp_if.cs_controller_if(cs_id, tx_data)   
-
-        if status < 0:
-            funcname = BuckController.set_params.__name__
-            print('{:}: Error setting controller params. Error code {:}\r\n'.format(funcname, status))
-            return (status,)
-
-        params = self.ctl[controller]['if'].get(rx_data)
+        if status != 0:
+            return (-1, status)
         
-        return (status, params)
+        params = self._ctl[controller]['if'].get(data)
+        
+        return (0, params)
 
 
     def reset(self, controller):
         """
         """
-        if controller not in self.ctl:
+        if controller not in self._ctl:
             print('Uknown controller')
             return -1
 
-        if self.ctl[controller]['if'] is None:
-            funcname = BuckController.set_params.__name__
-            print('{:}: Error reseting controller params. Undefined interface.\r\n'.format(funcname, status))
-            return -1
+        ctl_id = self._ctl[controller]['id']
 
-        cmd = self.cmd.reset
-        cs_id = self.cs_id
-
-        ctl_id = self.ctl[controller]['id']
-
-        tx_data = []
-        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-        tx_data.extend( lrssoc.conversions.u32_to_u8(ctl_id, msb=False) )
-
-        status, _ = self.ocp_if.cs_controller_if(cs_id, tx_data)   
-
-        if status < 0:
-            funcname = BuckController.reset.__name__
-            print('{:}: Error resetting controller. Error code {:}\r\n'.format(funcname, status))
-       
+        status, = self._ctl_if.reset(self._cs_id, ctl_id)
+      
         return (status,)

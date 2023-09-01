@@ -558,6 +558,7 @@ static int32_t ocpIfOpilRunControl(void *in, uint32_t insize,
         void **out, uint32_t maxoutsize){
 
     ocpCSRun(OCP_CS_1);
+    ocpTraceSave(OCP_TRACE_1);
 
     return 0;
 }
