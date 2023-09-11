@@ -14,6 +14,7 @@
 #include "ocpCS.h"
 #include "ocpPlatform.h"
 #include "ocpConfig.h"
+#include "ocpOpil.h"
 
 #include "stddef.h"
 
@@ -21,10 +22,6 @@
 
 #include "ctlrif/ctlrif.h"
 #include "ctlrif/pynq/buckcontrol.h"
-
-#ifndef OCP_CONFIG_MASTER_CORE
-#include "buckOpil.h"
-#endif
 
 #ifdef OCP_CONFIG_MASTER_CORE
 #include "ipcClient.h"
@@ -218,11 +215,6 @@ static ocpIfControl_t xcontrol;
 //=============================================================================
 //-----------------------------------------------------------------------------
 int32_t ocpIfInitialize(void){
-
-
-
-    ctlrifInitialize(buckcontrolInitialize, buckcontrol);
-
 
 	rpInitialize( &xcontrol.rp, OCP_IF_CMD_END, xcontrol.handles );
 
@@ -541,7 +533,7 @@ static int32_t ocpIfCSGetControllersNames(void *in, uint32_t insize,
 static int32_t ocpIfOpilUpdateMeasurements(void *in, uint32_t insize,
         void **out, uint32_t maxoutsize){
 
-    buckOpilUpdateMeasurements(in, insize);
+    ocpOpilUpdateMeas(in, insize);
 
     return 0;
 }
@@ -549,7 +541,7 @@ static int32_t ocpIfOpilUpdateMeasurements(void *in, uint32_t insize,
 static int32_t ocpIfOpilUpdateSimData(void *in, uint32_t insize,
         void **out, uint32_t maxoutsize){
 
-    buckOpilUpdateSimData(in, insize);
+    ocpOpilUpdateSimData(in, insize);
 
     return 0;
 }
@@ -557,8 +549,7 @@ static int32_t ocpIfOpilUpdateSimData(void *in, uint32_t insize,
 static int32_t ocpIfOpilRunControl(void *in, uint32_t insize,
         void **out, uint32_t maxoutsize){
 
-    ocpCSRun(OCP_CS_1);
-    ocpTraceSave(OCP_TRACE_1);
+    ocpOpilRunControl();
 
     return 0;
 }
@@ -566,7 +557,7 @@ static int32_t ocpIfOpilRunControl(void *in, uint32_t insize,
 static int32_t ocpIfOpilInitializeControl(void *in, uint32_t insize,
         void **out, uint32_t maxoutsize){
 
-    buckOpilInitializeControl();
+    ocpOpilInitControl();
 
     return 0;
 }
@@ -576,7 +567,7 @@ static int32_t ocpIfOpilGetControl(void *in, uint32_t insize,
 
     int32_t size;
 
-    size = buckOpilGetControl(out);
+    size = ocpOpilGetControl(out);
 
     return size;
 }
@@ -586,7 +577,7 @@ static int32_t ocpIfOpilGetControllerData(void *in, uint32_t insize,
 
     int32_t size;
 
-    size = buckOpilGetControllerData(out);
+    size = ocpOpilGetControllerData(out);
 
     return size;
 }

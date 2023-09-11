@@ -6,11 +6,13 @@ import matplotlib.pyplot as plt
 plt.ion()
 
 # --- Input ---
-host = '131.246.75.169'
+host = '131.246.75.251'
 port = 8080
 settings = {'host':host, 'port':port}
 
 #soc = lrssoc.hwi.Interface(comm_type='ethernet', settings=settings)
+
+#buck = lrssoc.buck.buck.Buck(0, 'ethernet', settings, 0)
 
 soc = lrssoc.ocp.iface.Interface(comm_type='ethernet', settings=settings)
 

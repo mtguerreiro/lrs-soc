@@ -15,6 +15,7 @@
 #include "ocpTrace.h"
 #include "ocpCS.h"
 #include "ocpIf.h"
+#include "ocpOpil.h"
 
 /* Inter-processor communication */
 #include "../ipc/ipcServer.h"
@@ -138,9 +139,9 @@ static int32_t ocpZynqCpu1InitializeControlSystem(void){
 
 	ocpCSConfig_t config;
 
-//	/* Initializes controller lib */
+	/* Initializes controller lib */
 	buckControllerInitialize();
-//
+
 	/* Initializes control sys lib */
 	config.binputs = (void *)bInputs;
 	config.bprocInputs = (void *)bProcInputs;
@@ -193,7 +194,21 @@ static int32_t ocpZynqCpu1InitializeControlSystem(void){
 //-----------------------------------------------------------------------------
 static int32_t ocpZynqCpu1InitializeInterface(void){
 
-	ocpIfInitialize();
+    /* Initializes OPiL interface */
+    ocpOpilConfig_t config;
+
+    config.updateMeas = buckOpilUpdateMeasurements;
+    config.updateSimData = buckOpilUpdateSimData;
+
+    config.initControl = 0;
+
+    config.getControl = buckOpilGetControl;
+    config.getControllerData = buckOpilGetControllerData;
+
+    ocpOpilInitialize(&config);
+
+    /* Initializes OCP interface */
+    ocpIfInitialize();
 
 	return 0;
 }
