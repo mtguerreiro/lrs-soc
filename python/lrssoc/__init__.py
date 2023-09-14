@@ -15,4 +15,5 @@ from . import ocp
 from . import controller
 
 from . import buck
+from . import cuk
 from . import afe

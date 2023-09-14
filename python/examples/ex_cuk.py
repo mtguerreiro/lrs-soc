@@ -12,12 +12,7 @@ settings = {'host':host, 'port':port}
 
 #soc = lrssoc.hwi.Interface(comm_type='ethernet', settings=settings)
 
-#buck = lrssoc.buck.buck.Buck(0, 'ethernet', settings, 0)
-
-soc = lrssoc.ocp.iface.Interface(comm_type='ethernet', settings=settings)
-
-afe = lrssoc.afe.afe.AFE(comm_type='ethernet', settings=settings)
-
+cuk = lrssoc.cuk.cuk.Cuk(0, 'ethernet', settings, 0)
 
 def config():
     afe.adc_config(40)

@@ -970,11 +970,12 @@ static int32_t ocpIfMasterTraceGetNumberTracesSecondCore(void){
 static int32_t ocpIfMasterTraceResetSecondCore(uint32_t id){
 
 	int32_t status;
-	uint32_t cmd;
+	uint32_t cmd[2];
 
-	cmd = OCP_IF_CMD_TRACE_RESET;
+	cmd[0] = OCP_IF_CMD_TRACE_RESET;
+	cmd[1] = id;
 
-	status = ipcClientRequest( (void *)&cmd, 4, 0, 0, OCP_IF_CONFIG_DUAL_CORE_COMM_TO );
+	status = ipcClientRequest( (void *)&cmd, 8, 0, 0, OCP_IF_CONFIG_DUAL_CORE_COMM_TO );
 
 	return status;
 }

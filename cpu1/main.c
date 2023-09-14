@@ -24,8 +24,10 @@
 #include "xgpio.h"
 #include "xil_types.h"
 
-#include "afe.h"
-#include "afeIf.h"
+#include "zynqAxiPwm.h"
+
+//#include "afe.h"
+//#include "afeIf.h"
 
 #include "ocpZynqCpu1.h"
 
@@ -67,6 +69,8 @@ uint32_t blinkPeriod = 1000;
 //=============================================================================
 static int mainSysInit(void);
 static int mainSetupIntrSystem(INTC *IntcInstancePtr);
+
+static int mainInitPwm(void);
 //=============================================================================
 
 //=============================================================================
@@ -121,12 +125,14 @@ static int mainSysInit(void){
 	ocpZynqCpu1Initialize(&IntcInstancePtr);
 
 	/* Initializes the application */
-	afeInitialize( 0 );
+	//afeInitialize( 0 );
 
 	/* Initializes PYNQ's (RGB) LEDs */
     cfg_ptr = XGpio_LookupConfig(LED_ID);
 	XGpio_CfgInitialize(&led_device, cfg_ptr, cfg_ptr->BaseAddress);
 	XGpio_SetDataDirection(&led_device, LED_CHANNEL, 0);
+
+	mainInitPwm();
 
 	SYNC_FLAG = 0;
 
@@ -173,6 +179,14 @@ static int mainSetupIntrSystem(INTC *IntcInstancePtr)
 	Xil_ExceptionEnable();
 
 	return XST_SUCCESS;
+
+}
+//-----------------------------------------------------------------------------
+static int mainInitPwm(void){
+
+    zynqAxiPwmControlWrite(XPAR_AXI_PWM_0_S00_AXI_BASEADDR, (1 << ZYNQ_AXI_PWM_RESET_OFS));
+
+    return 0;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

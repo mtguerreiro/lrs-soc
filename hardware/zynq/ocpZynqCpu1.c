@@ -27,13 +27,17 @@
 #include "ipcServerZynq.h"
 
 /* Application */
-#include "afe.h"
-#include "afeIf.h"
-#include "afeHwZynq.h"
+//#include "afe.h"
+//#include "afeIf.h"
+//#include "afeHwZynq.h"
 
-#include "buckOpil.h"
-#include "buckController.h"
-#include "buckHw.h"
+//#include "buckOpil.h"
+//#include "buckController.h"
+//#include "buckHw.h"
+
+#include "cukOpil.h"
+#include "cukController.h"
+#include "cukHw.h"
 
 #include "zynqConfig.h"
 //=============================================================================
@@ -104,7 +108,7 @@ void ocpZynqCpu1Initialize(void *intcInst){
 //-----------------------------------------------------------------------------
 static int32_t ocpZynqCpu1InitializeHw(void *intcInst){
 
-	afeHwZynqInitialize(intcInst);
+	//afeHwZynqInitialize(intcInst);
 
 	return 0;
 }
@@ -139,33 +143,62 @@ static int32_t ocpZynqCpu1InitializeControlSystem(void){
 
 	ocpCSConfig_t config;
 
-	/* Initializes controller lib */
-	buckControllerInitialize();
+    /* Initializes controller and hardware interface libs */
+    cukControllerInitialize();
+    cukHwIfInitialize();
 
-	/* Initializes control sys lib */
-	config.binputs = (void *)bInputs;
-	config.bprocInputs = (void *)bProcInputs;
-	config.bprocOutputs = (void *)bProcOutputs;
-	config.boutputs = (void *)bOutputs;
+    /* Initializes control sys lib */
+    config.binputs = (void *)bInputs;
+    config.bprocInputs = (void *)bProcInputs;
+    config.bprocOutputs = (void *)bProcOutputs;
+    config.boutputs = (void *)bOutputs;
 
-    config.fhwInterface = 0;
-    config.fhwStatus = buckHwStatus;
+    config.fhwInterface = cukHwIf;
+    config.fhwStatus = cukHwStatus;
 
-    config.fgetInputs = buckOpilGetMeasurements;
-    config.fprocInputs = buckOpilProcInputs;
+    config.fgetInputs = cukOpilGetMeasurements;
+    config.fprocInputs = cukOpilProcInputs;
 
-    config.fprocOutputs = buckOpilProcOutputs;
-    config.fapplyOutputs = buckOpilUpdateControl;
+    config.fprocOutputs = cukOpilProcOutputs;
+    config.fapplyOutputs = cukOpilUpdateControl;
 
-    config.frun = buckControllerRun;
-    config.fcontrollerInterface = buckControllerInterface;
-    config.fcontrollerStatus = buckControllerStatus;
+    config.frun = cukControllerRun;
+    config.fcontrollerInterface = cukControllerInterface;
+    config.fcontrollerStatus = cukControllerStatus;
 
     config.fenable = 0;
-    config.fdisable = buckOpilDisable;
+    config.fdisable = cukOpilDisable;
 
     config.fonEntry = 0;
     config.fonExit = 0;
+
+//	/* Initializes controller lib */
+//	buckControllerInitialize();
+//
+//	/* Initializes control sys lib */
+//	config.binputs = (void *)bInputs;
+//	config.bprocInputs = (void *)bProcInputs;
+//	config.bprocOutputs = (void *)bProcOutputs;
+//	config.boutputs = (void *)bOutputs;
+//
+//    config.fhwInterface = 0;
+//    config.fhwStatus = buckHwStatus;
+//
+//    config.fgetInputs = buckOpilGetMeasurements;
+//    config.fprocInputs = buckOpilProcInputs;
+//
+//    config.fprocOutputs = buckOpilProcOutputs;
+//    config.fapplyOutputs = buckOpilUpdateControl;
+//
+//    config.frun = buckControllerRun;
+//    config.fcontrollerInterface = buckControllerInterface;
+//    config.fcontrollerStatus = buckControllerStatus;
+//
+//    config.fenable = 0;
+//    config.fdisable = buckOpilDisable;
+//
+//    config.fonEntry = 0;
+//    config.fonExit = 0;
 
 
 //	controllerInitialize();
@@ -197,18 +230,34 @@ static int32_t ocpZynqCpu1InitializeInterface(void){
     /* Initializes OPiL interface */
     ocpOpilConfig_t config;
 
-    config.updateMeas = buckOpilUpdateMeasurements;
-    config.updateSimData = buckOpilUpdateSimData;
+    config.updateMeas = cukOpilUpdateMeasurements;
+    config.updateSimData = cukOpilUpdateSimData;
 
     config.initControl = 0;
 
-    config.getControl = buckOpilGetControl;
-    config.getControllerData = buckOpilGetControllerData;
+    config.getControl = cukOpilGetControl;
+    config.getControllerData = cukOpilGetControllerData;
 
     ocpOpilInitialize(&config);
 
     /* Initializes OCP interface */
     ocpIfInitialize();
+
+//    /* Initializes OPiL interface */
+//    ocpOpilConfig_t config;
+//
+//    config.updateMeas = buckOpilUpdateMeasurements;
+//    config.updateSimData = buckOpilUpdateSimData;
+//
+//    config.initControl = 0;
+//
+//    config.getControl = buckOpilGetControl;
+//    config.getControllerData = buckOpilGetControllerData;
+//
+//    ocpOpilInitialize(&config);
+//
+//    /* Initializes OCP interface */
+//    ocpIfInitialize();
 
 	return 0;
 }
