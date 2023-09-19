@@ -26,44 +26,83 @@
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void zynqAxiPwmControlWrite(uint32_t pwm_base, uint32_t data){
-    
-    Xil_Out32(pwm_base + ZYNQ_AXI_PWM_CONTROL_REG_OFS, data);
-}
-//-----------------------------------------------------------------------------
-uint32_t zynqAxiPwmControlRead(uint32_t pwm_base){
-    
-    return Xil_In32(pwm_base + ZYNQ_AXI_PWM_CONTROL_REG_OFS);
-}
-//-----------------------------------------------------------------------------
-void zynqAxiPwmPeriodWrite(uint32_t pwm_base, uint32_t period){
-    
-    Xil_Out32(pwm_base + ZYNQ_AXI_PWM_PERIOD_REG_OFS, period);
-}
-//-----------------------------------------------------------------------------
-uint32_t zynqAxiPwmPeriodRead(uint32_t pwm_base){
+void zynqAxiPwmResetWrite(uint32_t pwmBase, uint32_t reset){
 
-    return Xil_In32(pwm_base + ZYNQ_AXI_PWM_PERIOD_REG_OFS);
-}
-//-----------------------------------------------------------------------------
-void zynqAxiPwmDutyWrite(uint32_t pwm_base, uint32_t duty){
-    
-    Xil_Out32(pwm_base + ZYNQ_AXI_PWM_DUTY_REG_OFS, duty);
-}
-//-----------------------------------------------------------------------------
-uint32_t zynqAxiPwmDutyRead(uint32_t pwm_base){
+    uint32_t control;
 
-    return Xil_In32(pwm_base + ZYNQ_AXI_PWM_DUTY_REG_OFS);
-}
-//-----------------------------------------------------------------------------
-void zynqAxiPwmDeadTimeWrite(uint32_t pwm_base, uint32_t deadtime){
-    
-    Xil_Out32(pwm_base + ZYNQ_AXI_PWM_DEADTIME_REG_OFS, deadtime);
-}
-//-----------------------------------------------------------------------------
-uint32_t zynqAxiPwmDeadTimeRead(uint32_t pwm_base){
+    reset = ( reset & 0x01 ) << ZYNQ_AXI_PWM_RESET_OFS;
 
-    return Xil_In32(pwm_base + ZYNQ_AXI_PWM_DEADTIME_REG_OFS);
+    control = zynqAxiPwmControlRead(pwmBase) & (~ZYNQ_AXI_PWM_RESET_MASK);
+
+    control = control | reset;
+
+    zynqAxiPwmControlWrite(pwmBase, control);
+}
+//-----------------------------------------------------------------------------
+void zynqAxiPwmOutputEnableWrite(uint32_t pwmBase, uint32_t enable){
+
+    uint32_t control;
+
+    enable = (enable & 0x01) << ZYNQ_AXI_PWM_OUTPUT_ENABLE_OFS;
+
+    control = zynqAxiPwmControlRead(pwmBase) & (~ZYNQ_AXI_PWM_OUTPUT_ENABLE_MASK);
+
+    control = control | enable;
+
+    zynqAxiPwmControlWrite(pwmBase, control);
+}
+//-----------------------------------------------------------------------------
+void zynqAxiPwmOvfTriggerEnableWrite(uint32_t pwmBase, uint32_t enable){
+
+    uint32_t control;
+
+    enable = (enable & 0x01) << ZYNQ_AXI_PWM_OVF_TRIGGER_ENABLE_OFS;
+
+    control = zynqAxiPwmControlRead(pwmBase) & (~ZYNQ_AXI_PWM_OVF_TRIGGER_ENABLE_MASK);
+
+    control = control | enable;
+
+    zynqAxiPwmControlWrite(pwmBase, control);
+}
+//-----------------------------------------------------------------------------
+void zynqAxiPwmControlWrite(uint32_t pwmBase, uint32_t data){
+    
+    Xil_Out32(pwmBase + ZYNQ_AXI_PWM_CONTROL_REG_OFS, data);
+}
+//-----------------------------------------------------------------------------
+uint32_t zynqAxiPwmControlRead(uint32_t pwmBase){
+    
+    return Xil_In32(pwmBase + ZYNQ_AXI_PWM_CONTROL_REG_OFS);
+}
+//-----------------------------------------------------------------------------
+void zynqAxiPwmPeriodWrite(uint32_t pwmBase, uint32_t period){
+    
+    Xil_Out32(pwmBase + ZYNQ_AXI_PWM_PERIOD_REG_OFS, period);
+}
+//-----------------------------------------------------------------------------
+uint32_t zynqAxiPwmPeriodRead(uint32_t pwmBase){
+
+    return Xil_In32(pwmBase + ZYNQ_AXI_PWM_PERIOD_REG_OFS);
+}
+//-----------------------------------------------------------------------------
+void zynqAxiPwmDutyWrite(uint32_t pwmBase, uint32_t duty){
+    
+    Xil_Out32(pwmBase + ZYNQ_AXI_PWM_DUTY_REG_OFS, duty);
+}
+//-----------------------------------------------------------------------------
+uint32_t zynqAxiPwmDutyRead(uint32_t pwmBase){
+
+    return Xil_In32(pwmBase + ZYNQ_AXI_PWM_DUTY_REG_OFS);
+}
+//-----------------------------------------------------------------------------
+void zynqAxiPwmDeadTimeWrite(uint32_t pwmBase, uint32_t deadtime){
+    
+    Xil_Out32(pwmBase + ZYNQ_AXI_PWM_DEADTIME_REG_OFS, deadtime);
+}
+//-----------------------------------------------------------------------------
+uint32_t zynqAxiPwmDeadTimeRead(uint32_t pwmBase){
+
+    return Xil_In32(pwmBase + ZYNQ_AXI_PWM_DEADTIME_REG_OFS);
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

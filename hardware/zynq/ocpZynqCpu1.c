@@ -37,9 +37,12 @@
 
 #include "cukOpil.h"
 #include "cukController.h"
+
+#include "cukHwIf.h"
 #include "cukHw.h"
 
 #include "zynqConfig.h"
+#include "zynqAxiAdc.h"
 //=============================================================================
 
 //=============================================================================
@@ -56,6 +59,7 @@ static int32_t ocpZynqCpu1InitializeControlSystem(void);
 //-----------------------------------------------------------------------------
 static int32_t ocpZynqCpu1InitializeInterface(void);
 //-----------------------------------------------------------------------------
+void testirq(void *callbackRef);
 //=============================================================================
 
 //=============================================================================
@@ -108,7 +112,12 @@ void ocpZynqCpu1Initialize(void *intcInst){
 //-----------------------------------------------------------------------------
 static int32_t ocpZynqCpu1InitializeHw(void *intcInst){
 
-	//afeHwZynqInitialize(intcInst);
+
+    cukHwInitConfig_t config;
+
+    config.intc = intcInst;
+    config.irqhandle ;
+
 
 	return 0;
 }
@@ -156,11 +165,15 @@ static int32_t ocpZynqCpu1InitializeControlSystem(void){
     config.fhwInterface = cukHwIf;
     config.fhwStatus = cukHwStatus;
 
-    config.fgetInputs = cukOpilGetMeasurements;
-    config.fprocInputs = cukOpilProcInputs;
+    //config.fgetInputs = cukOpilGetMeasurements;
+    //config.fprocInputs = cukOpilProcInputs;
+    config.fgetInputs = cukHwGetMeasurements;
+    config.fprocInputs = cukHwProcInputs;
 
-    config.fprocOutputs = cukOpilProcOutputs;
-    config.fapplyOutputs = cukOpilUpdateControl;
+    //config.fprocOutputs = cukOpilProcOutputs;
+    //config.fapplyOutputs = cukOpilUpdateControl;
+    config.fprocOutputs = cukHwProcOutputs;
+    config.fapplyOutputs = cukHwApplyOutputs;
 
     config.frun = cukControllerRun;
     config.fcontrollerInterface = cukControllerInterface;
@@ -263,4 +276,18 @@ static int32_t ocpZynqCpu1InitializeInterface(void){
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
-#endif /* SOC_CPU0 */
+
+//=============================================================================
+/*----------------------------------- IRQ -----------------------------------*/
+//=============================================================================
+//-----------------------------------------------------------------------------
+void testirq(void *callbackRef){
+
+    static uint32_t counter = 0;
+
+    counter++;
+}
+//-----------------------------------------------------------------------------
+//=============================================================================
+
+#endif /* SOC_CPU1 */

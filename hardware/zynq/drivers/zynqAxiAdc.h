@@ -1,67 +1,58 @@
 /*
- * cukHw.h
+ * @file zynqAxiAdc.h
  *
  */
 
-#ifndef CUK_HW_H_
-#define CUK_HW_H_
+#ifndef ZYNQ_AXI_ADC_H_
+#define ZYNQ_AXI_ADC_H_
 
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
 #include "stdint.h"
+#include "stddef.h"
+
 //=============================================================================
 
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
+#define ZYNQ_AXI_ADC_ENABLE_OFS                 0
+#define ZYNQ_AXI_ADC_ENABLE_MASK                (1 << ZYNQ_AXI_ADC_ENABLE_OFS)
 
-typedef void (*cukHwAdcIrqHandle_t)(void *ref);
+#define ZYNQ_AXI_ADC_MAN_TRIG_OFS               1
+#define ZYNQ_AXI_ADC_MAN_TRIG_MASK              (1 << ZYNQ_AXI_ADC_MAN_TRIG_OFS)
 
-typedef struct{
+#define ZYNQ_AXI_ADC_INT_ENABLE_OFS             2
+#define ZYNQ_AXI_ADC_INT_ENABLE_MASK            (1 << ZYNQ_AXI_ADC_INT_ENABLE_OFS)
 
-    void *intc;
-    cukHwAdcIrqHandle_t irqhandle;
-
-}cukHwInitConfig_t;
+typedef void (*zynqAxiAdcIrqHandle_t)(void *ref);
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-int32_t cukHwInitialize(cukHwInitConfig_t *config);
+void zynqAxiAdcInterruptConfig(void *intcInst, uint32_t intId, zynqAxiAdcIrqHandle_t handle);
 //-----------------------------------------------------------------------------
-int32_t cukHwStatus(void);
+void zynqAxiAdcEnableWrite(uint32_t adcBase, uint32_t enable);
 //-----------------------------------------------------------------------------
-void cukHwSetPwmReset(uint32_t reset);
+void zynqAxiAdcManualTriggerWrite(uint32_t adcBase, uint32_t trigger);
 //-----------------------------------------------------------------------------
-void cukHwSetPwmOutputEnable(uint32_t enable);
+void zynqAxiAdcInterruptEnableWrite(uint32_t adcBase, uint32_t enable);
 //-----------------------------------------------------------------------------
-void cukHwSetPwmOvfTriggerEnable(uint32_t enable);
+void zynqAxiAdcControlWrite(uint32_t adcBase, uint32_t data);
 //-----------------------------------------------------------------------------
-void cukHwSetPwmFrequency(uint32_t freq);
+uint32_t zynqAxiAdcControlRead(uint32_t adcBase);
 //-----------------------------------------------------------------------------
-void cukHwSetPwmDuty(float duty);
+void zynqAxiAdcSpiClkDivWrite(uint32_t adcBase, uint32_t clkdiv);
 //-----------------------------------------------------------------------------
-void cukHwSetPwmDeadTime(float deadtime);
+uint32_t zynqAxiAdcSpiClkDivRead(uint32_t adcBase);
 //-----------------------------------------------------------------------------
-void cukHwSetAdcEnable(uint32_t enable);
+void zynqAxiAdcBufferAddressWrite(uint32_t adcBase, uint32_t address);
 //-----------------------------------------------------------------------------
-void cukHwSetAdcManualTrigger(uint32_t trigger);
-//-----------------------------------------------------------------------------
-void cukHwSetAdcInterruptEnable(uint32_t enable);
-//-----------------------------------------------------------------------------
-void cukHwSetAdcSpiFreq(uint32_t freq);
-//-----------------------------------------------------------------------------
-int32_t cukHwGetMeasurements(void *meas);
-//-----------------------------------------------------------------------------
-int32_t cukHwProcInputs(void *inputs, void *procinputs, int32_t size);
-//-----------------------------------------------------------------------------
-int32_t cukHwProcOutputs(void *outputs, void *procoutputs, int32_t size);
-//-----------------------------------------------------------------------------
-int32_t cukHwApplyOutputs(void *outputs, int32_t size);
+uint32_t zynqAxiAdcBufferAddressRead(uint32_t adcBase);
 //-----------------------------------------------------------------------------
 //=============================================================================
 
-#endif /* CUK_HW_H_ */
+#endif /* ZYNQ_AXI_ADC_H_ */

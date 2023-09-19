@@ -18,8 +18,11 @@
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
 typedef struct{
-    float i;
-    float v_out;
+    float i_o;
+    float i_L;
+    float v_io;
+    float v_dc;
+    float v_c;
 }cukConfigMeasurements_t;
 
 typedef struct{

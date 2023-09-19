@@ -33,21 +33,27 @@
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void zynqAxiPwmControlWrite(uint32_t pwm_base, uint32_t data);
+void zynqAxiPwmResetWrite(uint32_t pwmBase, uint32_t reset);
 //-----------------------------------------------------------------------------
-uint32_t zynqAxiPwmControlRead(uint32_t pwm_base);
+void zynqAxiPwmOutputEnableWrite(uint32_t pwmBase, uint32_t enable);
 //-----------------------------------------------------------------------------
-void zynqAxiPwmPeriodWrite(uint32_t pwm_base, uint32_t period);
+void zynqAxiPwmOvfTriggerEnableWrite(uint32_t pwmBase, uint32_t enable);
 //-----------------------------------------------------------------------------
-uint32_t zynqAxiPwmPeriodRead(uint32_t pwm_base);
+void zynqAxiPwmControlWrite(uint32_t pwmBase, uint32_t data);
 //-----------------------------------------------------------------------------
-void zynqAxiPwmDutyWrite(uint32_t pwm_base, uint32_t duty);
+uint32_t zynqAxiPwmControlRead(uint32_t pwmBase);
 //-----------------------------------------------------------------------------
-uint32_t zynqAxiPwmDutyRead(uint32_t pwm_base);
+void zynqAxiPwmPeriodWrite(uint32_t pwmBase, uint32_t period);
 //-----------------------------------------------------------------------------
-void zynqAxiPwmDeadTimeWrite(uint32_t pwm_base, uint32_t deadtime);
+uint32_t zynqAxiPwmPeriodRead(uint32_t pwmBase);
 //-----------------------------------------------------------------------------
-uint32_t zynqAxiPwmDeadTimeRead(uint32_t pwm_base);
+void zynqAxiPwmDutyWrite(uint32_t pwmBase, uint32_t duty);
+//-----------------------------------------------------------------------------
+uint32_t zynqAxiPwmDutyRead(uint32_t pwmBase);
+//-----------------------------------------------------------------------------
+void zynqAxiPwmDeadTimeWrite(uint32_t pwmBase, uint32_t deadtime);
+//-----------------------------------------------------------------------------
+uint32_t zynqAxiPwmDeadTimeRead(uint32_t pwmBase);
 //-----------------------------------------------------------------------------
 //=============================================================================
 
