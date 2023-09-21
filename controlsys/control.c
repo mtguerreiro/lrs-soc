@@ -25,16 +25,12 @@
 void controlInitialize(control_t *control, controlConfig_t *config){
 
 	control->binputs = config->binputs;
-	control->bprocInputs = config->bprocInputs;
 	control->boutputs = config->boutputs;
-	control->bprocOutputs = config->bprocOutputs;
 
 	control->fgetInputs = config->fgetInputs;
-	control->fprocInputs = config->fprocInputs;
 
 	control->frun = config->frun;
 
-	control->fprocOutputs = config->fprocOutputs;
 	control->fapplyOutputs = config->fapplyOutputs;
 
 	control->fonEntry = config->fonEntry;
@@ -46,19 +42,9 @@ void controlSetGetMeasFun(control_t *control, controlGetInputs_t getInputs){
 	control->fgetInputs = getInputs;
 }
 //-----------------------------------------------------------------------------
-void controlSetProcMeasFun(control_t *control, controlProcInputs_t procInputs){
-
-	control->fprocInputs = procInputs;
-}
-//-----------------------------------------------------------------------------
 void controlSetRunFun(control_t *control, controlRun_t run){
 
 	control->frun = run;
-}
-//-----------------------------------------------------------------------------
-void controlSetProcOutputsFun(control_t *control, controlProcOutputs_t procOutputs){
-
-	control->fprocOutputs = procOutputs;
 }
 //-----------------------------------------------------------------------------
 void controlSetApplyOutputsFun(control_t *control, controlApplyOutputs_t applyOutputs){
@@ -79,23 +65,17 @@ void controlSetOnExit(control_t *control, controlOnExit_t fonExit){
 int32_t controlRun(control_t *control){
 
 	int32_t ninputs;
-	int32_t nprocInputs;
 	int32_t noutputs;
-	int32_t nprocOutputs;
 
 	if( control->fonEntry ) control->fonEntry();
 
 	ninputs = control->fgetInputs( control->binputs );
 	if( ninputs < 0 ) return CONTROL_RUN_STATUS_HARDWARE_ERROR;
 
-	nprocInputs = control->fprocInputs( control->binputs, control->bprocInputs, ninputs );
-
-	noutputs = control->frun( control->bprocInputs, nprocInputs, control->boutputs, -1 );
+	noutputs = control->frun( control->binputs, ninputs, control->boutputs, -1 );
 	if( noutputs < 0 ) return CONTROL_RUN_STATUS_CONTROLLER_ERROR;
 
-	nprocOutputs = control->fprocOutputs( control->boutputs, control->bprocOutputs, noutputs );
-
-	control->fapplyOutputs( control->bprocOutputs, nprocOutputs );
+	control->fapplyOutputs( control->boutputs, noutputs );
 
 	if( control->fonExit ) control->fonExit();
 

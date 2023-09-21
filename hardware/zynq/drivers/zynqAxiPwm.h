@@ -35,9 +35,15 @@
 //-----------------------------------------------------------------------------
 void zynqAxiPwmResetWrite(uint32_t pwmBase, uint32_t reset);
 //-----------------------------------------------------------------------------
+uint32_t zynqAxiPwmResetRead(uint32_t pwmBase);
+//-----------------------------------------------------------------------------
 void zynqAxiPwmOutputEnableWrite(uint32_t pwmBase, uint32_t enable);
 //-----------------------------------------------------------------------------
+uint32_t zynqAxiPwmOutputEnableRead(uint32_t pwmBase);
+//-----------------------------------------------------------------------------
 void zynqAxiPwmOvfTriggerEnableWrite(uint32_t pwmBase, uint32_t enable);
+//-----------------------------------------------------------------------------
+uint32_t zynqAxiPwmOvfTriggerEnableRead(uint32_t pwmBase);
 //-----------------------------------------------------------------------------
 void zynqAxiPwmControlWrite(uint32_t pwmBase, uint32_t data);
 //-----------------------------------------------------------------------------

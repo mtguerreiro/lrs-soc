@@ -74,6 +74,9 @@ static int mainSetupIntrSystem(XScuGic *intcInstance);
  * controller, such that they do not need to perform any initialization.
  */
 XScuGic   xINTCInstance;
+
+static uint32_t size = 0;
+
 //=============================================================================
 
 //=============================================================================
@@ -83,6 +86,8 @@ XScuGic   xINTCInstance;
 int main(void){
 
 	mainSysInit();
+
+	size = xPortGetFreeHeapSize();
 
 	sys_thread_new("uiface_thrd", uiface,
 					0,
@@ -98,6 +103,8 @@ int main(void){
 					(void *)&xINTCInstance,
 					SYSINIT_CONFIG_TASK_STACK_SIZE,
 					SYSINIT_CONFIG_TASK_PRIO);
+
+	size = xPortGetFreeHeapSize();
 
 	vTaskStartScheduler();
 	while(1);

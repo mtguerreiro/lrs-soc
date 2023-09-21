@@ -14,7 +14,7 @@
 #include "ocpConfig.h"
 #include "ocpTrace.h"
 
-#include "config/stypesCuk.h"
+#include "cukConfig.h"
 //=============================================================================
 
 //=============================================================================
@@ -50,12 +50,12 @@ int32_t cukControlDisabledGetParams(void *in, uint32_t insize, void *out, uint32
 //-----------------------------------------------------------------------------
 int32_t cukControlDisabledRun(void *inputs, int32_t ninputs, void *outputs, int32_t nmaxoutputs){
 
-    stypesMeasurements_t *m = (stypesMeasurements_t *)inputs;
-    stypesControl_t *o = (stypesControl_t *)outputs;
+    cukConfigMeasurements_t *m = (cukConfigMeasurements_t *)inputs;
+    cukConfigControl_t *o = (cukConfigControl_t *)outputs;
 
-    o->d = 0.0f;
+    o->u = 0.0f;
 
-    return sizeof(stypesControl_t);
+    return sizeof(cukConfigControl_t);
 }
 //-----------------------------------------------------------------------------
 void cukControlDisabledReset(void){

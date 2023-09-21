@@ -14,7 +14,8 @@
 #include "ocpConfig.h"
 #include "ocpTrace.h"
 
-#include "config/stypesCuk.h"
+#include "cukConfig.h"
+//#include "config/stypesCuk.h"
 //=============================================================================
 
 //=============================================================================
@@ -35,7 +36,6 @@ static float u = 0.0f;
 //-----------------------------------------------------------------------------
 void cukControlOLInitialize(void){
 
-	ocpTraceAddSignal(OCP_TRACE_1, (void *)&u, "Control signal");
 }
 //-----------------------------------------------------------------------------
 int32_t cukControlOLSetParams(void *params, uint32_t n){
@@ -50,15 +50,15 @@ int32_t cukControlOLGetParams(void *in, uint32_t insize, void *out, uint32_t max
 //-----------------------------------------------------------------------------
 int32_t cukControlOLRun(void *inputs, int32_t ninputs, void *outputs, int32_t nmaxoutputs){
 
-    stypesMeasurements_t *m = (stypesMeasurements_t *)inputs;
-    stypesControl_t *o = (stypesControl_t *)outputs;
+    cukConfigMeasurements_t *m = (cukConfigMeasurements_t *)inputs;
+    cukConfigControl_t *o = (cukConfigControl_t *)outputs;
 
     u = u + 0.5f / (1000.0f);
     if( u > 0.5f ) u = 0.5f;
 
-    o->d = u;
+    o->u = u;
 
-    return sizeof(stypesControl_t);
+    return sizeof(cukConfigControl_t);
 }
 //-----------------------------------------------------------------------------
 void cukControlOLReset(void){

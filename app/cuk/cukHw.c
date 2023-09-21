@@ -21,6 +21,7 @@
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
+#define CUK_HW_CONFIG_ADC_SPI_FREQ_HZ      ((uint32_t)10000000)
 #define CUK_HW_CONFIG_PWM_FREQ_HZ          ((uint32_t) 100000 )
 #define CUK_HW_CONFIG_PWM_DEAD_TIME_NS     ((float) 100e-9 )
 #define CUK_HW_CONFIG_PWM_BASE              XPAR_AXI_PWM_0_S00_AXI_BASEADDR
@@ -38,7 +39,7 @@ typedef struct{
     uint32_t pwmPeriod;
 
     cukConfigMeasurements_t meas;
-    cukConfigControlSignals_t control;
+    cukConfigControl_t control;
 }cukHwControl_t;
 //=============================================================================
 
@@ -77,14 +78,29 @@ void cukHwSetPwmReset(uint32_t reset){
     zynqAxiPwmResetWrite(CUK_HW_CONFIG_PWM_BASE, reset);
 }
 //-----------------------------------------------------------------------------
+uint32_t cukHwGetPwmReset(void){
+
+    return zynqAxiPwmResetRead(CUK_HW_CONFIG_PWM_BASE);
+}
+//-----------------------------------------------------------------------------
 void cukHwSetPwmOutputEnable(uint32_t enable){
 
     zynqAxiPwmOutputEnableWrite(CUK_HW_CONFIG_PWM_BASE, enable);
 }
 //-----------------------------------------------------------------------------
+uint32_t cukHwGetPwmOutputEnable(void){
+
+    return zynqAxiPwmOutputEnableRead(CUK_HW_CONFIG_PWM_BASE);
+}
+//-----------------------------------------------------------------------------
 void cukHwSetPwmOvfTriggerEnable(uint32_t enable){
 
     zynqAxiPwmOvfTriggerEnableWrite(CUK_HW_CONFIG_PWM_BASE, enable);
+}
+//-----------------------------------------------------------------------------
+uint32_t cukHwGetPwmOvfTriggerEnable(void){
+
+    return zynqAxiPwmOvfTriggerEnableRead(CUK_HW_CONFIG_PWM_BASE);
 }
 //-----------------------------------------------------------------------------
 void cukHwSetPwmFrequency(uint32_t freq){
@@ -98,6 +114,17 @@ void cukHwSetPwmFrequency(uint32_t freq){
     zynqAxiPwmPeriodWrite(CUK_HW_CONFIG_PWM_BASE, period);
 }
 //-----------------------------------------------------------------------------
+uint32_t cukHwGetPwmFrequency(void){
+
+    uint32_t freq, period;
+
+    period = zynqAxiPwmPeriodRead(CUK_HW_CONFIG_PWM_BASE);
+
+    freq = CUK_HW_PWM_CLK / (period << 1);
+
+    return freq;
+}
+//-----------------------------------------------------------------------------
 void cukHwSetPwmDuty(float duty){
 
     uint32_t dutyInt;
@@ -105,6 +132,17 @@ void cukHwSetPwmDuty(float duty){
     dutyInt = (uint32_t)( duty * ((float)hwControl.pwmPeriod ) );
 
     zynqAxiPwmDutyWrite(CUK_HW_CONFIG_PWM_BASE, dutyInt);
+}
+//-----------------------------------------------------------------------------
+float cukHwGetPwmDuty(void){
+
+    uint32_t dutyInt;
+    float duty;
+
+    dutyInt = zynqAxiPwmDutyRead(CUK_HW_CONFIG_PWM_BASE);
+    duty = ( (float)dutyInt ) / ( (float)hwControl.pwmPeriod );
+
+    return duty;
 }
 //-----------------------------------------------------------------------------
 void cukHwSetPwmDeadTime(float deadtime){
@@ -116,9 +154,25 @@ void cukHwSetPwmDeadTime(float deadtime){
     zynqAxiPwmDeadTimeWrite(CUK_HW_CONFIG_PWM_BASE, deadtimeInt);
 }
 //-----------------------------------------------------------------------------
+float cukHwGetPwmDeadTime(void){
+
+    uint32_t deadtimeInt;
+    float deadtime;
+
+    deadtimeInt = zynqAxiPwmDeadTimeRead(CUK_HW_CONFIG_PWM_BASE);
+    deadtime = ( (float)deadtimeInt ) / ( (float)CUK_HW_PWM_CLK );
+
+    return deadtime;
+}
+//-----------------------------------------------------------------------------
 void cukHwSetAdcEnable(uint32_t enable){
 
     zynqAxiAdcEnableWrite(CUK_HW_CONFIG_ADC_BASE, enable);
+}
+//-----------------------------------------------------------------------------
+uint32_t cukHwGetAdcEnable(void){
+
+    return zynqAxiAdcEnableRead(CUK_HW_CONFIG_ADC_BASE);
 }
 //-----------------------------------------------------------------------------
 void cukHwSetAdcManualTrigger(uint32_t trigger){
@@ -126,9 +180,19 @@ void cukHwSetAdcManualTrigger(uint32_t trigger){
     zynqAxiAdcManualTriggerWrite(CUK_HW_CONFIG_ADC_BASE, trigger);
 }
 //-----------------------------------------------------------------------------
+uint32_t cukHwGetAdcManualTrigger(void){
+
+    return zynqAxiAdcManualTriggerRead(CUK_HW_CONFIG_ADC_BASE);
+}
+//-----------------------------------------------------------------------------
 void cukHwSetAdcInterruptEnable(uint32_t enable){
 
     zynqAxiAdcInterruptEnableWrite(CUK_HW_CONFIG_ADC_BASE, enable);
+}
+//-----------------------------------------------------------------------------
+uint32_t cukHwGetAdcInterruptEnable(void){
+
+    return zynqAxiAdcInterruptEnableRead(CUK_HW_CONFIG_ADC_BASE);
 }
 //-----------------------------------------------------------------------------
 void cukHwSetAdcSpiFreq(uint32_t freq){
@@ -140,64 +204,88 @@ void cukHwSetAdcSpiFreq(uint32_t freq){
     zynqAxiAdcSpiClkDivWrite(CUK_HW_CONFIG_ADC_BASE, clkdiv);
 }
 //-----------------------------------------------------------------------------
-int32_t cukHwGetMeasurements(void *meas){
+uint32_t cukHwGetAdcSpiFreq(void){
 
-    uint16_t *dst;
-    uint16_t *src;
-    uint32_t k;
+    uint32_t clkdiv, freq;
 
-    src = (uint16_t *)CUK_HW_CONFIG_ADC_BUFFER;
-    dst = (uint16_t *)meas;
+    clkdiv = zynqAxiAdcSpiClkDivRead(CUK_HW_CONFIG_ADC_BASE);
 
-    src++;
+    freq = CUK_HW_ADC_CLK / (clkdiv << 1);
 
-    for(k = 0; k < 5; k++){
-        *dst++ = *src++;
-    }
-
-    return 5;
+    return freq;
 }
 //-----------------------------------------------------------------------------
-int32_t cukHwProcInputs(void *inputs, void *procinputs, int32_t size){
+int32_t cukHwGetMeasurements(void *meas){
 
+    cukConfigMeasurements_t *dst;
     uint16_t *src;
-    cukConfigMeasurements_t *meas;
 
-    src = (uint16_t *)inputs;
-    meas = (cukConfigMeasurements_t *)procinputs;
+    src = (uint16_t *)CUK_HW_CONFIG_ADC_BUFFER;
+    dst = (cukConfigMeasurements_t *)meas;
 
-    meas->i_o =  ((float)(*src++)) / 4095.0f * 3.3f;
-    meas->i_L =  ((float)(*src++)) / 4095.0f * 3.3f;
-    meas->v_io = ((float)(*src++)) / 4095.0f * 3.3f;
-    meas->v_dc = ((float)(*src++)) / 4095.0f * 3.3f;
-    meas->v_c =  ((float)(*src++)) / 4095.0f * 3.3f;
+    /* Skips the first adc channel */
+    src++;
+
+    dst->i_o_1 =  ((float)(*src++)) / 4095.0f * 3.3f;
+    dst->i_l_1 =  ((float)(*src++)) / 4095.0f * 3.3f;
+    dst->v_io_1 = ((float)(*src++)) / 4095.0f * 3.3f;
+    dst->v_dc_1 = ((float)(*src++)) / 4095.0f * 3.3f;
+    dst->v_c_1 =  ((float)(*src++)) / 4095.0f * 3.3f;
+
+    dst->i_o_1_filt =  0.0f;
+    dst->i_l_1_filt =  0.0f;
+    dst->v_io_1_filt = 0.0f;
+    dst->v_dc_1_filt = 0.0f;
+    dst->v_c_1_filt =  0.0f;
+
+    dst->i_o_2 =  0.0f;
+    dst->i_l_2 =  0.0f;
+    dst->v_io_2 = 0.0f;
+    dst->v_dc_2 = 0.0f;
+    dst->v_c_2 =  0.0f;
+
+    dst->i_o_2_filt =  0.0f;
+    dst->i_l_2_filt =  0.0f;
+    dst->v_io_2_filt = 0.0f;
+    dst->v_dc_2_filt = 0.0f;
+    dst->v_c_2_filt =  0.0f;
 
     return sizeof(cukConfigMeasurements_t);
 }
 //-----------------------------------------------------------------------------
-int32_t cukHwProcOutputs(void *outputs, void *procoutputs, int32_t size){
-
-    uint8_t *dst;
-    uint8_t *src;
-    uint32_t k;
-
-    src = (uint8_t *)outputs;
-    dst = (uint8_t *)procoutputs;
-
-    for(k = 0; k < size; k++){
-        *dst++ = *src++;
-    }
-
-    return size;
-}
-//-----------------------------------------------------------------------------
 int32_t cukHwApplyOutputs(void *outputs, int32_t size){
 
-    cukConfigControlSignals_t *control;
+    cukConfigControl_t *control;
 
-    control = (cukConfigControlSignals_t *)outputs;
+    control = (cukConfigControl_t *)outputs;
+
+    //control->u = 0.5f;
 
     return 0;
+}
+//-----------------------------------------------------------------------------
+void cukHwDisable(void){
+
+    cukHwSetPwmDuty(0.0f);
+    cukHwSetPwmOutputEnable(0);
+    cukHwSetPwmOvfTriggerEnable(0);
+}
+//-----------------------------------------------------------------------------
+void cukHwEnable(void){
+
+    cukHwSetPwmDuty(0.0f);
+    cukHwSetPwmOvfTriggerEnable(1);
+    //cukHwSetPwmOutputEnable(1);
+}
+//-----------------------------------------------------------------------------
+void cukHwControllerDisable(void){
+
+    cukHwSetPwmOutputEnable(0);
+}
+//-----------------------------------------------------------------------------
+void cukHwControllerEnable(void){
+
+    cukHwSetPwmOutputEnable(1);
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
@@ -208,13 +296,21 @@ int32_t cukHwApplyOutputs(void *outputs, int32_t size){
 //-----------------------------------------------------------------------------
 static void cukHwInitializeAdc(void *intc, cukHwAdcIrqHandle_t irqhandle){
 
+    uint32_t clkdiv;
+
+    clkdiv = CUK_HW_ADC_CLK / (CUK_HW_CONFIG_ADC_SPI_FREQ_HZ << 1);
+
     zynqAxiAdcEnableWrite(CUK_HW_CONFIG_ADC_BASE, 0);
 
     zynqAxiAdcInterruptEnableWrite(CUK_HW_CONFIG_ADC_BASE, 1);
 
+    zynqAxiAdcSpiClkDivWrite(CUK_HW_CONFIG_ADC_BASE, clkdiv);
+
     zynqAxiAdcBufferAddressWrite(CUK_HW_CONFIG_ADC_BASE, CUK_HW_CONFIG_ADC_BUFFER);
 
     zynqAxiAdcInterruptConfig(intc, CUK_HW_CONFIG_IRQ_PL_CPU1, irqhandle);
+
+    zynqAxiAdcEnableWrite(CUK_HW_CONFIG_ADC_BASE, 1);
 }
 //-----------------------------------------------------------------------------
 static void cukHwInitializePwm(void){
@@ -225,9 +321,10 @@ static void cukHwInitializePwm(void){
     cukHwSetPwmDuty(0.0f);
     cukHwSetPwmDeadTime(CUK_HW_CONFIG_PWM_DEAD_TIME_NS);
 
-    cukHwSetPwmOvfTriggerEnable(1);
-    cukHwSetPwmOutputEnable(1);
+    cukHwSetPwmOvfTriggerEnable(0);
+    cukHwSetPwmOutputEnable(0);
 
+    cukHwSetPwmReset(0);
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

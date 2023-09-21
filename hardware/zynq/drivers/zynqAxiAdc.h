@@ -37,9 +37,15 @@ void zynqAxiAdcInterruptConfig(void *intcInst, uint32_t intId, zynqAxiAdcIrqHand
 //-----------------------------------------------------------------------------
 void zynqAxiAdcEnableWrite(uint32_t adcBase, uint32_t enable);
 //-----------------------------------------------------------------------------
+uint32_t zynqAxiAdcEnableRead(uint32_t adcBase);
+//-----------------------------------------------------------------------------
 void zynqAxiAdcManualTriggerWrite(uint32_t adcBase, uint32_t trigger);
 //-----------------------------------------------------------------------------
+uint32_t zynqAxiAdcManualTriggerRead(uint32_t adcBase);
+//-----------------------------------------------------------------------------
 void zynqAxiAdcInterruptEnableWrite(uint32_t adcBase, uint32_t enable);
+//-----------------------------------------------------------------------------
+uint32_t zynqAxiAdcInterruptEnableRead(uint32_t adcBase);
 //-----------------------------------------------------------------------------
 void zynqAxiAdcControlWrite(uint32_t adcBase, uint32_t data);
 //-----------------------------------------------------------------------------

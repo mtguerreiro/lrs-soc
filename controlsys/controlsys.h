@@ -30,9 +30,7 @@ typedef enum controlsysStatus_t{
 
 typedef controlOnEntry_t controlsysOnEntry_t;
 typedef controlGetInputs_t controlsysGetInputs_t;
-typedef controlProcInputs_t controlsysProcInputs_t;
 typedef controlRun_t controlsysRun_t;
-typedef controlProcOutputs_t controlsysProcOutputs_t;
 typedef controlApplyOutputs_t controlsysApplyOutputs_t;
 typedef controlOnExit_t controlsysOnExit_t;
 
@@ -62,8 +60,6 @@ typedef struct {
 	void *bprocOutputs;
 
 	controlsysGetInputs_t fgetInputs;
-	controlsysProcInputs_t fprocInputs;
-	controlsysProcOutputs_t fprocOutputs;
 	controlsysApplyOutputs_t fapplyOutputs;
 	controlsysHardwareInterface_t fhwInterface;
 	controlsysHardwareStatus_t fhwStatus;

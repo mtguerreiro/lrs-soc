@@ -39,6 +39,17 @@ void zynqAxiPwmResetWrite(uint32_t pwmBase, uint32_t reset){
     zynqAxiPwmControlWrite(pwmBase, control);
 }
 //-----------------------------------------------------------------------------
+uint32_t zynqAxiPwmResetRead(uint32_t pwmBase){
+
+    uint32_t reset;
+
+    reset = zynqAxiPwmControlRead(pwmBase) & (ZYNQ_AXI_PWM_RESET_MASK);
+
+    reset = reset >> ZYNQ_AXI_PWM_RESET_OFS;
+
+    return reset;
+}
+//-----------------------------------------------------------------------------
 void zynqAxiPwmOutputEnableWrite(uint32_t pwmBase, uint32_t enable){
 
     uint32_t control;
@@ -52,6 +63,17 @@ void zynqAxiPwmOutputEnableWrite(uint32_t pwmBase, uint32_t enable){
     zynqAxiPwmControlWrite(pwmBase, control);
 }
 //-----------------------------------------------------------------------------
+uint32_t zynqAxiPwmOutputEnableRead(uint32_t pwmBase){
+
+    uint32_t enable;
+
+    enable = zynqAxiPwmControlRead(pwmBase) & (ZYNQ_AXI_PWM_OUTPUT_ENABLE_MASK);
+
+    enable = enable >> ZYNQ_AXI_PWM_OUTPUT_ENABLE_OFS;
+
+    return enable;
+}
+//-----------------------------------------------------------------------------
 void zynqAxiPwmOvfTriggerEnableWrite(uint32_t pwmBase, uint32_t enable){
 
     uint32_t control;
@@ -63,6 +85,17 @@ void zynqAxiPwmOvfTriggerEnableWrite(uint32_t pwmBase, uint32_t enable){
     control = control | enable;
 
     zynqAxiPwmControlWrite(pwmBase, control);
+}
+//-----------------------------------------------------------------------------
+uint32_t zynqAxiPwmOvfTriggerEnableRead(uint32_t pwmBase){
+
+    uint32_t enable;
+
+    enable = zynqAxiPwmControlRead(pwmBase) & (ZYNQ_AXI_PWM_OVF_TRIGGER_ENABLE_MASK);
+
+    enable = enable >> ZYNQ_AXI_PWM_OVF_TRIGGER_ENABLE_OFS;
+
+    return enable;
 }
 //-----------------------------------------------------------------------------
 void zynqAxiPwmControlWrite(uint32_t pwmBase, uint32_t data){

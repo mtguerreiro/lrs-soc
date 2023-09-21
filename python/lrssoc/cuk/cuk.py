@@ -43,7 +43,7 @@ class Cuk:
         self._tr_id = tr_id
 
     
-    def cs_enable(self):
+    def control_sys_enable(self):
         """
         """
         status, = self._ocp_if.cs_enable( self._cs_id )
@@ -53,7 +53,7 @@ class Cuk:
         return (0,)
         
 
-    def cs_disable(self):
+    def control_sys_disable(self):
         """
         """
         status, = self._ocp_if.cs_disable( self._cs_id )
@@ -63,7 +63,7 @@ class Cuk:
         return (0,)
 
 
-    def cs_status(self):
+    def control_sys_status(self):
         """
         """
         cmdstatus, status = self._ocp_if.cs_status( self._cs_id )
@@ -160,9 +160,9 @@ class Cuk:
     def trace_set_size(self, size):
         """
         """
-        status, = self._tr_if.set_size(size)
-        if status != 0:
-            return (-1, status)
+        status = self._tr_if.set_size(size)
+        if status[0] != 0:
+            return (-1, status[0])
 
         return (0,)
 

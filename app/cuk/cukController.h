@@ -35,13 +35,22 @@ typedef enum{
 #define CUK_CONTROLLER_ERR_INVALID_CMD		-1	/* Invalid command */
 #define CUK_CONTROLLER_ERR_INVALID_CTL		-2	/* Invalid controller */
 #define CUK_CONTROLLER_ERR_INACTIVE_CTL	    -3	/* No controller active when trying to execute run function */
+
+
+typedef void (*cukControllerEnable_t)(void);
+typedef void (*cukControllerDisable_t)(void);
+
+typedef struct{
+    cukControllerEnable_t enable;
+    cukControllerDisable_t disable;
+}cukControllerConfig_t;
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void cukControllerInitialize(void);
+void cukControllerInitialize(cukControllerConfig_t *config);
 //-----------------------------------------------------------------------------
 int32_t cukControllerInterface(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------

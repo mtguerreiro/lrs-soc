@@ -35,7 +35,7 @@
 //-----------------------------------------------------------------------------
 void zynqAxiAdcInterruptConfig(void *intcInst, uint32_t intId, zynqAxiAdcIrqHandle_t handle){
 
-    XScuGic_SetPriorityTriggerType(intcInst, intId, 0xA0, 0x3);
+    XScuGic_SetPriorityTriggerType(intcInst, intId, 0x00, 0x3);
     XScuGic_Connect(intcInst, intId, (Xil_ExceptionHandler)handle, intcInst);
 
     XScuGic_Enable(intcInst, intId);
@@ -54,6 +54,17 @@ void zynqAxiAdcEnableWrite(uint32_t adcBase, uint32_t enable){
     zynqAxiAdcControlWrite(adcBase, control);
 }
 //-----------------------------------------------------------------------------
+uint32_t zynqAxiAdcEnableRead(uint32_t adcBase){
+
+    uint32_t enable;
+
+    enable = zynqAxiAdcControlRead(adcBase) & (ZYNQ_AXI_ADC_ENABLE_MASK);
+
+    enable = enable >> ZYNQ_AXI_ADC_ENABLE_OFS;
+
+    return enable;
+}
+//-----------------------------------------------------------------------------
 void zynqAxiAdcManualTriggerWrite(uint32_t adcBase, uint32_t trigger){
 
     uint32_t control;
@@ -67,6 +78,17 @@ void zynqAxiAdcManualTriggerWrite(uint32_t adcBase, uint32_t trigger){
     zynqAxiAdcControlWrite(adcBase, control);
 }
 //-----------------------------------------------------------------------------
+uint32_t zynqAxiAdcManualTriggerRead(uint32_t adcBase){
+
+    uint32_t trigger;
+
+    trigger = zynqAxiAdcControlRead(adcBase) & (ZYNQ_AXI_ADC_MAN_TRIG_MASK);
+
+    trigger = trigger >> ZYNQ_AXI_ADC_MAN_TRIG_OFS;
+
+    return trigger;
+}
+//-----------------------------------------------------------------------------
 void zynqAxiAdcInterruptEnableWrite(uint32_t adcBase, uint32_t enable){
 
     uint32_t control;
@@ -78,6 +100,17 @@ void zynqAxiAdcInterruptEnableWrite(uint32_t adcBase, uint32_t enable){
     control = control | enable;
 
     zynqAxiAdcControlWrite(adcBase, control);
+}
+//-----------------------------------------------------------------------------
+uint32_t zynqAxiAdcInterruptEnableRead(uint32_t adcBase){
+
+    uint32_t enable;
+
+    enable = zynqAxiAdcControlRead(adcBase) & (ZYNQ_AXI_ADC_INT_ENABLE_MASK);
+
+    enable = enable >> ZYNQ_AXI_ADC_INT_ENABLE_OFS;
+
+    return enable;
 }
 //-----------------------------------------------------------------------------
 void zynqAxiAdcControlWrite(uint32_t adcBase, uint32_t data){

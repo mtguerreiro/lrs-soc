@@ -45,6 +45,9 @@ typedef struct{
 
 	controllerIF_t interface;
 
+	cukControllerEnable_t enable;
+	cukControllerDisable_t disable;
+
 }controller_t;
 
 static controller_t controllers = {.active = CUK_CONTROLLER_DISABLED};
@@ -65,9 +68,14 @@ static int32_t cukControllerInterfaceReset(void *in, uint32_t insize, void **out
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void cukControllerInitialize(void){
+void cukControllerInitialize(cukControllerConfig_t *config){
 
 	uint32_t k;
+
+	controllers.enable = config->enable;
+    controllers.disable = config->disable;
+
+    if( controllers.disable != 0 ) controllers.disable();
 
 	/* Initializes the request processor */
 	rpInitialize(&controllers.interface.rp, CUK_CONTROLLER_IF_END, controllers.interface.handles);
@@ -110,7 +118,7 @@ int32_t cukControllerRun(void *inputs, int32_t ninputs, void *outputs, int32_t n
 	int32_t status = CUK_CONTROLLER_ERR_INACTIVE_CTL;
 	uint32_t ctl = controllers.active;
 
-	if( ctl != CUK_CONTROLLER_END ){
+	if( ctl < CUK_CONTROLLER_END ){
 		status = controllers.run[ctl](inputs, ninputs, outputs, nmaxoutputs);
 	}
 
@@ -147,6 +155,14 @@ static int32_t cukControllerInterfaceSetController(void *in, uint32_t insize, vo
 	if( ctl >= CUK_CONTROLLER_END ) return CUK_CONTROLLER_ERR_INVALID_CTL;
 
 	controllers.active = ctl;
+
+	if( ctl == CUK_CONTROLLER_DISABLED ){
+	    if( controllers.disable != 0 ) controllers.disable();
+	}
+	else{
+	    if( controllers.enable != 0 ) controllers.enable();
+	}
+
 
 	return 0;
 }

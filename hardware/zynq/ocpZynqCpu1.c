@@ -40,9 +40,13 @@
 
 #include "cukHwIf.h"
 #include "cukHw.h"
+#include "cukConfig.h"
 
 #include "zynqConfig.h"
 #include "zynqAxiAdc.h"
+
+#include "benchmarking_zynq.h"
+#include "sleep.h"
 //=============================================================================
 
 //=============================================================================
@@ -55,11 +59,14 @@ static int32_t ocpZynqCpu1InitializeIpc(void *intcInst);
 //-----------------------------------------------------------------------------
 static int32_t ocpZynqCpu1InitializeTraces(void);
 //-----------------------------------------------------------------------------
+static int32_t ocpZynqCpu1InitializeTracesMeas(void);
+//-----------------------------------------------------------------------------
 static int32_t ocpZynqCpu1InitializeControlSystem(void);
 //-----------------------------------------------------------------------------
 static int32_t ocpZynqCpu1InitializeInterface(void);
 //-----------------------------------------------------------------------------
-void testirq(void *callbackRef);
+void ocpZynqCpu1AdcIrq(void *callbackRef);
+//-----------------------------------------------------------------------------
 //=============================================================================
 
 //=============================================================================
@@ -74,8 +81,11 @@ void testirq(void *callbackRef);
 #define OCP_ZYNQ_C1_CONFIG_TRACE_0_ADDR				ZYNQ_CONFIG_MEM_TRACE_ADR
 #define OCP_ZYNQ_C1_CONFIG_TRACE_0_SIZE				ZYNQ_CONFIG_MEM_TRACE_SIZE_MAX
 
-#define OCP_ZYNQ_C1_CONFIG_TRACE_0_NAME_LEN			250
+#define OCP_ZYNQ_C1_CONFIG_TRACE_0_NAME_LEN			500
 #define OCP_ZYNQ_C1_CONFIG_TRACE_0_MAX_SIGNALS		20
+
+#define OCP_ZYNQ_C1_CONFIG_INPUT_BUF_SIZE           50
+#define OCP_ZYNQ_C1_CONFIG_OUTPUT_BUG_SIZE          20
 //=============================================================================
 
 //=============================================================================
@@ -84,10 +94,10 @@ void testirq(void *callbackRef);
 static char trace0Names[OCP_ZYNQ_C1_CONFIG_TRACE_0_NAME_LEN];
 static size_t trace0Data[OCP_ZYNQ_C1_CONFIG_TRACE_0_MAX_SIGNALS];
 
-static float bInputs[10];
-static float bProcInputs[10];
-static float bProcOutputs[10];
-static float bOutputs[10];
+static float bInputs[OCP_ZYNQ_C1_CONFIG_INPUT_BUF_SIZE];
+static float bOutputs[OCP_ZYNQ_C1_CONFIG_OUTPUT_BUG_SIZE];
+
+static float texec = 0.0f;
 //=============================================================================
 
 //=============================================================================
@@ -112,12 +122,16 @@ void ocpZynqCpu1Initialize(void *intcInst){
 //-----------------------------------------------------------------------------
 static int32_t ocpZynqCpu1InitializeHw(void *intcInst){
 
-
+    /* Initialize Cuk's hardware */
     cukHwInitConfig_t config;
 
     config.intc = intcInst;
-    config.irqhandle ;
+    config.irqhandle = ocpZynqCpu1AdcIrq;
 
+    cukHwInitialize(&config);
+
+    /* Initialize timer for benchmarking */
+    InitBenchmarking();
 
 	return 0;
 }
@@ -145,42 +159,64 @@ static int32_t ocpZynqCpu1InitializeTraces(void){
 
 	ocpTraceInitialize(OCP_TRACE_1, &config, "Main Trace");
 
+	ocpZynqCpu1InitializeTracesMeas();
+
 	return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t ocpZynqCpu1InitializeTracesMeas(void){
+
+    cukConfigMeasurements_t *meas;
+    cukConfigControl_t *outputs;
+
+    /* Adds measurements to trace */
+    meas = (cukConfigMeasurements_t *)bInputs;
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->i_o_1, "Input current");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->i_l_1, "Primary inductor current");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->v_io_1, "Input voltage");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->v_dc_1, "DC link voltage");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->v_c_1, "Primary coupling cap voltage");
+
+    /* Adds control signals to trace */
+    outputs = (cukConfigControl_t *)bOutputs;
+    ocpTraceAddSignal(OCP_TRACE_1, &outputs->u, "Duty-cycle");
+
+    /* Other signals to add */
+    ocpTraceAddSignal(OCP_TRACE_1, &texec, "Exec. time");
+
+    return 0;
 }
 //-----------------------------------------------------------------------------
 static int32_t ocpZynqCpu1InitializeControlSystem(void){
 
 	ocpCSConfig_t config;
+	cukControllerConfig_t cukconfig;
 
     /* Initializes controller and hardware interface libs */
-    cukControllerInitialize();
+	cukconfig.disable = cukHwControllerDisable;
+    cukconfig.enable = cukHwControllerEnable;
+	cukControllerInitialize(&cukconfig);
     cukHwIfInitialize();
 
     /* Initializes control sys lib */
     config.binputs = (void *)bInputs;
-    config.bprocInputs = (void *)bProcInputs;
-    config.bprocOutputs = (void *)bProcOutputs;
     config.boutputs = (void *)bOutputs;
 
     config.fhwInterface = cukHwIf;
     config.fhwStatus = cukHwStatus;
 
     //config.fgetInputs = cukOpilGetMeasurements;
-    //config.fprocInputs = cukOpilProcInputs;
     config.fgetInputs = cukHwGetMeasurements;
-    config.fprocInputs = cukHwProcInputs;
 
-    //config.fprocOutputs = cukOpilProcOutputs;
     //config.fapplyOutputs = cukOpilUpdateControl;
-    config.fprocOutputs = cukHwProcOutputs;
     config.fapplyOutputs = cukHwApplyOutputs;
 
     config.frun = cukControllerRun;
     config.fcontrollerInterface = cukControllerInterface;
     config.fcontrollerStatus = cukControllerStatus;
 
-    config.fenable = 0;
-    config.fdisable = cukOpilDisable;
+    config.fenable = cukHwEnable;
+    config.fdisable = cukHwDisable;
 
     config.fonEntry = 0;
     config.fonExit = 0;
@@ -281,11 +317,17 @@ static int32_t ocpZynqCpu1InitializeInterface(void){
 /*----------------------------------- IRQ -----------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void testirq(void *callbackRef){
+void ocpZynqCpu1AdcIrq(void *callbackRef){
 
-    static uint32_t counter = 0;
+    uint32_t ticks;
 
-    counter++;
+    ticks = GetTicks();
+
+    ocpCSRun(OCP_CS_1);
+    ocpTraceSave(OCP_TRACE_1);
+
+    ticks = ticks - GetTicks();
+    texec = TicksToS(ticks) / 1e-6;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
