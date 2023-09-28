@@ -26,6 +26,7 @@ typedef struct ocpOpilControl_t{
     ocpOpilUpdateMeas_t updateMeas;
     ocpOpilUpdateSimData_t updateSimData;
     ocpOpilInitControl_t initControl;
+    ocpOpilRunControl_t runControl;
     ocpOpilGetControl_t getControl;
     ocpOpilGetControllerData_t getControllerData;
 }ocpOpilControl_t;
@@ -50,6 +51,7 @@ int32_t ocpOpilInitialize(ocpOpilConfig_t *config){
     xocontrol.updateSimData = config->updateSimData;
 
     xocontrol.initControl = config->initControl;
+    xocontrol.runControl = config->runControl;
 
     xocontrol.getControl = config->getControl;
     xocontrol.getControllerData = config->getControllerData;
@@ -69,13 +71,12 @@ int32_t ocpOpilUpdateSimData(void *simdata, int32_t size){
 //-----------------------------------------------------------------------------
 void ocpOpilInitControl(void){
 
-    if( xocontrol.initControl != 0 ) xocontrol.initControl();
+    if( xocontrol.initControl != 0 ) xocontrol.initControl(0);
 }
 //-----------------------------------------------------------------------------
 void ocpOpilRunControl(void){
 
-    ocpCSRun(OCP_CS_1);
-    ocpTraceSave(OCP_TRACE_1);
+    xocontrol.runControl(0);
 }
 //-----------------------------------------------------------------------------
 int32_t ocpOpilGetControl(void **control){

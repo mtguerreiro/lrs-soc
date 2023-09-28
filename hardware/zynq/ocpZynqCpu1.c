@@ -171,15 +171,16 @@ static int32_t ocpZynqCpu1InitializeTracesMeas(void){
 
     /* Adds measurements to trace */
     meas = (cukConfigMeasurements_t *)bInputs;
-    ocpTraceAddSignal(OCP_TRACE_1, &meas->i_o_1, "Input current");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->i_i, "Input current");
     ocpTraceAddSignal(OCP_TRACE_1, &meas->i_l_1, "Primary inductor current");
-    ocpTraceAddSignal(OCP_TRACE_1, &meas->v_io_1, "Input voltage");
-    ocpTraceAddSignal(OCP_TRACE_1, &meas->v_dc_1, "DC link voltage");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->v_i_1, "Input voltage");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->v_i_2, "DC link voltage");
     ocpTraceAddSignal(OCP_TRACE_1, &meas->v_c_1, "Primary coupling cap voltage");
 
     /* Adds control signals to trace */
     outputs = (cukConfigControl_t *)bOutputs;
     ocpTraceAddSignal(OCP_TRACE_1, &outputs->u, "Duty-cycle");
+    ocpTraceAddSignal(OCP_TRACE_1, &outputs->sw_o, "Output switch");
 
     /* Other signals to add */
     ocpTraceAddSignal(OCP_TRACE_1, &texec, "Exec. time");
@@ -216,58 +217,12 @@ static int32_t ocpZynqCpu1InitializeControlSystem(void){
     config.fcontrollerStatus = cukControllerStatus;
 
     config.fenable = cukHwEnable;
+    //config.fenable = 0;
     config.fdisable = cukHwDisable;
+    //config.fdisable = cukOpilDisable;
 
     config.fonEntry = 0;
     config.fonExit = 0;
-
-//	/* Initializes controller lib */
-//	buckControllerInitialize();
-//
-//	/* Initializes control sys lib */
-//	config.binputs = (void *)bInputs;
-//	config.bprocInputs = (void *)bProcInputs;
-//	config.bprocOutputs = (void *)bProcOutputs;
-//	config.boutputs = (void *)bOutputs;
-//
-//    config.fhwInterface = 0;
-//    config.fhwStatus = buckHwStatus;
-//
-//    config.fgetInputs = buckOpilGetMeasurements;
-//    config.fprocInputs = buckOpilProcInputs;
-//
-//    config.fprocOutputs = buckOpilProcOutputs;
-//    config.fapplyOutputs = buckOpilUpdateControl;
-//
-//    config.frun = buckControllerRun;
-//    config.fcontrollerInterface = buckControllerInterface;
-//    config.fcontrollerStatus = buckControllerStatus;
-//
-//    config.fenable = 0;
-//    config.fdisable = buckOpilDisable;
-//
-//    config.fonEntry = 0;
-//    config.fonExit = 0;
-
-
-//	controllerInitialize();
-//	config.fhwInterface = afeIf;
-//
-//	config.fgetInputs = afeHwZynqGetInputs;
-//	config.fprocInputs = afeHwZynqProcInputs;
-//
-//	config.fprocOutputs = afeHwZynqProcOutputs;
-//	config.fapplyOutputs = afeHwZynqApplyOutputs;
-//
-//	config.frun = controllerRun;
-//	config.fcontrollerInterface = controllerInterface;
-//
-//	config.fenable = 0;
-//	config.fdisable = 0;
-//
-//	config.fonEntry = 0;
-//	config.fonExit = 0;
-
 
 	ocpCSInitialize(OCP_CS_1, &config, "Converter control");
 
@@ -283,6 +238,7 @@ static int32_t ocpZynqCpu1InitializeInterface(void){
     config.updateSimData = cukOpilUpdateSimData;
 
     config.initControl = 0;
+    config.runControl = ocpZynqCpu1AdcIrq;
 
     config.getControl = cukOpilGetControl;
     config.getControllerData = cukOpilGetControllerData;
@@ -291,22 +247,6 @@ static int32_t ocpZynqCpu1InitializeInterface(void){
 
     /* Initializes OCP interface */
     ocpIfInitialize();
-
-//    /* Initializes OPiL interface */
-//    ocpOpilConfig_t config;
-//
-//    config.updateMeas = buckOpilUpdateMeasurements;
-//    config.updateSimData = buckOpilUpdateSimData;
-//
-//    config.initControl = 0;
-//
-//    config.getControl = buckOpilGetControl;
-//    config.getControllerData = buckOpilGetControllerData;
-//
-//    ocpOpilInitialize(&config);
-//
-//    /* Initializes OCP interface */
-//    ocpIfInitialize();
 
 	return 0;
 }

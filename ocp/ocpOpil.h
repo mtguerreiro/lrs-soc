@@ -21,7 +21,8 @@
 //=============================================================================
 typedef int32_t (*ocpOpilUpdateMeas_t)(void *meas, int32_t size);
 typedef int32_t (*ocpOpilUpdateSimData_t)(void *simdata, int32_t size);
-typedef void (*ocpOpilInitControl_t)(void);
+typedef void (*ocpOpilInitControl_t)(void *p);
+typedef void (*ocpOpilRunControl_t)(void *p);
 typedef int32_t (*ocpOpilGetControl_t)(void **control);
 typedef int32_t (*ocpOpilGetControllerData_t)(void **controllerdata);
 
@@ -30,6 +31,7 @@ typedef struct ocpOpilConfig_t{
     ocpOpilUpdateMeas_t updateMeas;
     ocpOpilUpdateSimData_t updateSimData;
     ocpOpilInitControl_t initControl;
+    ocpOpilRunControl_t runControl;
     ocpOpilGetControl_t getControl;
     ocpOpilGetControllerData_t getControllerData;
 }ocpOpilConfig_t;

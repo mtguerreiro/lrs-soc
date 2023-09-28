@@ -5,8 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 plt.ion()
 
+import time
+
 # --- Input ---
-host = '131.246.75.251'
+host = '131.246.75.169'
 port = 8080
 settings = {'host':host, 'port':port}
 

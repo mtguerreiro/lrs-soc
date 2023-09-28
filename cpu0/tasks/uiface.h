@@ -23,7 +23,7 @@
  * ints, not bytes. So, 1024 means 1024 * 4 bytes if sizeof(int) is 4.
  */
 #define UIFACE_CONFIG_TASK_PRIO			2
-#define UIFACE_CONFIG_TASK_STACK_SIZE	1024
+#define UIFACE_CONFIG_TASK_STACK_SIZE	1536
 
 /*
  * Signature of the functions binded to commands on the user interface.
@@ -46,7 +46,7 @@ typedef int32_t(*uifaceHandle_t)(void *in, uint32_t insize, void **out, uint32_t
  * Size of the buffer used to receive data from the network. This size is in
  * bytes. Bear in mind that one such buffer is allocated for each connection.
  */
-#define UIFACE_CONFIG_RECV_BUFFER		128
+#define UIFACE_CONFIG_RECV_BUFFER		512
 
 /*
  * Defines how long a new request should wait until the last one is processed.

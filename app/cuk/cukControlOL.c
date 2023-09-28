@@ -28,6 +28,7 @@
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
 static float u = 0.0f;
+static uint32_t counter = 0;
 //=============================================================================
 
 //=============================================================================
@@ -53,10 +54,19 @@ int32_t cukControlOLRun(void *inputs, int32_t ninputs, void *outputs, int32_t nm
     cukConfigMeasurements_t *m = (cukConfigMeasurements_t *)inputs;
     cukConfigControl_t *o = (cukConfigControl_t *)outputs;
 
-    u = u + 0.5f / (1000.0f);
-    if( u > 0.5f ) u = 0.5f;
+    u = u + 0.545455f / (625.0f);
+    if( u > 0.545455f ) u = 0.545455f;
 
     o->u = u;
+
+    counter++;
+    if( counter > 800 ){
+        o->sw_o = 1;
+        counter = 802;
+    }
+    else{
+        o->sw_o = 0;
+    }
 
     return sizeof(cukConfigControl_t);
 }
@@ -64,6 +74,7 @@ int32_t cukControlOLRun(void *inputs, int32_t ninputs, void *outputs, int32_t nm
 void cukControlOLReset(void){
 
     u = 0.0f;
+    counter = 0;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

@@ -21,7 +21,7 @@
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-#define CUK_HW_CONFIG_ADC_SPI_FREQ_HZ      ((uint32_t)10000000)
+#define CUK_HW_CONFIG_ADC_SPI_FREQ_HZ      ((uint32_t)16666666)
 #define CUK_HW_CONFIG_PWM_FREQ_HZ          ((uint32_t) 100000 )
 #define CUK_HW_CONFIG_PWM_DEAD_TIME_NS     ((float) 100e-9 )
 #define CUK_HW_CONFIG_PWM_BASE              XPAR_AXI_PWM_0_S00_AXI_BASEADDR
@@ -226,29 +226,29 @@ int32_t cukHwGetMeasurements(void *meas){
     /* Skips the first adc channel */
     src++;
 
-    dst->i_o_1 =  ((float)(*src++)) / 4095.0f * 3.3f;
-    dst->i_l_1 =  ((float)(*src++)) / 4095.0f * 3.3f;
-    dst->v_io_1 = ((float)(*src++)) / 4095.0f * 3.3f;
-    dst->v_dc_1 = ((float)(*src++)) / 4095.0f * 3.3f;
-    dst->v_c_1 =  ((float)(*src++)) / 4095.0f * 3.3f;
+    dst->i_i =   ((float)(*src++)) / 4095.0f * 3.3f;
+    dst->i_l_1 = ((float)(*src++)) / 4095.0f * 3.3f;
+    dst->v_i_1 = ((float)(*src++)) / 4095.0f * 3.3f;
+    dst->v_i_2 = ((float)(*src++)) / 4095.0f * 3.3f;
+    dst->v_c_1 = ((float)(*src++)) / 4095.0f * 3.3f;
 
-    dst->i_o_1_filt =  0.0f;
-    dst->i_l_1_filt =  0.0f;
-    dst->v_io_1_filt = 0.0f;
-    dst->v_dc_1_filt = 0.0f;
-    dst->v_c_1_filt =  0.0f;
+    dst->i_i_filt =   0.0f;
+    dst->i_l_1_filt = 0.0f;
+    dst->v_i_1_filt = 0.0f;
+    dst->v_i_2_filt = 0.0f;
+    dst->v_c_1_filt = 0.0f;
 
-    dst->i_o_2 =  0.0f;
-    dst->i_l_2 =  0.0f;
-    dst->v_io_2 = 0.0f;
-    dst->v_dc_2 = 0.0f;
-    dst->v_c_2 =  0.0f;
+    dst->i_o =   0.0f;
+    dst->i_l_2 = 0.0f;
+    dst->v_o_1 = 0.0f;
+    dst->v_o_2 = 0.0f;
+    dst->v_c_2 = 0.0f;
 
-    dst->i_o_2_filt =  0.0f;
-    dst->i_l_2_filt =  0.0f;
-    dst->v_io_2_filt = 0.0f;
-    dst->v_dc_2_filt = 0.0f;
-    dst->v_c_2_filt =  0.0f;
+    dst->i_o_filt =   0.0f;
+    dst->i_l_2_filt = 0.0f;
+    dst->v_o_1_filt = 0.0f;
+    dst->v_o_2_filt = 0.0f;
+    dst->v_c_2_filt = 0.0f;
 
     return sizeof(cukConfigMeasurements_t);
 }
@@ -258,6 +258,8 @@ int32_t cukHwApplyOutputs(void *outputs, int32_t size){
     cukConfigControl_t *control;
 
     control = (cukConfigControl_t *)outputs;
+
+    //cukHwSetPwmDuty(control->u);
 
     //control->u = 0.5f;
 
