@@ -137,6 +137,26 @@ class Cuk:
         return (0, params)
 
 
+    def controller_set_ref(self, ref):
+        """
+        """
+        status = self._ctl_if.set_ref(ref)
+        if status[0] != 0:
+            return (-1, status)
+
+        return (0,)        
+
+
+    def controller_get_ref(self):
+        """
+        """
+        status, ref = self._ctl_if.get_ref()
+        if status != 0:
+            return (-1, status)
+
+        return (0, ref)
+
+    
     def trace_read(self):
         """
         """

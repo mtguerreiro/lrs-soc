@@ -7,6 +7,28 @@ Module ``cuk_controller``
 import lrssoc
 import struct
 
+class References:
+    """
+    """
+    def __init__(self):
+        pass
+    
+
+    def encode(self, ref):
+
+        r = float(ref)
+        data = list(struct.pack('<f', r))
+
+        return data
+
+    
+    def decode(self, data):
+
+        ref = struct.unpack('<f', data)[0]
+        
+        return ref
+
+
 class Controllers:
     """
     """
@@ -51,6 +73,8 @@ class Controller:
 
         self._cs_id = cs_id
         self._ctl = Controllers().ctl
+
+        self._ref = References()
         
 
     def set(self, controller):
@@ -150,6 +174,29 @@ class Controller:
 
         ctl_id = self._ctl[controller]['id']
 
-        status, = self._ctl_if.reset(self._cs_id, ctl_id)
+        status = self._ctl_if.reset(self._cs_id, ctl_id)
       
-        return (status,)
+        return status
+
+
+    def set_ref(self, ref):
+        """
+        """
+        ref_data = self._ref.encode( float(ref) )
+
+        status = self._ctl_if.set_ref(self._cs_id, ref_data)
+
+        return status
+
+
+    def get_ref(self):
+        """
+        """
+        status, data = self._ctl_if.get_ref(self._cs_id)
+
+        if status != 0:
+            return (-1, status)
+        
+        refs = self._ref.decode(data)
+        
+        return (0, refs)

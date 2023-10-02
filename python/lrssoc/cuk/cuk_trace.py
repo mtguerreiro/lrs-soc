@@ -56,9 +56,9 @@ class Trace:
     def reset(self):
         """
         """
-        status, = self._ocp_if.trace_reset( self._tr_id )
+        status = self._ocp_if.trace_reset( self._tr_id )
 
-        if status < 0 :
+        if status[0] < 0 :
             return (-1, status)
 
         return (0,)

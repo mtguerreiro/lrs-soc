@@ -21,24 +21,22 @@ cuk.trace_reset()
 
 #status, (traces, data) = cuk.trace_read(); data = np.array(data).T
 
-def config():
-    afe.adc_config(40)
-    afe.pwm_config(20000)
-    afe.set_controller(0)
-    afe.hwi.cs_enable(0)
-    afe.hwi.trace_set_size(0, 4096)
+def live():
 
-def start_acq():
-    afe.adc_en(False)
-    afe.hwi.trace_reset(0)
-    afe.adc_en(True)
+    cuk.trace_set_size(0.5 * 100000)
 
-def stop_acq():
-    afe.adc_en(False)
+    fig = plt.figure()
+    ax = plt.gca()
+    while True:
+        status, (traces, data) = cuk.trace_read()
+        data = np.array(data).T
 
-def read():
-    status, data = afe.hwi.trace_read(0)
-    data = np.array(data)
-    n = int(data.shape[0] / 4)
-    data = data.reshape(n, 4)
-    return data
+        ax.cla()
+        ax.plot(data[:, 4])
+
+        plt.tight_layout()
+
+        cuk.trace_reset()
+        plt.pause(0.5)
+
+        

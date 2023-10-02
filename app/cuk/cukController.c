@@ -13,6 +13,8 @@
 
 #include "../utils/rp.h"
 
+#include "cukConfig.h"
+
 /* Controllers */
 #include "cukControlOL.h"
 #include "cukControlDisabled.h"
@@ -26,7 +28,7 @@ typedef void(*controllerInit)(void);
 typedef void(*controllerReset)(void);
 typedef int32_t(*controllerSP)(void *in, uint32_t insize);
 typedef int32_t(*controllerGP)(void *in, uint32_t insize, void *out, uint32_t maxoutsize);
-typedef int32_t(*controllerR)(void *inputs, int32_t ninputs, void *outputs, int32_t nmaxoutputs);
+typedef int32_t(*controllerR)(void *meas, int32_t nmeas, void *refs, int32_t nrefs, void *outputs, int32_t nmaxoutputs);
 
 typedef struct{
 	rphandle_t handles[CUK_CONTROLLER_IF_END];
@@ -48,6 +50,8 @@ typedef struct{
 	cukControllerEnable_t enable;
 	cukControllerDisable_t disable;
 
+	cukConfigReferences_t refs;
+
 }controller_t;
 
 static controller_t controllers = {.active = CUK_CONTROLLER_DISABLED};
@@ -62,6 +66,8 @@ static int32_t cukControllerInterfaceSetController(void *in, uint32_t insize, vo
 static int32_t cukControllerInterfaceGetControllerParams(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t cukControllerInterfaceSetControllerParams(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t cukControllerInterfaceReset(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t cukControllerInterfaceSetReferences(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t cukControllerInterfaceGetReferences(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //=============================================================================
 
 //=============================================================================
@@ -84,6 +90,8 @@ void cukControllerInitialize(cukControllerConfig_t *config){
 	rpRegisterHandle(&controllers.interface.rp, CUK_CONTROLLER_IF_GET_PARAMS, cukControllerInterfaceGetControllerParams);
 	rpRegisterHandle(&controllers.interface.rp, CUK_CONTROLLER_IF_SET_PARAMS, cukControllerInterfaceSetControllerParams);
     rpRegisterHandle(&controllers.interface.rp, CUK_CONTROLLER_IF_RESET, cukControllerInterfaceReset);
+    rpRegisterHandle(&controllers.interface.rp, CUK_CONTROLLER_IF_SET_REF, cukControllerInterfaceSetReferences);
+    rpRegisterHandle(&controllers.interface.rp, CUK_CONTROLLER_IF_GET_REF, cukControllerInterfaceGetReferences);
 
 	/* Register the available controllers */
     controllers.initialize[CUK_CONTROLLER_DISABLED] = cukControlDisabledInitialize;
@@ -102,6 +110,9 @@ void cukControllerInitialize(cukControllerConfig_t *config){
 	for(k = 0; k < CUK_CONTROLLER_END; k++){
 		controllers.initialize[k]();
 	}
+
+	/* Initializes references */
+	controllers.refs.v_o = 0.0f;
 }
 //-----------------------------------------------------------------------------
 int32_t cukControllerInterface(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
@@ -113,13 +124,13 @@ int32_t cukControllerInterface(void *in, uint32_t insize, void **out, uint32_t m
 	return status;
 }
 //-----------------------------------------------------------------------------
-int32_t cukControllerRun(void *inputs, int32_t ninputs, void *outputs, int32_t nmaxoutputs){
+int32_t cukControllerRun(void *meas, int32_t nmeas, void *outputs, int32_t nmaxoutputs){
 
 	int32_t status = CUK_CONTROLLER_ERR_INACTIVE_CTL;
 	uint32_t ctl = controllers.active;
 
 	if( ctl < CUK_CONTROLLER_END ){
-		status = controllers.run[ctl](inputs, ninputs, outputs, nmaxoutputs);
+		status = controllers.run[ctl](meas, nmeas, &controllers.refs, sizeof(controllers.refs), outputs, nmaxoutputs);
 	}
 
 	return status;
@@ -212,6 +223,28 @@ static int32_t cukControllerInterfaceReset(void *in, uint32_t insize, void **out
     controllers.reset[ctl]();
 
     return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t cukControllerInterfaceSetReferences(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    cukConfigReferences_t *p;
+
+    p = (cukConfigReferences_t *)in;
+
+    controllers.refs = *p;
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t cukControllerInterfaceGetReferences(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    cukConfigReferences_t *p;
+
+    p = (cukConfigReferences_t *)*out;
+
+    *p = controllers.refs;
+
+    return sizeof(cukConfigReferences_t);
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

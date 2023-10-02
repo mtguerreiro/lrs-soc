@@ -49,24 +49,37 @@ int32_t cukControlOLGetParams(void *in, uint32_t insize, void *out, uint32_t max
     return 0;
 }
 //-----------------------------------------------------------------------------
-int32_t cukControlOLRun(void *inputs, int32_t ninputs, void *outputs, int32_t nmaxoutputs){
+int32_t cukControlOLRun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, void *outputs, int32_t nmaxoutputs){
 
-    cukConfigMeasurements_t *m = (cukConfigMeasurements_t *)inputs;
+    cukConfigMeasurements_t *m = (cukConfigMeasurements_t *)meas;
+    cukConfigReferences_t *r = (cukConfigReferences_t *)refs;
     cukConfigControl_t *o = (cukConfigControl_t *)outputs;
 
-    u = u + 0.545455f / (625.0f);
-    if( u > 0.545455f ) u = 0.545455f;
+    if( r->v_o < m->v_i_2 ){
+        u = 0.0f;
+    }
+    else{
+        u = 1.0f - 16.0f / r->v_o;
+
+        if( u > 1.0f ) u = 1.0f;
+        if( u < 0.0f ) u = 0.0f;
+    }
 
     o->u = u;
 
-    counter++;
-    if( counter > 800 ){
-        o->sw_o = 1;
-        counter = 802;
-    }
-    else{
-        o->sw_o = 0;
-    }
+//    u = u + 0.545455f / (625.0f);
+//    if( u > 0.545455f ) u = 0.545455f;
+//
+//    o->u = u;
+//
+//    counter++;
+//    if( counter > 800 ){
+//        o->sw_o = 1;
+//        counter = 802;
+//    }
+//    else{
+//        o->sw_o = 0;
+//    }
 
     return sizeof(cukConfigControl_t);
 }

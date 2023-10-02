@@ -48,9 +48,9 @@ int32_t cukControlDisabledGetParams(void *in, uint32_t insize, void *out, uint32
     return 0;
 }
 //-----------------------------------------------------------------------------
-int32_t cukControlDisabledRun(void *inputs, int32_t ninputs, void *outputs, int32_t nmaxoutputs){
+int32_t cukControlDisabledRun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, void *outputs, int32_t nmaxoutputs){
 
-    cukConfigMeasurements_t *m = (cukConfigMeasurements_t *)inputs;
+    cukConfigMeasurements_t *m = (cukConfigMeasurements_t *)meas;
     cukConfigControl_t *o = (cukConfigControl_t *)outputs;
 
     o->u = 0.0f;

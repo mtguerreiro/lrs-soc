@@ -16,6 +16,8 @@ class Commands:
         self.set_params = 2
         self.get_params = 3
         self.reset = 4
+        self.set_refs = 5
+        self.get_refs = 6
 
 
 class Controller:
@@ -147,3 +149,36 @@ class Controller:
             return (-1, status)
         
         return (0,)
+
+
+    def set_ref(self, cs_id, ref):
+        cmd = self._cmd.set_refs
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( ref )
+
+        status, _ = self._ocp_if.cs_controller_if(cs_id, tx_data)   
+
+        if status < 0:
+            print('Error setting controller refs. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        return (0,)
+
+
+    def get_ref(self, cs_id):
+        """
+        """
+        cmd = self._cmd.get_refs
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, rx_data = self._ocp_if.cs_controller_if(cs_id, tx_data)   
+
+        if status < 0:
+            print('Error getting controller refs. Error code {:}\r\n'.format(status))
+            return (-1, status)
+       
+        return (0, rx_data)

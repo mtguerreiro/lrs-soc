@@ -226,11 +226,11 @@ int32_t cukHwGetMeasurements(void *meas){
     /* Skips the first adc channel */
     src++;
 
-    dst->i_i =   ((float)(*src++)) / 4095.0f * 3.3f;
-    dst->i_l_1 = ((float)(*src++)) / 4095.0f * 3.3f;
-    dst->v_i_1 = ((float)(*src++)) / 4095.0f * 3.3f;
-    dst->v_i_2 = ((float)(*src++)) / 4095.0f * 3.3f;
-    dst->v_c_1 = ((float)(*src++)) / 4095.0f * 3.3f;
+    dst->i_i =   ((float)(*src++)) / 4095.0f * 3.3f * (60.0f / 5.0f);
+    dst->i_l_1 = ((float)(*src++)) / 4095.0f * 3.3f * (60.0f / 5.0f);
+    dst->v_i_1 = ((float)(*src++)) / 4095.0f * 3.3f * (60.0f / 5.0f);
+    dst->v_i_2 = ((float)(*src++)) / 4095.0f * 3.3f * (60.0f / 5.0f);
+    dst->v_c_1 = ((float)(*src++)) / 4095.0f * 3.3f * (60.0f / 5.0f);
 
     dst->i_i_filt =   0.0f;
     dst->i_l_1_filt = 0.0f;
@@ -259,7 +259,7 @@ int32_t cukHwApplyOutputs(void *outputs, int32_t size){
 
     control = (cukConfigControl_t *)outputs;
 
-    //cukHwSetPwmDuty(control->u);
+    cukHwSetPwmDuty(control->u);
 
     //control->u = 0.5f;
 

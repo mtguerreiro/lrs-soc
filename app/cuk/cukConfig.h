@@ -52,6 +52,10 @@ typedef struct{
     float sw_l;
 }cukConfigControl_t;
 
+typedef struct{
+    float v_o;
+}cukConfigReferences_t;
+
 //=============================================================================
 
 #endif /* CUK_CONFIG_H_ */

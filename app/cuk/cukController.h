@@ -29,6 +29,8 @@ typedef enum{
 	CUK_CONTROLLER_IF_SET_PARAMS,	/* Sets parameters for the specified controller */
 	CUK_CONTROLLER_IF_GET_PARAMS,	/* Gets parameters for the specified controller */
 	CUK_CONTROLLER_IF_RESET,        /* Resets the specified controller */
+	CUK_CONTROLLER_IF_SET_REF,      /* Sets the references */
+	CUK_CONTROLLER_IF_GET_REF,         /* Gets the references */
 	CUK_CONTROLLER_IF_END
 }cukControllerInterface_t;
 
@@ -54,7 +56,7 @@ void cukControllerInitialize(cukControllerConfig_t *config);
 //-----------------------------------------------------------------------------
 int32_t cukControllerInterface(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
-int32_t cukControllerRun(void *inputs, int32_t ninputs, void *outputs, int32_t nmaxoutputs);
+int32_t cukControllerRun(void *meas, int32_t nmeas, void *outputs, int32_t nmaxoutputs);
 //-----------------------------------------------------------------------------
 int32_t cukControllerStatus(void);
 //-----------------------------------------------------------------------------
