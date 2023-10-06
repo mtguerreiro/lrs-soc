@@ -53,7 +53,7 @@ typedef int32_t(*uifaceHandle_t)(void *in, uint32_t insize, void **out, uint32_t
  * If the time expires, the new request will be denied, i.e., the connection
  * will be closed upon time expiration.
  */
-#define UIFACE_CONFIG_MUTEX_WAIT_MS		2000
+#define UIFACE_CONFIG_MUTEX_WAIT_MS		60000
 
 //=============================================================================
 

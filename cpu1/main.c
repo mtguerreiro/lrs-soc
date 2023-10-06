@@ -95,6 +95,7 @@ int main(){
 
        	usleep(blinkPeriod * 1000);		//Delay so output can be seen
 
+
        	data = data << 1;
     	if( (data & (LED_MASK << 2 ) ) == 0 ) data = 0xFF;
     }

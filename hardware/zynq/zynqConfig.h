@@ -24,7 +24,8 @@
  * match the one in CPU1's linker file.
  * */
 #define ZYNQ_CONFIG_CPU1_RESET_ADR 				0xFFFFFFF0
-#define ZYNQ_CONFIG_CPU1_START_ADR 				0x10000000
+//#define ZYNQ_CONFIG_CPU1_START_ADR 				0x10000000
+#define ZYNQ_CONFIG_CPU1_START_ADR              0x00800000
 
 /*
  * Address of sync flag. This address is only used in the very beginning to

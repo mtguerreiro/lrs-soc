@@ -55,15 +55,10 @@ int32_t cukControlOLRun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, vo
     cukConfigReferences_t *r = (cukConfigReferences_t *)refs;
     cukConfigControl_t *o = (cukConfigControl_t *)outputs;
 
-    if( r->v_o < m->v_i_2 ){
-        u = 0.0f;
-    }
-    else{
-        u = 1.0f - 16.0f / r->v_o;
+    u = 1.0f - 16.0f / r->v_o;
 
-        if( u > 1.0f ) u = 1.0f;
-        if( u < 0.0f ) u = 0.0f;
-    }
+    if( u > 1.0f ) u = 1.0f;
+    if( u < 0.0f ) u = 0.0f;
 
     o->u = u;
 

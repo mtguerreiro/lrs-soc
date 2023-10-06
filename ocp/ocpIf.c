@@ -200,7 +200,7 @@ typedef struct{
 
 }ocpIfControl_t;
 
-#define OCP_IF_CONFIG_DUAL_CORE_COMM_TO		100
+#define OCP_IF_CONFIG_DUAL_CORE_COMM_TO		60000
 //=============================================================================
 
 //=============================================================================

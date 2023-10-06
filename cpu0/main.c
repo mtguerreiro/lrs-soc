@@ -75,8 +75,6 @@ static int mainSetupIntrSystem(XScuGic *intcInstance);
  */
 XScuGic   xINTCInstance;
 
-static uint32_t size = 0;
-
 //=============================================================================
 
 //=============================================================================
@@ -86,8 +84,6 @@ static uint32_t size = 0;
 int main(void){
 
 	mainSysInit();
-
-	size = xPortGetFreeHeapSize();
 
 	sys_thread_new("uiface_thrd", uiface,
 					0,
@@ -103,8 +99,6 @@ int main(void){
 					(void *)&xINTCInstance,
 					SYSINIT_CONFIG_TASK_STACK_SIZE,
 					SYSINIT_CONFIG_TASK_PRIO);
-
-	size = xPortGetFreeHeapSize();
 
 	vTaskStartScheduler();
 	while(1);
