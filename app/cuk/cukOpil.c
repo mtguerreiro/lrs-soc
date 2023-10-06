@@ -147,9 +147,9 @@ int32_t cukOpilProcOutputs(void *outputs, void *procoutputs, int32_t size){
 //-----------------------------------------------------------------------------
 void cukOpilDisable(void){
 
-//    xtControl.u = 0.0f;
-//    xtControl.sw_o = 0;
-//    xtControl.sw_l = 0;
+    xtControl.u = 0.0f;
+    xtControl.sw_o = 0;
+    xtControl.sw_l = 0;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
