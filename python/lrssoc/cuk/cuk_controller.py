@@ -35,8 +35,10 @@ class Controllers:
     def __init__(self):
         self.ctl = {
             0 : {'id':0, 'if':None},
-            'ol' : {'id':1, 'if':OL()}
+            'startup' : {'id':1, 'if':Startup()},
+            'ol' : {'id':2, 'if':OL()}
             }
+
 
 class OL:
     def __init__(self):
@@ -44,6 +46,7 @@ class OL:
     
 
     def set(self, params):
+        
 
         return 0
     
@@ -51,6 +54,30 @@ class OL:
     def get(self, data):
 
         return 0
+
+
+class Startup:
+    def __init__(self):
+        pass
+    
+
+    def set(self, params):
+
+        uinc = params['uinc']
+        data = list(struct.pack('<f', uinc))
+        
+        return data
+    
+
+    def get(self, data):
+
+        pars = struct.unpack('<f', data)
+
+        params = {
+            'uinc': pars[0]
+            }
+
+        return params
     
 
 class Controller:

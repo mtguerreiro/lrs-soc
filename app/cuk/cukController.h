@@ -19,7 +19,8 @@
 //=============================================================================
 typedef enum{
 	CUK_CONTROLLER_DISABLED,
-    CUK_CONTROLLER_OL,
+    CUK_CONTROLLER_STARTUP,
+	CUK_CONTROLLER_OL,
 	CUK_CONTROLLER_END
 }cukControllers_t;
 

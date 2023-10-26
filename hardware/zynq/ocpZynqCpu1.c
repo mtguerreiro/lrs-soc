@@ -206,20 +206,20 @@ static int32_t ocpZynqCpu1InitializeControlSystem(void){
     config.fhwInterface = cukHwIf;
     config.fhwStatus = cukHwStatus;
 
-    config.fgetInputs = cukOpilGetMeasurements;
-    //config.fgetInputs = cukHwGetMeasurements;
+    //config.fgetInputs = cukOpilGetMeasurements;
+    config.fgetInputs = cukHwGetMeasurements;
 
-    config.fapplyOutputs = cukOpilUpdateControl;
-    //config.fapplyOutputs = cukHwApplyOutputs;
+    //config.fapplyOutputs = cukOpilUpdateControl;
+    config.fapplyOutputs = cukHwApplyOutputs;
 
     config.frun = cukControllerRun;
     config.fcontrollerInterface = cukControllerInterface;
     config.fcontrollerStatus = cukControllerStatus;
 
-    //config.fenable = cukHwEnable;
-    config.fenable = 0;
-    //config.fdisable = cukHwDisable;
-    config.fdisable = cukOpilDisable;
+    config.fenable = cukHwEnable;
+    //config.fenable = 0;
+    config.fdisable = cukHwDisable;
+    //config.fdisable = cukOpilDisable;
 
     config.fonEntry = 0;
     config.fonExit = 0;

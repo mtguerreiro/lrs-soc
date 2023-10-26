@@ -47,17 +47,51 @@ int32_t cukOpilUpdateMeasurements(void *meas, int32_t size){
 //-----------------------------------------------------------------------------
 int32_t cukOpilGetMeasurements(void *meas){
 
-    int32_t size;
+    float *src;
+    cukConfigMeasurements_t *dst;
 
-    uint8_t *src, *dst;
+    src = (float *)(&xtMeasurements);
+    dst = (cukConfigMeasurements_t *)meas;
 
-    dst = (uint8_t *)( meas );
-    src = (uint8_t *)( &xtMeasurements );
-    size = sizeof(stypesMeasurements_t);
+    dst->i_i =  ( (CUK_CONFIG_ADC_GAIN_INV * (*src++)) - CUK_CONFIG_ISENS_ACS712_OFFS ) * CUK_CONFIG_ISENS_ACS712_GAIN_INV;
+    dst->i_1 =  ( (CUK_CONFIG_ADC_GAIN_INV * (*src++)) - CUK_CONFIG_ISENS_ACS730_OFFS ) * CUK_CONFIG_ISENS_ACS730_GAIN_INV;
 
-    while(size--) *dst++ = *src++;
+    dst->v_in = ( CUK_CONFIG_ADC_GAIN_INV * (*src++) ) * CUK_CONFIG_VSENS_GAIN_INV;
+    dst->v_dc = ( CUK_CONFIG_ADC_GAIN_INV * (*src++) ) * CUK_CONFIG_VSENS_GAIN_INV;
+    dst->v_1  = ( CUK_CONFIG_ADC_GAIN_INV * (*src++) ) * CUK_CONFIG_VSENS_GAIN_INV;
 
-    return sizeof(stypesMeasurements_t);
+    dst->i_o =  ( (CUK_CONFIG_ADC_GAIN_INV * (*src++)) - CUK_CONFIG_ISENS_ACS712_OFFS ) * CUK_CONFIG_ISENS_ACS712_GAIN_INV;
+    dst->i_2 =  ( (CUK_CONFIG_ADC_GAIN_INV * (*src++)) - CUK_CONFIG_ISENS_ACS730_OFFS ) * CUK_CONFIG_ISENS_ACS730_GAIN_INV;
+
+    dst->v_out =    ( CUK_CONFIG_ADC_GAIN_INV * (*src++) ) * CUK_CONFIG_VSENS_GAIN_INV;
+    dst->v_dc_out = ( CUK_CONFIG_ADC_GAIN_INV * (*src++) ) * CUK_CONFIG_VSENS_GAIN_INV;
+    dst->v_2 =      ( CUK_CONFIG_ADC_GAIN_INV * (*src++) ) * CUK_CONFIG_VSENS_GAIN_INV;
+
+    dst->i_i_filt = 0.0f;
+    dst->i_1_filt = 0.0f;
+
+    dst->v_in_filt = 0.0f;
+    dst->v_dc_filt = 0.0f;
+    dst->v_1_filt  = 0.0f;
+
+    dst->i_o_filt = 0.0f;
+    dst->i_2_filt = 0.0f;
+
+    dst->v_out_filt =    0.0f;
+    dst->v_dc_out_filt = 0.0f;
+    dst->v_2_filt =      0.0f;
+
+//    int32_t size;
+//
+//    uint8_t *src, *dst;
+//
+//    dst = (uint8_t *)( meas );
+//    src = (uint8_t *)( &xtMeasurements );
+//    size = sizeof(stypesMeasurements_t);
+//
+//    while(size--) *dst++ = *src++;
+
+    return sizeof(cukConfigMeasurements_t);
 }
 //-----------------------------------------------------------------------------
 int32_t cukOpilUpdateSimData(void *simData, int32_t size){

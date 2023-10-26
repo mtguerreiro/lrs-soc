@@ -20,29 +20,29 @@
 typedef struct{
 
     float i_i;
-    float i_l_1;
-    float i_l_2;
+    float i_1;
+    float v_in;
+    float v_dc;
+    float v_1;
+
     float i_o;
+    float i_2;
+    float v_out;
+    float v_dc_out;
+    float v_2;
 
     float i_i_filt;
-    float i_l_1_filt;
-    float i_l_2_filt;
+    float i_1_filt;
+    float v_in_filt;
+    float v_dc_filt;
+    float v_1_filt;
+
     float i_o_filt;
-
-    float v_i_1;
-    float v_i_2;
-    float v_c_1;
-    float v_c_2;
-    float v_o_1;
-    float v_o_2;
-
-    float v_i_1_filt;
-    float v_i_2_filt;
-    float v_c_1_filt;
-    float v_c_2_filt;
-    float v_o_1_filt;
-    float v_o_2_filt;
-
+    float i_2_filt;
+    float v_out_filt;
+    float v_dc_out_filt;
+    float v_2_filt;
+    
 }cukConfigMeasurements_t;
 
 typedef struct{
@@ -56,6 +56,17 @@ typedef struct{
     float v_o;
 }cukConfigReferences_t;
 
+#define CUK_CONFIG_ADC_GAIN_INV             (5.0f / 4095.0f)
+
+#define CUK_CONFIG_VSENS_GAIN_INV           (60.0f / 5.0f)
+
+#define CUK_CONFIG_ISENS_ACS730_GAIN_INV    (10.0f)
+#define CUK_CONFIG_ISENS_ACS730_OFFS        (2.5f)
+
+#define CUK_CONFIG_ISENS_ACS712_GAIN_INV    (10.0f)
+#define CUK_CONFIG_ISENS_ACS712_OFFS        (2.5f)
+
+#define CUK_CONFIG_TF_N2N1                  (5.0f / 3.0f)
 //=============================================================================
 
 #endif /* CUK_CONFIG_H_ */

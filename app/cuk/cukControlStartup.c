@@ -1,7 +1,7 @@
 /*
- * cukControlOL.c
+ * cukControlStartup.c
  *
- *  Created on: 11.09.2023
+ *  Created on: 26.10.2023
  *      Author: marco
  */
 
@@ -9,7 +9,7 @@
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
-#include "cukControlOL.h"
+#include "cukControlStartup.h"
 
 #include "ocpConfig.h"
 #include "ocpTrace.h"
@@ -28,45 +28,57 @@
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
 static float u = 0.0f;
-static uint32_t counter = 0;
+static float ufinal = 20.0f / ( 20.0f + 10.0f * (5.0f / 3.0f) );
+static float uinc = 50.0f / 100000.0f;
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void cukControlOLInitialize(void){
+void cukControlStartupInitialize(void){
 
 }
 //-----------------------------------------------------------------------------
-int32_t cukControlOLSetParams(void *params, uint32_t n){
+int32_t cukControlStartupSetParams(void *params, uint32_t n){
+
+    float *p = (float *)params;
+
+    uinc = *p++;
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
-int32_t cukControlOLGetParams(void *in, uint32_t insize, void *out, uint32_t maxoutsize){
+int32_t cukControlStartupGetParams(void *in, uint32_t insize, void *out, uint32_t maxoutsize){
 
-    return 0;
+    float *p = (float *)out;
+
+    *p++ = uinc;
+
+    return 4;
 }
 //-----------------------------------------------------------------------------
-int32_t cukControlOLRun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, void *outputs, int32_t nmaxoutputs){
+int32_t cukControlStartupRun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, void *outputs, int32_t nmaxoutputs){
 
     cukConfigMeasurements_t *m = (cukConfigMeasurements_t *)meas;
     cukConfigReferences_t *r = (cukConfigReferences_t *)refs;
     cukConfigControl_t *o = (cukConfigControl_t *)outputs;
 
-    u = 20.0f / ( 20.0f + 10.0f * (5.0f / 3.0f) );
+    ufinal = r->v_o / (r->v_o + CUK_CONFIG_TF_N2N1 * m->v_dc);
+    u += uinc;
+
+    if( u >= ufinal ) u = ufinal;
 
     o->u = u;
-
+    o->sw_o = 0;
+    o->sw_l = 0;
 
     return sizeof(cukConfigControl_t);
 }
 //-----------------------------------------------------------------------------
-void cukControlOLReset(void){
+void cukControlStartupReset(void){
 
     u = 0.0f;
-    counter = 0;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

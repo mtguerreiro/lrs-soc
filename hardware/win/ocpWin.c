@@ -116,10 +116,10 @@ static int32_t ocpWinInitializeTracesMeas(void){
     /* Adds measurements to trace */
     meas = (cukConfigMeasurements_t *)bInputs;
     ocpTraceAddSignal(OCP_TRACE_1, &meas->i_i, "Input current");
-    ocpTraceAddSignal(OCP_TRACE_1, &meas->i_l_1, "Primary inductor current");
-    ocpTraceAddSignal(OCP_TRACE_1, &meas->v_i_1, "Input voltage");
-    ocpTraceAddSignal(OCP_TRACE_1, &meas->v_i_2, "DC link voltage");
-    ocpTraceAddSignal(OCP_TRACE_1, &meas->v_c_1, "Primary coupling cap voltage");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->i_1, "Primary inductor current");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->v_in, "Input voltage");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->v_dc, "DC link voltage");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->v_1, "Primary coupling cap voltage");
 
     /* Adds control signals to trace */
     outputs = (cukConfigControl_t *)bOutputs;
