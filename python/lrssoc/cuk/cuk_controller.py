@@ -46,14 +46,22 @@ class OL:
     
 
     def set(self, params):
-        
 
-        return 0
-    
+        u = params['u']
+        data = list(struct.pack('<f', u))
+        
+        return data
+
 
     def get(self, data):
 
-        return 0
+        pars = struct.unpack('<f', data)
+
+        params = {
+            'u': pars[0]
+            }
+
+        return params
 
 
 class Startup:

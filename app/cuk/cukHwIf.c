@@ -3,29 +3,24 @@
  *
  */
 
-#ifdef SOC_CPU1
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
 #include "cukHwIf.h"
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+#include "cukHwOpil.h"
+#else
 #include "cukHw.h"
+#endif
+
 
 #include "../utils/rp.h"
-
-#include "xparameters.h"
-//#include "zynqAxiPwm.h"
-#include "zynqAxiAdc.h"
-
 //=============================================================================
 
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-//#define CUK_HW_CONFIG_PWM_BASE     XPAR_AXI_PWM_0_S00_AXI_BASEADDR
-#define CUK_HW_CONFIG_ADC_BASE     XPAR_ADC_PSCTL_0_S00_AXI_BASEADDR
-//#define CUK_HW_CONFIG_PWM_BASE     0
-
 typedef struct{
     rphandle_t handles[CUK_HW_IF_END];
     rpctx_t rp;
@@ -135,7 +130,11 @@ static int32_t cukHwIfSetPwmReset(void *in, uint32_t insize, void **out, uint32_
 
     reset = *( (uint32_t *)in ) & 0x01;
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    cukHwOpilSetPwmReset(reset);
+#else
     cukHwSetPwmReset(reset);
+#endif
 
     return 0;
 }
@@ -145,7 +144,11 @@ static int32_t cukHwIfGetPwmReset(void *in, uint32_t insize, void **out, uint32_
     uint32_t *o = (uint32_t *)*out;
     uint32_t reset;
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    reset = cukHwOpilGetPwmReset();
+#else
     reset = cukHwGetPwmReset();
+#endif
 
     *o = reset;
 
@@ -158,7 +161,11 @@ static int32_t cukHwIfSetPwmOutputEnable(void *in, uint32_t insize, void **out, 
 
     enable = *( (uint32_t *)in ) & 0x01;
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    cukHwOpilSetPwmOutputEnable(enable);
+#else
     cukHwSetPwmOutputEnable(enable);
+#endif
 
     return 0;
 }
@@ -168,7 +175,11 @@ static int32_t cukHwIfGetPwmOutputEnable(void *in, uint32_t insize, void **out, 
     uint32_t *o = (uint32_t *)*out;
     uint32_t enable;
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    enable = cukHwOpilGetPwmOutputEnable();
+#else
     enable = cukHwGetPwmOutputEnable();
+#endif
 
     *o = enable;
 
@@ -181,7 +192,11 @@ static int32_t cukHwIfSetPwmOvfTriggerEnable(void *in, uint32_t insize, void **o
 
     enable = *( (uint32_t *)in ) & 0x01;
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    cukHwOpilSetPwmOvfTriggerEnable(enable);
+#else
     cukHwSetPwmOvfTriggerEnable(enable);
+#endif
 
     return 0;
 }
@@ -191,7 +206,11 @@ static int32_t cukHwIfGetPwmOvfTriggerEnable(void *in, uint32_t insize, void **o
     uint32_t *o = (uint32_t *)*out;
     uint32_t enable;
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    enable = cukHwOpilGetPwmOvfTriggerEnable();
+#else
     enable = cukHwGetPwmOvfTriggerEnable();
+#endif
 
     *o = enable;
 
@@ -204,7 +223,11 @@ static int32_t cukHwIfSetPwmFrequency(void *in, uint32_t insize, void **out, uin
 
     freq = *( (uint32_t *)in );
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    cukHwOpilSetPwmFrequency(freq);
+#else
     cukHwSetPwmFrequency(freq);
+#endif
 
     return 0;
 }
@@ -214,7 +237,11 @@ static int32_t cukHwIfGetPwmFrequency(void *in, uint32_t insize, void **out, uin
     uint32_t *o = (uint32_t *)*out;
     uint32_t freq;
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    freq = cukHwOpilGetPwmFrequency();
+#else
     freq = cukHwGetPwmFrequency();
+#endif
 
     *o = freq;
 
@@ -227,7 +254,11 @@ static int32_t cukHwIfSetPwmDutyCycle(void *in, uint32_t insize, void **out, uin
 
     duty = *( (float *)in );
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    cukHwOpilSetPwmDuty(duty);
+#else
     cukHwSetPwmDuty(duty);
+#endif
 
     return 0;
 }
@@ -237,7 +268,11 @@ static int32_t cukHwIfGetPwmDutyCycle(void *in, uint32_t insize, void **out, uin
     float *o = (float *)*out;
     float duty;
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    duty = cukHwOpilGetPwmDuty();
+#else
     duty = cukHwGetPwmDuty();
+#endif
 
     *o = duty;
 
@@ -250,7 +285,11 @@ static int32_t cukHwIfSetPwmDeadTime(void *in, uint32_t insize, void **out, uint
 
     deadtime = *( (float *)in );
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    cukHwOpilSetPwmDeadTime(deadtime);
+#else
     cukHwSetPwmDeadTime(deadtime);
+#endif
 
     return 0;
 }
@@ -260,7 +299,11 @@ static int32_t cukHwIfGetPwmDeadTime(void *in, uint32_t insize, void **out, uint
     float *o = (float *)*out;
     float deadtime;
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    deadtime = cukHwOpilGetPwmDeadTime();
+#else
     deadtime = cukHwGetPwmDeadTime();
+#endif
 
     *o = deadtime;
 
@@ -273,7 +316,11 @@ static int32_t cukHwIfSetAdcEnable(void *in, uint32_t insize, void **out, uint32
 
     enable = *( (uint32_t *)in ) & 0x01;
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    cukHwOpilSetAdcEnable(enable);
+#else
     cukHwSetAdcEnable(enable);
+#endif
 
     return 0;
 }
@@ -283,7 +330,11 @@ static int32_t cukHwIfGetAdcEnable(void *in, uint32_t insize, void **out, uint32
     uint32_t *o = (uint32_t *)*out;
     uint32_t enable;
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    enable = cukHwOpilGetAdcEnable();
+#else
     enable = cukHwGetAdcEnable();
+#endif
 
     *o = enable;
 
@@ -296,7 +347,11 @@ static int32_t cukHwIfSetAdcManualTrig(void *in, uint32_t insize, void **out, ui
 
     trigger = *( (uint32_t *)in ) & 0x01;
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    cukHwOpilSetAdcManualTrigger(trigger);
+#else
     cukHwSetAdcManualTrigger(trigger);
+#endif
 
     return 0;
 }
@@ -306,7 +361,11 @@ static int32_t cukHwIfGetAdcManualTrig(void *in, uint32_t insize, void **out, ui
     uint32_t *o = (uint32_t *)*out;
     uint32_t trigger;
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    trigger = cukHwOpilGetAdcManualTrigger();
+#else
     trigger = cukHwGetAdcManualTrigger();
+#endif
 
     *o = trigger;
 
@@ -319,7 +378,11 @@ static int32_t cukHwIfSetAdcInterruptEnable(void *in, uint32_t insize, void **ou
 
     enable = *( (uint32_t *)in ) & 0x01;
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    cukHwOpilSetAdcInterruptEnable(enable);
+#else
     cukHwSetAdcInterruptEnable(enable);
+#endif
 
     return 0;
 }
@@ -329,7 +392,11 @@ static int32_t cukHwIfGetAdcInterruptEnable(void *in, uint32_t insize, void **ou
     uint32_t *o = (uint32_t *)*out;
     uint32_t enable;
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    enable = cukHwOpilGetAdcInterruptEnable();
+#else
     enable = cukHwGetAdcInterruptEnable();
+#endif
 
     *o = enable;
 
@@ -342,7 +409,11 @@ static int32_t cukHwIfSetAdcSpiFreq(void *in, uint32_t insize, void **out, uint3
 
     freq = *( (uint32_t *)in );
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    cukHwOpilSetAdcSpiFreq(freq);
+#else
     cukHwSetAdcSpiFreq(freq);
+#endif
 
     return 0;
 }
@@ -352,7 +423,11 @@ static int32_t cukHwIfGetAdcSpiFreq(void *in, uint32_t insize, void **out, uint3
     uint32_t *o = (uint32_t *)*out;
     uint32_t freq;
 
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    freq = cukHwOpilGetAdcSpiFreq();
+#else
     freq = cukHwGetAdcSpiFreq();
+#endif
 
     *o = freq;
 
@@ -360,4 +435,3 @@ static int32_t cukHwIfGetAdcSpiFreq(void *in, uint32_t insize, void **out, uint3
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
-#endif /* SOC_CPU1 */

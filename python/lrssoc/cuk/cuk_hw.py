@@ -112,7 +112,7 @@ class Hw:
     
 
     def set_pwm_duty(self, duty):
-        """Sets PWM duty, in percentage.
+        """Sets PWM duty (0 < duty < 1).
         """
         return self._set_pwm_duty(float(duty))
 

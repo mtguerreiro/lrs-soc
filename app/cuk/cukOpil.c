@@ -179,11 +179,41 @@ int32_t cukOpilProcOutputs(void *outputs, void *procoutputs, int32_t size){
     return size;
 }
 //-----------------------------------------------------------------------------
+void cukOpilSetPwmDuty(float duty){
+
+    xtControl.u = duty;
+}
+//-----------------------------------------------------------------------------
+float cukOpilGetPwmDuty(void){
+
+    return xtControl.u;
+}
+//-----------------------------------------------------------------------------
 void cukOpilDisable(void){
 
     xtControl.u = 0.0f;
     xtControl.sw_o = 0;
     xtControl.sw_l = 0;
+}
+//-----------------------------------------------------------------------------
+void cukOpilSetLoadSwitch(float state){
+
+    xtControl.sw_l = state;
+}
+//-----------------------------------------------------------------------------
+float cukOpilGetLoadSwitch(void){
+
+    return xtControl.sw_l;
+}
+//-----------------------------------------------------------------------------
+void cukOpilSetOutputSwitch(float state){
+
+    xtControl.sw_o = state;
+}
+//-----------------------------------------------------------------------------
+float cukOpilGetOutputSwitch(void){
+
+    return xtControl.sw_o;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

@@ -9,6 +9,7 @@
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
+#include <cukHwOpil.h>
 #include "ocpWin.h"
 
 
@@ -26,8 +27,7 @@
 #include "cukOpil.h"
 #include "cukController.h"
 
-//#include "cukHwIf.h"
-#include "cukHwWin.h"
+#include "cukHwIf.h"
 #include "cukConfig.h"
 
 //=============================================================================
@@ -138,17 +138,17 @@ static int32_t ocpWinInitializeControlSystem(void){
     cukControllerConfig_t cukconfig;
 
     /* Initializes controller and hardware interface libs */
-    cukconfig.disable = cukHwWinControllerDisable;
-    cukconfig.enable = cukHwWinControllerEnable;
+    cukconfig.disable = cukHwOpilControllerDisable;
+    cukconfig.enable = cukHwOpilControllerEnable;
     cukControllerInitialize(&cukconfig);
-//    cukHwIfInitialize();
+    cukHwIfInitialize();
 
     /* Initializes control sys lib */
     config.binputs = (void *)bInputs;
     config.boutputs = (void *)bOutputs;
 
-    config.fhwInterface = 0;
-    config.fhwStatus = cukHwWinStatus;
+    config.fhwInterface = cukHwIf;
+    config.fhwStatus = cukHwOpilStatus;
 
     config.fgetInputs = cukOpilGetMeasurements;
     //config.fgetInputs = cukHwGetMeasurements;

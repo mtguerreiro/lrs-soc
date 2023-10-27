@@ -28,7 +28,6 @@
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
 static float u = 0.0f;
-static uint32_t counter = 0;
 //=============================================================================
 
 //=============================================================================
@@ -41,12 +40,20 @@ void cukControlOLInitialize(void){
 //-----------------------------------------------------------------------------
 int32_t cukControlOLSetParams(void *params, uint32_t n){
 
+    float *p = (float *)params;
+
+    u = *p;
+
 	return 0;
 }
 //-----------------------------------------------------------------------------
 int32_t cukControlOLGetParams(void *in, uint32_t insize, void *out, uint32_t maxoutsize){
 
-    return 0;
+    float *p = (float *)out;
+
+    *p = u;
+
+    return 4;
 }
 //-----------------------------------------------------------------------------
 int32_t cukControlOLRun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, void *outputs, int32_t nmaxoutputs){
@@ -55,10 +62,7 @@ int32_t cukControlOLRun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, vo
     cukConfigReferences_t *r = (cukConfigReferences_t *)refs;
     cukConfigControl_t *o = (cukConfigControl_t *)outputs;
 
-    u = 20.0f / ( 20.0f + 10.0f * (5.0f / 3.0f) );
-
     o->u = u;
-
 
     return sizeof(cukConfigControl_t);
 }
@@ -66,7 +70,6 @@ int32_t cukControlOLRun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, vo
 void cukControlOLReset(void){
 
     u = 0.0f;
-    counter = 0;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
