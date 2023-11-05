@@ -24,6 +24,38 @@ typedef struct{
     cukHwAdcIrqHandle_t irqhandle;
 
 }cukHwInitConfig_t;
+
+typedef struct{
+    float i_i_gain;
+    float i_i_ofs;
+
+    float i_1_gain;
+    float i_1_ofs;
+
+    float v_in_gain;
+    float v_in_ofs;
+
+    float v_dc_gain;
+    float v_dc_ofs;
+
+    float v_1_gain;
+    float v_1_ofs;
+
+    float i_o_gain;
+    float i_o_ofs;
+
+    float i_2_gain;
+    float i_2_ofs;
+
+    float v_out_gain;
+    float v_out_ofs;
+
+    float v_dc_out_gain;
+    float v_dc_out_ofs;
+
+    float v_2_gain;
+    float v_2_ofs;
+}cukHwMeasGains_t;
 //=============================================================================
 
 //=============================================================================
@@ -85,6 +117,18 @@ void cukHwEnable(void);
 void cukHwControllerDisable(void);
 //-----------------------------------------------------------------------------
 void cukHwControllerEnable(void);
+//-----------------------------------------------------------------------------
+void cukHwSetLoadSwitch(uint32_t state);
+//-----------------------------------------------------------------------------
+uint32_t cukHwGetLoadSwitch(void);
+//-----------------------------------------------------------------------------
+void cukHwSetOutputSwitch(uint32_t state);
+//-----------------------------------------------------------------------------
+uint32_t cukHwGetOutputSwitch(void);
+//-----------------------------------------------------------------------------
+void cukHwSetMeasGains(cukHwMeasGains_t *gains);
+//-----------------------------------------------------------------------------
+uint32_t cukHwGetMeasGains(cukHwMeasGains_t *gains);
 //-----------------------------------------------------------------------------
 //=============================================================================
 

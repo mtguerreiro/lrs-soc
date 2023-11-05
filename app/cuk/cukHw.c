@@ -16,6 +16,8 @@
 #include "cukConfig.h"
 
 #include "zynqConfig.h"
+
+#include "xgpio.h"
 //=============================================================================
 
 //=============================================================================
@@ -30,6 +32,15 @@
 #define CUK_HW_CONFIG_IRQ_PL_CPU1           ZYNQ_CONFIG_IRQ_PL_TO_CPU1
 #define CUK_HW_CONFIG_ADC_BUFFER            ZYNQ_CONFIG_MEM_PL_TO_CPU1_ADR
 
+#define CUK_HW_CONFIG_GPIO_ID               XPAR_AXI_GPIO_0_DEVICE_ID
+#define CUK_HW_CONFIG_GPIO_CHANNEL          1
+#define CUK_HW_CONFIG_GPIO_MASK             0b11
+
+#define CUK_HW_CONFIG_GPIO_OUTPUT_OFFS      (0U)
+#define CUK_HW_CONFIG_GPIO_OUTPUT           (1 << CUK_HW_CONFIG_GPIO_OUTPUT_OFFS)
+#define CUK_HW_CONFIG_GPIO_LOAD_OFFS        (1U)
+#define CUK_HW_CONFIG_GPIO_LOAD             (1 << CUK_HW_CONFIG_GPIO_LOAD_OFFS)
+
 /* PWM peripheral clock, in Hz */
 #define CUK_HW_PWM_CLK                      100000000
 #define CUK_HW_ADC_CLK                      100000000
@@ -40,6 +51,11 @@ typedef struct{
 
     cukConfigMeasurements_t meas;
     cukConfigControl_t control;
+
+    XGpio gpio;
+
+    cukHwMeasGains_t gains;
+
 }cukHwControl_t;
 //=============================================================================
 
@@ -48,6 +64,8 @@ typedef struct{
 //=============================================================================
 static void cukHwInitializeAdc(void *intc, cukHwAdcIrqHandle_t irqhandle);
 static void cukHwInitializePwm(void);
+static void cukHwInitializeGpio(void);
+static void cukHwInitializeMeasGains(void);
 //=============================================================================
 
 //=============================================================================
@@ -64,6 +82,8 @@ int32_t cukHwInitialize(cukHwInitConfig_t *config){
 
     cukHwInitializeAdc(config->intc, config->irqhandle);
     cukHwInitializePwm();
+    cukHwInitializeGpio();
+    cukHwInitializeMeasGains();
 
     return 0;
 }
@@ -223,22 +243,28 @@ int32_t cukHwGetMeasurements(void *meas){
     src = (uint16_t *)CUK_HW_CONFIG_ADC_BUFFER;
     dst = (cukConfigMeasurements_t *)meas;
 
-    /* Skips the first adc channel */
+    /*
+     * Skips the first adc channel of header. Each Cuk connector has five
+     * measurements, but the ADC board has 6 channels. Thus, we skip the
+     * first channel.
+     */
     src++;
 
-    dst->i_i =  ( (CUK_CONFIG_ADC_GAIN_INV * (*src++)) - CUK_CONFIG_ISENS_ACS712_OFFS ) * CUK_CONFIG_ISENS_ACS712_GAIN_INV;
-    dst->i_1 =  ( (CUK_CONFIG_ADC_GAIN_INV * (*src++)) - CUK_CONFIG_ISENS_ACS730_OFFS ) * CUK_CONFIG_ISENS_ACS730_GAIN_INV;
+    dst->i_i =  hwControl.gains.i_i_gain * ((float)(*src++)) + hwControl.gains.i_i_ofs;
+    dst->i_1 =  hwControl.gains.i_1_gain * ((float)(*src++)) + hwControl.gains.i_1_ofs;
 
-    dst->v_in = ( CUK_CONFIG_ADC_GAIN_INV * (*src++) ) * CUK_CONFIG_VSENS_GAIN_INV;
-    dst->v_dc = ( CUK_CONFIG_ADC_GAIN_INV * (*src++) ) * CUK_CONFIG_VSENS_GAIN_INV;
-    dst->v_1  = ( CUK_CONFIG_ADC_GAIN_INV * (*src++) ) * CUK_CONFIG_VSENS_GAIN_INV;
+    dst->v_in = hwControl.gains.v_in_gain * ((float)(*src++)) + hwControl.gains.v_in_ofs;
+    dst->v_dc = hwControl.gains.v_dc_gain * ((float)(*src++)) + hwControl.gains.v_dc_ofs;
+    dst->v_1  = hwControl.gains.v_1_gain * ((float)(*src++)) + hwControl.gains.v_1_ofs;
 
-    dst->i_o =  ( (CUK_CONFIG_ADC_GAIN_INV * (*src++)) - CUK_CONFIG_ISENS_ACS712_OFFS ) * CUK_CONFIG_ISENS_ACS712_GAIN_INV;
-    dst->i_2 =  ( (CUK_CONFIG_ADC_GAIN_INV * (*src++)) - CUK_CONFIG_ISENS_ACS730_OFFS ) * CUK_CONFIG_ISENS_ACS730_GAIN_INV;
+    /* Skips the seventh adc channel of header */
+    src++;
+    dst->i_o =  hwControl.gains.i_o_gain * ((float)(*src++)) + hwControl.gains.i_o_ofs;
+    dst->i_2 =  hwControl.gains.i_2_gain * ((float)(*src++)) + hwControl.gains.i_2_ofs;
 
-    dst->v_out =    ( CUK_CONFIG_ADC_GAIN_INV * (*src++) ) * CUK_CONFIG_VSENS_GAIN_INV;
-    dst->v_dc_out = ( CUK_CONFIG_ADC_GAIN_INV * (*src++) ) * CUK_CONFIG_VSENS_GAIN_INV;
-    dst->v_2 =      ( CUK_CONFIG_ADC_GAIN_INV * (*src++) ) * CUK_CONFIG_VSENS_GAIN_INV;
+    dst->v_out =    hwControl.gains.v_out_gain * ((float)(*src++)) + hwControl.gains.v_out_ofs;
+    dst->v_dc_out = hwControl.gains.v_dc_out_gain * ((float)(*src++)) + hwControl.gains.v_dc_out_ofs;
+    dst->v_2 =      hwControl.gains.v_2_gain * ((float)(*src++)) + hwControl.gains.v_2_ofs;
 
     dst->i_i_filt = 0.0f;
     dst->i_1_filt = 0.0f;
@@ -294,6 +320,65 @@ void cukHwControllerEnable(void){
     cukHwSetPwmOutputEnable(1);
 }
 //-----------------------------------------------------------------------------
+void cukHwSetLoadSwitch(uint32_t state){
+
+    uint32_t gpio;
+
+    state = (state & 0x01) << CUK_HW_CONFIG_GPIO_LOAD_OFFS;
+
+    gpio = XGpio_DiscreteRead(&hwControl.gpio, CUK_HW_CONFIG_GPIO_CHANNEL) & (~CUK_HW_CONFIG_GPIO_LOAD);
+
+    gpio = gpio | state;
+
+    XGpio_DiscreteWrite(&hwControl.gpio, CUK_HW_CONFIG_GPIO_CHANNEL, gpio);
+}
+//-----------------------------------------------------------------------------
+uint32_t cukHwGetLoadSwitch(void){
+
+    uint32_t gpio;
+
+    gpio = XGpio_DiscreteRead(&hwControl.gpio, CUK_HW_CONFIG_GPIO_CHANNEL) & (CUK_HW_CONFIG_GPIO_LOAD);
+
+    gpio = gpio >> CUK_HW_CONFIG_GPIO_LOAD_OFFS;
+
+    return gpio;
+}
+//-----------------------------------------------------------------------------
+void cukHwSetOutputSwitch(uint32_t state){
+
+    uint32_t gpio;
+
+    state = (state & 0x01) << CUK_HW_CONFIG_GPIO_OUTPUT_OFFS;
+
+    gpio = XGpio_DiscreteRead(&hwControl.gpio, CUK_HW_CONFIG_GPIO_CHANNEL) & (~CUK_HW_CONFIG_GPIO_OUTPUT);
+
+    gpio = gpio | state;
+
+    XGpio_DiscreteWrite(&hwControl.gpio, CUK_HW_CONFIG_GPIO_CHANNEL, gpio);
+}
+//-----------------------------------------------------------------------------
+uint32_t cukHwGetOutputSwitch(void){
+
+    uint32_t gpio;
+
+    gpio = XGpio_DiscreteRead(&hwControl.gpio, CUK_HW_CONFIG_GPIO_CHANNEL) & (CUK_HW_CONFIG_GPIO_OUTPUT);
+
+    gpio = gpio >> CUK_HW_CONFIG_GPIO_OUTPUT_OFFS;
+
+    return gpio;
+}
+//-----------------------------------------------------------------------------
+void cukHwSetMeasGains(cukHwMeasGains_t *gains){
+
+    hwControl.gains = *gains;
+}
+//-----------------------------------------------------------------------------
+uint32_t cukHwGetMeasGains(cukHwMeasGains_t *gains){
+
+    *gains = hwControl.gains;
+
+    return sizeof(cukHwMeasGains_t);
+}
 //=============================================================================
 
 //=============================================================================
@@ -331,6 +416,49 @@ static void cukHwInitializePwm(void){
     cukHwSetPwmOutputEnable(0);
 
     cukHwSetPwmReset(0);
+}
+//-----------------------------------------------------------------------------
+static void cukHwInitializeGpio(void){
+
+    XGpio_Config *cfg_ptr = 0;
+
+    /* Initializes GPIOs */
+    cfg_ptr = XGpio_LookupConfig(CUK_HW_CONFIG_GPIO_ID);
+    XGpio_CfgInitialize(&hwControl.gpio, cfg_ptr, cfg_ptr->BaseAddress);
+    XGpio_SetDataDirection(&hwControl.gpio, CUK_HW_CONFIG_GPIO_CHANNEL, 0);
+}
+//-----------------------------------------------------------------------------
+static void cukHwInitializeMeasGains(void){
+
+    hwControl.gains.i_i_gain = 0.012527748670796679f;
+    hwControl.gains.i_i_ofs =  -25.09620948301267f;
+
+    hwControl.gains.i_1_gain = 0.02574140041460996f;
+    hwControl.gains.i_1_ofs =  -51.723993428472845f;
+
+    hwControl.gains.v_in_gain = 0.014919542630730998f;
+    hwControl.gains.v_in_ofs =  0.02983490778952813f;
+
+    hwControl.gains.v_dc_gain = 0.01490254584622419f;
+    hwControl.gains.v_dc_ofs =  0.014667383672769319f;
+
+    hwControl.gains.v_1_gain = 0.014919540229885057f;
+    hwControl.gains.v_1_ofs = 0.014919540229886508f;
+
+    hwControl.gains.i_o_gain = 0.012403521044364872;
+    hwControl.gains.i_o_ofs =  -24.842671890874133;
+
+    hwControl.gains.i_2_gain = 0.025902038490429217;
+    hwControl.gains.i_2_ofs =  -52.28905224441168;
+
+    hwControl.gains.v_out_gain = 0.01490621920998692f;
+    hwControl.gains.v_out_ofs =  0.021628758244869317f;
+
+    hwControl.gains.v_dc_out_gain = 0.014901654476279058f;
+    hwControl.gains.v_dc_out_ofs =  0.04172051494698792f;
+
+    hwControl.gains.v_2_gain = 0.01487120334913248f;
+    hwControl.gains.v_2_ofs =  0.058881268243716534f;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

@@ -40,6 +40,58 @@ class Commands:
         
         self.set_adc_spi_freq = 18
         self.get_adc_spi_freq = 19
+
+        self.set_load_switch = 20
+        self.get_load_switch = 21
+
+        self.set_output_switch = 22
+        self.get_output_switch = 23
+
+        self.set_meas_gains = 24
+        self.get_meas_gains = 25
+
+
+class MeasGains:
+
+    def __init__(self):
+        pass
+
+    def decode(self, data):
+        fmt = '<' + 'f' * 20
+        data = struct.unpack(fmt, data)
+
+        gains = {
+            'i_i_gain':      data[0],  'i_i_ofs':      data[1],
+            'i_1_gain':      data[2],  'i_1_ofs':      data[3],
+            'v_in_gain':     data[4],  'v_in_ofs':     data[5],
+            'v_dc_gain':     data[6],  'v_dc_ofs':     data[7],
+            'v_1_gain':      data[8],  'v_1_ofs':      data[9],
+            'i_o_gain':      data[10], 'i_o_ofs':      data[11],
+            'i_2_gain':      data[12], 'i_2_ofs':      data[13],
+            'v_out_gain':    data[14], 'v_out_ofs':    data[15],
+            'v_dc_out_gain': data[16], 'v_dc_out_ofs': data[17],
+            'v_2_gain':      data[18], 'v_2_ofs':      data[19],
+            }
+
+        return gains
+
+    def encode(self, gains):
+        data = [gains['i_i_gain'],      gains['i_i_ofs'],
+                gains['i_1_gain'],      gains['i_1_ofs'],
+                gains['v_in_gain'],     gains['v_in_ofs'],
+                gains['v_dc_gain'],     gains['v_dc_ofs'],
+                gains['v_1_gain'],      gains['v_1_ofs'],
+                gains['i_o_gain'],      gains['i_o_ofs'],
+                gains['i_2_gain'],      gains['i_2_ofs'],
+                gains['v_out_gain'],    gains['v_out_ofs'],
+                gains['v_dc_out_gain'], gains['v_dc_out_ofs'],
+                gains['v_2_gain'],      gains['v_2_ofs']
+                ]
+        fmt = '<' + 'f' * 20
+        data = struct.pack(fmt, *data)
+
+        return data
+
         
 class Hw:
     """
@@ -203,7 +255,48 @@ class Hw:
             return (-1, status)
         
         return (status, int(freq))
-    
+
+
+    def set_load_switch(self, state):
+        """Sets the load switch.
+        """
+        return self._set_load_switch(int(state))
+
+
+    def get_load_switch(self):
+        """Gets the load switch.
+        """
+        status, state = self._get_load_switch()
+        if status != 0:
+            return (-1, status)
+        
+        return (status, int(state))
+
+
+    def set_output_switch(self, state):
+        """Sets the output switch.
+        """
+        return self._set_output_switch(int(state))
+
+
+    def get_output_switch(self):
+        """Gets the output switch.
+        """
+        status, state = self._get_output_switch()
+        if status != 0:
+            return (-1, status)
+        
+        return (status, int(state))
+
+
+    def get_meas_gains(self):
+        """Gets conversion gains.
+        """
+        status, gains = self._get_meas_gains()
+        if status != 0:
+            return (-1, status)
+        
+        return (status, gains)
     
     def _set_pwm_reset(self, reset):
         """
@@ -707,9 +800,137 @@ class Hw:
         status, freq = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
 
         if status < 0:
-            print('Error setting ADC SPI frequency. Error code {:}\r\n'.format(status))
+            print('Error getting ADC SPI frequency. Error code {:}\r\n'.format(status))
             return (-1, status)
 
         freq = lrssoc.conversions.u8_to_u32(freq, msb=False)
         
         return (0, freq)
+
+
+    def _set_load_switch(self, state):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.set_load_switch
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(state, msb=False) )
+        
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting the load switch. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        return (0,)
+
+
+    def _get_load_switch(self):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.get_load_switch
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, state = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting the load switch. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        state = lrssoc.conversions.u8_to_u32(state, msb=False)
+        
+        return (0, state)
+
+
+    def _set_output_switch(self, state):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.set_output_switch
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(state, msb=False) )
+        
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting the output switch. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        return (0,)
+
+
+    def _get_output_switch(self):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.get_output_switch
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, state = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting the output switch. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        state = lrssoc.conversions.u8_to_u32(state, msb=False)
+        
+        return (0, state)
+
+
+    def _get_meas_gains(self):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.get_meas_gains
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, gains = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting meas gains. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        #state = lrssoc.conversions.u8_to_u32(state, msb=False)
+        
+        return (0, gains)

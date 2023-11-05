@@ -60,7 +60,7 @@ typedef struct{
 
 #define CUK_CONFIG_VSENS_GAIN_INV           (60.0f / 5.0f)
 
-#define CUK_CONFIG_ISENS_ACS730_GAIN_INV    (10.0f)
+#define CUK_CONFIG_ISENS_ACS730_GAIN_INV    (20.0f)
 #define CUK_CONFIG_ISENS_ACS730_OFFS        (2.5f)
 
 #define CUK_CONFIG_ISENS_ACS712_GAIN_INV    (10.0f)

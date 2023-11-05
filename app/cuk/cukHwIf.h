@@ -348,6 +348,84 @@ typedef enum{
      */
     CUK_HW_IF_GET_ADC_SPI_FREQ,
 
+    /**
+     * Command
+     *  ---------------------------------------------
+     *  | SET LOAD SWITCH (uint32) | STATE (uint32) |
+     *  ---------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
+    CUK_HW_IF_SET_LOAD_SWITCH,
+
+    /**
+     * Command
+     *  ----------------------------
+     *  | GET LOAD SWITCH (uint32) |
+     *  ----------------------------
+     *
+     * Response
+     *  ------------------------
+     *  | LOAD SWITCH (uint32) |
+     *  ------------------------
+     *
+     */
+    CUK_HW_IF_GET_LOAD_SWITCH,
+
+    /**
+     * Command
+     *  -----------------------------------------------
+     *  | SET OUTPUT SWITCH (uint32) | STATE (uint32) |
+     *  -----------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
+    CUK_HW_IF_SET_OUTPUT_SWITCH,
+
+    /**
+     * Command
+     *  ------------------------------
+     *  | GET OUTPUT SWITCH (uint32) |
+     *  ------------------------------
+     *
+     * Response
+     *  --------------------------
+     *  | OUTPUT SWITCH (uint32) |
+     *  --------------------------
+     *
+     */
+    CUK_HW_IF_GET_OUTPUT_SWITCH,
+
+    /**
+     * Command
+     *  ---------------------------------------------
+     *  | SET MEAS GAINS (uint32) | GAINS (N bytes) |
+     *  ---------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
+    CUK_HW_IF_SET_MEAS_GAINS,
+
+    /**
+     * Command
+     *  ---------------------------
+     *  | GET MEAS GAINS (uint32) |
+     *  ---------------------------
+     *
+     * Response
+     *  -------------------
+     *  | GAINS (N bytes) |
+     *  -------------------
+     *
+     */
+    CUK_HW_IF_GET_MEAS_GAINS,
+
     CUK_HW_IF_END
 }cukHwIfCommands_t;
 

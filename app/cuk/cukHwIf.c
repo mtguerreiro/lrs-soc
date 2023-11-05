@@ -2,7 +2,7 @@
  * cukHwIf.c
  *
  */
-
+#ifdef SOC_CPU1
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
@@ -66,6 +66,15 @@ static int32_t cukHwIfGetAdcInterruptEnable(void *in, uint32_t insize, void **ou
 
 static int32_t cukHwIfSetAdcSpiFreq(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t cukHwIfGetAdcSpiFreq(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+
+static int32_t cukHwIfSetLoadSwitch(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t cukHwIfGetLoadSwitch(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+
+static int32_t cukHwIfSetOutputSwitch(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t cukHwIfGetOutputSwitch(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+
+static int32_t cukHwIfSetMeasGains(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t cukHwIfGetMeasGains(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //=============================================================================
 
 //=============================================================================
@@ -105,6 +114,15 @@ int32_t cukHwIfInitialize(void){
 
     rpRegisterHandle(&hwControl.interface.rp, CUK_HW_IF_SET_ADC_SPI_FREQ, cukHwIfSetAdcSpiFreq);
     rpRegisterHandle(&hwControl.interface.rp, CUK_HW_IF_GET_ADC_SPI_FREQ, cukHwIfGetAdcSpiFreq);
+
+    rpRegisterHandle(&hwControl.interface.rp, CUK_HW_IF_SET_LOAD_SWITCH, cukHwIfSetLoadSwitch);
+    rpRegisterHandle(&hwControl.interface.rp, CUK_HW_IF_GET_LOAD_SWITCH, cukHwIfGetLoadSwitch);
+
+    rpRegisterHandle(&hwControl.interface.rp, CUK_HW_IF_SET_OUTPUT_SWITCH, cukHwIfSetOutputSwitch);
+    rpRegisterHandle(&hwControl.interface.rp, CUK_HW_IF_GET_OUTPUT_SWITCH, cukHwIfGetOutputSwitch);
+
+    rpRegisterHandle(&hwControl.interface.rp, CUK_HW_IF_SET_MEAS_GAINS, cukHwIfSetMeasGains);
+    rpRegisterHandle(&hwControl.interface.rp, CUK_HW_IF_GET_MEAS_GAINS, cukHwIfGetMeasGains);
 
     return 0;
 }
@@ -434,4 +452,99 @@ static int32_t cukHwIfGetAdcSpiFreq(void *in, uint32_t insize, void **out, uint3
     return 4;
 }
 //-----------------------------------------------------------------------------
+static int32_t cukHwIfSetLoadSwitch(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    uint32_t state;
+
+    state = *( (uint32_t *)in );
+
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    cukHwOpilSetLoadSwitch(state);
+#else
+    cukHwSetLoadSwitch(state);
+#endif
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t cukHwIfGetLoadSwitch(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    uint32_t *o = (uint32_t *)*out;
+    uint32_t state;
+
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    state = cukHwOpilGetLoadSwitch();
+#else
+    state = cukHwGetLoadSwitch();
+#endif
+
+    *o = state;
+
+    return 4;
+}
+//-----------------------------------------------------------------------------
+static int32_t cukHwIfSetOutputSwitch(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    uint32_t state;
+
+    state = *( (uint32_t *)in );
+
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    cukHwOpilSetOutputSwitch(state);
+#else
+    cukHwSetOutputSwitch(state);
+#endif
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t cukHwIfGetOutputSwitch(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    uint32_t *o = (uint32_t *)*out;
+    uint32_t state;
+
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    state = cukHwOpilGetOutputSwitch();
+#else
+    state = cukHwGetOutputSwitch();
+#endif
+
+    *o = state;
+
+    return 4;
+}
+//-----------------------------------------------------------------------------
+static int32_t cukHwIfSetMeasGains(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    cukHwMeasGains_t *gains;
+
+    gains = ( (cukHwMeasGains_t *)in );
+
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    cukHwSetMeasGains(gains);
+#else
+    cukHwSetMeasGains(gains);
+#endif
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t cukHwIfGetMeasGains(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    cukHwMeasGains_t *o = (cukHwMeasGains_t *)*out;
+    cukHwMeasGains_t gains;
+    uint32_t size;
+
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    size = cukHwOpilGetMeasGains(&gains);
+#else
+    size = cukHwGetMeasGains(&gains);
+#endif
+
+    *o = gains;
+
+    return size;
+}
+//-----------------------------------------------------------------------------
 //=============================================================================
+#endif /* SOC_CPU1 */

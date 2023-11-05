@@ -177,6 +177,12 @@ static int32_t ocpZynqCpu1InitializeTracesMeas(void){
     ocpTraceAddSignal(OCP_TRACE_1, &meas->v_dc, "DC link voltage");
     ocpTraceAddSignal(OCP_TRACE_1, &meas->v_1, "Primary coupling cap voltage");
 
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->i_o, "Output current");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->i_2, "Secondary inductor current");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->v_out, "Output voltage");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->v_dc_out, "Output DC link voltage");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->v_2, "Secondary coupling cap voltage");
+
     /* Adds control signals to trace */
     outputs = (cukConfigControl_t *)bOutputs;
     ocpTraceAddSignal(OCP_TRACE_1, &outputs->u, "Duty-cycle");
