@@ -17,7 +17,7 @@ settings = {'host':host, 'port':port}
 cuk = lrssoc.cuk.cuk.Cuk(0, 'ethernet', settings, 0)
 
 #cuk.trace_set_size(4 * 100000)
-cuk.trace_set_size( round(35e-3 / (1 / 100e3)) )
+cuk.trace_set_size( round(200e-3 / (1 / 100e3)) )
 cuk.trace_reset()
 
 #cuk.control_sys_enable()

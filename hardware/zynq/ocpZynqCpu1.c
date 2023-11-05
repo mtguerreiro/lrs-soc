@@ -186,7 +186,7 @@ static int32_t ocpZynqCpu1InitializeTracesMeas(void){
     /* Adds control signals to trace */
     outputs = (cukConfigControl_t *)bOutputs;
     ocpTraceAddSignal(OCP_TRACE_1, &outputs->u, "Duty-cycle");
-    ocpTraceAddSignal(OCP_TRACE_1, &outputs->sw_o, "Output switch");
+    //ocpTraceAddSignal(OCP_TRACE_1, &outputs->sw_o, "Output switch");
 
     /* Other signals to add */
     ocpTraceAddSignal(OCP_TRACE_1, &texec, "Exec. time");

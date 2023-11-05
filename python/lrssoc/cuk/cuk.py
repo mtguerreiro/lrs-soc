@@ -42,6 +42,8 @@ class Cuk:
         self._tr_if = lrssoc.cuk.cuk_trace.Trace(ocp_if=self._ocp_if, tr_id=tr_id)
         self._tr_id = tr_id
 
+        self._plot = lrssoc.cuk.cuk_plot.Plot()
+
     
     def control_sys_enable(self):
         """
@@ -195,3 +197,7 @@ class Cuk:
             return (-1, status)
 
         return (0, size)
+
+
+    def plot(self, data):
+        self._plot.plot(data)

@@ -70,8 +70,6 @@ int32_t cukControlStartupRun(void *meas, int32_t nmeas, void *refs, int32_t nref
     if( u >= ufinal ) u = ufinal;
 
     o->u = u;
-    o->sw_o = 0;
-    o->sw_l = 0;
 
     return sizeof(cukConfigControl_t);
 }

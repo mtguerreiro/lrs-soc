@@ -47,14 +47,44 @@ typedef struct{
 
 typedef struct{
     float u;
-
-    float sw_o;
-    float sw_l;
 }cukConfigControl_t;
 
 typedef struct{
     float v_o;
 }cukConfigReferences_t;
+
+
+typedef struct{
+    float i_i_gain;
+    float i_i_ofs;
+
+    float i_1_gain;
+    float i_1_ofs;
+
+    float v_in_gain;
+    float v_in_ofs;
+
+    float v_dc_gain;
+    float v_dc_ofs;
+
+    float v_1_gain;
+    float v_1_ofs;
+
+    float i_o_gain;
+    float i_o_ofs;
+
+    float i_2_gain;
+    float i_2_ofs;
+
+    float v_out_gain;
+    float v_out_ofs;
+
+    float v_dc_out_gain;
+    float v_dc_out_ofs;
+
+    float v_2_gain;
+    float v_2_ofs;
+}cukConfigMeasGains_t;
 
 #define CUK_CONFIG_ADC_GAIN_INV             (5.0f / 4095.0f)
 

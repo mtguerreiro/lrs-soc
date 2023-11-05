@@ -54,7 +54,7 @@ typedef struct{
 
     XGpio gpio;
 
-    cukHwMeasGains_t gains;
+    cukConfigMeasGains_t gains;
 
 }cukHwControl_t;
 //=============================================================================
@@ -368,17 +368,18 @@ uint32_t cukHwGetOutputSwitch(void){
     return gpio;
 }
 //-----------------------------------------------------------------------------
-void cukHwSetMeasGains(cukHwMeasGains_t *gains){
+void cukHwSetMeasGains(cukConfigMeasGains_t *gains){
 
     hwControl.gains = *gains;
 }
 //-----------------------------------------------------------------------------
-uint32_t cukHwGetMeasGains(cukHwMeasGains_t *gains){
+uint32_t cukHwGetMeasGains(cukConfigMeasGains_t *gains){
 
     *gains = hwControl.gains;
 
-    return sizeof(cukHwMeasGains_t);
+    return sizeof(cukConfigMeasGains_t);
 }
+//-----------------------------------------------------------------------------
 //=============================================================================
 
 //=============================================================================

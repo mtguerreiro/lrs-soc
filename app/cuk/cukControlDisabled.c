@@ -54,8 +54,6 @@ int32_t cukControlDisabledRun(void *meas, int32_t nmeas, void *refs, int32_t nre
     cukConfigControl_t *o = (cukConfigControl_t *)outputs;
 
     o->u = 0.0f;
-    o->sw_o = 0;
-    o->sw_l = 0;
 
     return sizeof(cukConfigControl_t);
 }

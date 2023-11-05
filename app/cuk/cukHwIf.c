@@ -14,6 +14,7 @@
 #include "cukHw.h"
 #endif
 
+#include "cukConfig.h"
 
 #include "../utils/rp.h"
 //=============================================================================
@@ -516,12 +517,12 @@ static int32_t cukHwIfGetOutputSwitch(void *in, uint32_t insize, void **out, uin
 //-----------------------------------------------------------------------------
 static int32_t cukHwIfSetMeasGains(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
 
-    cukHwMeasGains_t *gains;
+    cukConfigMeasGains_t *gains;
 
-    gains = ( (cukHwMeasGains_t *)in );
+    gains = ( (cukConfigMeasGains_t *)in );
 
 #ifdef CUK_HW_IF_CONFIG_OPIL
-    cukHwSetMeasGains(gains);
+    cukHwOpilSetMeasGains(gains);
 #else
     cukHwSetMeasGains(gains);
 #endif
@@ -531,8 +532,8 @@ static int32_t cukHwIfSetMeasGains(void *in, uint32_t insize, void **out, uint32
 //-----------------------------------------------------------------------------
 static int32_t cukHwIfGetMeasGains(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
 
-    cukHwMeasGains_t *o = (cukHwMeasGains_t *)*out;
-    cukHwMeasGains_t gains;
+    cukConfigMeasGains_t *o = (cukConfigMeasGains_t *)*out;
+    cukConfigMeasGains_t gains;
     uint32_t size;
 
 #ifdef CUK_HW_IF_CONFIG_OPIL
