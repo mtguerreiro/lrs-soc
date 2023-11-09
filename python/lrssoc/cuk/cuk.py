@@ -5,6 +5,8 @@ Module ``cuk``
 
 """
 import lrssoc
+import numpy as np
+import matplotlib.pyplot as plt
 
 class Commands:
     """
@@ -162,11 +164,18 @@ class Cuk:
     def trace_read(self):
         """
         """
-        status, trace_data = self._tr_if.read()
+        status, (traces, trace_data) = self._tr_if.read()
         if status != 0:
             return (-1, status)
+
+        status, freq = self._hw_if.get_pwm_frequency()
+        if status != 0:
+            return (-1, status)
+
+        t = 1 / freq * np.arange( len(trace_data[0]) )
+        trace_data = np.array(trace_data).T
         
-        return (0, trace_data)
+        return (0, (traces, trace_data, t))
 
 
     def trace_reset(self):
@@ -199,5 +208,31 @@ class Cuk:
         return (0, size)
 
 
-    def plot(self, data):
-        self._plot.plot(data)
+    def plot(self, data, t=None, ax=None):
+        self._plot.measurements(data, t)
+
+    def plot_energy(self, data, t=None, ax=None):
+        self._plot.energy(data, t)
+
+    def plot_live(self, dt):
+
+        status, freq = self._hw_if.get_pwm_frequency()
+        if status != 0:
+            return (-1, status)
+
+        n_samples = round(dt * freq)
+
+        self.trace_set_size(n_samples)
+
+        t = 1 / freq * np.arange( n_samples )
+
+        fig, axes = plt.subplots(nrows=2, ncols=2)
+        fig.set_size_inches(10, 6)
+
+        while True:
+            status, (traces, data, t) = self.trace_read()
+            self._plot.measurements(data, t, fig=fig)
+            plt.pause(dt)
+            self.trace_reset()
+
+        

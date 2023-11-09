@@ -86,17 +86,28 @@ typedef struct{
     float v_2_ofs;
 }cukConfigMeasGains_t;
 
-#define CUK_CONFIG_ADC_GAIN_INV             (5.0f / 4095.0f)
+#define CUK_CONFIG_ADC_GAIN_INV             (float)((5.0f / 4095.0f))
 
-#define CUK_CONFIG_VSENS_GAIN_INV           (60.0f / 5.0f)
+#define CUK_CONFIG_VSENS_GAIN_INV           (float)((60.0f / 5.0f))
 
-#define CUK_CONFIG_ISENS_ACS730_GAIN_INV    (20.0f)
-#define CUK_CONFIG_ISENS_ACS730_OFFS        (2.5f)
+#define CUK_CONFIG_ISENS_ACS730_GAIN_INV    (float)((20.0f))
+#define CUK_CONFIG_ISENS_ACS730_OFFS        (float)((2.5f))
 
-#define CUK_CONFIG_ISENS_ACS712_GAIN_INV    (10.0f)
-#define CUK_CONFIG_ISENS_ACS712_OFFS        (2.5f)
+#define CUK_CONFIG_ISENS_ACS712_GAIN_INV    (float)((10.0f))
+#define CUK_CONFIG_ISENS_ACS712_OFFS        (float)((2.5f))
 
-#define CUK_CONFIG_TF_N2N1                  (5.0f / 3.0f)
+#define CUK_CONFIG_TF_N2N1                  (float)((5.0f / 3.0f))
+
+#define CUK_CONFIG_L_IN                     ((float)(100e-6))
+#define CUK_CONFIG_L_OUT                    ((float)(150e-6))
+#define CUK_CONFIG_C_C                      ((float)(4.7e-6))
+#define CUK_CONFIG_C_O                      ((float)(330e-6))
+
+#define CUK_CONFIG_I_PRIM_LIM               (15.0f)
+#define CUK_CONFIG_V_PRIM_LIM               (40.0f)
+#define CUK_CONFIG_I_SEC_LIM                (15.0f)
+#define CUK_CONFIG_V_SEC_LIM                (40.0f)
+
 //=============================================================================
 
 #endif /* CUK_CONFIG_H_ */

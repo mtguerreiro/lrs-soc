@@ -50,6 +50,9 @@ class Commands:
         self.set_meas_gains = 24
         self.get_meas_gains = 25
 
+        self.clear_status = 26
+        self.get_status = 27
+
 
 class MeasGains:
 
@@ -297,6 +300,22 @@ class Hw:
             return (-1, status)
         
         return (status, gains)
+
+
+    def clear_status(self):
+        """Clears the hardware status.
+        """
+        return self._clear_status()
+
+    
+    def get_status(self):
+        """Gets hardware status
+        """
+        status, hw_status = self._get_status()
+        if status != 0:
+            return (-1, status)
+        
+        return (status, hw_status)
     
     def _set_pwm_reset(self, reset):
         """
@@ -930,7 +949,55 @@ class Hw:
         if status < 0:
             print('Error getting meas gains. Error code {:}\r\n'.format(status))
             return (-1, status)
-
-        #state = lrssoc.conversions.u8_to_u32(state, msb=False)
         
         return (0, gains)
+
+
+    def _clear_status(self):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.clear_status
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error clearing the hardware status. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        return (0,)
+
+    
+    def _get_status(self):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.get_status
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, hw_status = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting hardware status. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        hw_status = lrssoc.conversions.u8_to_u32(hw_status, msb=False)
+        
+        return (0, hw_status)

@@ -156,7 +156,7 @@ static int32_t ocpWinInitializeControlSystem(void){
     config.fhwInterface = cukHwIf;
     config.fhwStatus = cukHwOpilStatus;
 
-    config.fgetInputs = cukOpilGetMeasurements;
+    config.fgetInputs = cukHwOpilGetMeasurements;//cukOpilGetMeasurements;
     //config.fgetInputs = cukHwGetMeasurements;
 
     config.fapplyOutputs = cukOpilUpdateControl;

@@ -12,6 +12,24 @@
 #include "cukHwOpil.h"
 
 #include "cukOpil.h"
+
+#include "cukConfig.h"
+//=============================================================================
+
+//=============================================================================
+/*------------------------------- Definitions -------------------------------*/
+//=============================================================================
+typedef struct{
+
+    uint32_t status;
+
+}cukHwControl_t;
+//=============================================================================
+
+//=============================================================================
+/*--------------------------------- Globals ---------------------------------*/
+//=============================================================================
+static cukHwControl_t hwControl = {.status = 0};
 //=============================================================================
 
 //=============================================================================
@@ -25,7 +43,12 @@ int32_t cukHwOpilInitialize(void){
 //-----------------------------------------------------------------------------
 int32_t cukHwOpilStatus(void){
 
-    return 0;
+    return hwControl.status;
+}
+//-----------------------------------------------------------------------------
+void cukHwOpilStatusClear(void){
+
+    hwControl.status = 0;
 }
 //-----------------------------------------------------------------------------
 void cukHwOpilSetPwmReset(uint32_t reset){
@@ -61,7 +84,7 @@ void cukHwOpilSetPwmFrequency(uint32_t freq){
 //-----------------------------------------------------------------------------
 uint32_t cukHwOpilGetPwmFrequency(void){
 
-    return 0;
+    return 100000;
 }
 //-----------------------------------------------------------------------------
 void cukHwOpilSetPwmDuty(float duty){
@@ -121,7 +144,31 @@ uint32_t cukHwOpilGetAdcSpiFreq(void){
 //-----------------------------------------------------------------------------
 int32_t cukHwOpilGetMeasurements(void *meas){
 
-    return cukOpilGetMeasurements(meas);
+    int32_t meassize;
+
+    cukConfigMeasurements_t *cukmeas;
+
+    cukmeas = (cukConfigMeasurements_t *)meas;
+
+    meassize = cukOpilGetMeasurements(meas);
+
+    /* Protection */
+    if( (cukmeas->i_i > CUK_CONFIG_I_PRIM_LIM) || (cukmeas->i_1 > CUK_CONFIG_I_PRIM_LIM) ) hwControl.status = 1;
+    if( (cukmeas->i_i < -CUK_CONFIG_I_PRIM_LIM) || (cukmeas->i_1 < -CUK_CONFIG_I_PRIM_LIM) ) hwControl.status = 1;
+
+    if( (cukmeas->v_in > CUK_CONFIG_V_PRIM_LIM) || (cukmeas->v_dc > CUK_CONFIG_V_PRIM_LIM) ) hwControl.status = 1;
+
+    if( (cukmeas->i_o > CUK_CONFIG_I_SEC_LIM) || (cukmeas->i_2 > CUK_CONFIG_I_SEC_LIM) ) hwControl.status = 1;
+    if( (cukmeas->i_o < -CUK_CONFIG_I_SEC_LIM) || (cukmeas->i_2 < -CUK_CONFIG_I_SEC_LIM) ) hwControl.status = 1;
+
+    if( (cukmeas->v_out > CUK_CONFIG_V_SEC_LIM) || (cukmeas->v_dc_out > CUK_CONFIG_V_SEC_LIM) ) hwControl.status = 1;
+
+    if( hwControl.status != 0 ){
+        cukOpilSetPwmDuty(0.0f);
+        return -1;
+    }
+    else
+        return meassize;
 }
 //-----------------------------------------------------------------------------
 int32_t cukHwOpilApplyOutputs(void *outputs, int32_t size){

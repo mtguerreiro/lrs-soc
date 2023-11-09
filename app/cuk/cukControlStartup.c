@@ -28,7 +28,7 @@
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
 static float u = 0.0f;
-static float ufinal = 20.0f / ( 20.0f + 10.0f * (5.0f / 3.0f) );
+static float ufinal = 0.5f;
 static float uinc = 50.0f / 100000.0f;
 //=============================================================================
 
@@ -45,6 +45,7 @@ int32_t cukControlStartupSetParams(void *params, uint32_t n){
     float *p = (float *)params;
 
     uinc = *p++;
+    ufinal = *p++;
 
 	return 0;
 }
@@ -54,8 +55,9 @@ int32_t cukControlStartupGetParams(void *in, uint32_t insize, void *out, uint32_
     float *p = (float *)out;
 
     *p++ = uinc;
+    *p++ = ufinal;
 
-    return 4;
+    return 8;
 }
 //-----------------------------------------------------------------------------
 int32_t cukControlStartupRun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, void *outputs, int32_t nmaxoutputs){
@@ -64,10 +66,10 @@ int32_t cukControlStartupRun(void *meas, int32_t nmeas, void *refs, int32_t nref
     cukConfigReferences_t *r = (cukConfigReferences_t *)refs;
     cukConfigControl_t *o = (cukConfigControl_t *)outputs;
 
-    ufinal = r->v_o / (r->v_o + CUK_CONFIG_TF_N2N1 * m->v_dc);
     u += uinc;
 
     if( u >= ufinal ) u = ufinal;
+    if( u <= 0.0f ) u = 0.0f;
 
     o->u = u;
 

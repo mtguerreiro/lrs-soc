@@ -76,6 +76,9 @@ static int32_t cukHwIfGetOutputSwitch(void *in, uint32_t insize, void **out, uin
 
 static int32_t cukHwIfSetMeasGains(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t cukHwIfGetMeasGains(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+
+static int32_t cukHwIfClearStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t cukHwIfGetStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //=============================================================================
 
 //=============================================================================
@@ -124,6 +127,9 @@ int32_t cukHwIfInitialize(void){
 
     rpRegisterHandle(&hwControl.interface.rp, CUK_HW_IF_SET_MEAS_GAINS, cukHwIfSetMeasGains);
     rpRegisterHandle(&hwControl.interface.rp, CUK_HW_IF_GET_MEAS_GAINS, cukHwIfGetMeasGains);
+
+    rpRegisterHandle(&hwControl.interface.rp, CUK_HW_IF_CLEAR_STATUS, cukHwIfClearStatus);
+    rpRegisterHandle(&hwControl.interface.rp, CUK_HW_IF_GET_STATUS, cukHwIfGetStatus);
 
     return 0;
 }
@@ -545,6 +551,33 @@ static int32_t cukHwIfGetMeasGains(void *in, uint32_t insize, void **out, uint32
     *o = gains;
 
     return size;
+}
+//-----------------------------------------------------------------------------
+static int32_t cukHwIfClearStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    cukHwOpilStatusClear();
+#else
+    cukHwStatusClear();
+#endif
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t cukHwIfGetStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    uint32_t status;
+    uint32_t *o = (uint32_t *)*out;
+
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    status = cukHwOpilStatus();
+#else
+    status = cukHwStatus();
+#endif
+
+    *o = status;
+
+    return 4;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

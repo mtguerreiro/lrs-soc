@@ -19,6 +19,7 @@
 #include "cukControlOL.h"
 #include "cukControlDisabled.h"
 #include "cukControlStartup.h"
+#include "cukControlEnergy.h"
 
 //=============================================================================
 
@@ -159,6 +160,12 @@ static void cukControllerInitializeControllers(void){
     controllers.getParams[CUK_CONTROLLER_OL] = cukControlOLGetParams;
     controllers.run[CUK_CONTROLLER_OL] = cukControlOLRun;
     controllers.reset[CUK_CONTROLLER_OL] = cukControlOLReset;
+
+    controllers.initialize[CUK_CONTROLLER_ENERGY] = cukControlEnergyInitialize;
+    controllers.setParams[CUK_CONTROLLER_ENERGY] = cukControlEnergySetParams;
+    controllers.getParams[CUK_CONTROLLER_ENERGY] = cukControlEnergyGetParams;
+    controllers.run[CUK_CONTROLLER_ENERGY] = cukControlEnergyRun;
+    controllers.reset[CUK_CONTROLLER_ENERGY] = cukControlEnergyReset;
 
     /* Initializes all registered controllers */
     for(k = 0; k < CUK_CONTROLLER_END; k++){

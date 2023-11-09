@@ -75,18 +75,32 @@ int32_t controlsysRun(controlsys_t *sys){
 
 	int32_t status;
 
-	if( sys->status == CONTROLSYS_STATUS_ENABLED ){
-	    status = controlRun(&sys->control);
+    status = controlRun(&sys->control);
 
-	    if( status != CONTROL_RUN_STATUS_SUCCESS ){
-	        if( status == CONTROL_RUN_STATUS_HARDWARE_ERROR)
-	            sys->status = CONTROLSYS_STATUS_HARDWARE_ERROR;
-	        else if( status == CONTROL_RUN_STATUS_CONTROLLER_ERROR )
-	            sys->status = CONTROLSYS_STATUS_CONTROLLER_ERROR;
-	        else
-	            sys->status = CONTROLSYS_STATUS_UNKNOWN_RUN_ERROR;
-	    }
-	}
+    if( status != CONTROL_RUN_STATUS_SUCCESS ){
+        if( status == CONTROL_RUN_STATUS_HARDWARE_ERROR)
+            sys->status = CONTROLSYS_STATUS_HARDWARE_ERROR;
+        else if( status == CONTROL_RUN_STATUS_CONTROLLER_ERROR )
+            sys->status = CONTROLSYS_STATUS_CONTROLLER_ERROR;
+        else
+            sys->status = CONTROLSYS_STATUS_UNKNOWN_RUN_ERROR;
+    }
+    else{
+        sys->status = CONTROL_RUN_STATUS_SUCCESS;
+    }
+
+//	if( sys->status == CONTROLSYS_STATUS_ENABLED ){
+//	    status = controlRun(&sys->control);
+//
+//	    if( status != CONTROL_RUN_STATUS_SUCCESS ){
+//	        if( status == CONTROL_RUN_STATUS_HARDWARE_ERROR)
+//	            sys->status = CONTROLSYS_STATUS_HARDWARE_ERROR;
+//	        else if( status == CONTROL_RUN_STATUS_CONTROLLER_ERROR )
+//	            sys->status = CONTROLSYS_STATUS_CONTROLLER_ERROR;
+//	        else
+//	            sys->status = CONTROLSYS_STATUS_UNKNOWN_RUN_ERROR;
+//	    }
+//	}
 
 	return sys->status;
 }

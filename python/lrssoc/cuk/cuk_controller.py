@@ -36,7 +36,8 @@ class Controllers:
         self.ctl = {
             0 : {'id':0, 'if':None},
             'startup' : {'id':1, 'if':Startup()},
-            'ol' : {'id':2, 'if':OL()}
+            'ol' : {'id':2, 'if':OL()},
+            'energy' : {'id':3, 'if':Energy()},
             }
 
 
@@ -72,17 +73,45 @@ class Startup:
     def set(self, params):
 
         uinc = params['uinc']
-        data = list(struct.pack('<f', uinc))
+        ufinal = params['ufinal']
+        data = list(struct.pack('<ff', uinc, ufinal))
         
         return data
     
 
     def get(self, data):
 
-        pars = struct.unpack('<f', data)
+        pars = struct.unpack('<ff', data)
 
         params = {
-            'uinc': pars[0]
+            'uinc': pars[0],
+            'ufinal': pars[1]
+            }
+
+        return params
+
+
+class Energy:
+    def __init__(self):
+        pass
+    
+
+    def set(self, params):
+
+        k1 = params['k1']
+        k2 = params['k2']
+        data = list(struct.pack('<ff', k1, k2))
+        
+        return data
+    
+
+    def get(self, data):
+
+        pars = struct.unpack('<ff', data)
+
+        params = {
+            'k1': pars[0],
+            'k2': pars[1]
             }
 
         return params

@@ -426,6 +426,32 @@ typedef enum{
      */
     CUK_HW_IF_GET_MEAS_GAINS,
 
+    /**
+     * Command
+     *  -------------------------
+     *  | CLEAR STATUS (uint32) |
+     *  -------------------------
+     *
+     * Response
+     * No response
+     *
+     */
+    CUK_HW_IF_CLEAR_STATUS,
+
+    /**
+     * Command
+     *  -----------------------
+     *  | GET STATUS (uint32) |
+     *  -----------------------
+     *
+     * Response
+     *  -------------------
+     *  | STATUS (uint32) |
+     *  -------------------
+     *
+     */
+    CUK_HW_IF_GET_STATUS,
+
     CUK_HW_IF_END
 }cukHwIfCommands_t;
 

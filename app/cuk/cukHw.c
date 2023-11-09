@@ -25,7 +25,7 @@
 //=============================================================================
 #define CUK_HW_CONFIG_ADC_SPI_FREQ_HZ      ((uint32_t)16666666)
 #define CUK_HW_CONFIG_PWM_FREQ_HZ          ((uint32_t) 100000 )
-#define CUK_HW_CONFIG_PWM_DEAD_TIME_NS     ((float) 100e-9 )
+#define CUK_HW_CONFIG_PWM_DEAD_TIME_NS     ((float) 200e-9 )
 #define CUK_HW_CONFIG_PWM_BASE              XPAR_AXI_PWM_0_S00_AXI_BASEADDR
 #define CUK_HW_CONFIG_ADC_BASE              XPAR_ADC_PSCTL_0_S00_AXI_BASEADDR
 
@@ -46,6 +46,8 @@
 #define CUK_HW_ADC_CLK                      100000000
 
 typedef struct{
+
+    uint32_t status;
 
     uint32_t pwmPeriod;
 
@@ -71,7 +73,7 @@ static void cukHwInitializeMeasGains(void);
 //=============================================================================
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
-cukHwControl_t hwControl = {.pwmPeriod = 0};
+cukHwControl_t hwControl = {.pwmPeriod = 0, .status = 0};
 //=============================================================================
 
 //=============================================================================
@@ -90,7 +92,12 @@ int32_t cukHwInitialize(cukHwInitConfig_t *config){
 //-----------------------------------------------------------------------------
 int32_t cukHwStatus(void){
 
-    return 0;
+    return hwControl.status;
+}
+//-----------------------------------------------------------------------------
+void cukHwStatusClear(void){
+
+    hwControl.status = 0;
 }
 //-----------------------------------------------------------------------------
 void cukHwSetPwmReset(uint32_t reset){
@@ -259,8 +266,8 @@ int32_t cukHwGetMeasurements(void *meas){
 
     /* Skips the seventh adc channel of header */
     src++;
-    dst->i_o =  hwControl.gains.i_o_gain * ((float)(*src++)) + hwControl.gains.i_o_ofs;
-    dst->i_2 =  hwControl.gains.i_2_gain * ((float)(*src++)) + hwControl.gains.i_2_ofs;
+    dst->i_o =  -( hwControl.gains.i_o_gain * ((float)(*src++)) + hwControl.gains.i_o_ofs );
+    dst->i_2 =  -( hwControl.gains.i_2_gain * ((float)(*src++)) + hwControl.gains.i_2_ofs );
 
     dst->v_out =    hwControl.gains.v_out_gain * ((float)(*src++)) + hwControl.gains.v_out_ofs;
     dst->v_dc_out = hwControl.gains.v_dc_out_gain * ((float)(*src++)) + hwControl.gains.v_dc_out_ofs;
@@ -280,7 +287,23 @@ int32_t cukHwGetMeasurements(void *meas){
     dst->v_dc_out_filt = 0.0f;
     dst->v_2_filt =      0.0f;
 
-    return sizeof(cukConfigMeasurements_t);
+    /* Protection */
+    if( (dst->i_i > CUK_CONFIG_I_PRIM_LIM) || (dst->i_1 > CUK_CONFIG_I_PRIM_LIM) ) hwControl.status = 1;
+    if( (dst->i_i < -CUK_CONFIG_I_PRIM_LIM) || (dst->i_1 < -CUK_CONFIG_I_PRIM_LIM) ) hwControl.status = 1;
+
+    if( (dst->v_in > CUK_CONFIG_V_PRIM_LIM) || (dst->v_dc > CUK_CONFIG_V_PRIM_LIM) ) hwControl.status = 1;
+
+    if( (dst->i_o > CUK_CONFIG_I_SEC_LIM) || (dst->i_2 > CUK_CONFIG_I_SEC_LIM) ) hwControl.status = 1;
+    if( (dst->i_o < -CUK_CONFIG_I_SEC_LIM) || (dst->i_2 < -CUK_CONFIG_I_SEC_LIM) ) hwControl.status = 1;
+
+    if( (dst->v_out > CUK_CONFIG_V_SEC_LIM) || (dst->v_dc_out > CUK_CONFIG_V_SEC_LIM) ) hwControl.status = 1;
+
+    if( hwControl.status != 0 ){
+        cukHwSetPwmOutputEnable(0);
+        return -1;
+    }
+    else
+        return sizeof(cukConfigMeasurements_t);
 }
 //-----------------------------------------------------------------------------
 int32_t cukHwApplyOutputs(void *outputs, int32_t size){
