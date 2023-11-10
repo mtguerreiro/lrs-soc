@@ -40,9 +40,14 @@
 //=============================================================================
 #define SYNC_FLAG  		(*(volatile unsigned long *)(ZYNQ_CONFIG_CPU0_CPU1_SYNC_FLAG_ADR))
 
-#define LED_ID XPAR_AXI_GPIO_RGB_LED_DEVICE_ID
-#define LED_CHANNEL 1
-#define LED_MASK 0b111
+#define MAIN_LED_ID         XPAR_AXI_GPIO_RGB_LED_DEVICE_ID
+#define MAIN_LED_CHANNEL    1
+#define MAIN_LED_MASK       0b111
+#define MAIN_LED_OFS        3
+
+#define MAIN_LED_BLUE      (1 << 0)
+#define MAIN_LED_GREEN     (1 << 1)
+#define MAIN_LED_RED       (1 << 2)
 
 #define INTC		    XScuGic
 #define INTC_DEVICE_ID	XPAR_PS7_SCUGIC_0_DEVICE_ID
@@ -56,10 +61,8 @@
 
 INTC   IntcInstancePtr;
 
-XGpio_Config *cfg_ptr = 0;
-XGpio led_device;
-//XGpio relay_device;
-//XGpio gpioDebug_device;
+XGpio led;
+
 
 uint32_t blinkPeriod = 1000;
 
@@ -71,8 +74,7 @@ uint32_t blinkPeriod = 1000;
 static int mainSysInit(void);
 static int mainSetupIntrSystem(INTC *IntcInstancePtr);
 
-static int mainInitPwm(void);
-static int mainInitAdc(void);
+static void mainRgbLedToggleColor(uint32_t color);
 //=============================================================================
 
 //=============================================================================
@@ -81,23 +83,12 @@ static int mainInitAdc(void);
 //-----------------------------------------------------------------------------
 int main(){
 
-	uint32_t prevstate;
-	uint32_t data = 0;
-
 	mainSysInit();
 
     while(1){
 
-    	prevstate = XGpio_DiscreteRead(&led_device, LED_CHANNEL);
-
-    	prevstate &= ~0b00111000;
-       	XGpio_DiscreteWrite(&led_device, LED_CHANNEL, ((data & LED_MASK) << 3U) | prevstate);
-
-       	usleep(blinkPeriod * 1000);		//Delay so output can be seen
-
-
-       	data = data << 1;
-    	if( (data & (LED_MASK << 2 ) ) == 0 ) data = 0xFF;
+        mainRgbLedToggleColor(MAIN_LED_GREEN);
+       	usleep(blinkPeriod * 1000);
     }
 
     return 0;
@@ -112,6 +103,7 @@ int main(){
 static int mainSysInit(void){
 
 	int Status;
+	XGpio_Config *cfg_ptr = 0;
 
     //Disable cache on OCM
 	Xil_SetTlbAttributes(0xFFFF0000,0x14de2);           // S=b1 TEX=b100 AP=b11, Domain=b1111, C=b0, B=b0
@@ -128,9 +120,9 @@ static int mainSysInit(void){
 	ocpZynqCpu1Initialize(&IntcInstancePtr);
 
 	/* Initializes PYNQ's (RGB) LEDs */
-    cfg_ptr = XGpio_LookupConfig(LED_ID);
-	XGpio_CfgInitialize(&led_device, cfg_ptr, cfg_ptr->BaseAddress);
-	XGpio_SetDataDirection(&led_device, LED_CHANNEL, 0);
+    cfg_ptr = XGpio_LookupConfig(MAIN_LED_ID);
+	XGpio_CfgInitialize(&led, cfg_ptr, cfg_ptr->BaseAddress);
+	XGpio_SetDataDirection(&led, MAIN_LED_CHANNEL, 0);
 
 	SYNC_FLAG = 0;
 
@@ -178,6 +170,17 @@ static int mainSetupIntrSystem(INTC *IntcInstancePtr)
 
 	return XST_SUCCESS;
 
+}
+//-----------------------------------------------------------------------------
+static void mainRgbLedToggleColor(uint32_t color){
+
+    uint32_t prev, new;
+
+    prev = XGpio_DiscreteRead(&led, MAIN_LED_CHANNEL);
+
+    new = ((color & MAIN_LED_MASK) << MAIN_LED_OFS) ^ prev;
+
+    XGpio_DiscreteWrite(&led, MAIN_LED_CHANNEL, new);
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

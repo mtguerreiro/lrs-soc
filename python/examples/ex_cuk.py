@@ -7,6 +7,8 @@ plt.ion()
 
 import time
 
+import pickle
+
 # --- Input ---
 port = 8080
 
@@ -98,3 +100,52 @@ def ramp(cuk, k=1.0):
     status, (traces, data, t) = cuk.trace_read()
 
     return (data, t)
+
+
+def energy(cuk, k=1.0):
+
+    cuk._hw_if.set_load_switch(0)
+    cuk.controller_set_params('startup', {'uinc': 0.0005000000237487257, 'ufinal': 0.0})
+    cuk.controller_enable('startup', reset=False)
+    cuk.trace_set_size(round(0.15 * 100000))
+
+    cuk.trace_reset()
+    time.sleep(0.02 * k);
+
+    cuk.controller_set_params('startup', {'uinc': 0.0005000000237487257, 'ufinal': 0.47})
+    time.sleep(0.02 * k);
+
+    cuk.controller_enable('energy', reset=False)
+    time.sleep(0.01 * k);
+
+    #cuk._hw_if.set_load_switch(1)
+    cuk.controller_set_ref(32.0)
+    time.sleep(0.01 * k);
+
+    #cuk._hw_if.set_load_switch(0)
+    cuk.controller_set_ref(30.0)
+    time.sleep(0.01 * k);
+    
+    cuk.controller_enable('startup', reset=False)
+    time.sleep(0.01 * k);
+    
+    cuk.controller_set_params('startup', {'uinc': -0.0005000000237487257, 'ufinal': 0.47})
+
+    time.sleep(0.2 * k);
+
+    status, (traces, data, t) = cuk.trace_read()
+
+    return (data, t)
+
+
+def save_data(file, data):
+
+    with open(file + '.pkl', 'wb') as f:
+        pickle.dump(data, f)
+
+def load_data(file):
+
+    with open(file + '.pkl', 'rb') as f:
+        data = pickle.load(f)
+
+    return data
