@@ -100,18 +100,34 @@ class Energy:
 
         k1 = params['k1']
         k2 = params['k2']
-        data = list(struct.pack('<ff', k1, k2))
+
+        a0 = params['a0']
+        a1 = params['a1']
+        a2 = params['a2']
+
+        b1 = params['b1']
+        b2 = params['b2']
+
+        en = params['en']
+        
+        data = list(struct.pack('<ffffffff', k1, k2, a0, a1, a2, b1, b2, en))
         
         return data
     
 
     def get(self, data):
 
-        pars = struct.unpack('<ff', data)
+        pars = struct.unpack('<ffffffff', data)
 
         params = {
             'k1': pars[0],
-            'k2': pars[1]
+            'k2': pars[1],
+            'a0': pars[2],
+            'a1': pars[3],
+            'a2': pars[4],
+            'b1': pars[5],
+            'b2': pars[6],
+            'en': pars[7],
             }
 
         return params

@@ -82,7 +82,7 @@ void ocpZynqCpu1AdcIrq(void *callbackRef);
 #define OCP_ZYNQ_C1_CONFIG_TRACE_0_SIZE				ZYNQ_CONFIG_MEM_TRACE_SIZE_MAX
 
 #define OCP_ZYNQ_C1_CONFIG_TRACE_0_NAME_LEN			500
-#define OCP_ZYNQ_C1_CONFIG_TRACE_0_MAX_SIGNALS		20
+#define OCP_ZYNQ_C1_CONFIG_TRACE_0_MAX_SIGNALS		40
 
 #define OCP_ZYNQ_C1_CONFIG_INPUT_BUF_SIZE           50
 #define OCP_ZYNQ_C1_CONFIG_OUTPUT_BUG_SIZE          20
@@ -190,6 +190,11 @@ static int32_t ocpZynqCpu1InitializeTracesMeas(void){
 
     /* Other signals to add */
     ocpTraceAddSignal(OCP_TRACE_1, &texec, "Exec. time");
+
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->i_i_filt, "Ii filt");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->i_1_filt, "I1 filt");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->i_o_filt, "Io filt");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->i_2_filt, "I2 filt");
 
     return 0;
 }

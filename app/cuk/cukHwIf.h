@@ -452,6 +452,32 @@ typedef enum{
      */
     CUK_HW_IF_GET_STATUS,
 
+    /**
+     * Command
+     *  -----------------------------------------
+     *  | SET FILT COEF (uint32) | COEF (float) |
+     *  -----------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
+    CUK_HW_IF_SET_FILT_COEF,
+
+    /**
+     * Command
+     *  --------------------------
+     *  | GET FILT COEF (uint32) |
+     *  --------------------------
+     *
+     * Response
+     *  ---------------------
+     *  | FILT COEF (float) |
+     *  ---------------------
+     *
+     */
+    CUK_HW_IF_GET_FILT_COEF,
+
     CUK_HW_IF_END
 }cukHwIfCommands_t;
 

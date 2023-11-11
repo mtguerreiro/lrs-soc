@@ -79,6 +79,9 @@ static int32_t cukHwIfGetMeasGains(void *in, uint32_t insize, void **out, uint32
 
 static int32_t cukHwIfClearStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t cukHwIfGetStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+
+static int32_t cukHwIfSetFiltCoef(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t cukHwIfGetFiltCoef(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //=============================================================================
 
 //=============================================================================
@@ -131,6 +134,8 @@ int32_t cukHwIfInitialize(void){
     rpRegisterHandle(&hwControl.interface.rp, CUK_HW_IF_CLEAR_STATUS, cukHwIfClearStatus);
     rpRegisterHandle(&hwControl.interface.rp, CUK_HW_IF_GET_STATUS, cukHwIfGetStatus);
 
+    rpRegisterHandle(&hwControl.interface.rp, CUK_HW_IF_SET_FILT_COEF, cukHwIfSetFiltCoef);
+    rpRegisterHandle(&hwControl.interface.rp, CUK_HW_IF_GET_FILT_COEF, cukHwIfGetFiltCoef);
     return 0;
 }
 //-----------------------------------------------------------------------------
@@ -576,6 +581,37 @@ static int32_t cukHwIfGetStatus(void *in, uint32_t insize, void **out, uint32_t 
 #endif
 
     *o = status;
+
+    return 4;
+}
+//-----------------------------------------------------------------------------
+static int32_t cukHwIfSetFiltCoef(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    float alpha;
+
+    alpha = *( (float *)in );
+
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    cukHwOpilSetFilterCoef(alpha);
+#else
+    cukHwSetFilterCoef(alpha);
+#endif
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t cukHwIfGetFiltCoef(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    float *o = (float *)*out;
+    float alpha;
+
+#ifdef CUK_HW_IF_CONFIG_OPIL
+    alpha = cukHwOpilGetFilterCoef();
+#else
+    alpha = cukHwGetFilterCoef();
+#endif
+
+    *o = alpha;
 
     return 4;
 }

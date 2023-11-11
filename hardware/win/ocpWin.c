@@ -52,7 +52,7 @@ static int32_t ocpWinInitializeInterface(void);
 
 #define OCP_WIN_CONFIG_TRACE_0_SIZE             (40 * 1024 * 1024)
 
-#define OCP_WIN_CONFIG_TRACE_0_NAME_LEN         500
+#define OCP_WIN_CONFIG_TRACE_0_NAME_LEN         800
 #define OCP_WIN_CONFIG_TRACE_0_MAX_SIGNALS      20
 
 #define OCP_WIN_CONFIG_INPUT_BUF_SIZE           50
@@ -134,6 +134,11 @@ static int32_t ocpWinInitializeTracesMeas(void){
 
     /* Other signals to add */
     ocpTraceAddSignal(OCP_TRACE_1, &texec, "Exec. time");
+
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->i_i_filt, "Ii filt");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->i_1_filt, "I1 filt");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->i_o_filt, "Io filt");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->i_2_filt, "I2 filt");
 
     return 0;
 }

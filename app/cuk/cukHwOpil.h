@@ -90,6 +90,12 @@ void cukHwOpilSetMeasGains(cukConfigMeasGains_t *gains);
 //-----------------------------------------------------------------------------
 uint32_t cukHwOpilGetMeasGains(cukConfigMeasGains_t *gains);
 //-----------------------------------------------------------------------------
+void cukHwOpilSetFilterCoef(float alpha);
+//-----------------------------------------------------------------------------
+float cukHwOpilGetFilterCoef(void);
+//-----------------------------------------------------------------------------
+float cukHwOpilExpMovAvg(float sample, float average);
+//-----------------------------------------------------------------------------
 //=============================================================================
 
 #endif /* CUK_HW_OPIL_H_ */

@@ -58,6 +58,8 @@ typedef struct{
 
     cukConfigMeasGains_t gains;
 
+    float alpha;
+
 }cukHwControl_t;
 //=============================================================================
 
@@ -68,12 +70,14 @@ static void cukHwInitializeAdc(void *intc, cukHwAdcIrqHandle_t irqhandle);
 static void cukHwInitializePwm(void);
 static void cukHwInitializeGpio(void);
 static void cukHwInitializeMeasGains(void);
+static float cukHwExpMovAvg(float sample, float average);
 //=============================================================================
 
 //=============================================================================
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
-cukHwControl_t hwControl = {.pwmPeriod = 0, .status = 0};
+cukHwControl_t hwControl = {.pwmPeriod = 0, .status = 0, .alpha = 0.2f};
+static float i_i_filt = 0.0f, i_1_filt = 0.0f, i_o_filt = 0.0f, i_2_filt = 0.0f;
 //=============================================================================
 
 //=============================================================================
@@ -298,6 +302,18 @@ int32_t cukHwGetMeasurements(void *meas){
 
     if( (dst->v_out > CUK_CONFIG_V_SEC_LIM) || (dst->v_dc_out > CUK_CONFIG_V_SEC_LIM) ) hwControl.status = 1;
 
+    i_1_filt = cukHwExpMovAvg(dst->i_1, i_1_filt);
+    dst->i_1_filt = i_1_filt;
+
+    i_i_filt = cukHwExpMovAvg(dst->i_i, i_i_filt);
+    dst->i_i_filt = i_i_filt;
+
+    i_o_filt = cukHwExpMovAvg(dst->i_o, i_o_filt);
+    dst->i_o_filt = i_o_filt;
+
+    i_2_filt = cukHwExpMovAvg(dst->i_2, i_2_filt);
+    dst->i_2_filt = i_2_filt;
+
     if( hwControl.status != 0 ){
         cukHwSetPwmOutputEnable(0);
         return -1;
@@ -403,6 +419,16 @@ uint32_t cukHwGetMeasGains(cukConfigMeasGains_t *gains){
     return sizeof(cukConfigMeasGains_t);
 }
 //-----------------------------------------------------------------------------
+void cukHwSetFilterCoef(float alpha){
+
+    hwControl.alpha = alpha;
+}
+//-----------------------------------------------------------------------------
+float cukHwGetFilterCoef(void){
+
+    return hwControl.alpha;
+}
+//-----------------------------------------------------------------------------
 //=============================================================================
 
 //=============================================================================
@@ -483,6 +509,11 @@ static void cukHwInitializeMeasGains(void){
 
     hwControl.gains.v_2_gain = 0.01487120334913248f;
     hwControl.gains.v_2_ofs =  0.058881268243716534f;
+}
+//-----------------------------------------------------------------------------
+static float cukHwExpMovAvg(float sample, float average){
+
+    return hwControl.alpha * sample + (1.0f - hwControl.alpha) * average;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

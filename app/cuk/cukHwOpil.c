@@ -23,13 +23,16 @@ typedef struct{
 
     uint32_t status;
 
+    float alpha;
+
 }cukHwControl_t;
 //=============================================================================
 
 //=============================================================================
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
-static cukHwControl_t hwControl = {.status = 0};
+static cukHwControl_t hwControl = {.status = 0, .alpha = 0.2f};
+static float i_i_filt = 0.0f, i_1_filt = 0.0f, i_o_filt = 0.0f, i_2_filt = 0.0f;
 //=============================================================================
 
 //=============================================================================
@@ -163,6 +166,18 @@ int32_t cukHwOpilGetMeasurements(void *meas){
 
     if( (cukmeas->v_out > CUK_CONFIG_V_SEC_LIM) || (cukmeas->v_dc_out > CUK_CONFIG_V_SEC_LIM) ) hwControl.status = 1;
 
+    i_1_filt = cukHwOpilExpMovAvg(cukmeas->i_1, i_1_filt);
+    cukmeas->i_1_filt = i_1_filt;
+
+    i_i_filt = cukHwOpilExpMovAvg(cukmeas->i_i, i_i_filt);
+    cukmeas->i_i_filt = i_i_filt;
+
+    i_o_filt = cukHwOpilExpMovAvg(cukmeas->i_o, i_o_filt);
+    cukmeas->i_o_filt = i_o_filt;
+
+    i_2_filt = cukHwOpilExpMovAvg(cukmeas->i_2, i_2_filt);
+    cukmeas->i_2_filt = i_2_filt;
+
     if( hwControl.status != 0 ){
         cukOpilSetPwmDuty(0.0f);
         return -1;
@@ -242,6 +257,21 @@ void cukHwOpilSetMeasGains(cukConfigMeasGains_t *gains){
 uint32_t cukHwOpilGetMeasGains(cukConfigMeasGains_t *gains){
 
     return 0;
+}
+//-----------------------------------------------------------------------------
+void cukHwOpilSetFilterCoef(float alpha){
+
+    hwControl.alpha = alpha;
+}
+//-----------------------------------------------------------------------------
+float cukHwOpilGetFilterCoef(void){
+
+    return hwControl.alpha;
+}
+//-----------------------------------------------------------------------------
+float cukHwOpilExpMovAvg(float sample, float average){
+
+    return hwControl.alpha * sample + (1.0f - hwControl.alpha) * average;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

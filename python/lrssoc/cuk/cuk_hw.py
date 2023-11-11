@@ -53,6 +53,8 @@ class Commands:
         self.clear_status = 26
         self.get_status = 27
 
+        self.set_filter_coef = 28
+        self.get_filter_coef = 29
 
 class MeasGains:
 
@@ -316,6 +318,23 @@ class Hw:
             return (-1, status)
         
         return (status, hw_status)
+
+
+    def set_filter_coef(self, alpha):
+        """Sets filter coef (0 < alpha < 1).
+        """
+        return self._set_filter_coef(float(alpha))
+
+
+    def get_filter_coef(self):
+        """Gets filter coef
+        """
+        status, coef = self._get_filter_coef()
+        if status != 0:
+            return (-1, status)
+        
+        return (status, coef)
+
     
     def _set_pwm_reset(self, reset):
         """
@@ -1001,3 +1020,54 @@ class Hw:
         hw_status = lrssoc.conversions.u8_to_u32(hw_status, msb=False)
         
         return (0, hw_status)
+
+
+    def _set_filter_coef(self, coef):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.set_filter_coef
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( list(struct.pack('<f', coef)) )
+        
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting filter coef. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        return (0,)
+
+
+    def _get_filter_coef(self):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.get_filter_coef
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, coef_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting the output switch. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        coef = struct.unpack('<f', coef_b)[0]
+        
+        return (0, coef)

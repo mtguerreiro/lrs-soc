@@ -9,6 +9,8 @@ import time
 
 import pickle
 
+import scipy.signal
+
 # --- Input ---
 port = 8080
 
@@ -147,5 +149,22 @@ def load_data(file):
 
     with open(file + '.pkl', 'rb') as f:
         data = pickle.load(f)
+
+    return data
+
+
+def set_notch(wc, q):
+
+    dt = 1 / 100e3
+
+    num = [1, 0 , wc**2]
+    den = [1, wc/q, wc**2]
+    tf = (num, den)
+
+    num_d, den_d, _ = scipy.signal.cont2discrete(tf, dt)
+    num_d = num_d.reshape(-1)
+    print(num_d, den_d)
+
+    data = {'a0':num_d[0], 'a1':num_d[1], 'a2':num_d[2], 'b1':den_d[1], 'b2':den_d[2]}
 
     return data

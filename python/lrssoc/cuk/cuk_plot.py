@@ -103,9 +103,9 @@ class Plot:
             axes = fig.get_axes()
             
         axes[0].cla()
-        axes[0].step(t, data[:, 13], label='$P_i$', where='post')
-        axes[0].step(t, data[:, 14], label='$P_o$', where='post')
-        axes[0].step(t, data[:, 15], label='$P_c$', where='post')
+        axes[0].step(t, data[:, 13+4], label='$P_i$', where='post')
+        axes[0].step(t, data[:, 14+4], label='$P_o$', where='post')
+        axes[0].step(t, data[:, 15+4], label='$P_c$', where='post')
         axes[0].legend(loc='upper left', bbox_to_anchor=(1.01,1), borderaxespad=0, handlelength=0.75, handleheight=0.5, handletextpad=0.3, fontsize=self.l_fs)
         axes[0].grid()
         axes[0].set_ylabel('Power (W)', fontsize=self.l_fs)
@@ -113,8 +113,8 @@ class Plot:
 
         axes[1].cla()
         axes[1].sharex(axes[0])
-        axes[1].step(t, data[:, 16], label='$E$', where='post')
-        axes[1].step(t, data[:, 17], label='$E^*$', where='post')
+        axes[1].step(t, data[:, 16+4], label='$E$', where='post')
+        axes[1].step(t, data[:, 17+4], label='$E^*$', where='post')
         axes[1].legend(loc='upper left', bbox_to_anchor=(1.01,1), borderaxespad=0, handlelength=0.75, handleheight=0.5, handletextpad=0.3, fontsize=self.l_fs)
         axes[1].grid()
         axes[1].set_ylabel('Energy (J)', fontsize=self.l_fs)
@@ -122,7 +122,7 @@ class Plot:
         
         axes[2].cla()
         axes[2].sharex(axes[0])
-        axes[2].step(t, data[:, 12], label='$V_c$', where='post')
+        axes[2].step(t, data[:, 12+4], label='$V_c$', where='post')
         axes[2].legend(loc='upper left', bbox_to_anchor=(1.01,1), borderaxespad=0, handlelength=0.75, handleheight=0.5, handletextpad=0.3, fontsize=self.l_fs)
         axes[2].grid()
         axes[2].set_ylabel('Voltage (V)', fontsize=self.l_fs)
