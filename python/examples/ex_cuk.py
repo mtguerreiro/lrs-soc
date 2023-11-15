@@ -25,20 +25,7 @@ cuk_sim = lrssoc.cuk.cuk.Cuk(0, 'ethernet', settings_sim, 0)
 
 plot = lrssoc.cuk.cuk_plot.Plot()
 
-#cuk.trace_set_size(4 * 100000)
-#cuk.trace_set_size( round(200e-3 / (1 / 100e3)) )
-#cuk.trace_reset()
-
-#cuk.control_sys_enable()
-#cuk.controller_enable('ol')
-
-#cuk.control_sys_enable()
-#cuk.controller_set_params('ol', {'u':0.5})
-#cuk.controller_enable('ol', reset=False)
-#cuk.control_sys_disable()
-
-#status, (traces, data, t) = cuk.trace_read()
-
+#status, (traces, data, t) = cuk.read_trace()
 
 def lin_coef(y1, y2, x1, x2):
 
@@ -48,94 +35,66 @@ def lin_coef(y1, y2, x1, x2):
     return (a, b)
 
 
-def run():
-
-    cuk._hw_if.set_load_switch(0)
-
-    cuk.controller_set_params('startup', {'uinc': 0.0005000000237487257, 'ufinal': 0.0})
-    cuk.controller_enable('startup', reset=False)
-    cuk.trace_set_size(0.2 * 100000)
-    cuk.trace_reset()
-    time.sleep(0.02);
-    
-    cuk.controller_set_params('startup', {'uinc': 0.0005000000237487257, 'ufinal': 0.5})
-    time.sleep(0.02)
-
-    cuk._hw_if.set_load_switch(1)
-    time.sleep(0.02)
-    
-    cuk._hw_if.set_load_switch(0)
-    time.sleep(0.02)
-
-    cuk.controller_set_params('startup', {'uinc': -0.0005000000237487257})
-
-    time.sleep(0.02)
-
-    status, (traces, data, t) = cuk.trace_read()
-
-    return t, data
-
-
 def ramp(cuk, k=1.0):
 
-    cuk._hw_if.set_load_switch(0)
-    cuk.controller_set_params('startup', {'uinc': 0.0005000000237487257, 'ufinal': 0.0})
-    cuk.controller_enable('startup', reset=False)
-    cuk.trace_set_size(round(0.1 * 100000))
+    cuk.set_load_switch(0)
+    cuk.startup_ctl_set_params(uinc=0.0005, ufinal=0.0)
+    cuk.startup_ctl_enable(reset=False)
+    cuk.set_trace_size(round(0.1 * 100000))
 
-    cuk.trace_reset()
+    cuk.reset_trace()
     time.sleep(0.02 * k);
 
-    cuk.controller_set_params('startup', {'uinc': 0.0005000000237487257, 'ufinal': 0.47})
+    cuk.startup_ctl_set_params(uinc=0.0005, ufinal=0.47)
     time.sleep(0.02 * k);
 
-    cuk._hw_if.set_load_switch(1)
+    cuk.set_load_switch(1)
     time.sleep(0.01 * k);
 
-    cuk._hw_if.set_load_switch(0)
+    cuk.set_load_switch(0)
     time.sleep(0.01 * k);
     
-    cuk.controller_set_params('startup', {'uinc': -0.0005000000237487257, 'ufinal': 0.47})
+    cuk.startup_ctl_set_params(uinc=-0.0005)
 
-    time.sleep(0.2 * k);
+    time.sleep(0.15 * k);
 
-    status, (traces, data, t) = cuk.trace_read()
+    status, (traces, data, t) = cuk.read_trace()
 
     return (data, t)
 
 
 def energy(cuk, k=1.0):
 
-    cuk._hw_if.set_load_switch(0)
-    cuk.controller_set_params('startup', {'uinc': 0.0005000000237487257, 'ufinal': 0.0})
-    cuk.controller_enable('startup', reset=False)
-    cuk.trace_set_size(round(0.15 * 100000))
+    cuk.set_load_switch(0)
+    cuk.startup_ctl_set_params(uinc=0.0005, ufinal=0.0)
+    cuk.startup_ctl_enable(reset=False)
+    cuk.set_trace_size(round(0.15 * 100000))
 
-    cuk.trace_reset()
+    cuk.reset_trace()
     time.sleep(0.02 * k);
 
-    cuk.controller_set_params('startup', {'uinc': 0.0005000000237487257, 'ufinal': 0.47})
+    cuk.startup_ctl_set_params(uinc=0.0005, ufinal=0.47)
     time.sleep(0.02 * k);
 
-    cuk.controller_enable('energy', reset=False)
+    cuk.energy_ctl_enable(reset=False)
     time.sleep(0.01 * k);
 
-    #cuk._hw_if.set_load_switch(1)
-    cuk.controller_set_ref(32.0)
+    #cuk.set_load_switch(1)
+    cuk.set_ref(32.0)
     time.sleep(0.01 * k);
 
-    #cuk._hw_if.set_load_switch(0)
-    cuk.controller_set_ref(30.0)
-    time.sleep(0.01 * k);
-    
-    cuk.controller_enable('startup', reset=False)
+    #cuk.set_load_switch(0)
+    cuk.set_ref(30.0)
     time.sleep(0.01 * k);
     
-    cuk.controller_set_params('startup', {'uinc': -0.0005000000237487257, 'ufinal': 0.47})
+    cuk.startup_ctl_enable(reset=False)
+    time.sleep(0.01 * k);
+    
+    cuk.startup_ctl_set_params(uinc=-0.0005, ufinal=0.47)
 
-    time.sleep(0.2 * k);
+    time.sleep(0.15 * k);
 
-    status, (traces, data, t) = cuk.trace_read()
+    status, (traces, data, t) = cuk.read_trace()
 
     return (data, t)
 
@@ -152,19 +111,3 @@ def load_data(file):
 
     return data
 
-
-def set_notch(wc, q):
-
-    dt = 1 / 100e3
-
-    num = [1, 0 , wc**2]
-    den = [1, wc/q, wc**2]
-    tf = (num, den)
-
-    num_d, den_d, _ = scipy.signal.cont2discrete(tf, dt)
-    num_d = num_d.reshape(-1)
-    print(num_d, den_d)
-
-    data = {'a0':num_d[0], 'a1':num_d[1], 'a2':num_d[2], 'b1':den_d[1], 'b2':den_d[2]}
-
-    return data

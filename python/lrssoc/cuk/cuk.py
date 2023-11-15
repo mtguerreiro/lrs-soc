@@ -47,7 +47,11 @@ class Cuk:
         self._plot = lrssoc.cuk.cuk_plot.Plot()
 
     
-    def control_sys_enable(self):
+    # ========================================================================
+    # =========================== System functions ===========================
+    # ========================================================================
+    
+    def enable(self):
         """
         """
         status, = self._ocp_if.cs_enable( self._cs_id )
@@ -57,7 +61,7 @@ class Cuk:
         return (0,)
         
 
-    def control_sys_disable(self):
+    def disable(self):
         """
         """
         status, = self._ocp_if.cs_disable( self._cs_id )
@@ -67,7 +71,7 @@ class Cuk:
         return (0,)
 
 
-    def control_sys_status(self):
+    def status(self):
         """
         """
         cmdstatus, status = self._ocp_if.cs_status( self._cs_id )
@@ -76,9 +80,14 @@ class Cuk:
             return (-1, cmd_status)
 
         return (0, status)
-        
 
-    def controller_disable(self):
+    # ========================================================================
+
+    # ========================================================================
+    # ========================= Controller functions =========================
+    # ========================================================================
+    
+    def disable_controller(self):
         """
         """
         status, = self._ctl_if.set( 0 )
@@ -88,7 +97,7 @@ class Cuk:
         return (0,)
 
     
-    def controller_enable(self, controller, reset=True):
+    def enable_controller(self, controller, reset=True):
         """
         """
         if reset is True:
@@ -103,7 +112,7 @@ class Cuk:
         return (0,)
 
 
-    def controller_set_params(self, controller, params):
+    def set_controller_params(self, controller, params):
         """
         """
         status, new_params = self._ctl_if.get_params( controller )
@@ -121,7 +130,7 @@ class Cuk:
         return (0,)
 
 
-    def controller_get(self):
+    def get_controller(self):
         """
         """
         status, controller = self._ctl_if.get()
@@ -131,7 +140,7 @@ class Cuk:
         return (0, controller)
 
 
-    def controller_get_params(self, controller):
+    def get_controller_params(self, controller):
         """
         """
         status, params = self._ctl_if.get_params(controller)
@@ -141,7 +150,7 @@ class Cuk:
         return (0, params)
 
 
-    def controller_set_ref(self, ref):
+    def set_ref(self, ref):
         """
         """
         status = self._ctl_if.set_ref(ref)
@@ -151,7 +160,7 @@ class Cuk:
         return (0,)        
 
 
-    def controller_get_ref(self):
+    def get_ref(self):
         """
         """
         status, ref = self._ctl_if.get_ref()
@@ -160,8 +169,121 @@ class Cuk:
 
         return (0, ref)
 
+    # ------------------------------------------------------------------------
+    # -------------------------- Startup controller --------------------------
+    # ------------------------------------------------------------------------
+    def startup_ctl_enable(self, reset=False):
+
+        return self.enable_controller('startup', reset=reset)
     
-    def trace_read(self):
+
+    def startup_ctl_set_params(self, uinc=None, ufinal=None):
+
+        params = {}
+        if uinc:
+            params['uinc'] = float(uinc)
+        if ufinal:
+            params['ufinal'] = float(ufinal)
+
+        return self.set_controller_params('startup', params)
+
+
+    def startup_ctl_get_params(self):
+
+        return self.get_controller_params('startup')
+        
+    # ------------------------------------------------------------------------
+    
+    # ------------------------------------------------------------------------
+    # --------------------------- Energy controller --------------------------
+    # ------------------------------------------------------------------------
+    def energy_ctl_enable(self, reset=True):
+
+        return self.enable_controller('energy', reset=reset)
+        
+        
+    def energy_ctl_set_time_resp(self, ts, os):
+
+        ec = lrssoc.cuk.cuk_controller.Energy()
+
+        gains = ec.gains(float(ts), float(os))
+
+        return self.set_controller_params('energy', gains)
+
+
+    def energy_ctl_get_time_resp(self):
+
+        ec = lrssoc.cuk.cuk_controller.Energy()
+        
+        status, params = self.get_controller_params('energy')
+        if status != 0:
+            return (-1, status)
+
+        return ec.time_resp_from_gains(params['k1'], params['k2'])
+
+
+    def energy_ctl_set_notch(self, fc, Q):
+
+        ec = lrssoc.cuk.cuk_controller.Energy()
+
+        status, freq = self._hw_if.get_pwm_frequency()
+        if status != 0:
+            return (-1, status)
+
+        dt = 1 / float(freq)
+
+        filt = ec.discrete_notch(float(fc), float(Q), dt)
+
+        return self.set_controller_params('energy', filt)
+
+
+    def energy_ctl_get_notch(self):
+
+        status, params = self.get_controller_params('energy')
+        if status != 0:
+            return (-1, status)
+
+        filt = {
+            'a0':params['a0'], 'a1':params['a1'], 'a2':params['a2'],
+            'b1':params['b1'], 'b2':params['b2'],
+            'notch_en':params['notch_en']
+            }
+        
+        return filt
+
+
+    def energy_ctl_enable_notch(self):
+
+        en = {'notch_en':1.0}
+        
+        return self.set_controller_params('energy', en)
+
+
+    def energy_ctl_disable_notch(self):
+
+        en = {'notch_en':0.0}
+        
+        return self.set_controller_params('energy', en)
+
+
+    def energy_ctl_status_notch(self):
+
+        status, params = self.get_controller_params('energy')
+        if status != 0:
+            return (-1, status)
+
+        en = params['notch_en']
+
+        return (0, en)
+    
+    # ------------------------------------------------------------------------
+
+    # ========================================================================
+    
+    # ========================================================================
+    # =========================== Trace functions ============================
+    # ========================================================================
+    def read_trace(self):
         """
         """
         status, (traces, trace_data) = self._tr_if.read()
@@ -178,7 +300,7 @@ class Cuk:
         return (0, (traces, trace_data, t))
 
 
-    def trace_reset(self):
+    def reset_trace(self):
         """
         """
         status, = self._tr_if.reset()
@@ -188,7 +310,7 @@ class Cuk:
         return (0,)
 
 
-    def trace_set_size(self, size):
+    def set_trace_size(self, size):
         """
         """
         status = self._tr_if.set_size(size)
@@ -198,7 +320,7 @@ class Cuk:
         return (0,)
 
 
-    def trace_get_size(self):
+    def get_trace_size(self):
         """
         """
         status, size = self._tr_if.get_size()
@@ -207,12 +329,57 @@ class Cuk:
 
         return (0, size)
 
+    # ========================================================================
+    
+    # ========================================================================
+    # ============================= HW functions =============================
+    # ========================================================================
+    
+    def get_hw_status(self):
+
+        status, hw_status = self._hw_if.get_status()
+        if status != 0:
+            return (-1, status)
+
+        return (0, hw_status)
+    
+
+    def clear_hw_status(self):
+
+        return self._hw_if.clear_status()
+
+
+    def set_load_switch(self, state):
+
+        if state != 0: state = 1
+        
+        return self._hw_if.set_load_switch( int(state) )
+    
+
+    def set_low_pass_coef(self, alpha):
+        """Sets low-pass filter coef (0 < alpha < 1).
+        """
+        return self._hw_if.set_low_pass_filt_coef(alpha)
+
+        
+    def get_low_pass_coef(self, alpha):
+        """Gets low-pass filter coef.
+        """
+        return self._hw_if.get_low_pass_filt_coef()
+        
+    # ========================================================================
+
+    # ========================================================================
+    # ============================ Plot functions ============================
+    # ========================================================================
 
     def plot(self, data, t=None, ax=None):
         self._plot.measurements(data, t)
+        
 
     def plot_energy(self, data, t=None, ax=None):
         self._plot.energy(data, t)
+        
 
     def plot_live(self, dt):
 
@@ -222,7 +389,7 @@ class Cuk:
 
         n_samples = round(dt * freq)
 
-        self.trace_set_size(n_samples)
+        self.set_trace_size(n_samples)
 
         t = 1 / freq * np.arange( n_samples )
 
@@ -230,9 +397,9 @@ class Cuk:
         fig.set_size_inches(10, 6)
 
         while True:
-            status, (traces, data, t) = self.trace_read()
+            status, (traces, data, t) = self.read_trace()
             self._plot.measurements(data, t, fig=fig)
             plt.pause(dt)
-            self.trace_reset()
-
-        
+            self.reset_trace()
+            
+    # ========================================================================

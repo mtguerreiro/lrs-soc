@@ -6,6 +6,8 @@ Module ``cuk_controller``
 """
 import lrssoc
 import struct
+import numpy as np
+import scipy.signal
 
 class References:
     """
@@ -108,7 +110,7 @@ class Energy:
         b1 = params['b1']
         b2 = params['b2']
 
-        en = params['en']
+        en = params['notch_en']
         
         data = list(struct.pack('<ffffffff', k1, k2, a0, a1, a2, b1, b2, en))
         
@@ -127,12 +129,47 @@ class Energy:
             'a2': pars[4],
             'b1': pars[5],
             'b2': pars[6],
-            'en': pars[7],
+            'notch_en': pars[7],
             }
 
         return params
     
 
+    def gains(self, ts, os):
+        
+        k1 = 16 / ts**2 * (np.pi**2 / np.log(os/100)**2 + 1)
+        k2 = 8 / ts
+
+        gains = {'k1':k1, 'k2':k2}
+
+        return gains
+
+
+    def time_resp_from_gains(self, k1, k2):
+
+        ts = 8 / k2
+        os = 100 * np.exp( -4 * np.pi / np.sqrt(k1 * ts**2 - 16) )
+
+        return (ts, os)
+    
+
+    def discrete_notch(self, fc, Q, dt):
+        
+        wc = 2 * np.pi * fc
+        
+        num = [1, 0 , wc**2]
+        den = [1, wc/Q, wc**2]
+        tf = (num, den)
+
+        num_d, den_d, _ = scipy.signal.cont2discrete(tf, dt)
+        num_d = num_d.reshape(-1) / den_d[0]
+
+        filt = {'a0':num_d[0], 'a1':num_d[1], 'a2':num_d[2], 'b1':den_d[1], 'b2':den_d[2]}
+        print(num_d, den_d)
+        
+        return filt        
+
+    
 class Controller:
     """
 

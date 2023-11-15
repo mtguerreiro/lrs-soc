@@ -56,6 +56,7 @@ class Commands:
         self.set_filter_coef = 28
         self.get_filter_coef = 29
 
+
 class MeasGains:
 
     def __init__(self):
@@ -111,15 +112,11 @@ class Hw:
     ----------
         
     """
-    def __init__(self, ocp_if, cs_id, base_clock=100000000):
+    def __init__(self, ocp_if, cs_id):
 
         self._cmd = Commands()
         self._ocp_if = ocp_if
         self._cs_id = cs_id
-
-        self._base_clock = base_clock
-
-        self._period = 500
 
 
     def set_pwm_reset(self, reset):
@@ -320,13 +317,13 @@ class Hw:
         return (status, hw_status)
 
 
-    def set_filter_coef(self, alpha):
+    def set_low_pass_filt_coef(self, alpha):
         """Sets filter coef (0 < alpha < 1).
         """
         return self._set_filter_coef(float(alpha))
 
 
-    def get_filter_coef(self):
+    def set_low_pass_filt_coef(self):
         """Gets filter coef
         """
         status, coef = self._get_filter_coef()
