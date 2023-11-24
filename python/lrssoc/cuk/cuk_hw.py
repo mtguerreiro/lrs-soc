@@ -323,7 +323,7 @@ class Hw:
         return self._set_filter_coef(float(alpha))
 
 
-    def set_low_pass_filt_coef(self):
+    def get_low_pass_filt_coef(self):
         """Gets filter coef
         """
         status, coef = self._get_filter_coef()

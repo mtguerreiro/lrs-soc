@@ -36,10 +36,13 @@ class Controllers:
     """
     def __init__(self):
         self.ctl = {
-            0 : {'id':0, 'if':None},
-            'startup' : {'id':1, 'if':Startup()},
-            'ol' : {'id':2, 'if':OL()},
-            'energy' : {'id':3, 'if':Energy()},
+            0            : {'id':0, 'if':None},
+            'startup'    : {'id':1, 'if':Startup()},
+            'ol'         : {'id':2, 'if':OL()},
+            'energy'     : {'id':3, 'if':Energy()},
+            'energy_int' : {'id':4, 'if':EnergyInt()},
+            'sfb' :        {'id':5, 'if':SFB()},
+            'sfb_int' :    {'id':6, 'if':SFBINT()},
             }
 
 
@@ -169,7 +172,354 @@ class Energy:
         
         return filt        
 
+
+class EnergyInt:
+    def __init__(self):
+        pass
     
+
+    def set(self, params):
+
+        k1 = params['k1']
+        k2 = params['k2']
+        k3 = params['k3']
+        dt = params['dt']
+        
+        a0 = params['a0']
+        a1 = params['a1']
+        a2 = params['a2']
+
+        b1 = params['b1']
+        b2 = params['b2']
+
+        en = params['notch_en']
+        
+        data = list(struct.pack('<ffffffffff', k1, k2, k3, dt, a0, a1, a2, b1, b2, en))
+        
+        return data
+    
+
+    def get(self, data):
+
+        pars = struct.unpack('<ffffffffff', data)
+
+        params = {
+            'k1': pars[0],
+            'k2': pars[1],
+            'k3': pars[2],
+            'dt': pars[3],
+            'a0': pars[4],
+            'a1': pars[5],
+            'a2': pars[6],
+            'b1': pars[7],
+            'b2': pars[8],
+            'notch_en': pars[9],
+            }
+
+        return params
+    
+
+    def gains(self, ts, os, alpha=10.0, dt=1.0):
+
+        # Poles
+        zeta = -np.log(os) / np.sqrt(np.pi**2 + (np.log(os))**2)
+        wn = 4/ts/zeta
+        
+
+        p1 = -zeta * wn + wn * np.sqrt(zeta**2 - 1, dtype=complex)
+        p2 = np.conj(p1)
+        p3 = alpha * p1.real
+
+        poles =[p1, p2, p3]
+        
+        # Augmented model        
+        A = np.array([[ 0.0, 1.0, 0.0],
+                      [ 0.0, 0.0, 0.0],
+                      [-1.0, 0.0, 0.0]])
+
+        B = np.array([[0.0], [1.0], [0.0]])
+
+        # Gains
+        K = scipy.signal.place_poles(A, B, poles).gain_matrix.reshape(-1)
+
+        gains = {'k1':K[0], 'k2':K[1], 'k3':K[2], 'dt':dt}
+
+        return gains
+    
+
+    def discrete_notch(self, fc, Q, dt):
+        
+        wc = 2 * np.pi * fc
+        
+        num = [1, 0 , wc**2]
+        den = [1, wc/Q, wc**2]
+        tf = (num, den)
+
+        num_d, den_d, _ = scipy.signal.cont2discrete(tf, dt)
+        num_d = num_d.reshape(-1) / den_d[0]
+
+        filt = {'a0':num_d[0], 'a1':num_d[1], 'a2':num_d[2], 'b1':den_d[1], 'b2':den_d[2]}
+        print(num_d, den_d)
+        
+        return filt
+
+
+class SFB:
+    def __init__(self, model_params={}):
+
+        self._params = {}
+
+        self._params['V_in'] = 20
+        self._params['Vo'] = 30
+        self._params['Po'] = 120
+
+        self._params['L1'] = 100e-6
+        self._params['L2'] = 150e-6
+        self._params['Cc'] = 9.4e-6
+        self._params['Co'] = 330e-6
+
+        self._params['N'] = 5/3
+
+        for p, v in model_params.items():
+            if p in self._params:
+                self._params[p] = v
+
+
+    def set(self, params):
+
+        k1 = params['k1']
+        k2 = params['k2']
+        k3 = params['k3']
+        k4 = params['k4']
+        
+        x1s = params['x1s']
+        x2s = params['x2s']
+        x3s = params['x3s']
+        x4s = params['x4s']
+
+        us = params['us']
+        
+        data = list(struct.pack('<fffffffff', k1, k2, k3, k4, x1s, x2s, x3s, x4s, us))
+        
+        return data
+    
+
+    def get(self, data):
+
+        pars = struct.unpack('<fffffffff', data)
+
+        params = {
+            'k1': pars[0],
+            'k2': pars[1],
+            'k3': pars[2],
+            'k4': pars[3],
+            'x1s': pars[4],
+            'x2s': pars[5],
+            'x3s': pars[6],
+            'x4s': pars[7],
+            'us': pars[8],
+            }
+
+        return params
+    
+
+    def params(self, ts, model_params={}):
+
+        for p, v in model_params.items():
+            if p in self.params:
+                self.params[p] = v
+                
+        V_in = self._params['V_in']
+        Vo = self._params['Vo']
+        Po = self._params['Po']
+
+        L1 = self._params['L1']
+        L2 = self._params['L2']
+        Cc = self._params['Cc']
+        Co = self._params['Co']
+
+        N = self._params['N']
+
+        # Steady-state
+        Io = Po / Vo
+        d = Vo / (Vo + N * V_in)
+        Vc = V_in + (1 / N) * Vo
+        I_1 = Vo * Io / V_in
+        I_2 = Io
+
+        # Linearized model
+        a11 = -0/L1;                             a12 = 0;                                     a13 = -(1 - d) / L1;     a14 = 0
+        a21 = 0;                                 a22 = -0/L2;                                 a23 = N * d / L2;        a24 = -1 / L2
+        a31 = (N**2+1)/N**2 * (1 - d) / (Cc);    a32 = -(N**2+1)/N * d / (Cc);                a33 = 0;                 a34 = 0
+        a41 = 0;                                 a42 = 1 / Co;                                a43 = 0;                 a44 = Po / (Co * Vo**2)#(-1/11)#
+
+        A = np.array([[a11, a12, a13, a14],
+                      [a21, a22, a23, a24],
+                      [a31, a32, a33, a34],
+                      [a41, a42, a43, a44]])
+
+        b11 = Vc / L1; b21 = N * Vc / L2; b31 = -(N**2 + 1) / N**2 * (I_1 + N * I_2) / Cc; b41 = 0
+
+        B = np.array([ [b11], [b21], [b31], [b41] ])
+
+        C = np.array([0, 0, 0, 1])
+
+        # Poles
+        wn = 2.2 / ts
+        
+        p1 = -wn
+        p2 = 5*p1
+        p3 = 8*p1
+        p4 = 12*p1
+
+        poles = [p1, p2, p3, p4]
+        
+        # State feedback
+        K = scipy.signal.place_poles(A, B, poles).gain_matrix[0]
+
+        ctl_params = {'k1':K[0], 'k2':K[1], 'k3':K[2], 'k4':K[3],
+                      'x1s':I_1, 'x2s':I_2, 'x3s':Vc, 'x4s':Vo,
+                      'us':d}
+
+        return ctl_params
+
+
+
+class SFBINT:
+    def __init__(self, model_params={}):
+
+        self._params = {}
+
+        self._params['V_in'] = 20
+        self._params['Vo'] = 30
+        self._params['Po'] = 120
+
+        self._params['L1'] = 100e-6
+        self._params['L2'] = 150e-6
+        self._params['Cc'] = 9.4e-6
+        self._params['Co'] = 330e-6
+
+        self._params['N'] = 5/3
+
+        for p, v in model_params.items():
+            if p in self._params:
+                self._params[p] = v
+
+
+    def set(self, params):
+
+        k1 = params['k1']
+        k2 = params['k2']
+        k3 = params['k3']
+        k4 = params['k4']
+        ke = params['ke']
+        dt = params['dt']
+        
+        x1s = params['x1s']
+        x2s = params['x2s']
+        x3s = params['x3s']
+        x4s = params['x4s']
+
+        us = params['us']
+        
+        data = list(struct.pack('<fffffffffff', k1, k2, k3, k4, ke, dt, x1s, x2s, x3s, x4s, us))
+        
+        return data
+    
+
+    def get(self, data):
+
+        pars = struct.unpack('<fffffffffff', data)
+
+        params = {
+            'k1': pars[0],
+            'k2': pars[1],
+            'k3': pars[2],
+            'k4': pars[3],
+            'ke': pars[4],
+            'dt': pars[5],
+            'x1s': pars[6],
+            'x2s': pars[7],
+            'x3s': pars[8],
+            'x4s': pars[9],
+            'us': pars[10],
+            }
+
+        return params
+    
+
+    def params(self, ts, dt=1/100e3, model_params={}):
+
+        for p, v in model_params.items():
+            if p in self.params:
+                self.params[p] = v
+                
+        V_in = self._params['V_in']
+        Vo = self._params['Vo']
+        Po = self._params['Po']
+
+        L1 = self._params['L1']
+        L2 = self._params['L2']
+        Cc = self._params['Cc']
+        Co = self._params['Co']
+
+        N = self._params['N']
+
+        # Steady-state
+        Io = Po / Vo
+        d = Vo / (Vo + N * V_in)
+        Vc = V_in + (1 / N) * Vo
+        I_1 = Vo * Io / V_in
+        I_2 = Io
+
+        # Linearized model
+        a11 = -0/L1;                             a12 = 0;                                     a13 = -(1 - d) / L1;     a14 = 0
+        a21 = 0;                                 a22 = -0/L2;                                 a23 = N * d / L2;        a24 = -1 / L2
+        a31 = (N**2+1)/N**2 * (1 - d) / (Cc);    a32 = -(N**2+1)/N * d / (Cc);                a33 = 0;                 a34 = 0
+        a41 = 0;                                 a42 = 1 / Co;                                a43 = 0;                 a44 = Po / (Co * Vo**2)#(-1/11)#
+
+        A = np.array([[a11, a12, a13, a14],
+                      [a21, a22, a23, a24],
+                      [a31, a32, a33, a34],
+                      [a41, a42, a43, a44]])
+
+        b11 = Vc / L1; b21 = N * Vc / L2; b31 = -(N**2 + 1) / N**2 * (I_1 + N * I_2) / Cc; b41 = 0
+
+        B = np.array([ [b11], [b21], [b31], [b41] ])
+
+        C = np.array([0, 0, 0, 1])
+
+        # Augmented model
+        n_st = A.shape[0]
+        Aa = np.zeros((n_st+1, n_st+1))
+        Aa[:n_st, :n_st] = A
+        Aa[-1, :n_st] = -C
+
+        Ba = np.zeros((n_st + 1, 1))
+        Ba[:n_st, 0] = B[:, 0]
+
+        # Poles
+        wn = 2.2 / ts
+        
+        p1 = -wn
+        p2 = 5*p1
+        p3 = 8*p1
+        p4 = 12*p1
+        p5 = 15*p1
+
+        poles = [p1, p2, p3, p4, p5]
+        
+        # State feedback
+        K = scipy.signal.place_poles(Aa, Ba, poles).gain_matrix[0]
+
+        ctl_params = {'k1':K[0], 'k2':K[1], 'k3':K[2], 'k4':K[3],
+                      'ke':K[4], 'dt':dt,
+                      'x1s':I_1, 'x2s':I_2, 'x3s':Vc, 'x4s':Vo,
+                      'us':d}
+
+        return ctl_params
+
+
 class Controller:
     """
 

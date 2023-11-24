@@ -254,6 +254,10 @@ int32_t cukHwGetMeasurements(void *meas){
     src = (uint16_t *)CUK_HW_CONFIG_ADC_BUFFER;
     dst = (cukConfigMeasurements_t *)meas;
 
+
+    //-------------------------------------------------------------------------
+    // Sensor-based measurements
+    //-------------------------------------------------------------------------
     /*
      * Skips the first adc channel of header. Each Cuk connector has five
      * measurements, but the ADC board has 6 channels. Thus, we skip the
@@ -276,7 +280,11 @@ int32_t cukHwGetMeasurements(void *meas){
     dst->v_out =    hwControl.gains.v_out_gain * ((float)(*src++)) + hwControl.gains.v_out_ofs;
     dst->v_dc_out = hwControl.gains.v_dc_out_gain * ((float)(*src++)) + hwControl.gains.v_dc_out_ofs;
     dst->v_2 =      hwControl.gains.v_2_gain * ((float)(*src++)) + hwControl.gains.v_2_ofs;
+    //-------------------------------------------------------------------------
 
+    //-------------------------------------------------------------------------
+    // Software-based measurements
+    //-------------------------------------------------------------------------
     dst->i_i_filt = 0.0f;
     dst->i_1_filt = 0.0f;
 
@@ -291,17 +299,6 @@ int32_t cukHwGetMeasurements(void *meas){
     dst->v_dc_out_filt = 0.0f;
     dst->v_2_filt =      0.0f;
 
-    /* Protection */
-    if( (dst->i_i > CUK_CONFIG_I_PRIM_LIM) || (dst->i_1 > CUK_CONFIG_I_PRIM_LIM) ) hwControl.status = 1;
-    if( (dst->i_i < -CUK_CONFIG_I_PRIM_LIM) || (dst->i_1 < -CUK_CONFIG_I_PRIM_LIM) ) hwControl.status = 1;
-
-    if( (dst->v_in > CUK_CONFIG_V_PRIM_LIM) || (dst->v_dc > CUK_CONFIG_V_PRIM_LIM) ) hwControl.status = 1;
-
-    if( (dst->i_o > CUK_CONFIG_I_SEC_LIM) || (dst->i_2 > CUK_CONFIG_I_SEC_LIM) ) hwControl.status = 1;
-    if( (dst->i_o < -CUK_CONFIG_I_SEC_LIM) || (dst->i_2 < -CUK_CONFIG_I_SEC_LIM) ) hwControl.status = 1;
-
-    if( (dst->v_out > CUK_CONFIG_V_SEC_LIM) || (dst->v_dc_out > CUK_CONFIG_V_SEC_LIM) ) hwControl.status = 1;
-
     i_1_filt = cukHwExpMovAvg(dst->i_1, i_1_filt);
     dst->i_1_filt = i_1_filt;
 
@@ -313,6 +310,21 @@ int32_t cukHwGetMeasurements(void *meas){
 
     i_2_filt = cukHwExpMovAvg(dst->i_2, i_2_filt);
     dst->i_2_filt = i_2_filt;
+
+    dst->p_in = dst->i_1 * dst->v_dc;
+    dst->p_out = i_o_filt * dst->v_dc_out;
+    //-------------------------------------------------------------------------
+
+    /* Protection */
+    if( (dst->i_i > CUK_CONFIG_I_PRIM_LIM) || (dst->i_1 > CUK_CONFIG_I_PRIM_LIM) ) hwControl.status = 1;
+    if( (dst->i_i < -CUK_CONFIG_I_PRIM_LIM) || (dst->i_1 < -CUK_CONFIG_I_PRIM_LIM) ) hwControl.status = 1;
+
+    if( (dst->v_in > CUK_CONFIG_V_PRIM_LIM) || (dst->v_dc > CUK_CONFIG_V_PRIM_LIM) ) hwControl.status = 1;
+
+    if( (dst->i_o > CUK_CONFIG_I_SEC_LIM) || (dst->i_2 > CUK_CONFIG_I_SEC_LIM) ) hwControl.status = 1;
+    if( (dst->i_o < -CUK_CONFIG_I_SEC_LIM) || (dst->i_2 < -CUK_CONFIG_I_SEC_LIM) ) hwControl.status = 1;
+
+    if( (dst->v_out > CUK_CONFIG_V_SEC_LIM) || (dst->v_dc_out > CUK_CONFIG_V_SEC_LIM) ) hwControl.status = 1;
 
     if( hwControl.status != 0 ){
         cukHwSetPwmOutputEnable(0);

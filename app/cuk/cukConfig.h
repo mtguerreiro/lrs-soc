@@ -19,6 +19,9 @@
 //=============================================================================
 typedef struct{
 
+    //---------------------------------
+    // Sensor-based measurements
+    //---------------------------------
     float i_i;
     float i_1;
     float v_in;
@@ -30,7 +33,11 @@ typedef struct{
     float v_out;
     float v_dc_out;
     float v_2;
+    //---------------------------------
 
+    //---------------------------------
+    // Software-based measurements
+    //---------------------------------
     float i_i_filt;
     float i_1_filt;
     float v_in_filt;
@@ -43,6 +50,10 @@ typedef struct{
     float v_dc_out_filt;
     float v_2_filt;
     
+    float p_in;
+    float p_out;
+    //---------------------------------
+
 }cukConfigMeasurements_t;
 
 typedef struct{
@@ -103,9 +114,9 @@ typedef struct{
 #define CUK_CONFIG_C_C                      ((float)(9.4e-6))
 #define CUK_CONFIG_C_O                      ((float)(330e-6))
 
-#define CUK_CONFIG_I_PRIM_LIM               (15.0f)
+#define CUK_CONFIG_I_PRIM_LIM               (25.0f)
 #define CUK_CONFIG_V_PRIM_LIM               (55.0f)
-#define CUK_CONFIG_I_SEC_LIM                (15.0f)
+#define CUK_CONFIG_I_SEC_LIM                (25.0f)
 #define CUK_CONFIG_V_SEC_LIM                (55.0f)
 
 //=============================================================================

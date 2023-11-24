@@ -20,6 +20,9 @@
 #include "cukControlDisabled.h"
 #include "cukControlStartup.h"
 #include "cukControlEnergy.h"
+#include "cukControlEnergyInt.h"
+#include "cukControlSfb.h"
+#include "cukControlSfbInt.h"
 
 //=============================================================================
 
@@ -166,6 +169,24 @@ static void cukControllerInitializeControllers(void){
     controllers.getParams[CUK_CONTROLLER_ENERGY] = cukControlEnergyGetParams;
     controllers.run[CUK_CONTROLLER_ENERGY] = cukControlEnergyRun;
     controllers.reset[CUK_CONTROLLER_ENERGY] = cukControlEnergyReset;
+
+    controllers.initialize[CUK_CONTROLLER_ENERGY_INT] = cukControlEnergyIntInitialize;
+    controllers.setParams[CUK_CONTROLLER_ENERGY_INT] = cukControlEnergyIntSetParams;
+    controllers.getParams[CUK_CONTROLLER_ENERGY_INT] = cukControlEnergyIntGetParams;
+    controllers.run[CUK_CONTROLLER_ENERGY_INT] = cukControlEnergyIntRun;
+    controllers.reset[CUK_CONTROLLER_ENERGY_INT] = cukControlEnergyIntReset;
+
+    controllers.initialize[CUK_CONTROLLER_SFB] = cukControlSfbInitialize;
+    controllers.setParams[CUK_CONTROLLER_SFB] = cukControlSfbSetParams;
+    controllers.getParams[CUK_CONTROLLER_SFB] = cukControlSfbGetParams;
+    controllers.run[CUK_CONTROLLER_SFB] = cukControlSfbRun;
+    controllers.reset[CUK_CONTROLLER_SFB] = cukControlSfbReset;
+
+    controllers.initialize[CUK_CONTROLLER_SFB_INT] = cukControlSfbIntInitialize;
+    controllers.setParams[CUK_CONTROLLER_SFB_INT] = cukControlSfbIntSetParams;
+    controllers.getParams[CUK_CONTROLLER_SFB_INT] = cukControlSfbIntGetParams;
+    controllers.run[CUK_CONTROLLER_SFB_INT] = cukControlSfbIntRun;
+    controllers.reset[CUK_CONTROLLER_SFB_INT] = cukControlSfbIntReset;
 
     /* Initializes all registered controllers */
     for(k = 0; k < CUK_CONTROLLER_END; k++){

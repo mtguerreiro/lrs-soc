@@ -180,9 +180,9 @@ class Cuk:
     def startup_ctl_set_params(self, uinc=None, ufinal=None):
 
         params = {}
-        if uinc:
+        if uinc is not None:
             params['uinc'] = float(uinc)
-        if ufinal:
+        if ufinal is not None:
             params['ufinal'] = float(ufinal)
 
         return self.set_controller_params('startup', params)
@@ -219,7 +219,9 @@ class Cuk:
         if status != 0:
             return (-1, status)
 
-        return ec.time_resp_from_gains(params['k1'], params['k2'])
+        return params['k1'], params['k2']
+
+        #return ec.time_resp_from_gains(params['k1'], params['k2'])
 
 
     def energy_ctl_set_notch(self, fc, Q):
@@ -277,6 +279,150 @@ class Cuk:
         return (0, en)
     
     # ------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------
+    # ------------------------- EnergyInt controller -------------------------
+    # ------------------------------------------------------------------------
+    def energy_int_ctl_enable(self, reset=True):
+
+        return self.enable_controller('energy_int', reset=reset)
+        
+        
+    def energy_int_ctl_set_time_resp(self, ts, os, alpha=5.0):
+
+        status, freq = self._hw_if.get_pwm_frequency()
+        if status != 0:
+            return (-1, status)
+
+        dt = float(1) / float(freq)
+        
+        ec = lrssoc.cuk.cuk_controller.EnergyInt()
+
+        gains = ec.gains(float(ts), float(os), dt=dt, alpha=alpha)
+
+        return self.set_controller_params('energy_int', gains)
+
+
+    def energy_int_ctl_set_notch(self, fc, Q):
+
+        ec = lrssoc.cuk.cuk_controller.EnergyInt()
+
+        status, freq = self._hw_if.get_pwm_frequency()
+        if status != 0:
+            return (-1, status)
+
+        dt = 1 / float(freq)
+
+        filt = ec.discrete_notch(float(fc), float(Q), dt)
+
+        return self.set_controller_params('energy_int', filt)
+
+
+    def energy_int_ctl_get_notch(self):
+
+        status, params = self.get_controller_params('energy_int')
+        if status != 0:
+            return (-1, status)
+
+        filt = {
+            'a0':params['a0'], 'a1':params['a1'], 'a2':params['a2'],
+            'b1':params['b1'], 'b2':params['b2'],
+            'notch_en':params['notch_en']
+            }
+        
+        return filt
+
+
+    def energy_int_ctl_enable_notch(self):
+
+        en = {'notch_en':1.0}
+        
+        return self.set_controller_params('energy_int', en)
+
+
+    def energy_int_ctl_disable_notch(self):
+
+        en = {'notch_en':0.0}
+        
+        return self.set_controller_params('energy_int', en)
+
+
+    def energy_int_ctl_status_notch(self):
+
+        status, params = self.get_controller_params('energy_int')
+        if status != 0:
+            return (-1, status)
+
+        en = params['notch_en']
+
+        return (0, en)
+    
+    # ------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------
+    # ---------------------------- State feedback ----------------------------
+    # ------------------------------------------------------------------------
+    def sfb_ctl_enable(self, reset=True):
+
+        return self.enable_controller('sfb', reset=reset)
+        
+        
+    def sfb_ctl_set_time_resp(self, ts):
+
+        sfbc = lrssoc.cuk.cuk_controller.SFB()
+
+        params = sfbc.params(float(ts))
+
+        return self.set_controller_params('sfb', params)
+
+
+    def sfb_ctl_get_time_resp(self):
+
+        #sfbc = lrssoc.cuk.cuk_controller.SFB()
+        
+        status, params = self.get_controller_params('sfb')
+        if status != 0:
+            return (-1, status)
+
+        return params
+    
+    # ------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------
+    # ------------------------- State feedback + int -------------------------
+    # ------------------------------------------------------------------------
+    def sfb_int_ctl_enable(self, reset=True):
+
+        return self.enable_controller('sfb_int', reset=reset)
+        
+        
+    def sfb_int_ctl_set_time_resp(self, ts):
+
+        status, freq = self._hw_if.get_pwm_frequency()
+        if status != 0:
+            return (-1, status)
+
+        dt = 1 / float(freq)
+        
+        sfbc = lrssoc.cuk.cuk_controller.SFBINT()
+
+        params = sfbc.params(float(ts), dt=dt)
+
+        return self.set_controller_params('sfb_int', params)
+
+
+    def sfb_int_ctl_get_time_resp(self):
+
+        #sfbc = lrssoc.cuk.cuk_controller.SFBINT()
+        
+        status, params = self.get_controller_params('sfb_int')
+        if status != 0:
+            return (-1, status)
+
+        return params
+    
+    # ------------------------------------------------------------------------
+
 
     # ========================================================================
     
@@ -362,7 +508,7 @@ class Cuk:
         return self._hw_if.set_low_pass_filt_coef(alpha)
 
         
-    def get_low_pass_coef(self, alpha):
+    def get_low_pass_coef(self):
         """Gets low-pass filter coef.
         """
         return self._hw_if.get_low_pass_filt_coef()

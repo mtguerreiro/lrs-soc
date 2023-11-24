@@ -196,6 +196,9 @@ static int32_t ocpZynqCpu1InitializeTracesMeas(void){
     ocpTraceAddSignal(OCP_TRACE_1, &meas->i_o_filt, "Io filt");
     ocpTraceAddSignal(OCP_TRACE_1, &meas->i_2_filt, "I2 filt");
 
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->p_in, "Input power");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->p_out, "Output power");
+
     return 0;
 }
 //-----------------------------------------------------------------------------

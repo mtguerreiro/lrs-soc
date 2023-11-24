@@ -1,2 +1,4 @@
 app/cuk/cukControlEnergy.c
 app/cuk/cukControlEnergy.h
+app/cuk/cukControlEnergyInt.c
+app/cuk/cukControlEnergyInt.h

@@ -178,6 +178,9 @@ int32_t cukHwOpilGetMeasurements(void *meas){
     i_2_filt = cukHwOpilExpMovAvg(cukmeas->i_2, i_2_filt);
     cukmeas->i_2_filt = i_2_filt;
 
+    cukmeas->p_in = cukmeas->i_1 * cukmeas->v_dc;
+    cukmeas->p_out = i_o_filt * cukmeas->v_dc_out;
+
     if( hwControl.status != 0 ){
         cukOpilSetPwmDuty(0.0f);
         return -1;
