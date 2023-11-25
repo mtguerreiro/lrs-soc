@@ -23,6 +23,7 @@
 #include "cukControlEnergyInt.h"
 #include "cukControlSfb.h"
 #include "cukControlSfbInt.h"
+#include "cukControlPch.h"
 
 //=============================================================================
 
@@ -187,6 +188,12 @@ static void cukControllerInitializeControllers(void){
     controllers.getParams[CUK_CONTROLLER_SFB_INT] = cukControlSfbIntGetParams;
     controllers.run[CUK_CONTROLLER_SFB_INT] = cukControlSfbIntRun;
     controllers.reset[CUK_CONTROLLER_SFB_INT] = cukControlSfbIntReset;
+
+    controllers.initialize[CUK_CONTROLLER_PCH] = cukControlPchInitialize;
+    controllers.setParams[CUK_CONTROLLER_PCH] = cukControlPchSetParams;
+    controllers.getParams[CUK_CONTROLLER_PCH] = cukControlPchGetParams;
+    controllers.run[CUK_CONTROLLER_PCH] = cukControlPchRun;
+    controllers.reset[CUK_CONTROLLER_PCH] = cukControlPchReset;
 
     /* Initializes all registered controllers */
     for(k = 0; k < CUK_CONTROLLER_END; k++){

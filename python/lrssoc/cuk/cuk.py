@@ -424,6 +424,33 @@ class Cuk:
     # ------------------------------------------------------------------------
 
 
+    # ------------------------------------------------------------------------
+    # --------------------------------- PCH ----------------------------------
+    # ------------------------------------------------------------------------
+    def pch_ctl_enable(self, reset=True):
+
+        return self.enable_controller('pch', reset=reset)
+        
+        
+    def pch_ctl_set_gains(self, kj2=4405286.343612335, kj3=-5988023.952095808, kr2=5286343.612334802):
+
+        pchc = lrssoc.cuk.cuk_controller.PCH()
+
+        params = pchc.params(float(kj2), float(kj3), float(kr2))
+
+        return self.set_controller_params('pch', params)
+
+
+    def pch_ctl_get_gains(self):
+        
+        status, params = self.get_controller_params('pch')
+        if status != 0:
+            return (-1, status)
+
+        return params
+    
+    # ------------------------------------------------------------------------
+    
     # ========================================================================
     
     # ========================================================================

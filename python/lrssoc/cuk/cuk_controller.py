@@ -41,8 +41,9 @@ class Controllers:
             'ol'         : {'id':2, 'if':OL()},
             'energy'     : {'id':3, 'if':Energy()},
             'energy_int' : {'id':4, 'if':EnergyInt()},
-            'sfb' :        {'id':5, 'if':SFB()},
-            'sfb_int' :    {'id':6, 'if':SFBINT()},
+            'sfb'        : {'id':5, 'if':SFB()},
+            'sfb_int'    : {'id':6, 'if':SFBINT()},
+            'pch'        : {'id':7, 'if':PCH()},
             }
 
 
@@ -519,6 +520,90 @@ class SFBINT:
 
         return ctl_params
 
+
+
+class PCH:
+    def __init__(self, model_params={}):
+
+        self._params = {}
+
+        self._params['V_in'] = 20
+        self._params['Vo'] = 30
+        self._params['Po'] = 120
+
+        self._params['L1'] = 100e-6
+        self._params['L2'] = 150e-6
+        self._params['Cc'] = 9.4e-6
+        self._params['Co'] = 330e-6
+
+        self._params['N'] = 5/3
+
+        for p, v in model_params.items():
+            if p in self._params:
+                self._params[p] = v
+
+
+    def set(self, params):
+
+        kj2 = params['kj2']
+        kj3 = params['kj3']
+        kr2 = params['kr2']
+
+        data = list(struct.pack('<fff', kj2, kj3, kr2))
+        
+        return data
+    
+
+    def get(self, data):
+
+        pars = struct.unpack('<fff', data)
+
+        V_in = self._params['V_in']
+        Vo = self._params['Vo']
+        Po = self._params['Po']
+
+        L1 = self._params['L1']
+        L2 = self._params['L2']
+        Cc = self._params['Cc']
+        Co = self._params['Co']
+
+        N = self._params['N']
+        
+        params = {
+            'kj2': pars[0] / ((N**2+1)/N * L2 * Co),
+            'kj3': pars[1] / (N * L2 * Co),
+            'kr2': pars[2] / ((N**2+1)/N * L2**2),
+            }
+
+        return params
+    
+
+    def params(self, kj2=4405286.343612335, kj3=-5988023.952095808, kr2=5286343.612334802, model_params={}):
+
+        for p, v in model_params.items():
+            if p in self.params:
+                self.params[p] = v
+                
+        V_in = self._params['V_in']
+        Vo = self._params['Vo']
+        Po = self._params['Po']
+
+        L1 = self._params['L1']
+        L2 = self._params['L2']
+        Cc = self._params['Cc']
+        Co = self._params['Co']
+
+        N = self._params['N']
+
+        # Steady-state
+        kj2p = kj2 * (N**2+1)/N * L2 * Co
+        kj3p = kj3 * N * L2 * Co
+        kr2p = kr2 * (N**2+1)/N * L2**2
+
+        ctl_params = {'kj2':kj2p, 'kj3':kj3p, 'kr2':kr2p}
+
+        return ctl_params
+    
 
 class Controller:
     """
