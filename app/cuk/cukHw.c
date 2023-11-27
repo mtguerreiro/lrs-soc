@@ -319,15 +319,16 @@ int32_t cukHwGetMeasurements(void *meas){
     if( (dst->i_i > CUK_CONFIG_I_PRIM_LIM) || (dst->i_1 > CUK_CONFIG_I_PRIM_LIM) ) hwControl.status = 1;
     if( (dst->i_i < -CUK_CONFIG_I_PRIM_LIM) || (dst->i_1 < -CUK_CONFIG_I_PRIM_LIM) ) hwControl.status = 1;
 
-    if( (dst->v_in > CUK_CONFIG_V_PRIM_LIM) || (dst->v_dc > CUK_CONFIG_V_PRIM_LIM) ) hwControl.status = 1;
+    if( (dst->v_in > CUK_CONFIG_V_PRIM_LIM) || (dst->v_dc > CUK_CONFIG_V_PRIM_LIM) || (dst->v_1 > CUK_CONFIG_V_PRIM_LIM) ) hwControl.status = 1;
 
     if( (dst->i_o > CUK_CONFIG_I_SEC_LIM) || (dst->i_2 > CUK_CONFIG_I_SEC_LIM) ) hwControl.status = 1;
     if( (dst->i_o < -CUK_CONFIG_I_SEC_LIM) || (dst->i_2 < -CUK_CONFIG_I_SEC_LIM) ) hwControl.status = 1;
 
-    if( (dst->v_out > CUK_CONFIG_V_SEC_LIM) || (dst->v_dc_out > CUK_CONFIG_V_SEC_LIM) ) hwControl.status = 1;
+    if( (dst->v_out > CUK_CONFIG_V_SEC_LIM) || (dst->v_dc_out > CUK_CONFIG_V_SEC_LIM) || (dst->v_2 > CUK_CONFIG_V_SEC_LIM) ) hwControl.status = 1;
 
     if( hwControl.status != 0 ){
-        cukHwSetPwmOutputEnable(0);
+        //cukHwSetPwmOutputEnable(0);
+        cukHwShutDown();
         return -1;
     }
     else
@@ -439,6 +440,21 @@ void cukHwSetFilterCoef(float alpha){
 float cukHwGetFilterCoef(void){
 
     return hwControl.alpha;
+}
+//-----------------------------------------------------------------------------
+void cukHwShutDown(void){
+
+    float u;
+
+    u = cukHwGetPwmDuty();
+
+    u = u - CUK_CONFIG_SHUTDOWN_U_DEC;
+    if( u < 0.0f ){
+        cukHwSetPwmOutputEnable(0);
+        u = 0.0f;
+    }
+
+    cukHwSetPwmDuty(u);
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
