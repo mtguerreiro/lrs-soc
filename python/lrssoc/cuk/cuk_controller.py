@@ -270,8 +270,8 @@ class SFB:
 
         self._params = {}
 
-        self._params['V_in'] = 20
-        self._params['Vo'] = 30
+        self._params['V_in'] = 25
+        self._params['Vo'] = 25
         self._params['Po'] = 120
 
         self._params['L1'] = 100e-6
@@ -391,8 +391,8 @@ class SFBINT:
 
         self._params = {}
 
-        self._params['V_in'] = 20
-        self._params['Vo'] = 30
+        self._params['V_in'] = 25
+        self._params['Vo'] = 25
         self._params['Po'] = 120
 
         self._params['L1'] = 100e-6
@@ -449,7 +449,7 @@ class SFBINT:
         return params
     
 
-    def params(self, ts, dt=1/100e3, model_params={}):
+    def params(self, ts, os, dt=1/100e3, model_params={}):
 
         for p, v in model_params.items():
             if p in self.params:
@@ -500,13 +500,24 @@ class SFBINT:
         Ba[:n_st, 0] = B[:, 0]
 
         # Poles
-        wn = 2.2 / ts
-        
-        p1 = -wn
-        p2 = 5*p1
-        p3 = 8*p1
-        p4 = 12*p1
-        p5 = 15*p1
+        #wn = 2.2 / ts
+        #os = 1
+        zeta = -np.log(os/100) / np.sqrt( np.pi**2 + (np.log(os/100))**2 )
+        wn = 4 / zeta / ts
+
+
+        p1 = -zeta*wn + wn * np.emath.sqrt(zeta**2 - 1)
+        p2 = -zeta*wn - wn * np.emath.sqrt(zeta**2 - 1)
+
+        p3 = 5*p1.real
+        p4 = 10*p1.real
+        p5 = 15*p1.real
+
+        #p1 = -wn
+        #p2 = 5*p1
+        #p3 = 8*p1
+        #p4 = 12*p1
+        #p5 = 15*p1
 
         poles = [p1, p2, p3, p4, p5]
         
@@ -519,7 +530,6 @@ class SFBINT:
                       'us':d}
 
         return ctl_params
-
 
 
 class PCH:

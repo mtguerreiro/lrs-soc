@@ -396,7 +396,7 @@ class Cuk:
         return self.enable_controller('sfb_int', reset=reset)
         
         
-    def sfb_int_ctl_set_time_resp(self, ts):
+    def sfb_int_ctl_set_time_resp(self, ts, os):
 
         status, freq = self._hw_if.get_pwm_frequency()
         if status != 0:
@@ -406,7 +406,7 @@ class Cuk:
         
         sfbc = lrssoc.cuk.cuk_controller.SFBINT()
 
-        params = sfbc.params(float(ts), dt=dt)
+        params = sfbc.params(float(ts), float(os), dt=dt)
 
         return self.set_controller_params('sfb_int', params)
 

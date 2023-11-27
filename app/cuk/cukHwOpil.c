@@ -159,12 +159,12 @@ int32_t cukHwOpilGetMeasurements(void *meas){
     if( (cukmeas->i_i > CUK_CONFIG_I_PRIM_LIM) || (cukmeas->i_1 > CUK_CONFIG_I_PRIM_LIM) ) hwControl.status = 1;
     if( (cukmeas->i_i < -CUK_CONFIG_I_PRIM_LIM) || (cukmeas->i_1 < -CUK_CONFIG_I_PRIM_LIM) ) hwControl.status = 1;
 
-    if( (cukmeas->v_in > CUK_CONFIG_V_PRIM_LIM) || (cukmeas->v_dc > CUK_CONFIG_V_PRIM_LIM) ) hwControl.status = 1;
+    if( (cukmeas->v_in > CUK_CONFIG_V_PRIM_LIM) || (cukmeas->v_dc > CUK_CONFIG_V_PRIM_LIM) || (cukmeas->v_1 > CUK_CONFIG_V_PRIM_LIM) ) hwControl.status = 1;
 
     if( (cukmeas->i_o > CUK_CONFIG_I_SEC_LIM) || (cukmeas->i_2 > CUK_CONFIG_I_SEC_LIM) ) hwControl.status = 1;
     if( (cukmeas->i_o < -CUK_CONFIG_I_SEC_LIM) || (cukmeas->i_2 < -CUK_CONFIG_I_SEC_LIM) ) hwControl.status = 1;
 
-    if( (cukmeas->v_out > CUK_CONFIG_V_SEC_LIM) || (cukmeas->v_dc_out > CUK_CONFIG_V_SEC_LIM) ) hwControl.status = 1;
+    if( (cukmeas->v_out > CUK_CONFIG_V_SEC_LIM) || (cukmeas->v_dc_out > CUK_CONFIG_V_SEC_LIM) || (cukmeas->v_2 > CUK_CONFIG_V_SEC_LIM) ) hwControl.status = 1;
 
     i_1_filt = cukHwOpilExpMovAvg(cukmeas->i_1, i_1_filt);
     cukmeas->i_1_filt = i_1_filt;
@@ -182,7 +182,8 @@ int32_t cukHwOpilGetMeasurements(void *meas){
     cukmeas->p_out = i_o_filt * cukmeas->v_dc_out;
 
     if( hwControl.status != 0 ){
-        cukOpilSetPwmDuty(0.0f);
+        //cukOpilSetPwmDuty(0.0f);
+        cukHwOpilShutDown();
         return -1;
     }
     else
@@ -275,6 +276,18 @@ float cukHwOpilGetFilterCoef(void){
 float cukHwOpilExpMovAvg(float sample, float average){
 
     return hwControl.alpha * sample + (1.0f - hwControl.alpha) * average;
+}
+//-----------------------------------------------------------------------------
+void cukHwOpilShutDown(void){
+
+    float u;
+
+    u = cukHwOpilGetPwmDuty();
+
+    u = u - CUK_CONFIG_SHUTDOWN_U_DEC;
+    if( u < 0.0f ) u = 0.0f;
+
+    cukHwOpilSetPwmDuty(u);
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
