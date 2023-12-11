@@ -31,7 +31,6 @@ typedef enum{
 
 #ifndef OCP_CONFIG_MASTER_CORE
 typedef enum{
-	OCP_CS_1 = 0,
 	OCP_CS_END
 }ocpCSIDs_t;
 #else

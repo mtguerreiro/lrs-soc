@@ -39,21 +39,10 @@
 //=============================================================================
 /*--------------------------------- Defines ---------------------------------*/
 //=============================================================================
-/* Command to wake CPU1 from CPU0. */
-#define sev()			__asm__("sev")
 
 /* Definitions for the interrupt controller */
 #define MAIN_XIL_INTC_DEVICE_ID			XPAR_PS7_SCUGIC_0_DEVICE_ID
 #define MAIN_XIL_INTC_HANDLER			XScuGic_InterruptHandler
-
-/*
- * This flag is used to synchronize CPU0 and CPU1. After CPU0 writes the start
- * address for CPU1, it sets the sync flag and wakes CPU1. At this point, CPU1
- * starts and does its initialization procedure. After CPU1 is initialized, it
- * clears the sync flag. CPU0 only continues execution after the sync flag has
- * been cleared by CPU1.
- */
-#define MAIN_SYNC_FLAG  		(*(volatile unsigned long *)(ZYNQ_CONFIG_CPU0_CPU1_SYNC_FLAG_ADR))
 //=============================================================================
 
 //=============================================================================
@@ -125,22 +114,22 @@ static int mainSysInit(void){
 		return XST_FAILURE;
 	}
 
-	/* Sets sync flag (to be cleared by CPU1) */
-	MAIN_SYNC_FLAG = 1;
-
-	/*
-	 * Writes start address for CPU0, waits until it has been written (dmb)
-	 * and wakes CPU1 up.
-	 */
-	xil_printf("%s: Waking up CPU1...\r\n", __FUNCTION__);
-    Xil_Out32(ZYNQ_CONFIG_CPU1_RESET_ADR, ZYNQ_CONFIG_CPU1_START_ADR);
-    dmb();
-    sev();
-
-    xil_printf("%s: Waiting for CPU1...\r\n", __FUNCTION__);
-	while(MAIN_SYNC_FLAG == 1);
-
-    xil_printf("%s: CPU1 has initialized.\r\n", __FUNCTION__);
+//	/* Sets sync flag (to be cleared by CPU1) */
+//	MAIN_SYNC_FLAG = 1;
+//
+//	/*
+//	 * Writes start address for CPU0, waits until it has been written (dmb)
+//	 * and wakes CPU1 up.
+//	 */
+//	xil_printf("%s: Waking up CPU1...\r\n", __FUNCTION__);
+//    Xil_Out32(ZYNQ_CONFIG_CPU1_RESET_ADR, ZYNQ_CONFIG_CPU1_START_ADR);
+//    dmb();
+//    sev();
+//
+//    xil_printf("%s: Waiting for CPU1...\r\n", __FUNCTION__);
+//	while(MAIN_SYNC_FLAG == 1);
+//
+//    xil_printf("%s: CPU1 has initialized.\r\n", __FUNCTION__);
 
     return XST_SUCCESS;
 }

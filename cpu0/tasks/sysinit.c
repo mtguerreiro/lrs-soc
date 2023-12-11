@@ -10,7 +10,7 @@
 //=============================================================================
 #include "sysinit.h"
 
-#include "ocpZynqCpu0.h"
+#include "ocpZynqSingleCpu.h"
 
 /* Kernel */
 #include "FreeRTOS.h"
@@ -37,7 +37,7 @@
 //-----------------------------------------------------------------------------
 void sysinit(void *intcInstance){
 
-	ocpZynqCpu0Initialize(intcInstance);
+	ocpZynqSingleCpuInitialize(intcInstance);
 
 	vTaskDelete(NULL);
 }

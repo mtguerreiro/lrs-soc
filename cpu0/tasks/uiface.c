@@ -38,7 +38,7 @@
 
 #include "ocpIf.h"
 
-#include "ctlrif/pynq/pil.h"
+//#include "ctlrif/pynq/pil.h"
 //=============================================================================
 
 //=============================================================================
@@ -80,8 +80,8 @@ uifaceControl_t xuifaceControl;
 //=============================================================================
 /*-------------------------------- Prototypes -------------------------------*/
 //=============================================================================
-static void uifopilIfThread(void);
-static void uifopilIfProcessThread(void *p);
+//static void uifopilIfThread(void);
+//static void uifopilIfProcessThread(void *p);
 
 static void uifocpIfThread(void);
 
@@ -157,9 +157,9 @@ void uiface(void *param){
             sys_thread_new("uifocpIfThread", (void(*)(void*))uifocpIfThread, 0,
                     UIFACE_CONFIG_THREAD_STACK_SIZE_DEFAULT,
                     UIFACE_CONFIG_THREAD_PRIO_DEFAULT);
-            sys_thread_new("pilThread", (void(*)(void*))pil, 0,
-                    PIL_CONFIG_TASK_STACK_SIZE,
-                    PIL_CONFIG_TASK_PRIO);
+//            sys_thread_new("pilThread", (void(*)(void*))pil, 0,
+//                    PIL_CONFIG_TASK_STACK_SIZE,
+//                    PIL_CONFIG_TASK_PRIO);
 //            sys_thread_new("opilAppThread", (void(*)(void*))uifopilIfThread, 0,
 //                    UIFACE_CONFIG_THREAD_STACK_SIZE_DEFAULT,
 //                    UIFACE_CONFIG_THREAD_PRIO_DEFAULT);
@@ -184,9 +184,9 @@ void uiface(void *param){
 			sys_thread_new("uifocpIfThread", (void(*)(void*))uifocpIfThread, 0,
 					UIFACE_CONFIG_THREAD_STACK_SIZE_DEFAULT,
 					UIFACE_CONFIG_THREAD_PRIO_DEFAULT);
-            sys_thread_new("pilThread", (void(*)(void*))pil, 0,
-                    PIL_CONFIG_TASK_STACK_SIZE,
-                    PIL_CONFIG_TASK_PRIO);
+//            sys_thread_new("pilThread", (void(*)(void*))pil, 0,
+//                    PIL_CONFIG_TASK_STACK_SIZE,
+//                    PIL_CONFIG_TASK_PRIO);
 //            sys_thread_new("opilAppThread", (void(*)(void*))uifopilIfThread, 0,
 //                    UIFACE_CONFIG_THREAD_STACK_SIZE_DEFAULT,
 //                    UIFACE_CONFIG_THREAD_PRIO_DEFAULT);
