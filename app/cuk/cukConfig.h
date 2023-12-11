@@ -114,9 +114,9 @@ typedef struct{
 #define CUK_CONFIG_C_C                      ((float)(9.4e-6))
 #define CUK_CONFIG_C_O                      ((float)(330e-6))
 
-#define CUK_CONFIG_I_PRIM_LIM               (15.0f)
+#define CUK_CONFIG_I_PRIM_LIM               (10.0f)
 #define CUK_CONFIG_V_PRIM_LIM               (50.0f)
-#define CUK_CONFIG_I_SEC_LIM                (15.0f)
+#define CUK_CONFIG_I_SEC_LIM                (10.0f)
 #define CUK_CONFIG_V_SEC_LIM                (50.0f)
 
 #define CUK_CONFIG_SHUTDOWN_U_DEC           (0.00025f)

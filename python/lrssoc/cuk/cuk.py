@@ -288,7 +288,7 @@ class Cuk:
         return self.enable_controller('energy_int', reset=reset)
         
         
-    def energy_int_ctl_set_time_resp(self, ts, os, alpha=5.0):
+    def energy_int_ctl_set_time_resp(self, ts, os=5.0, method='approx', alpha=5.0):
 
         status, freq = self._hw_if.get_pwm_frequency()
         if status != 0:
@@ -298,7 +298,7 @@ class Cuk:
         
         ec = lrssoc.cuk.cuk_controller.EnergyInt()
 
-        gains = ec.gains(float(ts), float(os), dt=dt, alpha=alpha)
+        gains = ec.gains(float(ts), float(os), method=method, dt=dt, alpha=alpha)
 
         return self.set_controller_params('energy_int', gains)
 
@@ -367,11 +367,11 @@ class Cuk:
         return self.enable_controller('sfb', reset=reset)
         
         
-    def sfb_ctl_set_time_resp(self, ts):
+    def sfb_ctl_set_time_resp(self, ts, method='approx'):
 
         sfbc = lrssoc.cuk.cuk_controller.SFB()
 
-        params = sfbc.params(float(ts))
+        params = sfbc.params(float(ts), method=method)
 
         return self.set_controller_params('sfb', params)
 
@@ -396,7 +396,7 @@ class Cuk:
         return self.enable_controller('sfb_int', reset=reset)
         
         
-    def sfb_int_ctl_set_time_resp(self, ts, os):
+    def sfb_int_ctl_set_time_resp(self, ts, os, method='approx'):
 
         status, freq = self._hw_if.get_pwm_frequency()
         if status != 0:
@@ -406,7 +406,7 @@ class Cuk:
         
         sfbc = lrssoc.cuk.cuk_controller.SFBINT()
 
-        params = sfbc.params(float(ts), float(os), dt=dt)
+        params = sfbc.params(float(ts), float(os), dt=dt, method=method)
 
         return self.set_controller_params('sfb_int', params)
 
@@ -518,6 +518,11 @@ class Cuk:
     
 
     def clear_hw_status(self):
+
+        status = self.disable_controller()
+
+        if status[0] != 0:
+            return (-1, status)
 
         return self._hw_if.clear_status()
 

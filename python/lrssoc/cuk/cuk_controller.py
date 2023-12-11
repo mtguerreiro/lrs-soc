@@ -8,6 +8,7 @@ import lrssoc
 import struct
 import numpy as np
 import scipy.signal
+import control
 
 class References:
     """
@@ -220,18 +221,36 @@ class EnergyInt:
         return params
     
 
-    def gains(self, ts, os, alpha=10.0, dt=1.0):
+    def gains(self, ts, os=5, method='approx', alpha=10.0, dt=1.0):
 
         # Poles
-        zeta = -np.log(os) / np.sqrt(np.pi**2 + (np.log(os))**2)
-        wn = 4/ts/zeta
-        
+        if method == 'approx':
+            zeta = -np.log(os) / np.sqrt(np.pi**2 + (np.log(os))**2)
+            wn = 4/ts/zeta
 
-        p1 = -zeta * wn + wn * np.sqrt(zeta**2 - 1, dtype=complex)
-        p2 = np.conj(p1)
-        p3 = alpha * p1.real
+            p1 = -zeta * wn + wn * np.sqrt(zeta**2 - 1, dtype=complex)
+            p2 = np.conj(p1)
+            p3 = alpha * p1.real
 
-        poles =[p1, p2, p3]
+            poles = [p1, p2, p3]
+
+        elif method == 'bessel':
+            p1 = (-3.9668 + 3.7845j) / ts
+            p2 = np.conj(p1)
+            p3 = -5.0093 / ts
+
+        elif method == 'itae':
+            p1 = (-4.35 + 8.918j) / ts
+            p2 = np.conj(p1)
+            p3 = -5.913 / ts
+
+        else:
+            print('Unknown method')
+            return 0
+            
+        poles = [p1, p2, p3]
+        print('Pole placement.\nMethod: {:}'.format(method))
+        print('Poles: {:}'.format(poles))
         
         # Augmented model        
         A = np.array([[ 0.0, 1.0, 0.0],
@@ -324,7 +343,7 @@ class SFB:
         return params
     
 
-    def params(self, ts, model_params={}):
+    def params(self, ts, method='approx', model_params={}):
 
         for p, v in model_params.items():
             if p in self.params:
@@ -366,15 +385,38 @@ class SFB:
         C = np.array([0, 0, 0, 1])
 
         # Poles
-        wn = 2.2 / ts
-        
-        p1 = -wn
-        p2 = 5*p1
-        p3 = 8*p1
-        p4 = 12*p1
+        if method == 'approx':
+            wn = 2.2 / ts
+            
+            p1 = -wn
+            p2 = 5*p1
+            p3 = 8*p1
+            p4 = 12*p1
+
+        elif method == 'bessel':
+            p1 = (-4.0156 + 5.0723j) / ts
+            p2 = np.conj(p1)
+            p3 = (-5.5281 + 1.6553j) / ts
+            p4 = np.conj(p3)
+
+        elif method == 'itae':
+            p1 = (-4.236 + 12.617j) / ts
+            p2 = np.conj(p1)
+            p3 = (-6.524 + 4.139j) / ts
+            p4 = np.conj(p3)
+
+        else:
+            print('Unknown method')
+            return 0
 
         poles = [p1, p2, p3, p4]
+
         
+        sys = control.ss(A, B, C, 0)
+        print('Pole placement.\nMethod: {:}'.format(method))
+        print('Poles: {:}'.format(poles))
+        print('Zeros: {:}'.format(sys.zeros()))
+
         # State feedback
         K = scipy.signal.place_poles(A, B, poles).gain_matrix[0]
 
@@ -383,7 +425,6 @@ class SFB:
                       'us':d}
 
         return ctl_params
-
 
 
 class SFBINT:
@@ -449,7 +490,7 @@ class SFBINT:
         return params
     
 
-    def params(self, ts, os, dt=1/100e3, model_params={}):
+    def params(self, ts, os, method='approx', dt=1/100e3, model_params={}):
 
         for p, v in model_params.items():
             if p in self.params:
@@ -474,8 +515,8 @@ class SFBINT:
         I_2 = Io
 
         # Linearized model
-        a11 = -0/L1;                             a12 = 0;                                     a13 = -(1 - d) / L1;     a14 = 0
-        a21 = 0;                                 a22 = -0/L2;                                 a23 = N * d / L2;        a24 = -1 / L2
+        a11 = 0/L1;                              a12 = 0;                                     a13 = -(1 - d) / L1;     a14 = 0
+        a21 = 0;                                 a22 = 0/L2;                                  a23 = N * d / L2;        a24 = -1 / L2
         a31 = (N**2+1)/N**2 * (1 - d) / (Cc);    a32 = -(N**2+1)/N * d / (Cc);                a33 = 0;                 a34 = 0
         a41 = 0;                                 a42 = 1 / Co;                                a43 = 0;                 a44 = Po / (Co * Vo**2)#(-1/11)#
 
@@ -500,26 +541,42 @@ class SFBINT:
         Ba[:n_st, 0] = B[:, 0]
 
         # Poles
-        #wn = 2.2 / ts
-        #os = 1
-        zeta = -np.log(os/100) / np.sqrt( np.pi**2 + (np.log(os/100))**2 )
-        wn = 4 / zeta / ts
+        if method == 'approx':
+            zeta = -np.log(os/100) / np.sqrt( np.pi**2 + (np.log(os/100))**2 )
+            wn = 4 / zeta / ts
+            
+            p1 = -zeta*wn + wn * np.emath.sqrt(zeta**2 - 1)
+            p2 = -zeta*wn - wn * np.emath.sqrt(zeta**2 - 1)
 
+            p3 = 5*p1.real
+            p4 = 10*p1.real
+            p5 = 15*p1.real
 
-        p1 = -zeta*wn + wn * np.emath.sqrt(zeta**2 - 1)
-        p2 = -zeta*wn - wn * np.emath.sqrt(zeta**2 - 1)
+        elif method == 'bessel':
+            p1 = (-4.1104 + 6.3142j) / ts
+            p2 = np.conj(p1)
+            p3 = (-5.9268 + 3.0813j) / ts
+            p4 = np.conj(p3)
+            p5 = -6.4480 / ts
 
-        p3 = 5*p1.real
-        p4 = 10*p1.real
-        p5 = 15*p1.real
+        elif method == 'itae':
+            p1 = (-3.948 + 13.553j) / ts
+            p2 = np.conj(p1)
+            p3 = (-6.040 + 5.601j) / ts
+            p4 = np.conj(p3)
+            p5 = -9.394 / ts
 
-        #p1 = -wn
-        #p2 = 5*p1
-        #p3 = 8*p1
-        #p4 = 12*p1
-        #p5 = 15*p1
+        else:
+            print('Unknown method')
+            return 0
 
         poles = [p1, p2, p3, p4, p5]
+
+        sys = control.ss(A, B, C, 0)
+        print('Pole placement.\nMethod: {:}'.format(method))
+        print('Poles: {:}'.format(poles))
+        print('Zeros: {:}'.format(sys.zeros()))
+        print('Open-loop poles: {:}'.format(sys.poles()))
         
         # State feedback
         K = scipy.signal.place_poles(Aa, Ba, poles).gain_matrix[0]
