@@ -8,3 +8,5 @@ New changes:
 - Add Exit option in the Newplot1 file
 - Delete comment box in the mainmenu
 - Hide indicators in fromHW and fromFile window
+- Put the button clear to close the window
+- Fix the selector button of the signals
