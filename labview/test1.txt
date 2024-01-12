@@ -1,0 +1,9 @@
+
+12.01.2024
+New changes:
+- Add timer of 300 in the event window for From HW
+- Delete Cancel button in Newplot1 window
+- Delete "Ping IP" button and Sever Ping indicator in mainmenu window
+- Add Exit option in the Newplot1 file
+- Delete comment box in the mainmenu
+- Hide indicators in fromHW and fromFile window
