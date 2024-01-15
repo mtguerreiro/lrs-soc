@@ -13,4 +13,6 @@ New changes:
 
 15.01.2024
 New changes: 
- - Correct index value for Y_#Signal in From_Hw
+- Correct index value for Y_#Signal in From_Hw
+- Fix the error indexing for the Signals_Hw in New_plot1
+- Fix the refresh value in New_plot1

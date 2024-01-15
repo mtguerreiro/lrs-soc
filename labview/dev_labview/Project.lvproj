@@ -7,6 +7,7 @@
 	<Property Name="varPersistentID:{468564A8-839E-48BE-8105-628EAE285AC5}" Type="Ref">/My Computer/Variable 1.lvlib/Signals_value_Array</Property>
 	<Property Name="varPersistentID:{4FD7655C-6099-46C5-A8F8-9C7AA09BE3FD}" Type="Ref">/My Computer/Variable 1.lvlib/Trace_name</Property>
 	<Property Name="varPersistentID:{71F10532-AEA6-4ADE-90D3-CE81E849D6E3}" Type="Ref">/My Computer/Variable 1.lvlib/Close_all_wplots</Property>
+	<Property Name="varPersistentID:{7A163EED-FD73-4001-9628-C2BA347AAFC0}" Type="Ref">/My Computer/Variable 1.lvlib/Global_refresh_time</Property>
 	<Property Name="varPersistentID:{A28CA767-DF3E-4269-9A6E-C2042F133929}" Type="Ref">/My Computer/Variable 1.lvlib/number_signals</Property>
 	<Item Name="My Computer" Type="My Computer">
 		<Property Name="IOScan.Faults" Type="Str"></Property>
@@ -140,7 +141,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{DC90849E-4250-4F8B-8747-7F553E39C540}</Property>
 				<Property Name="Bld_userLogFile" Type="Path">../builds/GUI App/GUI App_log.txt</Property>
 				<Property Name="Bld_userLogFile.pathType" Type="Str">relativeToCommon</Property>
-				<Property Name="Bld_version.build" Type="Int">13</Property>
+				<Property Name="Bld_version.build" Type="Int">15</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">GUI_App.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../builds/GUI App/GUI_App.exe</Property>
