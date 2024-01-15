@@ -10,3 +10,7 @@ New changes:
 - Hide indicators in fromHW and fromFile window
 - Put the button clear to close the window
 - Fix the selector button of the signals
+
+15.01.2024
+New changes: 
+ - Correct index value for Y_#Signal in From_Hw
