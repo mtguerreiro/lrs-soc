@@ -16,3 +16,9 @@ New changes:
 - Correct index value for Y_#Signal in From_Hw
 - Fix the error indexing for the Signals_Hw in New_plot1
 - Fix the refresh value in New_plot1
+
+16.01.2024
+- Change front panel of new plot
+- Delete clear, TEMPORAL
+- Add size bytes per signal to show the total size configured
+- Option to stop the record data by main_menu
