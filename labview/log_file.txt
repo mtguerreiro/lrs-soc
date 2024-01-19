@@ -22,3 +22,6 @@ New changes:
 - Delete clear, TEMPORAL
 - Add size bytes per signal to show the total size configured
 - Option to stop the record data by main_menu
+
+19.01.2024 
+- Add refresh option in the one shot graph in labview
