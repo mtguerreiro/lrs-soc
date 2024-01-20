@@ -15,21 +15,17 @@
 #include "ocp/ocp/ocpIf.h"
 //=============================================================================
 
-#ifndef DATA_BUF_SIZE
-    #define DATA_BUF_SIZE 64
-#endif
-
 //===========================================================================
 /*-------------------------------- Globals --------------------------------*/
 //===========================================================================
-static char recvbuf[WZ_TCP_SERVER_RECV_BUF_SIZE];
+static uint8_t recvbuf[WZ_TCP_SERVER_RECV_BUF_SIZE];
 //===========================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-int32_t wzTcpServerRun(uint8_t sn, uint8_t* buf, uint16_t port){
+int32_t wzTcpServerRun(uint8_t sn, uint16_t port){
 
    int32_t ret;
    int32_t size;
@@ -52,8 +48,7 @@ int32_t wzTcpServerRun(uint8_t sn, uint8_t* buf, uint16_t port){
 #if WZ_TCP_SERVER_CFG_DEBUG == 1
             getSn_DIPR(sn, destip);
             destport = getSn_DPORT(sn);
-
-            printf("%d:Connected - %d.%d.%d.%d : %d\r\n",sn, destip[0], destip[1], destip[2], destip[3], destport);
+            printf("%s (sn %d): Connected - %d.%d.%d.%d : %d\r\n", __func__, sn, destip[0], destip[1], destip[2], destip[3], destport);
 #endif
             setSn_IR(sn,Sn_IR_CON);
          }
@@ -71,12 +66,23 @@ int32_t wzTcpServerRun(uint8_t sn, uint8_t* buf, uint16_t port){
                nrx += n;
             }
             if( nrx != 4 ){
+#if WZ_TCP_SERVER_CFG_DEBUG == 1
+               printf("%s (sn %d): Error receiving size. Expected 4 bytes, received %d. Closing socket...\r\n", __func__, sn, nrx);
+#endif
                close(sn);
                return n;
             } 
             size = *((uint32_t *)recvbuf);
 
             /* Read the number of expected bytes */
+            if( size > WZ_TCP_SERVER_RECV_BUF_SIZE ){
+#if WZ_TCP_SERVER_CFG_DEBUG == 1
+               printf("%s (sn %d): Error receiving data. Expected %d bytes, but size of buffer is %d. Closing socket...\r\n", __func__, sn, size, WZ_TCP_SERVER_RECV_BUF_SIZE);
+#endif
+               close(sn);
+               return n;
+            }
+
             nrx = 0;
             while( nrx < size ){
                n = recv(sn, &recvbuf[nrx], size - nrx);
@@ -84,8 +90,11 @@ int32_t wzTcpServerRun(uint8_t sn, uint8_t* buf, uint16_t port){
                nrx += n;
             }
             if( nrx != size ){
+#if WZ_TCP_SERVER_CFG_DEBUG == 1
+               printf("%s (sn %d): Error receiving data. Expected %d bytes, received %d. Closing socket...\r\n", __func__, sn, size, nrx);
+#endif
                close(sn);
-               return n;               
+               return n;
             }
 
 		      /* Calls the interface */
@@ -98,6 +107,9 @@ int32_t wzTcpServerRun(uint8_t sn, uint8_t* buf, uint16_t port){
             */
             n = send(sn, (uint8_t *)(&ret), 4);
             if( n < 4 ){
+#if WZ_TCP_SERVER_CFG_DEBUG == 1
+               printf("%s (sn %d): Error sending size. Closing socket...\r\n", __func__, sn);
+#endif
                close(sn);
                return n;  
             }
@@ -111,39 +123,40 @@ int32_t wzTcpServerRun(uint8_t sn, uint8_t* buf, uint16_t port){
                ntx += n;
             }
             if( ntx != n ){
-               printf("Error writing data: %d\r\n", n);
+#if WZ_TCP_SERVER_CFG_DEBUG == 1
+               printf("%s (sn %d): Error sending data. Should send %d but sent only %d. Closing socket...\r\n", __func__, sn, size, ntx);
+#endif
                close(sn);
                return n;               
             }
          }
 
-         //close(sn);
          break;
 
       case SOCK_CLOSE_WAIT :
-#ifdef WZ_TCP_SERVER_CFG_DEBUG
-         printf("%d:CloseWait\r\n",sn);
+#if WZ_TCP_SERVER_CFG_DEBUG == 1
+         printf("%s (sn %d): CloseWait\r\n", __func__, sn);
 #endif
          if((ret = disconnect(sn)) != SOCK_OK) return ret;
-#ifdef WZ_TCP_SERVER_CFG_DEBUG
-         printf("%d:Socket Closed\r\n", sn);
+#if WZ_TCP_SERVER_CFG_DEBUG == 1
+         printf("%s (sn %d): Socket closed\r\n", __func__, sn);
 #endif
          break;
 
       case SOCK_INIT :
-#ifdef WZ_TCP_SERVER_CFG_DEBUG
-         printf("%d:Listen, TCP server loopback, port [%d]\r\n", sn, port);
+#if WZ_TCP_SERVER_CFG_DEBUG == 1
+         printf("%s (sn %d): Listen, TCP server loopback, port [%d]\r\n", __func__, sn, port);
 #endif
          if( (ret = listen(sn)) != SOCK_OK) return ret;
          break;
 
       case SOCK_CLOSED:
-#ifdef WZ_TCP_SERVER_CFG_DEBUG
-         printf("%d:TCP server loopback start\r\n",sn);
+#if WZ_TCP_SERVER_CFG_DEBUG == 1
+         printf("%s (sn %d): TCP server loopback start\r\n", __func__, sn);
 #endif
          if((ret = socket(sn, Sn_MR_TCP, port, SF_TCP_NODELAY)) != sn) return ret;
-#ifdef WZ_TCP_SERVER_CFG_DEBUG
-         printf("%d:Socket opened\r\n",sn);
+#if WZ_TCP_SERVER_CFG_DEBUG == 1
+         printf("%s (sn %d): Socket opened\r\n", __func__, sn, port);
 #endif
          break;
 
@@ -155,4 +168,3 @@ int32_t wzTcpServerRun(uint8_t sn, uint8_t* buf, uint16_t port){
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
-

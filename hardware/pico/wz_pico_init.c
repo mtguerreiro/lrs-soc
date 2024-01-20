@@ -48,7 +48,7 @@ static void wzPicoInitializeCriticalSection(void);
 static void wzPicoCriticalSectionEnter(void);
 static void wzPicoCriticalSectionExit(void);
 
-bool wzPicoDhcpTimer(struct repeating_timer *t);
+static bool wzPicoDhcpTimer(struct repeating_timer *t);
 
 //=============================================================================
 
@@ -91,6 +91,8 @@ int32_t wzPicoInit(void){
 	wzPicoInitializeCriticalSection();
 
 	wzPicoInitW5500();
+
+	return 0;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
@@ -98,6 +100,7 @@ int32_t wzPicoInit(void){
 //=============================================================================
 /*---------------------------- Static functions -----------------------------*/
 //=============================================================================
+
 //-----------------------------------------------------------------------------
 static void wzPicoInitializeCriticalSection(void){
 
@@ -126,7 +129,7 @@ static void wzPicoInitW5500(void){
 	while(wizphy_getphylink() == PHY_LINK_OFF) sleep_ms(1000);
 
 #if WZ_PICO_INIT_CFG_USE_DHCP == 1
-    wzPicoInitializeW5500DHCP();
+    wzPicoInitW5500DHCP();
 #else
 	ctlnetwork(CN_SET_NETINFO, (void*)&gWIZNETINFO);
 #endif
@@ -138,7 +141,7 @@ static void wzPicoInitW5500(void){
 #endif
 }
 //-----------------------------------------------------------------------------
-static void wzPicoInitializeW5500DHCP(void){
+static void wzPicoInitW5500DHCP(void){
 
 	uint8_t buf[2048];
 	uint32_t dhcpStatus;
@@ -206,9 +209,11 @@ static void wzPicoSPIBurstWrite(uint8_t *data, uint16_t size){
 	spi_write_blocking(spi_default, data, size);
 }
 //-----------------------------------------------------------------------------
-bool wzPicoDhcpTimer(struct repeating_timer *t){
+static bool wzPicoDhcpTimer(struct repeating_timer *t){
 
 	DHCP_time_handler();
+
+	return true;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

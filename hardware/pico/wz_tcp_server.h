@@ -32,13 +32,11 @@
  *
  * @param sn Socket number.
  *
- * @param buf Buffer to hold received data.
- *
  * @param port Port of connection.
  * 
  * @return 
  */
-int32_t wzTcpServerRun(uint8_t sn, uint8_t* buf, uint16_t port);
+int32_t wzTcpServerRun(uint8_t sn, uint16_t port);
 //-----------------------------------------------------------------------------
 //=============================================================================
 
