@@ -14,6 +14,9 @@
 #include "ocp/ocp/ocpIf.h"
 
 #include "ocp/hardware/pico/wz_pico_init.h"
+#include "ocp/hardware/pico/ipcClientPico.h"
+
+#include "ocp/ipc/ipcClient.h"
 
 /* Controller lib */
 // #include "../controller/controller.h"
@@ -72,6 +75,13 @@ static int32_t ocpPicoCpu0InitializeHw(void){
 }
 //-----------------------------------------------------------------------------
 static int32_t ocpPicoCpu0InitializeIpc(void){
+
+	ipcClientPicoInitialize();
+
+	ipcClientInitialize(ipcClientPicoIrqSend, ipcClientPicoIrqReceive,
+		ipcClientPicoLock, ipcClientPicoUnlock,
+		OCP_PICO_CONFIG_MEM_CPU1_TO_CPU0_ADR, OCP_PICO_CONFIG_MEM_CPU1_TO_CPU0_SIZE,
+		OCP_PICO_CONFIG_MEM_CPU0_TO_CPU1_ADR, OCP_PICO_CONFIG_MEM_CPU0_TO_CPU1_SIZE);
 
 	return 0;
 }
