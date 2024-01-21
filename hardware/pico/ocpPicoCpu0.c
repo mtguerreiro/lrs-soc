@@ -11,15 +11,12 @@
 /* Open controller project */
 #include "ocp/ocp/ocpTrace.h"
 #include "ocp/ocp/ocpCS.h"
-#include "ocp/ocp/ocpIf.h"
+#include "ocp/ocp/ocpIfMaster.h"
 
 #include "ocp/hardware/pico/wz_pico_init.h"
 #include "ocp/hardware/pico/ipcClientPico.h"
 
 #include "ocp/ipc/ipcClient.h"
-
-/* Controller lib */
-// #include "../controller/controller.h"
 
 //=============================================================================
 
@@ -42,11 +39,7 @@ static int32_t ocpPicoCpu0InitializeInterface(void);
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-// #define OCP_ZYNQ_C0_CONFIG_CPU0_TO_CPU1_ADDR		ZYNQ_CONFIG_MEM_CPU0_TO_CPU1_ADR
-// #define OCP_ZYNQ_C0_CONFIG_CPU0_TO_CPU1_SIZE		ZYNQ_CONFIG_MEM_CPU0_TO_CPU1_SIZE
 
-// #define OCP_ZYNQ_C0_CONFIG_CPU1_TO_CPU0_ADDR		ZYNQ_CONFIG_MEM_CPU1_TO_CPU0_ADR
-// #define OCP_ZYNQ_C0_CONFIG_CPU1_TO_CPU0_SIZE		ZYNQ_CONFIG_MEM_CPU1_TO_CPU0_SIZE
 //=============================================================================
 
 //=============================================================================
@@ -137,7 +130,7 @@ static int32_t ocpPicoCpu0InitializeControlSystem(void){
 //-----------------------------------------------------------------------------
 static int32_t ocpPicoCpu0InitializeInterface(void){
 
-	ocpIfInitialize();
+	ocpIfMasterInitialize();
 
 	return 0;
 }

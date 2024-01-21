@@ -12,7 +12,7 @@
 #include "wiznet/socket.h"
 #include "wiznet/wizchip_conf.h"
 
-#include "ocp/ocp/ocpIf.h"
+#include "ocp/ocp/ocpIfMaster.h"
 //=============================================================================
 
 //===========================================================================
@@ -99,7 +99,7 @@ int32_t wzTcpServerRun(uint8_t sn, uint16_t port){
 
 		      /* Calls the interface */
 		      p = (uint8_t *)( recvbuf );
-		      ret = ocpIf((void *)p, size, (void **)(&p), WZ_TCP_SERVER_RECV_BUF_SIZE);
+		      ret = ocpIfMaster((void *)p, size, (void **)(&p), WZ_TCP_SERVER_RECV_BUF_SIZE);
 
             /*
             * Now, sends the reply. The reply consists of the command status/size
