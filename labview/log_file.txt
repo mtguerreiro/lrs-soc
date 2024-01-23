@@ -25,3 +25,7 @@ New changes:
 
 19.01.2024 
 - Add refresh option in the one shot graph in labview
+
+23.01.2024
+- Change and optimize the code
+- Modify error handler

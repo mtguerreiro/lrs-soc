@@ -30,6 +30,14 @@
 		<Item Name="Functions" Type="Folder">
 			<Item Name="Array2Matrix.vi" Type="VI" URL="../Array2Matrix.vi"/>
 			<Item Name="ArrayS2ArrayAx_.vi" Type="VI" URL="../ArrayS2ArrayAx_.vi"/>
+			<Item Name="Function_for_start record.vi" Type="VI" URL="../Function_for_start record.vi"/>
+			<Item Name="Function_new plot.vi" Type="VI" URL="../Function_new plot.vi"/>
+			<Item Name="Function_save_conf_tomicro.vi" Type="VI" URL="../Function_save_conf_tomicro.vi"/>
+			<Item Name="Function_to_define_CSstatus.vi" Type="VI" URL="../Function_to_define_CSstatus.vi"/>
+			<Item Name="Function_update_parameters_frommicro.vi" Type="VI" URL="../Function_update_parameters_frommicro.vi"/>
+			<Item Name="Getting_TRACE DATA.vi" Type="VI" URL="../Getting_TRACE DATA.vi"/>
+			<Item Name="receiver_Main_menu.vi" Type="VI" URL="../receiver_Main_menu.vi"/>
+			<Item Name="Send_Msj_Nplot.vi" Type="VI" URL="../Send_Msj_Nplot.vi"/>
 			<Item Name="String2Array.vi" Type="VI" URL="../String2Array.vi"/>
 			<Item Name="String2ArrayDouble.vi" Type="VI" URL="../String2ArrayDouble.vi"/>
 			<Item Name="String2ArrayInt.vi" Type="VI" URL="../String2ArrayInt.vi"/>
@@ -60,6 +68,8 @@
 		</Item>
 		<Item Name="From file.vi" Type="VI" URL="../From file.vi"/>
 		<Item Name="From HW.vi" Type="VI" URL="../From HW.vi"/>
+		<Item Name="Function_SaveCTRLparam.vi" Type="VI" URL="../Function_SaveCTRLparam.vi"/>
+		<Item Name="Function_to CS Enable.vi" Type="VI" URL="../Function_to CS Enable.vi"/>
 		<Item Name="Main menu_4.vi" Type="VI" URL="../Main menu_4.vi"/>
 		<Item Name="New plot1.vi" Type="VI" URL="../New plot1.vi"/>
 		<Item Name="Variable 1.lvlib" Type="Library" URL="../Variable 1.lvlib"/>
@@ -141,7 +151,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{DC90849E-4250-4F8B-8747-7F553E39C540}</Property>
 				<Property Name="Bld_userLogFile" Type="Path">../builds/GUI App/GUI App_log.txt</Property>
 				<Property Name="Bld_userLogFile.pathType" Type="Str">relativeToCommon</Property>
-				<Property Name="Bld_version.build" Type="Int">17</Property>
+				<Property Name="Bld_version.build" Type="Int">18</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">GUI_App.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../builds/GUI App/GUI_App.exe</Property>
