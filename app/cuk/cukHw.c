@@ -76,7 +76,7 @@ static float cukHwExpMovAvg(float sample, float average);
 //=============================================================================
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
-cukHwControl_t hwControl = {.pwmPeriod = 0, .status = 0, .alpha = 0.2f};
+static cukHwControl_t hwControl = {.pwmPeriod = 0, .status = 0, .alpha = 0.2f};
 static float i_i_filt = 0.0f, i_1_filt = 0.0f, i_o_filt = 0.0f, i_2_filt = 0.0f;
 //=============================================================================
 
