@@ -72,6 +72,7 @@
 		<Item Name="Function_to CS Enable.vi" Type="VI" URL="../Function_to CS Enable.vi"/>
 		<Item Name="Main menu_4.vi" Type="VI" URL="../Main menu_4.vi"/>
 		<Item Name="New plot1.vi" Type="VI" URL="../New plot1.vi"/>
+		<Item Name="receiver_queue_Main_menu.vi" Type="VI" URL="../receiver_queue_Main_menu.vi"/>
 		<Item Name="Variable 1.lvlib" Type="Library" URL="../Variable 1.lvlib"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
