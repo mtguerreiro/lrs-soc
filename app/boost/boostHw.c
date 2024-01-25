@@ -380,6 +380,8 @@ void boostHwShutDown(void){
     float u;
 
     u = boostHwGetPwmDuty();
+    boostHwSetInputRelay(0);
+    boostHwSetOutputRelay(0);
 
     u = u - BOOST_CONFIG_SHUTDOWN_U_DEC;
     if( u < 0.0f ){
