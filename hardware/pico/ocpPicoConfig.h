@@ -14,7 +14,7 @@
 // #define PICO_CONFIG_TCP_SERVER_PORT_OPIL            8090
 
 /* If DHCP is set to 1, DHCP is used. Otherwise, static IP */
-#define OCP_PICO_CONFIG_WZ_USE_DHCP		            0
+#define OCP_PICO_CONFIG_WZ_USE_DHCP		            1
 
 /* Memory for CPU0 to CPU1 data */
 #define OCP_PICO_CONFIG_MEM_CPU0_TO_CPU1_ADR		0x20004000
