@@ -32,3 +32,8 @@ New changes:
 
 24.01.2024
 - Fix clear button for error handler 
+
+29.01.2024
+- Adjust the windows custom of the newplot window
+- Add property to close with the X icon on the newplot1 and fromHW windows
+- Add export ploting windows

@@ -33,10 +33,13 @@
 			<Item Name="Function_for_start record.vi" Type="VI" URL="../Function_for_start record.vi"/>
 			<Item Name="Function_new plot.vi" Type="VI" URL="../Function_new plot.vi"/>
 			<Item Name="Function_save_conf_tomicro.vi" Type="VI" URL="../Function_save_conf_tomicro.vi"/>
+			<Item Name="Function_SaveCTRLparam.vi" Type="VI" URL="../Function_SaveCTRLparam.vi"/>
+			<Item Name="Function_to CS Enable.vi" Type="VI" URL="../Function_to CS Enable.vi"/>
 			<Item Name="Function_to_define_CSstatus.vi" Type="VI" URL="../Function_to_define_CSstatus.vi"/>
 			<Item Name="Function_update_parameters_frommicro.vi" Type="VI" URL="../Function_update_parameters_frommicro.vi"/>
 			<Item Name="Getting_TRACE DATA.vi" Type="VI" URL="../Getting_TRACE DATA.vi"/>
 			<Item Name="receiver_Main_menu.vi" Type="VI" URL="../receiver_Main_menu.vi"/>
+			<Item Name="receiver_queue_Main_menu.vi" Type="VI" URL="../receiver_queue_Main_menu.vi"/>
 			<Item Name="Send_Msj_Nplot.vi" Type="VI" URL="../Send_Msj_Nplot.vi"/>
 			<Item Name="String2Array.vi" Type="VI" URL="../String2Array.vi"/>
 			<Item Name="String2ArrayDouble.vi" Type="VI" URL="../String2ArrayDouble.vi"/>
@@ -50,6 +53,7 @@
 			<Item Name="Main menu_3.vi" Type="VI" URL="../Main menu_3.vi"/>
 			<Item Name="Main menu_3_enablepp.vi" Type="VI" URL="../Main menu_3_enablepp.vi"/>
 			<Item Name="New plot.vi" Type="VI" URL="../New plot.vi"/>
+			<Item Name="New plot1_old.vi" Type="VI" URL="../New plot1_old.vi"/>
 		</Item>
 		<Item Name="TCP" Type="Folder">
 			<Item Name="TCP Client.vi" Type="VI" URL="../TCP Client.vi"/>
@@ -66,13 +70,12 @@
 			<Item Name="Send Message_test.vi" Type="VI" URL="../Send Message_test.vi"/>
 			<Item Name="Show_virtual variables.vi" Type="VI" URL="../Show_virtual variables.vi"/>
 		</Item>
+		<Item Name="Export image.vi" Type="VI" URL="../Export image.vi"/>
+		<Item Name="Export plot data to Clipboard.vi" Type="VI" URL="../Export plot data to Clipboard.vi"/>
 		<Item Name="From file.vi" Type="VI" URL="../From file.vi"/>
 		<Item Name="From HW.vi" Type="VI" URL="../From HW.vi"/>
-		<Item Name="Function_SaveCTRLparam.vi" Type="VI" URL="../Function_SaveCTRLparam.vi"/>
-		<Item Name="Function_to CS Enable.vi" Type="VI" URL="../Function_to CS Enable.vi"/>
 		<Item Name="Main menu_4.vi" Type="VI" URL="../Main menu_4.vi"/>
 		<Item Name="New plot1.vi" Type="VI" URL="../New plot1.vi"/>
-		<Item Name="receiver_queue_Main_menu.vi" Type="VI" URL="../receiver_queue_Main_menu.vi"/>
 		<Item Name="Variable 1.lvlib" Type="Library" URL="../Variable 1.lvlib"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
@@ -152,7 +155,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{DC90849E-4250-4F8B-8747-7F553E39C540}</Property>
 				<Property Name="Bld_userLogFile" Type="Path">../builds/GUI App/GUI App_log.txt</Property>
 				<Property Name="Bld_userLogFile.pathType" Type="Str">relativeToCommon</Property>
-				<Property Name="Bld_version.build" Type="Int">19</Property>
+				<Property Name="Bld_version.build" Type="Int">21</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">GUI_App.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../builds/GUI App/GUI_App.exe</Property>
@@ -182,7 +185,7 @@
 				<Property Name="Source[4].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[4].type" Type="Str">VI</Property>
 				<Property Name="Source[5].destinationIndex" Type="Int">0</Property>
-				<Property Name="Source[5].itemID" Type="Ref">/My Computer/New plot1.vi</Property>
+				<Property Name="Source[5].itemID" Type="Ref">/My Computer/Old functions/New plot1_old.vi</Property>
 				<Property Name="Source[5].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[5].type" Type="Str">VI</Property>
 				<Property Name="Source[6].destinationIndex" Type="Int">0</Property>
