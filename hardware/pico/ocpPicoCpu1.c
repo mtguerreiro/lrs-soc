@@ -7,6 +7,8 @@
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
 #include "ocpPicoCpu1.h"
+#include <stdio.h>
+#include "pico/stdlib.h"
 
 /* Open controller project */
 #include "ocp/ocp/ocpTrace.h"
@@ -18,6 +20,7 @@
 #include "ocp/hardware/pico/ipcServerPico.h"
 
 #include "ocp/ipc/ipcServer.h"
+#include "hardware/adc.h"
 //=============================================================================
 
 //=============================================================================
@@ -56,6 +59,10 @@ static struct repeating_timer timerAdc;
 
 static float texec = 0.0f;
 static float counter = 0.0f;
+static float chan_0 = 0.0f;
+static float chan_1 = 0.0f;
+
+const float conversion_factor = 3.3f / (1 << 12);
 //=============================================================================
 
 //=============================================================================
@@ -63,7 +70,7 @@ static float counter = 0.0f;
 //=============================================================================
 //-----------------------------------------------------------------------------
 void ocpPicoCpu1Initialize(void){
-
+    // sleep_ms(5000);
 	ocpPicoCpu1InitializeHw();
 	ocpPicoCpu1InitializeIpc();
 	ocpPicoCpu1InitializeTraces();
@@ -79,11 +86,27 @@ void ocpPicoCpu1Initialize(void){
 //=============================================================================
 //-----------------------------------------------------------------------------
 static int32_t ocpPicoCpu1InitializeHw(void){
-	
-    add_repeating_timer_ms(1, ocpPicoAdcIrq, NULL, &timerAdc);
 
-	return 0;
+
+    // printf("Core 1: Initializing ADC\n");
+    adc_init();
+
+    // GPIO 26 and 27 enabled
+    adc_gpio_init(26);
+    adc_gpio_init(27);
+    // printf("Core 1: Set round robin masking\n");
+    adc_set_round_robin(_u(0x03));
+    // printf("Core 1: Setup ADC FIFO\n");
+    adc_fifo_setup(true, false, 0, false, false);
+    adc_fifo_drain();
+    // printf("Core 1: ADC FIFO level: %d\n", adc_fifo_get_level());
+    
+
+   /*Using timer*/
+    add_repeating_timer_ms(1, ocpPicoAdcIrq, NULL, &timerAdc);
+    return 0;
 }
+
 //-----------------------------------------------------------------------------
 static int32_t ocpPicoCpu1InitializeIpc(void){
 
@@ -110,6 +133,8 @@ static int32_t ocpPicoCpu1InitializeTraces(void){
 
     ocpTraceAddSignal(OCP_TRACE_1, (void *)&texec, "Exec. time");
     ocpTraceAddSignal(OCP_TRACE_1, (void *)&counter, "Counter");
+	ocpTraceAddSignal(OCP_TRACE_1, (void *)&chan_0, "Channel 0");
+    ocpTraceAddSignal(OCP_TRACE_1, (void *)&chan_1, "Channel 1");
 
 	return 0;
 }
@@ -133,19 +158,26 @@ static int32_t ocpPicoCpu1InitializeInterface(void){
 //=============================================================================
 //-----------------------------------------------------------------------------
 static bool ocpPicoAdcIrq(struct repeating_timer *t){
-
     uint32_t ticks;
+    uint16_t temp_chan_0, temp_chan_1;
+    adc_select_input(0);
+    adc_run(true);
+    temp_chan_0 = adc_fifo_get_blocking();
+    temp_chan_1 = adc_fifo_get_blocking();
+    adc_run(false);
+    adc_fifo_drain(); 
+    
+   ticks = time_us_32();
+   counter = ticks;
+   chan_0 = (float) temp_chan_0 * conversion_factor;
+   chan_1 = (float) temp_chan_1 * conversion_factor;
 
-    ticks = time_us_32();
-    counter = ticks;
+   ocpTraceSave(OCP_TRACE_1);
 
-    //ocpCSRun(OCP_CS_1);
-    ocpTraceSave(OCP_TRACE_1);
+   ticks = time_us_32() - ticks;
+   texec = ((float)ticks);
 
-    ticks = time_us_32() - ticks;
-    texec = ((float)ticks);
-
-    return true;
+  return true;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
