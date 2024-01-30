@@ -35,5 +35,8 @@ New changes:
 
 29.01.2024
 - Adjust the windows custom of the newplot window
+
+30.01.2024
+- Add command to close all the windows with no show add error
 - Add property to close with the X icon on the newplot1 and fromHW windows
 - Add export ploting windows
