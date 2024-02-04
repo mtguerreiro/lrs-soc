@@ -16,8 +16,11 @@ port = 8080
 host = '192.168.0.211'
 
 settings = {'host':host, 'port':port}
-hw = lrssoc.ocp.iface.Interface(settings=settings)
 
-trace = lrssoc.cuk.cuk_trace.Trace(hw, 0)
+hw = lrssoc.itm3903c.itm3903c.ITM3903C(0, comm='ethernet', comm_settings=settings)
+
+trace = lrssoc.itm3903c.itm3903c_trace.Trace(hw._ocp_if, 0)
+
+hw_if = hw._hw_if
 
 #status, (traces, data) = trace.read()
