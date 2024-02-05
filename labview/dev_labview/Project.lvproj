@@ -74,6 +74,9 @@
 		<Item Name="Export plot data to Clipboard.vi" Type="VI" URL="../Export plot data to Clipboard.vi"/>
 		<Item Name="From file.vi" Type="VI" URL="../From file.vi"/>
 		<Item Name="From HW.vi" Type="VI" URL="../From HW.vi"/>
+		<Item Name="Function_2update_waveform graph.vi" Type="VI" URL="../Function_2update_waveform graph.vi"/>
+		<Item Name="Function_for_MenuSelections.vi" Type="VI" URL="../Function_for_MenuSelections.vi"/>
+		<Item Name="Function_queue receiver.vi" Type="VI" URL="../Function_queue receiver.vi"/>
 		<Item Name="Main menu_4.vi" Type="VI" URL="../Main menu_4.vi"/>
 		<Item Name="New plot1.vi" Type="VI" URL="../New plot1.vi"/>
 		<Item Name="Variable 1.lvlib" Type="Library" URL="../Variable 1.lvlib"/>

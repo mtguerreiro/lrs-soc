@@ -40,3 +40,7 @@ New changes:
 - Add command to close all the windows with no show add error
 - Add property to close with the X icon on the newplot1 and fromHW windows
 - Add export ploting windows
+
+05.02.2024
+- Add windows fit in the newplot1
+- Remove innecessary messages in the windows plot
