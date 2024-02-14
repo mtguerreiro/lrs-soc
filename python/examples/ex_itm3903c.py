@@ -13,7 +13,7 @@ import scipy.signal
 
 # --- Input ---
 port = 8080
-host = '192.168.0.211'
+host = '131.246.75.132'
 
 settings = {'host':host, 'port':port}
 
