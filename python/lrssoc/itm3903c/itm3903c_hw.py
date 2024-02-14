@@ -13,6 +13,7 @@ class Commands:
     def __init__(self):
         self.set_slope = 0
         self.get_slope = 1
+        self.get_version = 2
 
 class MeasGains:
 
@@ -69,7 +70,33 @@ class Hw:
 
         return self._get_slope(channel)
 
+    def get_version(self):
+
+        return self._get_version()
     
+    def _get_version(self):
+        """
+        Returns the version of the firmware of the power supply
+
+        """
+
+        cmd = self._cmd.get_version
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+
+        status, version_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting version of the firmware. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        version = struct.unpack('<100s', version_b)[0]
+
+        string = version.split(b'\x00')[0].decode()
+        return (0, string)
+
+
     def _set_slope(self, channel, slope):
         """
 
