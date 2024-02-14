@@ -11,13 +11,14 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/adc.h"
+#include "string.h"
 
 //=============================================================================
 
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-
+const int32_t MAX_SIZE = 100;
 typedef struct{
 
     uint32_t status;
@@ -121,6 +122,21 @@ float itm3903cHwGetSlope(uint32_t channel){
     slope = supplySlope;
 
     return slope;
+}
+
+int32_t itm3903cHwGetVersion(char * o){
+    // Serial Communication
+
+    int32_t size = 20;
+    char * response = "IT39XXSrc-v1.3.7.xx";
+    
+    if(size > MAX_SIZE){
+        return -1;
+    }
+
+    memcpy(o, response, size);
+    return MAX_SIZE;
+
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
