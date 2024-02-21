@@ -54,6 +54,8 @@ typedef enum{
      */
     ITM3903C_HW_IF_GET_VERSION,
 
+    ITM3903C_HW_IF_GET_ERROR,
+
     ITM3903C_HW_IF_END
 }itm3903cHwIfCommands_t;
 
