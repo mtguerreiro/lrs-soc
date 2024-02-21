@@ -130,36 +130,22 @@ float itm3903cHwGetSlope(uint32_t channel){
 
 int32_t itm3903cHwGetVersion(char * o){
     int32_t size = 0;
-    char response[MAX_SIZE];
-    char *ptr = response;
-    
     uart_write_blocking(UART_ID, (u_int8_t*) COMMAND_GETVERSION, (size_t) SIZE_COMMAND_GETVERSION);
-
-    itm3903HwFillResponseBuffer(response, &size);
-
+    itm3903HwFillResponseBuffer(o, &size);
     if(size < 0){
         return -1;
     }
-
-    memcpy(o, ptr, size);
     return MAX_SIZE;
 
 }
 
 int32_t itm3903cHwGetError(char * o){
     int32_t size = 0;
-    char response[MAX_SIZE];
-    char *ptr = response;
-    
     uart_write_blocking(UART_ID, (u_int8_t*) COMMAND_GETERROR, (size_t) SIZE_COMMAND_GETERROR);
-
-    itm3903HwFillResponseBuffer(response, &size);
-
+    itm3903HwFillResponseBuffer(o, &size);
     if(size < 0){
         return -1;
     }
-    
-    memcpy(o, ptr, size);
     return MAX_SIZE;
 
 }
