@@ -7,11 +7,12 @@
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
 #include "itm3903cHw.h"
-
+#include "hardware/uart.h"
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/adc.h"
 #include "string.h"
+#include "itm3903cCommands.h"
 
 //=============================================================================
 
@@ -29,11 +30,14 @@ typedef struct{
     itm3903cConfigMeasGains_t gains;
 
 }itm3903cHwControl_t;
+
+#define UART_ID uart1
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Prototypes -------------------------------*/
 //=============================================================================
+static void itm3903HwFillResponseBuffer(char *buffer, int32_t *size);
 static void itm3903cHwInitializeAdc(void *intc, itm3903cHwAdcIrqHandle_t irqhandle);
 static void itm3903cHwInitializePwm(void);
 static void itm3903cHwInitializeGpio(void);
@@ -125,16 +129,37 @@ float itm3903cHwGetSlope(uint32_t channel){
 }
 
 int32_t itm3903cHwGetVersion(char * o){
-    // Serial Communication
-
-    int32_t size = 20;
-    char * response = "IT39XXSrc-v1.3.7.xx";
+    int32_t size = 0;
+    char response[MAX_SIZE];
+    char *ptr = response;
     
-    if(size > MAX_SIZE){
+    uart_write_blocking(UART_ID, (u_int8_t*) COMMAND_GETVERSION, (size_t) SIZE_COMMAND_GETVERSION);
+
+    itm3903HwFillResponseBuffer(response, &size);
+
+    if(size < 0){
         return -1;
     }
 
-    memcpy(o, response, size);
+    memcpy(o, ptr, size);
+    return MAX_SIZE;
+
+}
+
+int32_t itm3903cHwGetError(char * o){
+    int32_t size = 0;
+    char response[MAX_SIZE];
+    char *ptr = response;
+    
+    uart_write_blocking(UART_ID, (u_int8_t*) COMMAND_GETERROR, (size_t) SIZE_COMMAND_GETERROR);
+
+    itm3903HwFillResponseBuffer(response, &size);
+
+    if(size < 0){
+        return -1;
+    }
+    
+    memcpy(o, ptr, size);
     return MAX_SIZE;
 
 }
@@ -144,6 +169,23 @@ int32_t itm3903cHwGetVersion(char * o){
 //=============================================================================
 /*----------------------------- Static functions ----------------------------*/
 //=============================================================================
+//-----------------------------------------------------------------------------
+static void itm3903HwFillResponseBuffer(char *buffer, int32_t *size){
+    uint8_t curr_char = (u_int8_t) '\r';
+    while(curr_char != (u_int8_t) '\n'){
+        curr_char = uart_getc(UART_ID);
+        *buffer++ = (char) curr_char;
+        (*size)++;
+    }
+
+    if(curr_char != '\n'){
+        *size = -1;
+        return;
+    }
+
+    *buffer++ = '\0';
+    (*size)++;
+}
 //-----------------------------------------------------------------------------
 static void itm3903cHwInitializeAdc(void *intc, itm3903cHwAdcIrqHandle_t irqhandle){
 
