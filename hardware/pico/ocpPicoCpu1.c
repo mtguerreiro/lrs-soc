@@ -21,6 +21,7 @@
 
 #include "ocp/ipc/ipcServer.h"
 #include "hardware/adc.h"
+#include "hardware/uart.h"
 
 #include "ocp/app/itm3903c/itm3903cConfig.h"
 #include "ocp/app/itm3903c/itm3903cController.h"
@@ -54,6 +55,11 @@ static bool ocpPicoAdcIrq(struct repeating_timer *t);
 
 #define OCP_PICO_C1_CONFIG_INPUT_BUF_SIZE       20
 #define OCP_PICO_C1_CONFIG_OUTPUT_BUF_SIZE      20
+
+#define UART_ID uart1
+#define BAUD_RATE 115200
+#define UART_TX_PIN 4
+#define UART_RX_PIN 5
 //=============================================================================
 
 //=============================================================================
@@ -114,6 +120,14 @@ static int32_t ocpPicoCpu1InitializeHw(void){
 
    /*Using timer*/
     add_repeating_timer_ms(1, ocpPicoAdcIrq, NULL, &timerAdc);
+
+    uart_init(UART_ID, BAUD_RATE);
+
+    gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
+    gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
+
+    // uart_puts(UART_ID, " Hello, UART!\n");
+
     return 0;
 }
 
