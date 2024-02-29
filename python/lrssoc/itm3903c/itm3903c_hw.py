@@ -15,6 +15,10 @@ class Commands:
         self.get_slope = 1
         self.get_version = 2
         self.get_error = 3
+        self.clear_error = 4
+        self.set_output_status = 5
+        self.get_output_status = 6
+
 
 class MeasGains:
 
@@ -79,6 +83,18 @@ class Hw:
 
         return self._get_error()
     
+    def clear_error(self):
+
+        return self._clear_error()
+    
+    def set_output_status(self, set_status):
+
+        return self._set_output_status(set_status)
+
+    def get_output_status(self):
+
+        return self._get_output_status()
+    
     def _get_version(self):
         """
         Returns the version of the firmware of the power supply
@@ -118,8 +134,53 @@ class Hw:
         string = version.split(b'\x00')[0].decode()
         return (0, string)
 
+    def _clear_error(self):
+        cmd = self._cmd.clear_error
 
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
 
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error clearing error status. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        return (0,)
+
+    def _set_output_status(self, set_status):
+        cmd = self._cmd.set_output_status
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(set_status, msb=False) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting output status. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        
+
+        return (0,)
+
+    def _get_output_status(self):
+
+        cmd = self._cmd.get_output_status
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+
+        status, output_status = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting output status. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        output_status = struct.unpack('<i', output_status)[0]
+        return (0, output_status > 0)
+    
     def _set_slope(self, channel, slope):
         """
 

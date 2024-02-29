@@ -12,7 +12,8 @@
 #include "pico/stdlib.h"
 #include "hardware/adc.h"
 #include "string.h"
-#include "itm3903cCommands.h"
+#include <stdint.h>
+#include <stdlib.h>
 
 //=============================================================================
 
@@ -114,7 +115,15 @@ int32_t itm3903cHwApplyOutputs(void *outputs, int32_t size){
 void itm3903cHwSetSlope(uint32_t channel, float slope){
 
     supplySlope = slope;
+    char * command = malloc(50);
 
+    sprintf(command, "EXT:PROG:CHAN:MX %d,%f\r\n", channel, slope);
+
+    size_t size = strlen(command);
+
+    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) size);
+
+    free(command);
     // sends slope to supply
 }
 //-----------------------------------------------------------------------------
@@ -122,16 +131,34 @@ float itm3903cHwGetSlope(uint32_t channel){
 
     float slope; 
 
-    // gets slope to supply
-    slope = supplySlope;
+    int32_t size_response = 0;
 
+    char * command = malloc(50);
+    sprintf(command, "EXT:PROG:CHAN:MX? %d\r\n", channel);
+    size_t size = strlen(command);
+    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) size);
+    free(command);
+
+    
+    char * o = malloc(10); 
+    itm3903HwFillResponseBuffer(o, &size_response);
+    slope = (float) strtod(o, NULL);
+    free(o);
+    // gets slope to supply
+    // slope = supplySlope;
     return slope;
 }
 
 int32_t itm3903cHwGetVersion(char * o){
     int32_t size = 0;
-    uart_write_blocking(UART_ID, (u_int8_t*) COMMAND_GETVERSION, (size_t) SIZE_COMMAND_GETVERSION);
+
+    char * command = "SYST:VERS?\r\n";
+    size_t command_size = 12;
+
+    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) command_size);
+
     itm3903HwFillResponseBuffer(o, &size);
+
     if(size < 0){
         return -1;
     }
@@ -141,12 +168,58 @@ int32_t itm3903cHwGetVersion(char * o){
 
 int32_t itm3903cHwGetError(char * o){
     int32_t size = 0;
-    uart_write_blocking(UART_ID, (u_int8_t*) COMMAND_GETERROR, (size_t) SIZE_COMMAND_GETERROR);
+
+    char * command = "SYST:ERR?\r\n";
+    size_t command_size = 11;
+
+    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) command_size);
+
     itm3903HwFillResponseBuffer(o, &size);
     if(size < 0){
         return -1;
     }
     return MAX_SIZE;
+
+}
+
+void itm3903cHwClearError(){
+    char * command = "SYST:CLE\r\n";
+    size_t command_size = 10;
+
+    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) command_size);
+}
+
+void itm3903cHwSetOutputStatus(uint32_t setStatus){
+    char * command = strdup("OUTP 0\r\n");
+    size_t command_size = 8;
+    char* p = command;
+    p += 5;
+    
+    if((bool) setStatus) {
+            *p = '1';
+    }
+
+    if (command != NULL) {
+        uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) command_size);
+        free(command);
+    }
+    
+}
+
+uint32_t itm3903cHwGetOutputStatus() {
+    uint32_t output_status;
+    char * command = "OUTP?\r\n";
+    size_t command_size = 7;
+
+    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) command_size);
+    
+    char * o = malloc(4);
+    int32_t size = 0;
+    itm3903HwFillResponseBuffer(o, &size);
+
+    output_status = (uint32_t) atoi(o);
+
+    return output_status;
 
 }
 //-----------------------------------------------------------------------------

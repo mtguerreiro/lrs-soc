@@ -7,6 +7,7 @@
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
 #include "itm3903cHwIf.h"
+#include <stdio.h>
 
 #include "itm3903cConfig.h"
 
@@ -40,6 +41,9 @@ static int32_t itm3903cHwIfSetSlope(void *in, uint32_t insize, void **out, uint3
 static int32_t itm3903cHwIfGetSlope(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfGetVersion(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfGetError(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfClearError(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfSetOutputStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfGetOutputStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
 
 //=============================================================================
@@ -56,6 +60,9 @@ int32_t itm3903cHwIfInitialize(void){
     rpRegisterHandle(&hwControl.interface.rp, ITM3903C_HW_IF_GET_SLOPE, itm3903cHwIfGetSlope);
     rpRegisterHandle(&hwControl.interface.rp, ITM3903C_HW_IF_GET_VERSION, itm3903cHwIfGetVersion);
     rpRegisterHandle(&hwControl.interface.rp, ITM3903C_HW_IF_GET_ERROR, itm3903cHwIfGetError);
+    rpRegisterHandle(&hwControl.interface.rp, ITM3903C_HW_IF_CLEAR_ERROR, itm3903cHwIfClearError);
+    rpRegisterHandle(&hwControl.interface.rp, ITM3903C_HW_IF_SET_OUTPUT_STATUS,itm3903cHwIfSetOutputStatus);
+    rpRegisterHandle(&hwControl.interface.rp, ITM3903C_HW_IF_GET_OUTPUT_STATUS,itm3903cHwIfGetOutputStatus);
 
     return 0;
 }
@@ -119,6 +126,29 @@ static int32_t itm3903cHwIfGetError(void *in, uint32_t insize, void **out, uint3
     return itm3903cHwGetError(o);
 }
 
+static int32_t itm3903cHwIfClearError(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+    itm3903cHwClearError();
+    return 0;
+}
+
+static int32_t itm3903cHwIfSetOutputStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+    uint32_t *p = (uint32_t *)in;
+    uint32_t setStatus = *p;
+    
+    itm3903cHwSetOutputStatus(setStatus);
+
+    return 0;
+}
+
+static int32_t itm3903cHwIfGetOutputStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+    uint32_t *o = (u_int32_t *) *out;
+
+    uint32_t output_status = itm3903cHwGetOutputStatus();
+
+    *o = output_status;
+
+    return 4;
+}
 //-----------------------------------------------------------------------------
 //=============================================================================
 
