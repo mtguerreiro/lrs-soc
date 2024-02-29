@@ -203,6 +203,24 @@ int32_t itm3903cHwGetVersion(char * o){
 
 }
 
+int32_t itm3903cHwGetFuncMode(char * o){
+    int32_t size = 0;
+
+    char * command = "FUNC?\r\n";
+    size_t command_size = 7;
+
+    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) command_size);
+
+    itm3903HwFillResponseBuffer(o, &size);
+
+    if(size < 0){
+        return -1;
+    }
+
+    return MAX_SIZE;
+
+}
+
 int32_t itm3903cHwGetError(char * o){
     int32_t size = 0;
 
@@ -234,6 +252,26 @@ void itm3903cHwSetOutputStatus(uint32_t setStatus){
     
     if((bool) setStatus) {
             *p = '1';
+    }
+
+    if (command != NULL) {
+        uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) command_size);
+        free(command);
+    }
+    
+}
+
+void itm3903cHwSetFuncMode(uint32_t funcMode){
+    char * command = strdup("FUNC CURR\r\n");
+    size_t command_size = 11;
+    char* p = command;
+    p += 5;
+    
+    if((bool) funcMode) {
+            *p++ = 'V';
+            *p++ = 'O';
+            *p++ = 'L';
+            *p++ = 'T';
     }
 
     if (command != NULL) {
@@ -275,6 +313,26 @@ void itm3903cHwSetAnalogExternalStatus(uint32_t setStatus){
         free(command);
     }
     
+}
+
+void itm3903cHwSetValue(float value, bool currOrVolt){
+    char * command = malloc(50);
+    char pre_comm[5] = "CURR";
+    char * p = pre_comm;
+
+    if(currOrVolt) {
+        *p++ = 'V';
+        *p++ = 'O';
+        *p++ = 'L';
+        *p++ = 'T';
+    };
+    
+    if (command != NULL) {
+        sprintf(command, "%s %f\r\n", pre_comm, value);
+        size_t size = strlen(command);
+        uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) size);
+        free(command);
+    }
 }
 
 uint32_t itm3903cHwGetAnalogExternalStatus() {

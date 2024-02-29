@@ -8,6 +8,7 @@
 //=============================================================================
 #include "itm3903cHwIf.h"
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "itm3903cConfig.h"
 
@@ -48,6 +49,10 @@ static int32_t itm3903cHwIfSetOutputStatus(void *in, uint32_t insize, void **out
 static int32_t itm3903cHwIfGetOutputStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfSetAnalogExternalStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfGetAnalogExternalStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfSetFuncMode(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfGetFuncMode(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfSetVoltValue(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfSetCurrValue(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
 
 //=============================================================================
@@ -68,9 +73,15 @@ int32_t itm3903cHwIfInitialize(void){
     rpRegisterHandle(&hwControl.interface.rp, ITM3903C_HW_IF_GET_ERROR, itm3903cHwIfGetError);
     rpRegisterHandle(&hwControl.interface.rp, ITM3903C_HW_IF_CLEAR_ERROR, itm3903cHwIfClearError);
     rpRegisterHandle(&hwControl.interface.rp, ITM3903C_HW_IF_SET_OUTPUT_STATUS, itm3903cHwIfSetOutputStatus);
+    rpRegisterHandle(&hwControl.interface.rp, ITM3903C_HW_IF_SET_FUNC_MODE, itm3903cHwIfSetFuncMode);
+    rpRegisterHandle(&hwControl.interface.rp, ITM3903C_HW_IF_GET_FUNC_MODE, itm3903cHwIfGetFuncMode);
     rpRegisterHandle(&hwControl.interface.rp, ITM3903C_HW_IF_GET_OUTPUT_STATUS, itm3903cHwIfGetOutputStatus);
     rpRegisterHandle(&hwControl.interface.rp, ITM3903C_HW_IF_SET_ANALOG_EXTERNAL_STATUS, itm3903cHwIfSetAnalogExternalStatus);
     rpRegisterHandle(&hwControl.interface.rp, ITM3903C_HW_IF_GET_ANALOG_EXTERNAL_STATUS, itm3903cHwIfGetAnalogExternalStatus);
+    rpRegisterHandle(&hwControl.interface.rp, ITM3903C_HW_IF_SET_VOLT_VALUE, itm3903cHwIfSetVoltValue);
+    rpRegisterHandle(&hwControl.interface.rp, ITM3903C_HW_IF_SET_CURR_VALUE, itm3903cHwIfSetCurrValue);
+
+
 
     return 0;
 }
@@ -158,6 +169,11 @@ static int32_t itm3903cHwIfGetVersion(void *in, uint32_t insize, void **out, uin
     
     return itm3903cHwGetVersion(o);
 }
+static int32_t itm3903cHwIfGetFuncMode(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+    char *o = (char *)*out;
+    
+    return itm3903cHwGetFuncMode(o);
+}
 
 static int32_t itm3903cHwIfGetError(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
     char *o = (char *)*out;
@@ -175,6 +191,14 @@ static int32_t itm3903cHwIfSetOutputStatus(void *in, uint32_t insize, void **out
     uint32_t setStatus = *p;
     
     itm3903cHwSetOutputStatus(setStatus);
+
+    return 0;
+}
+static int32_t itm3903cHwIfSetFuncMode(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+    uint32_t *p = (uint32_t *)in;
+    uint32_t funcMode = *p;
+    
+    itm3903cHwSetFuncMode(funcMode);
 
     return 0;
 }
@@ -206,6 +230,30 @@ static int32_t itm3903cHwIfGetAnalogExternalStatus(void *in, uint32_t insize, vo
     *o = output_status;
 
     return 4;
+}
+
+static int32_t itm3903cHwIfSetVoltValue(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+    float volt_value;
+
+    uint32_t *p = (uint32_t *)in;
+
+    volt_value = *( (float *)p );
+
+    itm3903cHwSetValue(volt_value, true);
+   
+    return 0;
+}
+
+static int32_t itm3903cHwIfSetCurrValue(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+    float curr_value;
+
+    uint32_t *p = (uint32_t *)in;
+
+    curr_value = *( (float *)p );
+
+    itm3903cHwSetValue(curr_value, false);
+   
+    return 0;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

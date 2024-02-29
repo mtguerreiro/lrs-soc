@@ -21,7 +21,11 @@ class Commands:
         self.set_analog_external_status = 7
         self.get_analog_external_status = 8
         self.set_offset = 9
-        self.get_offset = 10 
+        self.get_offset = 10
+        self.set_func_mode = 11 # 1: Voltage 0: Current
+        self.get_func_mode = 12
+        self.set_volt_value = 13
+        self.set_curr_value = 14
 
 class MeasGains:
 
@@ -114,6 +118,20 @@ class Hw:
     def get_analog_external_status(self):
 
         return self._get_analog_external_status()
+
+    def set_func_mode(self, func_mode):
+
+        return self._set_func_mode(func_mode)
+    
+    def get_func_mode(self):
+
+        return self._get_func_mode()
+
+    def set_volt_value(self, value):
+        return self._set_volt_value(value)
+    
+    def set_curr_value(self, value):
+        return self._set_curr_value(value)
     
     def _get_version(self):
         """
@@ -337,3 +355,66 @@ class Hw:
         offset = struct.unpack('<f', offset_b)[0]
         
         return (0, offset)
+
+    def _set_func_mode(self, func_mode):
+        cmd = self._cmd.set_func_mode
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(func_mode, msb=False) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting function mode. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        
+        return (0,)
+    
+    def _get_func_mode(self):
+        cmd = self._cmd.get_func_mode
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+
+        status, func_mode_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting function mode. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        func_mode = struct.unpack('<100s', func_mode_b)[0]
+        string = func_mode.split(b'\x00')[0].decode()
+
+        return (0, string)
+
+    def _set_volt_value(self, value):
+        cmd = self._cmd.set_volt_value
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( list(struct.pack('<f', value)) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting voltage value. Error code {:}\r\n'.format(status))
+            return (-1, status)
+    
+        return (0,)
+    
+    def _set_curr_value(self, value):
+        cmd = self._cmd.set_curr_value
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( list(struct.pack('<f', value)) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting voltage value. Error code {:}\r\n'.format(status))
+            return (-1, status)
+    
+        return (0,)
