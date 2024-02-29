@@ -11,21 +11,21 @@ class Commands:
     """
     """
     def __init__(self):
-        self.set_slope = 0
-        self.get_slope = 1
-        self.get_version = 2
-        self.get_error = 3
-        self.clear_error = 4
-        self.set_output_status = 5
-        self.get_output_status = 6
-        self.set_analog_external_status = 7
-        self.get_analog_external_status = 8
-        self.set_offset = 9
-        self.get_offset = 10
-        self.set_func_mode = 11 # 1: Voltage 0: Current
-        self.get_func_mode = 12
-        self.set_volt_value = 13
-        self.set_curr_value = 14
+        self.set_slope                  = 0  # Programming Guide Page 111 [SOURce:]EXTern:PROGram:CHANnel:MX <NR1>,<NRf>
+        self.get_slope                  = 1  # Programming Guide Page 112 [SOURce:]EXTern:PROGram:CHANnel:MX? <NR1>
+        self.get_version                = 2  # Programming Guide Page 30 SYSTem:VERSion?
+        self.get_error                  = 3  # Programming Guide Page 31 SYSTem:ERRor?
+        self.clear_error                = 4  # Programming Guide Page 32 SYSTem:CLEar
+        self.set_output_status          = 5  # Programming Guide Page 118 OUTPut[:STATe] <CPD>
+        self.get_output_status          = 6  # Programming Guide Page 119 OUTPut[:STATe]?
+        self.set_analog_external_status = 7  # Programming Guide Page 109 [SOURce:]EXTern:PROGram[:STATe] <Bool>
+        self.get_analog_external_status = 8  # Programming Guide Page 110 [SOURce:]EXTern:PROGram[:STATe]?
+        self.set_offset                 = 9  # Programming Guide Page 112 [SOURce:]EXTern:PROGram:CHANnel:MB <NR1>,<NRf>
+        self.get_offset                 = 10 # Programming Guide Page 113 [SOURce:]EXTern:PROGram:CHANnel:MB? <NR1>
+        self.set_func_mode              = 11 # Programming Guide Page 51 [SOURce:]FUNCtion <CPD>                                  
+        self.get_func_mode              = 12 # Programming Guide Page 52 [SOURce:]FUNCtion?
+        self.set_volt_value             = 13 # Programming Guide Page 79 [SOURce:]VOLTage[:LEVel][:IMMediate][:AMPLitude] <NRf+> 
+        self.set_curr_value             = 14 # Programming Guide Page 54 [SOURce:]CURRent[:LEVel][:IMMediate][:AMPLitude] <NRf+>
 
 class MeasGains:
 
