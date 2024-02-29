@@ -18,7 +18,10 @@ class Commands:
         self.clear_error = 4
         self.set_output_status = 5
         self.get_output_status = 6
-
+        self.set_analog_external_status = 7
+        self.get_analog_external_status = 8
+        self.set_offset = 9
+        self.get_offset = 10 
 
 class MeasGains:
 
@@ -74,6 +77,15 @@ class Hw:
     def get_slope(self, channel):
 
         return self._get_slope(channel)
+    
+    def set_offset(self, channel, offset):
+
+        return self._set_offset(channel, offset)
+
+
+    def get_offset(self, channel):
+
+        return self._get_offset(channel)
 
     def get_version(self):
 
@@ -94,6 +106,14 @@ class Hw:
     def get_output_status(self):
 
         return self._get_output_status()
+    
+    def set_analog_external_status(self, set_status):
+
+        return self._set_analog_external_status(set_status)
+
+    def get_analog_external_status(self):
+
+        return self._get_analog_external_status()
     
     def _get_version(self):
         """
@@ -123,15 +143,15 @@ class Hw:
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
 
-        status, version_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+        status, error_msg_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
 
         if status < 0:
             print('Error getting error status. Error code {:}\r\n'.format(status))
             return (-1, status)
 
-        version = struct.unpack('<100s', version_b)[0]
+        error_msg = struct.unpack('<100s', error_msg_b)[0]
 
-        string = version.split(b'\x00')[0].decode()
+        string = error_msg.split(b'\x00')[0].decode()
         return (0, string)
 
     def _clear_error(self):
@@ -165,9 +185,42 @@ class Hw:
 
         return (0,)
 
+    def _set_analog_external_status(self, set_status):
+        cmd = self._cmd.set_analog_external_status
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(set_status, msb=False) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting analog external status. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        
+
+        return (0,)
+
     def _get_output_status(self):
 
         cmd = self._cmd.get_output_status
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+
+        status, output_status = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting output status. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        output_status = struct.unpack('<i', output_status)[0]
+        return (0, output_status > 0)
+
+    def _get_analog_external_status(self):
+
+        cmd = self._cmd.get_analog_external_status
 
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
@@ -232,3 +285,55 @@ class Hw:
         slope = struct.unpack('<f', slope_b)[0]
         
         return (0, slope)
+    
+    def _set_offset(self, channel, offset):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """    
+        cmd = self._cmd.set_offset
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(channel, msb=False) )
+        tx_data.extend( list(struct.pack('<f', offset)) )
+        
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting offset. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        return (0,)
+
+
+    def _get_offset(self, channel):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """    
+        cmd = self._cmd.get_offset
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(channel, msb=False) )
+        
+        status, offset_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting offset. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        offset = struct.unpack('<f', offset_b)[0]
+        
+        return (0, offset)

@@ -62,6 +62,35 @@ typedef enum{
 
     ITM3903C_HW_IF_GET_OUTPUT_STATUS,
 
+    ITM3903C_HW_IF_SET_ANALOG_EXTERNAL_STATUS,
+
+    ITM3903C_HW_IF_GET_ANALOG_EXTERNAL_STATUS,
+    
+    /**
+     * Command
+     *  ----------------------------------------------------------
+     *  | SET OFFSET (uint32)t | CHANNEL (uint32) | OFFSET (float) |
+     *  ----------------------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
+    ITM3903C_HW_IF_SET_OFFSET,
+
+    /**
+     * Command
+     *  ------------------------------------------
+     *  | GET OFFSET (uint32)t | CHANNEL (uint32) |
+     *  ------------------------------------------
+     *
+     * Response
+     *  ------------------
+     *  | OFFSET (uint32) |
+     *  ------------------
+     */
+    ITM3903C_HW_IF_GET_OFFSET,
+
     ITM3903C_HW_IF_END
 }itm3903cHwIfCommands_t;
 

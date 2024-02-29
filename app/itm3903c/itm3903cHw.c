@@ -148,6 +148,43 @@ float itm3903cHwGetSlope(uint32_t channel){
     // slope = supplySlope;
     return slope;
 }
+//-----------------------------------------------------------------------------
+void itm3903cHwSetOffset(uint32_t channel, float offset){
+
+    // supplyOffset = offset;
+    char * command = malloc(50);
+
+    sprintf(command, "EXT:PROG:CHAN:MB %d,%f\r\n", channel, offset);
+
+    size_t size = strlen(command);
+
+    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) size);
+
+    free(command);
+    // sends offset to supply
+}
+//-----------------------------------------------------------------------------
+float itm3903cHwGetOffset(uint32_t channel){
+
+    float offset; 
+
+    int32_t size_response = 0;
+
+    char * command = malloc(50);
+    sprintf(command, "EXT:PROG:CHAN:MB? %d\r\n", channel);
+    size_t size = strlen(command);
+    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) size);
+    free(command);
+
+    
+    char * o = malloc(10); 
+    itm3903HwFillResponseBuffer(o, &size_response);
+    offset = (float) strtod(o, NULL);
+    free(o);
+    // gets offset to supply
+    // offset = supplyOffset;
+    return offset;
+}
 
 int32_t itm3903cHwGetVersion(char * o){
     int32_t size = 0;
@@ -222,6 +259,40 @@ uint32_t itm3903cHwGetOutputStatus() {
     return output_status;
 
 }
+
+void itm3903cHwSetAnalogExternalStatus(uint32_t setStatus){
+    char * command = strdup("EXT:PROG 0\r\n");
+    size_t command_size = 12;
+    char* p = command;
+    p += 9;
+    
+    if((bool) setStatus) {
+            *p = '1';
+    }
+
+    if (command != NULL) {
+        uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) command_size);
+        free(command);
+    }
+    
+}
+
+uint32_t itm3903cHwGetAnalogExternalStatus() {
+    uint32_t output_status;
+    char * command = "EXT:PROG?\r\n";
+    size_t command_size = 11;
+
+    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) command_size);
+    
+    char * o = malloc(4);
+    int32_t size = 0;
+    itm3903HwFillResponseBuffer(o, &size);
+
+    output_status = (uint32_t) atoi(o);
+
+    return output_status;
+
+}
 //-----------------------------------------------------------------------------
 //=============================================================================
 
@@ -231,7 +302,15 @@ uint32_t itm3903cHwGetOutputStatus() {
 //-----------------------------------------------------------------------------
 static void itm3903HwFillResponseBuffer(char *buffer, int32_t *size){
     uint8_t curr_char = (u_int8_t) '\r';
+
+    if(!uart_is_readable_within_us(UART_ID, 1e6)) {
+        printf("UART timed out\n");
+        *size = -1;
+        return;
+    };
+
     while(curr_char != (u_int8_t) '\n'){
+        
         curr_char = uart_getc(UART_ID);
         *buffer++ = (char) curr_char;
         (*size)++;
