@@ -18,6 +18,11 @@
 
 #include "ocp/ipc/ipcClient.h"
 
+#define UART_ID uart1
+#define BAUD_RATE 115200
+#define UART_TX_PIN 4
+#define UART_RX_PIN 5
+
 //=============================================================================
 
 //=============================================================================
@@ -64,6 +69,10 @@ void ocpPicoCpu0Initialize(void *params){
 //-----------------------------------------------------------------------------
 static int32_t ocpPicoCpu0InitializeHw(void){
 	sleep_ms(5000);
+	uart_init(UART_ID, BAUD_RATE);
+
+    gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
+    gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
 	return wzPicoInit();
 }
 //-----------------------------------------------------------------------------

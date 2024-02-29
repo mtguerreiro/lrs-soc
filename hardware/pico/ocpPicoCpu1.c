@@ -121,10 +121,7 @@ static int32_t ocpPicoCpu1InitializeHw(void){
    /*Using timer*/
     add_repeating_timer_ms(1, ocpPicoAdcIrq, NULL, &timerAdc);
 
-    uart_init(UART_ID, BAUD_RATE);
 
-    gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
-    gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
 
     // uart_puts(UART_ID, " Hello, UART!\n");
 
