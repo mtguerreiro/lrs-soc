@@ -15,13 +15,19 @@ VI
 	Desciption: Through this function you can select the signals stored in a CSV file.
 
 Functions
-Getting_TRACE DATA -> Fc_Get_TRACEDATA
-String2ArrayDouble -> String2ArrayDbl
-Function_update_parameters_frommicro -> Fc_update_params_from_uc
+	Getting_TRACE DATA -> Fc_Get_TRACEDATA
+	Desciption: This function calls the microcontroller to obtain the signal data and stores them at the time of the request, into the "Signals_value_Array" variable.
+	
+	String2ArrayDouble -> String2ArrayDbl
+	Function_update_parameters_frommicro -> Fc_update_params_from_uc
 
 TCP
-TCP Client_34 -> Fc_TCP_Client
-TCP Client_Get data signals -> Fc_TCP_Client_GetDatasignals
+	TCP Client_33 -> Fc_TCP_Client_33
+	Desciption: This function follows the tcp ip protocol to communicate with the microcontroller depending on the command (CMD) to be used. Version #33
+	TCP Client_34 -> Fc_TCP_Client_34
+	Description: This function follows the tcp ip protocol to communicate with the microcontroller depending on the command (CMD) to be used. Version #34. Change data parameters
+	
+	TCP Client_Get data signals -> Fc_TCP_Client_GetDatasignals
 
 Variables
 	Variables1 -> Share_Variables

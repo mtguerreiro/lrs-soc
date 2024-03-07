@@ -67,13 +67,13 @@ An interface will grant access to control systems and plotting traces.</Property
 			<Item Name="New plot1_old.vi" Type="VI" URL="../New plot1_old.vi"/>
 		</Item>
 		<Item Name="TCP" Type="Folder">
+			<Item Name="Fc_TCP_Client_33.vi" Type="VI" URL="../Fc_TCP_Client_33.vi"/>
+			<Item Name="Fc_TCP_Client_34.vi" Type="VI" URL="../Fc_TCP_Client_34.vi"/>
 			<Item Name="Fc_TCP_Client_GetDatasignals.vi" Type="VI" URL="../Fc_TCP_Client_GetDatasignals.vi"/>
 			<Item Name="TCP Client.vi" Type="VI" URL="../TCP Client.vi"/>
 			<Item Name="TCP Client_21.vi" Type="VI" URL="../TCP Client_21.vi"/>
 			<Item Name="TCP Client_31.vi" Type="VI" URL="../TCP Client_31.vi"/>
 			<Item Name="TCP Client_32.vi" Type="VI" URL="../TCP Client_32.vi"/>
-			<Item Name="TCP Client_33.vi" Type="VI" URL="../TCP Client_33.vi"/>
-			<Item Name="TCP Client_34.vi" Type="VI" URL="../TCP Client_34.vi"/>
 			<Item Name="TCP Client_34_enablep.vi" Type="VI" URL="../TCP Client_34_enablep.vi"/>
 		</Item>
 		<Item Name="test functions" Type="Folder">
