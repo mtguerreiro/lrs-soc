@@ -6,14 +6,14 @@
 Embedded controllers may contain numerous controllers and traces.
 An interface will grant access to control systems and plotting traces.</Property>
 	<Property Name="SMProvider.SMVersion" Type="Int">201310</Property>
-	<Property Name="varPersistentID:{2FD70FF1-0CF7-4534-A776-1EC0D4C2A581}" Type="Ref">/My Computer/Variable 1.lvlib/Signals_value_string</Property>
-	<Property Name="varPersistentID:{363DF3D9-D8B8-4F19-8F38-3ECF772803CE}" Type="Ref">/My Computer/Variable 1.lvlib/Signals_name</Property>
-	<Property Name="varPersistentID:{43D425C3-DC9C-4DC9-9D7E-1B310843F631}" Type="Ref">/My Computer/Variable 1.lvlib/Mode_signal_conf</Property>
-	<Property Name="varPersistentID:{468564A8-839E-48BE-8105-628EAE285AC5}" Type="Ref">/My Computer/Variable 1.lvlib/Signals_value_Array</Property>
-	<Property Name="varPersistentID:{4FD7655C-6099-46C5-A8F8-9C7AA09BE3FD}" Type="Ref">/My Computer/Variable 1.lvlib/Trace_name</Property>
-	<Property Name="varPersistentID:{71F10532-AEA6-4ADE-90D3-CE81E849D6E3}" Type="Ref">/My Computer/Variable 1.lvlib/Close_all_wplots</Property>
-	<Property Name="varPersistentID:{7A163EED-FD73-4001-9628-C2BA347AAFC0}" Type="Ref">/My Computer/Variable 1.lvlib/Global_refresh_time</Property>
-	<Property Name="varPersistentID:{A28CA767-DF3E-4269-9A6E-C2042F133929}" Type="Ref">/My Computer/Variable 1.lvlib/number_signals</Property>
+	<Property Name="varPersistentID:{2FD70FF1-0CF7-4534-A776-1EC0D4C2A581}" Type="Ref">/My Computer/Share_Variables.lvlib/Signals_value_string</Property>
+	<Property Name="varPersistentID:{363DF3D9-D8B8-4F19-8F38-3ECF772803CE}" Type="Ref">/My Computer/Share_Variables.lvlib/Signals_name</Property>
+	<Property Name="varPersistentID:{43D425C3-DC9C-4DC9-9D7E-1B310843F631}" Type="Ref">/My Computer/Share_Variables.lvlib/Mode_signal_conf</Property>
+	<Property Name="varPersistentID:{468564A8-839E-48BE-8105-628EAE285AC5}" Type="Ref">/My Computer/Share_Variables.lvlib/Signals_value_Array</Property>
+	<Property Name="varPersistentID:{4FD7655C-6099-46C5-A8F8-9C7AA09BE3FD}" Type="Ref">/My Computer/Share_Variables.lvlib/Trace_name</Property>
+	<Property Name="varPersistentID:{71F10532-AEA6-4ADE-90D3-CE81E849D6E3}" Type="Ref">/My Computer/Share_Variables.lvlib/Close_all_wplots</Property>
+	<Property Name="varPersistentID:{7A163EED-FD73-4001-9628-C2BA347AAFC0}" Type="Ref">/My Computer/Share_Variables.lvlib/Global_refresh_time</Property>
+	<Property Name="varPersistentID:{A28CA767-DF3E-4269-9A6E-C2042F133929}" Type="Ref">/My Computer/Share_Variables.lvlib/number_signals</Property>
 	<Item Name="My Computer" Type="My Computer">
 		<Property Name="IOScan.Faults" Type="Str"></Property>
 		<Property Name="IOScan.NetVarPeriod" Type="UInt">100</Property>
@@ -37,6 +37,8 @@ An interface will grant access to control systems and plotting traces.</Property
 			<Item Name="ArrayS2ArrayAx_.vi" Type="VI" URL="../ArrayS2ArrayAx_.vi"/>
 			<Item Name="Export image.vi" Type="VI" URL="../Export image.vi"/>
 			<Item Name="Export plot data to Clipboard.vi" Type="VI" URL="../Export plot data to Clipboard.vi"/>
+			<Item Name="Fc_Get_TRACEDATA.vi" Type="VI" URL="../Fc_Get_TRACEDATA.vi"/>
+			<Item Name="Fc_update_params_from_uc.vi" Type="VI" URL="../Fc_update_params_from_uc.vi"/>
 			<Item Name="Function_2update_waveform graph.vi" Type="VI" URL="../Function_2update_waveform graph.vi"/>
 			<Item Name="Function_evaluate_state.vi" Type="VI" URL="../Function_evaluate_state.vi"/>
 			<Item Name="Function_for_MenuSelections.vi" Type="VI" URL="../Function_for_MenuSelections.vi"/>
@@ -47,13 +49,11 @@ An interface will grant access to control systems and plotting traces.</Property
 			<Item Name="Function_SaveCTRLparam.vi" Type="VI" URL="../Function_SaveCTRLparam.vi"/>
 			<Item Name="Function_to CS Enable.vi" Type="VI" URL="../Function_to CS Enable.vi"/>
 			<Item Name="Function_to_define_CSstatus.vi" Type="VI" URL="../Function_to_define_CSstatus.vi"/>
-			<Item Name="Function_update_parameters_frommicro.vi" Type="VI" URL="../Function_update_parameters_frommicro.vi"/>
-			<Item Name="Getting_TRACE DATA.vi" Type="VI" URL="../Getting_TRACE DATA.vi"/>
 			<Item Name="receiver_Main_menu.vi" Type="VI" URL="../receiver_Main_menu.vi"/>
 			<Item Name="receiver_queue_Main_menu.vi" Type="VI" URL="../receiver_queue_Main_menu.vi"/>
 			<Item Name="Send_Msj_Nplot.vi" Type="VI" URL="../Send_Msj_Nplot.vi"/>
 			<Item Name="String2Array.vi" Type="VI" URL="../String2Array.vi"/>
-			<Item Name="String2ArrayDouble.vi" Type="VI" URL="../String2ArrayDouble.vi"/>
+			<Item Name="String2ArrayDbl.vi" Type="VI" URL="../String2ArrayDbl.vi"/>
 			<Item Name="String2ArrayInt.vi" Type="VI" URL="../String2ArrayInt.vi"/>
 			<Item Name="String2Matrix.vi" Type="VI" URL="../String2Matrix.vi"/>
 		</Item>
@@ -67,6 +67,7 @@ An interface will grant access to control systems and plotting traces.</Property
 			<Item Name="New plot1_old.vi" Type="VI" URL="../New plot1_old.vi"/>
 		</Item>
 		<Item Name="TCP" Type="Folder">
+			<Item Name="Fc_TCP_Client_GetDatasignals.vi" Type="VI" URL="../Fc_TCP_Client_GetDatasignals.vi"/>
 			<Item Name="TCP Client.vi" Type="VI" URL="../TCP Client.vi"/>
 			<Item Name="TCP Client_21.vi" Type="VI" URL="../TCP Client_21.vi"/>
 			<Item Name="TCP Client_31.vi" Type="VI" URL="../TCP Client_31.vi"/>
@@ -74,18 +75,17 @@ An interface will grant access to control systems and plotting traces.</Property
 			<Item Name="TCP Client_33.vi" Type="VI" URL="../TCP Client_33.vi"/>
 			<Item Name="TCP Client_34.vi" Type="VI" URL="../TCP Client_34.vi"/>
 			<Item Name="TCP Client_34_enablep.vi" Type="VI" URL="../TCP Client_34_enablep.vi"/>
-			<Item Name="TCP Client_Get data signals.vi" Type="VI" URL="../TCP Client_Get data signals.vi"/>
 		</Item>
 		<Item Name="test functions" Type="Folder">
 			<Item Name="Array2Matrix_test.vi" Type="VI" URL="../Array2Matrix_test.vi"/>
 			<Item Name="Send Message_test.vi" Type="VI" URL="../Send Message_test.vi"/>
 			<Item Name="Show_virtual variables.vi" Type="VI" URL="../Show_virtual variables.vi"/>
 		</Item>
-		<Item Name="From file.vi" Type="VI" URL="../From file.vi"/>
-		<Item Name="From HW.vi" Type="VI" URL="../From HW.vi"/>
-		<Item Name="Main menu_4.vi" Type="VI" URL="../Main menu_4.vi"/>
-		<Item Name="New plot1.vi" Type="VI" URL="../New plot1.vi"/>
-		<Item Name="Variable 1.lvlib" Type="Library" URL="../Variable 1.lvlib"/>
+		<Item Name="Call_signal_fromfile.vi" Type="VI" URL="../Call_signal_fromfile.vi"/>
+		<Item Name="Call_signal_fromHW.vi" Type="VI" URL="../Call_signal_fromHW.vi"/>
+		<Item Name="Main_menu.vi" Type="VI" URL="../Main_menu.vi"/>
+		<Item Name="Share_Variables.lvlib" Type="Library" URL="../Share_Variables.lvlib"/>
+		<Item Name="Window_plot.vi" Type="VI" URL="../Window_plot.vi"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
 				<Item Name="BuildHelpPath.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/BuildHelpPath.vi"/>
@@ -182,15 +182,15 @@ An interface will grant access to control systems and plotting traces.</Property
 				<Property Name="Source[1].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[1].type" Type="Str">Container</Property>
 				<Property Name="Source[2].destinationIndex" Type="Int">0</Property>
-				<Property Name="Source[2].itemID" Type="Ref">/My Computer/Main menu_4.vi</Property>
+				<Property Name="Source[2].itemID" Type="Ref">/My Computer/Main_menu.vi</Property>
 				<Property Name="Source[2].sourceInclusion" Type="Str">TopLevel</Property>
 				<Property Name="Source[2].type" Type="Str">VI</Property>
 				<Property Name="Source[3].destinationIndex" Type="Int">0</Property>
-				<Property Name="Source[3].itemID" Type="Ref">/My Computer/From file.vi</Property>
+				<Property Name="Source[3].itemID" Type="Ref">/My Computer/Call_signal_fromfile.vi</Property>
 				<Property Name="Source[3].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[3].type" Type="Str">VI</Property>
 				<Property Name="Source[4].destinationIndex" Type="Int">0</Property>
-				<Property Name="Source[4].itemID" Type="Ref">/My Computer/From HW.vi</Property>
+				<Property Name="Source[4].itemID" Type="Ref">/My Computer/Call_signal_fromHW.vi</Property>
 				<Property Name="Source[4].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[4].type" Type="Str">VI</Property>
 				<Property Name="Source[5].destinationIndex" Type="Int">0</Property>
@@ -198,7 +198,7 @@ An interface will grant access to control systems and plotting traces.</Property
 				<Property Name="Source[5].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[5].type" Type="Str">VI</Property>
 				<Property Name="Source[6].destinationIndex" Type="Int">0</Property>
-				<Property Name="Source[6].itemID" Type="Ref">/My Computer/Variable 1.lvlib</Property>
+				<Property Name="Source[6].itemID" Type="Ref">/My Computer/Share_Variables.lvlib</Property>
 				<Property Name="Source[6].Library.allowMissingMembers" Type="Bool">true</Property>
 				<Property Name="Source[6].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[6].type" Type="Str">Library</Property>

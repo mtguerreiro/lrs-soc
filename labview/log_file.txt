@@ -44,3 +44,6 @@ New changes:
 05.02.2024
 - Add windows fit in the newplot1
 - Remove innecessary messages in the windows plot
+
+07.03.2024
+- Create new branch for documentation and preparation of the project
