@@ -1,5 +1,10 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
 <Project Type="Project" LVVersion="22308000">
+	<Property Name="CCSymbols" Type="Str"></Property>
+	<Property Name="NI.LV.All.SourceOnly" Type="Bool">false</Property>
+	<Property Name="NI.Project.Description" Type="Str">The project is designed to facilitate interfacing with control systems and traces. It aims to achieve the following objectives:
+Embedded controllers may contain numerous controllers and traces.
+An interface will grant access to control systems and plotting traces.</Property>
 	<Property Name="SMProvider.SMVersion" Type="Int">201310</Property>
 	<Property Name="varPersistentID:{2FD70FF1-0CF7-4534-A776-1EC0D4C2A581}" Type="Ref">/My Computer/Variable 1.lvlib/Signals_value_string</Property>
 	<Property Name="varPersistentID:{363DF3D9-D8B8-4F19-8F38-3ECF772803CE}" Type="Ref">/My Computer/Variable 1.lvlib/Signals_name</Property>
@@ -30,8 +35,14 @@
 		<Item Name="Functions" Type="Folder">
 			<Item Name="Array2Matrix.vi" Type="VI" URL="../Array2Matrix.vi"/>
 			<Item Name="ArrayS2ArrayAx_.vi" Type="VI" URL="../ArrayS2ArrayAx_.vi"/>
+			<Item Name="Export image.vi" Type="VI" URL="../Export image.vi"/>
+			<Item Name="Export plot data to Clipboard.vi" Type="VI" URL="../Export plot data to Clipboard.vi"/>
+			<Item Name="Function_2update_waveform graph.vi" Type="VI" URL="../Function_2update_waveform graph.vi"/>
+			<Item Name="Function_evaluate_state.vi" Type="VI" URL="../Function_evaluate_state.vi"/>
+			<Item Name="Function_for_MenuSelections.vi" Type="VI" URL="../Function_for_MenuSelections.vi"/>
 			<Item Name="Function_for_start record.vi" Type="VI" URL="../Function_for_start record.vi"/>
 			<Item Name="Function_new plot.vi" Type="VI" URL="../Function_new plot.vi"/>
+			<Item Name="Function_queue receiver.vi" Type="VI" URL="../Function_queue receiver.vi"/>
 			<Item Name="Function_save_conf_tomicro.vi" Type="VI" URL="../Function_save_conf_tomicro.vi"/>
 			<Item Name="Function_SaveCTRLparam.vi" Type="VI" URL="../Function_SaveCTRLparam.vi"/>
 			<Item Name="Function_to CS Enable.vi" Type="VI" URL="../Function_to CS Enable.vi"/>
@@ -70,13 +81,8 @@
 			<Item Name="Send Message_test.vi" Type="VI" URL="../Send Message_test.vi"/>
 			<Item Name="Show_virtual variables.vi" Type="VI" URL="../Show_virtual variables.vi"/>
 		</Item>
-		<Item Name="Export image.vi" Type="VI" URL="../Export image.vi"/>
-		<Item Name="Export plot data to Clipboard.vi" Type="VI" URL="../Export plot data to Clipboard.vi"/>
 		<Item Name="From file.vi" Type="VI" URL="../From file.vi"/>
 		<Item Name="From HW.vi" Type="VI" URL="../From HW.vi"/>
-		<Item Name="Function_2update_waveform graph.vi" Type="VI" URL="../Function_2update_waveform graph.vi"/>
-		<Item Name="Function_for_MenuSelections.vi" Type="VI" URL="../Function_for_MenuSelections.vi"/>
-		<Item Name="Function_queue receiver.vi" Type="VI" URL="../Function_queue receiver.vi"/>
 		<Item Name="Main menu_4.vi" Type="VI" URL="../Main menu_4.vi"/>
 		<Item Name="New plot1.vi" Type="VI" URL="../New plot1.vi"/>
 		<Item Name="Variable 1.lvlib" Type="Library" URL="../Variable 1.lvlib"/>
@@ -158,7 +164,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{DC90849E-4250-4F8B-8747-7F553E39C540}</Property>
 				<Property Name="Bld_userLogFile" Type="Path">../builds/GUI App/GUI App_log.txt</Property>
 				<Property Name="Bld_userLogFile.pathType" Type="Str">relativeToCommon</Property>
-				<Property Name="Bld_version.build" Type="Int">22</Property>
+				<Property Name="Bld_version.build" Type="Int">23</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">GUI_App.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../builds/GUI App/GUI_App.exe</Property>
