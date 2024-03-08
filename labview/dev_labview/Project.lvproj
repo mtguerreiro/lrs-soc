@@ -37,21 +37,21 @@ An interface will grant access to control systems and plotting traces.</Property
 			<Item Name="ArrayS2ArrayAx_.vi" Type="VI" URL="../ArrayS2ArrayAx_.vi"/>
 			<Item Name="Export image.vi" Type="VI" URL="../Export image.vi"/>
 			<Item Name="Export plot data to Clipboard.vi" Type="VI" URL="../Export plot data to Clipboard.vi"/>
+			<Item Name="Fc_2update_graph.vi" Type="VI" URL="../Fc_2update_graph.vi"/>
+			<Item Name="Fc_evaluate_state.vi" Type="VI" URL="../Fc_evaluate_state.vi"/>
 			<Item Name="Fc_Get_TRACEDATA.vi" Type="VI" URL="../Fc_Get_TRACEDATA.vi"/>
+			<Item Name="Fc_MenuSelections.vi" Type="VI" URL="../Fc_MenuSelections.vi"/>
+			<Item Name="Fc_queue_receiver2Window.vi" Type="VI" URL="../Fc_queue_receiver2Window.vi"/>
+			<Item Name="Fc_receiver_queue_Main_menu.vi" Type="VI" URL="../Fc_receiver_queue_Main_menu.vi"/>
+			<Item Name="Fc_save_conf_to_uc.vi" Type="VI" URL="../Fc_save_conf_to_uc.vi"/>
+			<Item Name="Fc_SaveCTRLparams.vi" Type="VI" URL="../Fc_SaveCTRLparams.vi"/>
+			<Item Name="Fc_Send_Msj_Nplot.vi" Type="VI" URL="../Fc_Send_Msj_Nplot.vi"/>
+			<Item Name="Fc_start_record.vi" Type="VI" URL="../Fc_start_record.vi"/>
+			<Item Name="Fc_to_CS_Enable.vi" Type="VI" URL="../Fc_to_CS_Enable.vi"/>
+			<Item Name="Fc_to_define_CSstatus.vi" Type="VI" URL="../Fc_to_define_CSstatus.vi"/>
 			<Item Name="Fc_update_params_from_uc.vi" Type="VI" URL="../Fc_update_params_from_uc.vi"/>
-			<Item Name="Function_2update_waveform graph.vi" Type="VI" URL="../Function_2update_waveform graph.vi"/>
-			<Item Name="Function_evaluate_state.vi" Type="VI" URL="../Function_evaluate_state.vi"/>
-			<Item Name="Function_for_MenuSelections.vi" Type="VI" URL="../Function_for_MenuSelections.vi"/>
-			<Item Name="Function_for_start record.vi" Type="VI" URL="../Function_for_start record.vi"/>
 			<Item Name="Function_new plot.vi" Type="VI" URL="../Function_new plot.vi"/>
-			<Item Name="Function_queue receiver.vi" Type="VI" URL="../Function_queue receiver.vi"/>
-			<Item Name="Function_save_conf_tomicro.vi" Type="VI" URL="../Function_save_conf_tomicro.vi"/>
-			<Item Name="Function_SaveCTRLparam.vi" Type="VI" URL="../Function_SaveCTRLparam.vi"/>
-			<Item Name="Function_to CS Enable.vi" Type="VI" URL="../Function_to CS Enable.vi"/>
-			<Item Name="Function_to_define_CSstatus.vi" Type="VI" URL="../Function_to_define_CSstatus.vi"/>
 			<Item Name="receiver_Main_menu.vi" Type="VI" URL="../receiver_Main_menu.vi"/>
-			<Item Name="receiver_queue_Main_menu.vi" Type="VI" URL="../receiver_queue_Main_menu.vi"/>
-			<Item Name="Send_Msj_Nplot.vi" Type="VI" URL="../Send_Msj_Nplot.vi"/>
 			<Item Name="String2Array.vi" Type="VI" URL="../String2Array.vi"/>
 			<Item Name="String2ArrayDbl.vi" Type="VI" URL="../String2ArrayDbl.vi"/>
 			<Item Name="String2ArrayInt.vi" Type="VI" URL="../String2ArrayInt.vi"/>

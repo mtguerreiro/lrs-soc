@@ -41,10 +41,87 @@ Key functionalities include:
 ### String2ArrayDouble -> String2ArrayDbl
 **Old Name**: `String2ArrayDouble`
 **New Name**: `String2ArrayDbl`  
+**Desciption**: This function converts a string into an array of doubles.
 
 ### Function_update_parameters_frommicro -> Fc_update_params_from_uc
 **Old Name**: `Function_update_parameters_frommicro`
 **New Name**: `Fc_update_params_from_uc`  
+**Desciption**: This function updates the parameters from the microcontroller.
+
+### Send_Msj_Nplot -> Fc_Send_Msj_Nplot
+**Old Name**: `Send_Msj_Nplot`
+**New Name**: `Fc_Send_Msj_Nplot`
+**Desciption**: Temporal function to send message to each window plot.
+
+### Function_for_start record -> Fc_start_record
+**Old Name**: `Function_for_start record`
+**New Name**: `Fc_start_record`
+**Desciption**: This function starts the record of the signals in the application.
+
+### receiver_queue_Main_menu -> Fc_receiver_queue_Main_menu
+**Old Name**: `receiver_queue_Main_menu`
+**New Name**: `Fc_receiver_queue_Main_menu`
+**Desciption**: This function receives the data from the active windows and stores it in the queue to send in the main menu.
+
+### Function_to CS Enable -> Fc_CS_Enable
+**Old Name**: `Function_to CS Enable`
+**New Name**: `Fc_to_CS_Enable`
+**Desciption**: This function enables the control system.
+
+### Function_SaveCTRLparams -> Fc_SaveCTRLparams
+**Old Name**: `Function_SaveCTRLparams`
+**New Name**: `Fc_SaveCTRLparams`
+**Desciption**: This function saves the control parameters from CS_IF_Params.
+
+### Function_to_define_CSstatus -> Fc_to_define_CSstatus
+**Old Name**: `Function_to_define_CSstatus`
+**New Name**: `Fc_to_define_CSstatus`
+**Desciption**: This function defines the current status of the control system.
+
+### Function_save_conf_tomicro -> Fc_save_conf_to_uc
+**Old Name**: `Function_save_conf_tomicro`
+**New Name**: `Fc_save_conf_to_uc`
+**Desciption**: This function saves the configuration to communicate with the microcontroller.
+
+### Function_evaluate_state -> Fc_evaluate_state
+**Old Name**: `Function_evaluate_state`
+**New Name**: `Fc_evaluate_state`
+**Desciption**: This function evaluates the execution state of the active window plot.
+
+### Function_for_MenuSelections -> Fc_MenuSelections
+**Old Name**: `Function_for_MenuSelections`
+**New Name**: `Fc_MenuSelections`
+**Desciption**: This function is used to select possible selection in the current window plot.
+
+### Function_queue receiver -> Fc_queue_receiver2Window
+**Old Name**: `Function_queue receiver`
+**New Name**: `Fc_queue_receiver2Window`
+**Desciption**: This function receives the data from the main menu and stores it in the queue to send in the active window plot.
+
+### Function_2update_waveform graph -> Fc_2update_graph
+**Old Name**: `Function_2update_waveform graph`
+**New Name**: `Fc_2update_graph`
+**Desciption**: This function updates the waveform graph.
+
+### String2Array
+**Description**: This function converts a string into an array string
+
+### ArrayS2ArrayAx
+**Description**: This function converts an array of strings into an array of arrays of numeric values.
+
+#### Array2Matrix_test -> Array2Matrix
+**Old Name**: `Array2Matrix_test`
+**New Name**: `Array2Matrix`
+**Desciption**: This function converts an array of numeric values into a matrix.
+
+
+
+
+
+
+
+
+
 
 ## TCP Client Changes
 
