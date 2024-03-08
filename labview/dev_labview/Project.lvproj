@@ -154,6 +154,7 @@ An interface will grant access to control systems and plotting traces.</Property
 				<Property Name="App_serverType" Type="Int">0</Property>
 				<Property Name="Bld_autoIncrement" Type="Bool">true</Property>
 				<Property Name="Bld_buildCacheID" Type="Str">{E76AF4CE-08EC-45EC-9F59-71A6CEF3DD73}</Property>
+				<Property Name="Bld_buildSpecDescription" Type="Str">The GUI application is the main interface for the user to interact with the system. It is responsible for displaying the data, sending commands to the microcontroller, and handling errors. The GUI application is built using LabVIEW, a graphical programming language that allows for easy and intuitive development of user interfaces.</Property>
 				<Property Name="Bld_buildSpecName" Type="Str">GUI App</Property>
 				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
 				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
@@ -164,7 +165,7 @@ An interface will grant access to control systems and plotting traces.</Property
 				<Property Name="Bld_previewCacheID" Type="Str">{DC90849E-4250-4F8B-8747-7F553E39C540}</Property>
 				<Property Name="Bld_userLogFile" Type="Path">../builds/GUI App/GUI App_log.txt</Property>
 				<Property Name="Bld_userLogFile.pathType" Type="Str">relativeToCommon</Property>
-				<Property Name="Bld_version.build" Type="Int">23</Property>
+				<Property Name="Bld_version.build" Type="Int">25</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">GUI_App.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../builds/GUI App/GUI_App.exe</Property>
@@ -173,7 +174,7 @@ An interface will grant access to control systems and plotting traces.</Property
 				<Property Name="Destination[1].destName" Type="Str">Support Directory</Property>
 				<Property Name="Destination[1].path" Type="Path">../builds/GUI App/data</Property>
 				<Property Name="DestinationCount" Type="Int">2</Property>
-				<Property Name="Source[0].itemID" Type="Str">{A90A14AD-5462-43FB-AC18-E9560D309F25}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{6B2CD61D-F42D-43F0-899B-201DBD1852D7}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].Container.applyInclusion" Type="Bool">true</Property>
 				<Property Name="Source[1].Container.depDestIndex" Type="Int">0</Property>
@@ -209,11 +210,11 @@ An interface will grant access to control systems and plotting traces.</Property
 				<Property Name="Source[7].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[7].type" Type="Str">Container</Property>
 				<Property Name="SourceCount" Type="Int">8</Property>
-				<Property Name="TgtF_companyName" Type="Str">Technical University of Kaiserslautern</Property>
+				<Property Name="TgtF_companyName" Type="Str">RPTU Kaiserslautern-Landau</Property>
 				<Property Name="TgtF_enableDebugging" Type="Bool">true</Property>
 				<Property Name="TgtF_fileDescription" Type="Str">GUI App</Property>
 				<Property Name="TgtF_internalName" Type="Str">GUI App</Property>
-				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2024 Technical University of Kaiserslautern</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2024 RPTU Kaiserslautern-Landau</Property>
 				<Property Name="TgtF_productName" Type="Str">GUI App</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{6B7D183B-7C1E-4056-8335-7620DD68DBB2}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">GUI_App.exe</Property>
