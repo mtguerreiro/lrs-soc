@@ -41,6 +41,7 @@ An interface will grant access to control systems and plotting traces.</Property
 			<Item Name="Fc_evaluate_state.vi" Type="VI" URL="../Fc_evaluate_state.vi"/>
 			<Item Name="Fc_Get_TRACEDATA.vi" Type="VI" URL="../Fc_Get_TRACEDATA.vi"/>
 			<Item Name="Fc_MenuSelections.vi" Type="VI" URL="../Fc_MenuSelections.vi"/>
+			<Item Name="Fc_new_plot.vi" Type="VI" URL="../Fc_new_plot.vi"/>
 			<Item Name="Fc_queue_receiver2Window.vi" Type="VI" URL="../Fc_queue_receiver2Window.vi"/>
 			<Item Name="Fc_receiver_queue_Main_menu.vi" Type="VI" URL="../Fc_receiver_queue_Main_menu.vi"/>
 			<Item Name="Fc_save_conf_to_uc.vi" Type="VI" URL="../Fc_save_conf_to_uc.vi"/>
@@ -50,7 +51,6 @@ An interface will grant access to control systems and plotting traces.</Property
 			<Item Name="Fc_to_CS_Enable.vi" Type="VI" URL="../Fc_to_CS_Enable.vi"/>
 			<Item Name="Fc_to_define_CSstatus.vi" Type="VI" URL="../Fc_to_define_CSstatus.vi"/>
 			<Item Name="Fc_update_params_from_uc.vi" Type="VI" URL="../Fc_update_params_from_uc.vi"/>
-			<Item Name="Function_new plot.vi" Type="VI" URL="../Function_new plot.vi"/>
 			<Item Name="receiver_Main_menu.vi" Type="VI" URL="../receiver_Main_menu.vi"/>
 			<Item Name="String2Array.vi" Type="VI" URL="../String2Array.vi"/>
 			<Item Name="String2ArrayDbl.vi" Type="VI" URL="../String2ArrayDbl.vi"/>

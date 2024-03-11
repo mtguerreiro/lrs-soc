@@ -33,6 +33,11 @@ Key functionalities include:
 
 ## Functions Changes
 
+### Function_new plot -> Fc_new_plot
+**Old Name**: `Function_new plot`
+**New Name**: `Fc_new_plot`
+**Desciption**: This function initiates the creation of a new window for graphing the stored controller signals.
+
 ### Getting_TRACE DATA -> Fc_Get_TRACEDATA
 **Old Name**: `Getting_TRACE DATA`
 **New Name**: `Fc_Get_TRACEDATA`  
