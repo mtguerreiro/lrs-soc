@@ -1,7 +1,7 @@
 # GUI App - LabVIEW
 
 ## Overview
-The GUI application is the main interface for the user to interact with the system. It is responsible for displaying the data, sending commands to the microcontroller, and handling errors. The GUI application is built using LabVIEW, a graphical programming language that allows for easy and intuitive development of user interfaces.
+The GUI application is the main interface for the user to interact with the control system. It is responsible for displaying the data, sending commands to the microcontroller, and handling errors. The GUI application is built using LabVIEW, a graphical programming language that allows for easy and intuitive development of user interfaces.
 
 ## Project Structure
 
@@ -20,6 +20,9 @@ Need to install:
 ## Documentation
 The current labview project is developed in LabVIEW 2022 Q3 Patch 1 (64-bit). 
 The project is divided into the following sections:
+
+The documentation changes are located in the [documentation_log](documentation_log) folder.
+
 
 
 ## License
