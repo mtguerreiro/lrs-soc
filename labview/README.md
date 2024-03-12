@@ -24,10 +24,6 @@ graph LR
     end
 ```
 
-
-
-
-
 ## Prerequisites
 - NI LabVIEW Runtime 2022 Q3 Patch 1 (64-bit). [Labview Runtime](https://www.ni.com/en/support/downloads/software-products/download.labview-runtime.html#460613)
 - Access to the GUI App in the [labview folder](labview/builds/GUI App/GUI_App.exe)
