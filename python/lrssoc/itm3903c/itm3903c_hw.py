@@ -149,10 +149,11 @@ class Hw:
         if status < 0:
             print('Error getting version of the firmware. Error code {:}\r\n'.format(status))
             return (-1, status)
+        size = len(version_b)
+        str_format = '<{:}s'.format(size)
+        version = struct.unpack(str_format, version_b)[0]
 
-        version = struct.unpack('<100s', version_b)[0]
-
-        string = version.split(b'\x00')[0].decode()
+        string = version.decode()
         return (0, string)
 
     def _get_error(self):
@@ -167,9 +168,11 @@ class Hw:
             print('Error getting error status. Error code {:}\r\n'.format(status))
             return (-1, status)
 
-        error_msg = struct.unpack('<100s', error_msg_b)[0]
+        size = len(error_msg_b)
+        str_format = '<{:}s'.format(size)
+        error_msg = struct.unpack(str_format, error_msg_b)[0]
 
-        string = error_msg.split(b'\x00')[0].decode()
+        string = error_msg.decode()
         return (0, string)
 
     def _clear_error(self):
@@ -199,9 +202,16 @@ class Hw:
             print('Error setting output status. Error code {:}\r\n'.format(status))
             return (-1, status)
         
-        
+        err_status, err_message = self.get_error()
 
-        return (0,)
+        if "No error" in err_message:
+            return (0,)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)       
+        
 
     def _set_analog_external_status(self, set_status):
         cmd = self._cmd.set_analog_external_status
@@ -218,7 +228,15 @@ class Hw:
         
         
 
-        return (0,)
+        err_status, err_message = self.get_error()
+
+        if "No error" in err_message:
+            return (0,)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)   
 
     def _get_output_status(self):
 
@@ -275,7 +293,15 @@ class Hw:
             print('Error setting slope. Error code {:}\r\n'.format(status))
             return (-1, status)
         
-        return (0,)
+        err_status, err_message = self.get_error()
+
+        if "No error" in err_message:
+            return (0,)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)  
 
 
     def _get_slope(self, channel):
@@ -302,7 +328,14 @@ class Hw:
 
         slope = struct.unpack('<f', slope_b)[0]
         
-        return (0, slope)
+        err_status, err_message = self.get_error()
+        if "No error" in err_message:
+            return (0, slope)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)  
     
     def _set_offset(self, channel, offset):
         """
@@ -327,7 +360,15 @@ class Hw:
             print('Error setting offset. Error code {:}\r\n'.format(status))
             return (-1, status)
         
-        return (0,)
+        err_status, err_message = self.get_error()
+
+        if "No error" in err_message:
+            return (0,)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)  
 
 
     def _get_offset(self, channel):
@@ -354,7 +395,15 @@ class Hw:
 
         offset = struct.unpack('<f', offset_b)[0]
         
-        return (0, offset)
+        err_status, err_message = self.get_error()
+
+        if "No error" in err_message:
+            return (0, offset)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)  
 
     def _set_func_mode(self, func_mode):
         cmd = self._cmd.set_func_mode
@@ -370,7 +419,15 @@ class Hw:
             return (-1, status)
         
         
-        return (0,)
+        err_status, err_message = self.get_error()
+
+        if "No error" in err_message:
+            return (0,)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)  
     
     def _get_func_mode(self):
         cmd = self._cmd.get_func_mode
@@ -384,7 +441,11 @@ class Hw:
             print('Error getting function mode. Error code {:}\r\n'.format(status))
             return (-1, status)
         
-        func_mode = struct.unpack('<100s', func_mode_b)[0]
+        size = len(func_mode_b)
+        str_format = '<{:}s'.format(size)
+        func_mode = struct.unpack(str_format, func_mode_b)[0]
+
+        string = func_mode.decode()
         string = func_mode.split(b'\x00')[0].decode()
 
         return (0, string)
@@ -402,7 +463,15 @@ class Hw:
             print('Error setting voltage value. Error code {:}\r\n'.format(status))
             return (-1, status)
     
-        return (0,)
+        err_status, err_message = self.get_error()
+
+        if "No error" in err_message:
+            return (0,)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)  
     
     def _set_curr_value(self, value):
         cmd = self._cmd.set_curr_value
@@ -417,4 +486,12 @@ class Hw:
             print('Error setting voltage value. Error code {:}\r\n'.format(status))
             return (-1, status)
     
-        return (0,)
+        err_status, err_message = self.get_error()
+
+        if "No error" in err_message:
+            return (0,)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)  

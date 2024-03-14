@@ -56,10 +56,6 @@ static bool ocpPicoAdcIrq(struct repeating_timer *t);
 #define OCP_PICO_C1_CONFIG_INPUT_BUF_SIZE       20
 #define OCP_PICO_C1_CONFIG_OUTPUT_BUF_SIZE      20
 
-#define UART_ID uart1
-#define BAUD_RATE 115200
-#define UART_TX_PIN 4
-#define UART_RX_PIN 5
 //=============================================================================
 
 //=============================================================================

@@ -15,6 +15,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "ocp/hardware/pico/ocpPicoConfig.h"
+
 //=============================================================================
 
 //=============================================================================
@@ -32,7 +34,6 @@ typedef struct{
 
 }itm3903cHwControl_t;
 
-#define UART_ID uart1
 //=============================================================================
 
 //=============================================================================
@@ -115,15 +116,13 @@ int32_t itm3903cHwApplyOutputs(void *outputs, int32_t size){
 void itm3903cHwSetSlope(uint32_t channel, float slope){
 
     supplySlope = slope;
-    char * command = malloc(50);
+    // TODO: Change mallocs to set buffer (sprintfn doesnt overflow)
+    char command[50];
 
-    sprintf(command, "EXT:PROG:CHAN:MX %d,%f\r\n", channel, slope);
+    size_t size = sprintf(command, "EXT:PROG:CHAN:MX %d,%f\r\n", channel, slope);
 
-    size_t size = strlen(command);
+    uart_write_blocking(OCP_PICO_CONFIG_UART_RS232_ID, (u_int8_t*) command, (size_t) size);
 
-    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) size);
-
-    free(command);
     // sends slope to supply
 }
 //-----------------------------------------------------------------------------
@@ -133,17 +132,16 @@ float itm3903cHwGetSlope(uint32_t channel){
 
     int32_t size_response = 0;
 
-    char * command = malloc(50);
-    sprintf(command, "EXT:PROG:CHAN:MX? %d\r\n", channel);
-    size_t size = strlen(command);
-    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) size);
-    free(command);
+    char command[50];
 
+    size_t size = sprintf(command, "EXT:PROG:CHAN:MX? %d\r\n", channel);
+
+    uart_write_blocking(OCP_PICO_CONFIG_UART_RS232_ID, (u_int8_t*) command, (size_t) size);
     
-    char * o = malloc(10); 
+    char o[10]; 
+
     itm3903HwFillResponseBuffer(o, &size_response);
     slope = (float) strtod(o, NULL);
-    free(o);
     // gets slope to supply
     // slope = supplySlope;
     return slope;
@@ -152,16 +150,12 @@ float itm3903cHwGetSlope(uint32_t channel){
 void itm3903cHwSetOffset(uint32_t channel, float offset){
 
     // supplyOffset = offset;
-    char * command = malloc(50);
+    char command[50];
 
-    sprintf(command, "EXT:PROG:CHAN:MB %d,%f\r\n", channel, offset);
+    size_t size = sprintf(command, "EXT:PROG:CHAN:MB %d,%f\r\n", channel, offset);
 
-    size_t size = strlen(command);
-
-    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) size);
-
-    free(command);
-    // sends offset to supply
+    uart_write_blocking(OCP_PICO_CONFIG_UART_RS232_ID, (u_int8_t*) command, (size_t) size);
+    
 }
 //-----------------------------------------------------------------------------
 float itm3903cHwGetOffset(uint32_t channel){
@@ -170,17 +164,18 @@ float itm3903cHwGetOffset(uint32_t channel){
 
     int32_t size_response = 0;
 
-    char * command = malloc(50);
-    sprintf(command, "EXT:PROG:CHAN:MB? %d\r\n", channel);
-    size_t size = strlen(command);
-    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) size);
-    free(command);
+    char command[50]; 
 
-    
-    char * o = malloc(10); 
+    size_t size = sprintf(command, "EXT:PROG:CHAN:MB? %d\r\n", channel);
+
+    uart_write_blocking(OCP_PICO_CONFIG_UART_RS232_ID, (u_int8_t*) command, (size_t) size);
+
+    char o[10]; 
+
     itm3903HwFillResponseBuffer(o, &size_response);
+
     offset = (float) strtod(o, NULL);
-    free(o);
+
     // gets offset to supply
     // offset = supplyOffset;
     return offset;
@@ -189,82 +184,82 @@ float itm3903cHwGetOffset(uint32_t channel){
 int32_t itm3903cHwGetVersion(char * o){
     int32_t size = 0;
 
-    char * command = "SYST:VERS?\r\n";
-    size_t command_size = 12;
+    char command[] = "SYST:VERS?\r\n";
 
-    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) command_size);
+    size_t command_size = sizeof(command);
+
+    uart_write_blocking(OCP_PICO_CONFIG_UART_RS232_ID, (u_int8_t*) command, (size_t) command_size);
 
     itm3903HwFillResponseBuffer(o, &size);
 
-    if(size < 0){
-        return -1;
-    }
-    return MAX_SIZE;
+    return size;
 
 }
 
 int32_t itm3903cHwGetFuncMode(char * o){
     int32_t size = 0;
 
-    char * command = "FUNC?\r\n";
-    size_t command_size = 7;
+    char command[] = "FUNC?\r\n";
 
-    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) command_size);
+    size_t command_size = sizeof(command);
+
+    uart_write_blocking(OCP_PICO_CONFIG_UART_RS232_ID, (u_int8_t*) command, (size_t) command_size);
 
     itm3903HwFillResponseBuffer(o, &size);
 
-    if(size < 0){
-        return -1;
-    }
-
-    return MAX_SIZE;
+    return size;
 
 }
 
 int32_t itm3903cHwGetError(char * o){
     int32_t size = 0;
 
-    char * command = "SYST:ERR?\r\n";
-    size_t command_size = 11;
+    char command[] = "SYST:ERR?\r\n";
 
-    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) command_size);
+    size_t command_size = sizeof(command);
+
+    uart_write_blocking(OCP_PICO_CONFIG_UART_RS232_ID, (u_int8_t*) command, (size_t) command_size);
 
     itm3903HwFillResponseBuffer(o, &size);
-    if(size < 0){
-        return -1;
-    }
-    return MAX_SIZE;
+
+    return size;
 
 }
 
 void itm3903cHwClearError(){
-    char * command = "SYST:CLE\r\n";
-    size_t command_size = 10;
+    char command[] = "SYST:CLE\r\n";
 
-    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) command_size);
+    size_t command_size = sizeof(command);
+
+    uart_write_blocking(OCP_PICO_CONFIG_UART_RS232_ID, (u_int8_t*) command, (size_t) command_size);
 }
 
 void itm3903cHwSetOutputStatus(uint32_t setStatus){
-    char * command = strdup("OUTP 0\r\n");
-    size_t command_size = 8;
+
+    char command[] = "OUTP 0\r\n";
+
+    size_t command_size = sizeof(command);
+
     char* p = command;
+
     p += 5;
     
     if((bool) setStatus) {
-            *p = '1';
+        *p = '1';
     }
 
-    if (command != NULL) {
-        uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) command_size);
-        free(command);
-    }
-    
+    uart_write_blocking(OCP_PICO_CONFIG_UART_RS232_ID, (u_int8_t*) command, (size_t) command_size);
+
 }
 
 void itm3903cHwSetFuncMode(uint32_t funcMode){
-    char * command = strdup("FUNC CURR\r\n");
-    size_t command_size = 11;
+    
+    char command[] = "FUNC CURR\r\n";
+
+    size_t command_size = sizeof(command);
+
     char* p = command;
+
     p += 5;
     
     if((bool) funcMode) {
@@ -274,22 +269,24 @@ void itm3903cHwSetFuncMode(uint32_t funcMode){
             *p++ = 'T';
     }
 
-    if (command != NULL) {
-        uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) command_size);
-        free(command);
-    }
+    uart_write_blocking(OCP_PICO_CONFIG_UART_RS232_ID, (u_int8_t*) command, (size_t) command_size);
     
 }
 
 uint32_t itm3903cHwGetOutputStatus() {
-    uint32_t output_status;
-    char * command = "OUTP?\r\n";
-    size_t command_size = 7;
 
-    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) command_size);
+    uint32_t output_status;
+
+    char command[] = "OUTP?\r\n";
     
-    char * o = malloc(4);
+    size_t command_size = sizeof(command);
+
+    uart_write_blocking(OCP_PICO_CONFIG_UART_RS232_ID, (u_int8_t*) command, (size_t) command_size);
+    
+    char o[4];
+
     int32_t size = 0;
+
     itm3903HwFillResponseBuffer(o, &size);
 
     output_status = (uint32_t) atoi(o);
@@ -299,24 +296,24 @@ uint32_t itm3903cHwGetOutputStatus() {
 }
 
 void itm3903cHwSetAnalogExternalStatus(uint32_t setStatus){
-    char * command = strdup("EXT:PROG 0\r\n");
-    size_t command_size = 12;
-    char* p = command;
-    p += 9;
+    // char * command = strdup("EXT:PROG 0\r\n");
+    // TODO: Change malloc to arrays
+    char command[] = "EXT:PROG 0\r\n";
+
+    size_t command_size = sizeof(command);
     
     if((bool) setStatus) {
-            *p = '1';
+
+        command[9] = '1';
+
     }
 
-    if (command != NULL) {
-        uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) command_size);
-        free(command);
-    }
+    uart_write_blocking(OCP_PICO_CONFIG_UART_RS232_ID, (u_int8_t*) command, (size_t) command_size);
     
 }
 
 void itm3903cHwSetValue(float value, bool currOrVolt){
-    char * command = malloc(50);
+    char command[50];
     char pre_comm[5] = "CURR";
     char * p = pre_comm;
 
@@ -327,23 +324,25 @@ void itm3903cHwSetValue(float value, bool currOrVolt){
         *p++ = 'T';
     };
     
-    if (command != NULL) {
-        sprintf(command, "%s %f\r\n", pre_comm, value);
-        size_t size = strlen(command);
-        uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) size);
-        free(command);
-    }
+    size_t size = sprintf(command, "%s %f\r\n", pre_comm, value);
+
+    uart_write_blocking(OCP_PICO_CONFIG_UART_RS232_ID, (u_int8_t*) command, (size_t) size);
+
 }
 
 uint32_t itm3903cHwGetAnalogExternalStatus() {
     uint32_t output_status;
-    char * command = "EXT:PROG?\r\n";
-    size_t command_size = 11;
 
-    uart_write_blocking(UART_ID, (u_int8_t*) command, (size_t) command_size);
+    char command[] = "EXT:PROG?\r\n";
+
+    size_t command_size = sizeof(command);
+
+    uart_write_blocking(OCP_PICO_CONFIG_UART_RS232_ID, (u_int8_t*) command, (size_t) command_size);
     
-    char * o = malloc(4);
+    char o[4];
+
     int32_t size = 0;
+
     itm3903HwFillResponseBuffer(o, &size);
 
     output_status = (uint32_t) atoi(o);
@@ -361,7 +360,7 @@ uint32_t itm3903cHwGetAnalogExternalStatus() {
 static void itm3903HwFillResponseBuffer(char *buffer, int32_t *size){
     uint8_t curr_char = (u_int8_t) '\r';
 
-    if(!uart_is_readable_within_us(UART_ID, 1e6)) {
+    if(!uart_is_readable_within_us(OCP_PICO_CONFIG_UART_RS232_ID, 1e6)) {
         printf("UART timed out\n");
         *size = -1;
         return;
@@ -369,7 +368,7 @@ static void itm3903HwFillResponseBuffer(char *buffer, int32_t *size){
 
     while(curr_char != (u_int8_t) '\n'){
         
-        curr_char = uart_getc(UART_ID);
+        curr_char = uart_getc(OCP_PICO_CONFIG_UART_RS232_ID);
         *buffer++ = (char) curr_char;
         (*size)++;
     }
@@ -379,8 +378,8 @@ static void itm3903HwFillResponseBuffer(char *buffer, int32_t *size){
         return;
     }
 
-    *buffer++ = '\0';
-    (*size)++;
+    // *buffer++ = '\0';
+    // (*size)++;
 }
 //-----------------------------------------------------------------------------
 static void itm3903cHwInitializeAdc(void *intc, itm3903cHwAdcIrqHandle_t irqhandle){

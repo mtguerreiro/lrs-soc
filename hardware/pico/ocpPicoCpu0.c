@@ -7,7 +7,7 @@
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
 #include "ocpPicoCpu0.h"
-
+#include <stdio.h>
 /* Open controller project */
 #include "ocp/ocp/ocpTrace.h"
 #include "ocp/ocp/ocpCS.h"
@@ -18,10 +18,6 @@
 
 #include "ocp/ipc/ipcClient.h"
 
-#define UART_ID uart1
-#define BAUD_RATE 115200
-#define UART_TX_PIN 4
-#define UART_RX_PIN 5
 
 //=============================================================================
 
@@ -69,10 +65,10 @@ void ocpPicoCpu0Initialize(void *params){
 //-----------------------------------------------------------------------------
 static int32_t ocpPicoCpu0InitializeHw(void){
 	sleep_ms(5000);
-	uart_init(UART_ID, BAUD_RATE);
-
-    gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
-    gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
+	printf("Baud rate: %d\n", uart_init(OCP_PICO_CONFIG_UART_RS232_ID, OCP_PICO_CONFIG_UART_RS232_BAUD_RATE));
+	// uart_set_format(OCP_PICO_CONFIG_UART_RS232_ID, 8, 2, UART_PARITY_EVEN);
+    gpio_set_function(OCP_PICO_CONFIG_UART_RS232_TX_PIN, GPIO_FUNC_UART);
+    gpio_set_function(OCP_PICO_CONFIG_UART_RS232_RX_PIN, GPIO_FUNC_UART);
 	return wzPicoInit();
 }
 //-----------------------------------------------------------------------------
