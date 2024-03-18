@@ -2,6 +2,29 @@
 <--! Markdown -->
 # GUI comparison technologies
 
+## Introduction
+
+This document serves as a comparative analysis of various Graphical User Interface (GUI) technologies that are potential candidates for the development of the GUI for the LRS project. The comparison is structured around the following key aspects:
+- Characteristics
+- Benefits
+- Limitations
+- GUI construction tools
+
+The technologies under consideration include:
+- LabVIEW
+- Matlab
+- Python
+- C#
+- Java
+
+This document also details the substantial modifications made to our project's naming conventions. The main goal of these modifications is to improve the readability, maintainability, and uniformity of our codebase.
+
+Our project, which heavily relied on LabVIEW for the development of the Graphical User Interface (GUI) Application, is a graphical programming language extensively used for test, measurement, and control applications.
+
+The modifications affect various elements of our project, such as VI, Functions, TCP Client, and Variables. Each section in this document corresponds to these elements and offers a comprehensive overview of the old names, the new names, and a brief explanation of their functions.
+By standardizing our naming conventions, we strive to create an environment that is more intuitive and user-friendly for our team and potential future contributors. This not only simplifies the process of understanding the code but also facilitates debugging, testing, and future enhancements of the project.
+
+
 ## LabVIEW
 ### Properties
 - Graphical programming platforms
