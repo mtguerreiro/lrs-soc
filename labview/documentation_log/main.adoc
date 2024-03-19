@@ -1,0 +1,21 @@
+
+
+
+== Table of Contents ==
+
+// Reference to introduction document
+
+include::introduction.adoc[]
+
+
+
+
+[mermaid, VIHierarchy, png]
+....
+    graph TD
+        A[GUI Application] -->|Sends and receives data| B[Microcontroller]
+        B -->|Controls the system| C[Actuators]
+        C -->|Generates data| D[Sensors]
+        D -->|Sends data| B
+        B -->|Sends data| A
+....
