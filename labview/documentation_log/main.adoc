@@ -1,4 +1,7 @@
 = Design and Implementation of User Interface for Labview Application =
+:reproducible:
+
+
 Department of Electrical and Computer Engineering
 Chair of Control Systems
 

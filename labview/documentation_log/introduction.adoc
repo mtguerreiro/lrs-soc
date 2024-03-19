@@ -1,33 +1,142 @@
 == Introduction
 This document outlines the significant changes made to the naming conventions within our project. The primary objective of these changes is to enhance readability, maintainability, and consistency across our codebase.
-The changes span across various components of our project, including VI, Functions, TCP Client, and Variables. Each section in this document corresponds to these components and provides a detailed overview of the old names, the new names, and a brief description of their functionalities.
-By standardizing our naming conventions, we aim to create a more intuitive and user-friendly environment for both our team and any future contributors. This will not only simplify the process of understanding the code but also make it easier to debug, test, and enhance the project in the future.
+The changes span across various components of our project, including VI, Functions, TCP Client, and Variables. Each section in this document corresponds to these components and provides a detailed overview of the old names, the new names, and a brief description of their functionalities. This will not only simplify the process of understanding the code but also make it easier to debug, test, and enhance the project in the future.
 Please refer to the table of contents for easy navigation through the document.
 
-== Overview
-The GUI application is the main interface for the user to interact with the control system. It is responsible for displaying the data, sending commands to the microcontroller, and handling errors. The GUI application is built using LabVIEW, a graphical programming language that allows for easy and intuitive development of user interfaces.
+=== Overview
+The Graphical User Interface (GUI) application is the main interface for the user to interact with the control system. It is responsible for displaying the data, sending commands to the microcontroller, and handling errors. The GUI application is built using LabVIEW, a graphical programming language that allows for easy and intuitive development of user interfaces.
 
-== Purpose
-The purpose of this document is to provide a comprehensive overview of the changes made to the naming conventions within our project. This document is intended for the use of our team members and any future contributors to the project. It is designed to provide a clear understanding of the old and new names, as well as a brief description of their functionalities.
+=== Purpose
+The purpose of this document is to provide a comprehensive overview of the use of the changes made to the naming conventions within our project. This document is intended for the use of our team members and any future contributors to the project. It is designed to provide a clear understanding of the old and new names, as well as a brief description of their functionalities.
 
-== Scope
+=== Scope
 The scope of this document covers the changes made to the naming conventions within the GUI application. The changes are categorized into different sections based on the components of the GUI application, including VI, Functions, TCP Client, and Variables. Each section provides a detailed overview of the old and new names, along with a brief description of their functionalities.
 
 == Control System
-The control system is in base of the LabVIEW software, which is a system-design platform and development environment for a visual programming language from National Instruments. It is commonly used for data acquisition, instrument control, and industrial automation on a variety of platforms including Microsoft Windows, various versions of UNIX, Linux, and macOS.%
 
+The control system is based on the interaction of the controller with various actuators within the system. The controller has the flexibility to implement different control strategies to deal with the needs of the applications. On the other hand, the controller has the ability to interact with the user through a graphical user interface (GUI) that allows the user to interact with the control system. The GUI is responsible for displaying information to the user, sending commands to the controller, and handling errors.
 
-[mermaid, CS_diagram, png]
+.The control system schematic
+[[CS_diagram1.png, control system schematic]]
+[plantuml, CS_diagram1, png]
 ....
-    graph TD
-        A[GUI Application] -->|Sends and receives data| B[Microcontroller]
-        B -->|Controls the system| C[Actuators]
-        C -->|Generates data| D[Sensors]
-        D -->|Sends data| B
-        B -->|Sends data| A
+@startuml
+
+left to right direction
+skinparam packageStyle rectangle
+
+rectangle "Controller (microcontroller/FPGA)" {
+
+    card "Power converter control" as A
+    card "Cooling control" as B
+    card "Trace(memory)" as C
+}
+() "Labview GUI" <--> "Controller (microcontroller/FPGA)" : ref. meas switches
+control "Actuator" as D
+control "Actuator" as G
+"Controller (microcontroller/FPGA)" <--> D : meas switches
+"Controller (microcontroller/FPGA)" <--> G : meas switches
+@enduml
+....
+
+=== Basics elements
+Dentro del controlador existen dos elementos basicos con los cuales la GUI interactua:
+
+==== Control systems
+Diferentes sistemas de control que interactuan con los actuadores presentes en el sistema global y que pueden estar contenidos en un solo controlador como se muestra en la figura <<CS_diagram1.png>>.
+
+Dentro del sistema de control se dividan en dos secciones, el controlador y el hardware.
+
+
+.Controlador
+En el controlador los siguientes elementos basicos:
+    - ID
+    - Enable/disable
+    - Status
+    - Controller interface
+    - Hardware interface
+Cuales estan definidos dentro del algoritmo del controlador. Gran parte de la interaccion del GUI se realiza con estos elementos.
+
+Por otro lado, el hardware se divide en dos secciones:
+    - ADCs
+    - PWMs
+Que representan las entradas y salidas del controlador respectivamente.
+
+.Control system diagram
+[plantuml, CS_diagram2, png]
+....
+@startuml
+
+left to right direction
+skinparam packageStyle rectangle
+
+rectangle "Control system" {
+    card "Signal acquisition (ADCs)" as A
+    card "Controller (control algorithm)" as B
+    card "Actuation (PWMs)" as C
+}
+@enduml
 ....
 
 
+==== Traces
+Relacionados con las senales de entrada y salida que interactuan con el controlador. La informacion es almacenada en la memoria RAM del controlador y se enlistan como los diferentes traces que pueden visualizados posteriormente en el GUI.
+
+.Traces diagram
+[plantuml, Traces_diagram, png]
+....
+@startuml
+
+left to right direction
+skinparam packageStyle rectangle
+
+rectangle "Memory (RAM)" {
+    rectangle "Trace 1 (controller)" as A
+    rectangle "Trace 2 (temperature)" as B
+}
+@enduml
+....
+
+=== Communication with the controller
+Como se menciono anteriormente dentro del controlador se encuentrn los control systems y traces. Por ello se define una interfaz para tener acceso a traves de enviar mensaje al controlador con un comando seguido de dato.
+
+.Basic command structure
+[frame=ends]
+|===
+|CMD|DATA
+|===
+
+Siguiente este mismo patron, da la flexibilidad que un control system pueda interactuar con harware y controladores de manera independiente.
+
+_Example: set controller gains of PI controller of control system 1_
+[frame=ends]
+|===
+|CMD (controller interface of control system)|DATA (ID of control system, gains)
+|===
+
+_Example: set PWM frequency of control system 1_
+[frame=ends]
+|===
+|CMD(hardware interface of control system)|DATA (ID of control system, frequency)
+|===
 
 
+=== TCP protocol/IP in the controller
+.Definition
+TCP/IP, standard Internet communications protocols that allow digital computers to communicate over long distances.
+The Internet is a packet-switched network, which means that data is divided into smaller packets, sent individually over the network, and then reassembled at the destination. TCP/IP is a suite of protocols that governs the way data packets are transmitted over the Internet. It is the foundation of the Internet and is used by virtually every application that communicates over the network.
+link:https://www.britannica.com/technology/TCP-IP[Source]
 
+The controller has a TCP/IP server that allows the GUI to communicate with it. The server listens for incoming connections from the GUI and processes the commands sent by the GUI. The server then sends the appropriate responses back to the GUI.
+
+The TCP/IP server uses a simple command-response protocol to communicate with the GUI. The GUI sends commands to the server, and the server sends responses back to the GUI. The commands and responses are formatted as strings, with each command or response consisting of a command code followed by a set of parameters.
+
+Asi que la estructura de comunicacion con el controlador es la siguiente:
+
+.Low level TCP/IP data format
+[frame=ends]
+|===
+|Data size (4bytes,signed)|DATA
+
+Command + Data
+|===
