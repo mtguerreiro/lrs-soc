@@ -11,8 +11,8 @@
 #include "ocpIf.h"
 #include "ocpIfMaster.h"
 
-#include "ocpTrace.h"
-#include "ocpCS.h"
+#include "ocpTraceMaster.h"
+#include "ocpCSMaster.h"
 #include "ocpPlatform.h"
 #include "ocpConfig.h"
 #include "ocpOpil.h"
@@ -202,10 +202,10 @@ static int32_t ocpIfMasterTraceRead(void *in, uint32_t insize,
 		if( size < 0 ) return size;
 	}
 	else{
-		status = ocpTraceGetAddress( id, (void *)(&address) );
+		status = ocpTraceMasterGetAddress( id, (void *)(&address) );
 		if( status < 0 ) return status;
 
-		size = ocpTraceGetSize( id );
+		size = ocpTraceMasterGetSize( id );
 		if( size < 0 ) return size;
 	}
 
@@ -231,7 +231,7 @@ static int32_t ocpIfMasterTraceReset(void *in, uint32_t insize,
 	}
 	else{
 		id = id - nTracesSecondCore;
-		status = ocpTraceReset(id);
+		status = ocpTraceMasterReset(id);
 	}
 
 	return status;
@@ -255,7 +255,7 @@ static int32_t ocpIfMasterTraceGetSize(void *in, uint32_t insize,
 	}
 	else{
 		id = id - nTracesSecondCore;
-		size = ocpTraceGetSize(id);
+		size = ocpTraceMasterGetSize(id);
 	}
 
 	if( size < 0 ) return size;
@@ -284,7 +284,7 @@ static int32_t ocpIfMasterTraceSetSize(void *in, uint32_t insize,
 	}
 	else{
 		id = id - nTracesSecondCore;
-		status = ocpTraceSetSize(id, size);
+		status = ocpTraceMasterSetSize(id, size);
 	}
 
 	return status;
@@ -308,7 +308,7 @@ static int32_t ocpIfMasterTraceGetNumberSignals(void *in, uint32_t insize,
 	}
 	else{
 		id = id - nTracesSecondCore;
-		nSignals = ocpTraceGetNumberSignals(id);
+		nSignals = ocpTraceMasterGetNumberSignals(id);
 	}
 
 	if( nSignals < 0 ) return nSignals;
@@ -336,7 +336,7 @@ static int32_t ocpIfMasterTraceGetSignalsNames(void *in, uint32_t insize,
 	}
 	else{
 		id = id - nTracesSecondCore;
-		size = ocpTraceGetSignalsNames(id, o, maxoutsize);
+		size = ocpTraceMasterGetSignalsNames(id, o, maxoutsize);
 	}
 
 	return size;
@@ -353,7 +353,7 @@ static int32_t ocpIfMasterTraceGetNumberTraces(void *in, uint32_t insize,
 	nTracesSecondCore = ocpIfMasterTraceGetNumberTracesSecondCore();
 	if( nTracesSecondCore < 0 ) return nTracesSecondCore;
 
-	nTracesThisCore = ocpTraceGetNumberTraces();
+	nTracesThisCore = ocpTraceMasterGetNumberTraces();
 	if( nTracesThisCore < 0 ) return nTracesSecondCore;
 
 	*o = nTracesThisCore + nTracesSecondCore;
@@ -373,7 +373,7 @@ static int32_t ocpIfMasterTraceGetTracesNames(void *in, uint32_t insize,
 	if( sizeSecondCore < 0 ) return sizeSecondCore;
 
 	o = o + sizeSecondCore;
-	sizeThisCore = ocpTraceGetTracesNames(o, maxoutsize - sizeSecondCore);
+	sizeThisCore = ocpTraceMasterGetTracesNames(o, maxoutsize - sizeSecondCore);
 	if( sizeThisCore < 0 ) return sizeThisCore;
 
 	return sizeThisCore + sizeSecondCore;
@@ -401,7 +401,7 @@ static int32_t ocpIfMasterCSStatus(void *in, uint32_t insize,
 	}
 	else{
 		id = id - nControllersSecondCore;
-		cmdStatus = ocpCSStatus(id, &status);
+		cmdStatus = ocpCSMasterStatus(id, &status);
 	}
 
 	if( cmdStatus < 0 ) return cmdStatus;
@@ -428,7 +428,7 @@ static int32_t ocpIfMasterCSEnable(void *in, uint32_t insize,
 	}
 	else{
 		id = id - nControllersSecondCore;
-		status = ocpCSEnable(id);
+		status = ocpCSMasterEnable(id);
 	}
 
 	if( status < 0 ) return status;
@@ -453,7 +453,7 @@ static int32_t ocpIfMasterCSDisable(void *in, uint32_t insize,
 	}
 	else{
 		id = id - nControllersSecondCore;
-		status = ocpCSDisable(id);
+		status = ocpCSMasterDisable(id);
 	}
 
 	if( status < 0 ) return status;
@@ -480,7 +480,7 @@ static int32_t ocpIfMasterCSControllerIf(void *in, uint32_t insize,
 	}
 	else{
 		id = id - nControllersSecondCore;
-		status = ocpCSControllerInterface(id, (void *)p, insize - 4, out, maxoutsize);
+		status = ocpCSMasterControllerInterface(id, (void *)p, insize - 4, out, maxoutsize);
 	}
 
 	return status;
@@ -505,7 +505,7 @@ static int32_t ocpIfMasterCSHardwareIf(void *in, uint32_t insize,
 	}
 	else{
 		id = id - nControllersSecondCore;
-		status = ocpCSHardwareInterface(id, (void *)p, insize - 4, out, maxoutsize);
+		status = ocpCSMasterHardwareInterface(id, (void *)p, insize - 4, out, maxoutsize);
 	}
 
 	return status;
@@ -521,7 +521,7 @@ static int32_t ocpIfMasterCSGetNumberControllers(void *in, uint32_t insize,
 	nControllersSecondCore = ocpIfMasterCSGetNumberControllersSecondCore();
 	if( nControllersSecondCore < 0 ) return nControllersSecondCore;
 
-	nControllersThisCore = ocpCSGetNumberControllers();
+	nControllersThisCore = ocpCSMasterGetNumberControllers();
 	if( nControllersThisCore < 0 ) return nControllersThisCore;
 
 	*o = nControllersThisCore + nControllersSecondCore;
@@ -541,7 +541,7 @@ static int32_t ocpIfMasterCSGetControllersNames(void *in, uint32_t insize,
 	if( sizeSecondCore < 0 ) return sizeSecondCore;
 
 	o = o + sizeSecondCore;
-	sizeThisCore = ocpCSGetControllersNames(o, maxoutsize - sizeSecondCore);
+	sizeThisCore = ocpCSMasterGetControllersNames(o, maxoutsize - sizeSecondCore);
 	if( sizeThisCore < 0 ) return sizeThisCore;
 
 	return sizeThisCore + sizeSecondCore;

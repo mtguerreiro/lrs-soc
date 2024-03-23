@@ -22,9 +22,9 @@ class ITM3903C:
     ----------
         
     """
-    def __init__(self, cs_id, comm, comm_settings, tr_id=0):
+    def __init__(self, comm, comm_settings, cs_id = 0, tr_id=0):
 
-        self._cs_id = 0
+        self._cs_id = cs_id
 
         self._ocp_if = lrssoc.ocp.iface.Interface(comm_type=comm, settings=comm_settings)
 
