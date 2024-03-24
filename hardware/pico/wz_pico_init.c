@@ -84,6 +84,13 @@ int32_t wzPicoInit(void){
 	gpio_set_dir(WZ_PICO_INIT_CFG_SPI_CSN_PIN, GPIO_OUT);
 	gpio_put(WZ_PICO_INIT_CFG_SPI_CSN_PIN, 1);
 
+	gpio_init(WZ_PICO_INIT_CFG_RST_PIN);
+	gpio_set_dir(WZ_PICO_INIT_CFG_RST_PIN, GPIO_OUT);
+
+	gpio_put(WZ_PICO_INIT_CFG_RST_PIN, 0);
+    sleep_ms(10);
+	gpio_put(WZ_PICO_INIT_CFG_RST_PIN, 1);
+
 #if WZ_PICO_INIT_CFG_USE_DHCP == 1
 	add_repeating_timer_ms(1000, wzPicoDhcpTimer, NULL, &timer);
 #endif

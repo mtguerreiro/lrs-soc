@@ -9,6 +9,9 @@
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
+/* System clock */
+#define OCP_PICO_CONFIG_CLK_KHZ                     (96 * 1000)
+
 /* Server's port that will be listening for connections */
 #define OCP_PICO_CONFIG_TCP_SERVER_PORT_OCP			8080
 // #define PICO_CONFIG_TCP_SERVER_PORT_OPIL            8090
@@ -35,15 +38,16 @@
 #define OCP_PICO_CONFIG_WZ_SPI_TX_PIN	            PICO_DEFAULT_SPI_TX_PIN
 #define OCP_PICO_CONFIG_WZ_SPI_RX_PIN  	            PICO_DEFAULT_SPI_RX_PIN
 #define OCP_PICO_CONFIG_WZ_SPI_CSN_PIN	            PICO_DEFAULT_SPI_CSN_PIN
+#define OCP_PICO_CONFIG_WZ_RST_PIN                  20
 
 /* LED config */
 #define OCP_PICO_CONFIG_LED_PIN		                PICO_DEFAULT_LED_PIN
 
 /* UART definition */
-#define OCP_PICO_CONFIG_UART_RS232_ID uart1
-#define OCP_PICO_CONFIG_UART_RS232_BAUD_RATE 115200
-#define OCP_PICO_CONFIG_UART_RS232_TX_PIN 4
-#define OCP_PICO_CONFIG_UART_RS232_RX_PIN 5
+#define OCP_PICO_CONFIG_UART_RS232_ID               uart1
+#define OCP_PICO_CONFIG_UART_RS232_BAUD_RATE        9600
+#define OCP_PICO_CONFIG_UART_RS232_TX_PIN           4
+#define OCP_PICO_CONFIG_UART_RS232_RX_PIN           5
 //-----------------------------------------------------------------------------
 //=============================================================================
 

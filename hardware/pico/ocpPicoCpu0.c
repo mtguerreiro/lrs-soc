@@ -9,15 +9,20 @@
 #include "ocpPicoCpu0.h"
 #include <stdio.h>
 /* Open controller project */
-#include "ocp/ocp/ocpTrace.h"
-#include "ocp/ocp/ocpCS.h"
+#include "ocp/ocp/ocpTraceMaster.h"
+#include "ocp/ocp/ocpCSMaster.h"
 #include "ocp/ocp/ocpIfMaster.h"
+#include "ocp/ocp/ocpConfig.h"
 
 #include "ocp/hardware/pico/wz_pico_init.h"
 #include "ocp/hardware/pico/ipcClientPico.h"
 
 #include "ocp/ipc/ipcClient.h"
 
+#include "ocp/app/itm3903c/itm3903cConfig.h"
+#include "ocp/app/itm3903c/itm3903cController.h"
+#include "ocp/app/itm3903c/itm3903cHw.h"
+#include "ocp/app/itm3903c/itm3903cHwIf.h"
 
 //=============================================================================
 
@@ -64,12 +69,16 @@ void ocpPicoCpu0Initialize(void *params){
 //=============================================================================
 //-----------------------------------------------------------------------------
 static int32_t ocpPicoCpu0InitializeHw(void){
-	sleep_ms(5000);
-	printf("Baud rate: %d\n", uart_init(OCP_PICO_CONFIG_UART_RS232_ID, OCP_PICO_CONFIG_UART_RS232_BAUD_RATE));
-	// uart_set_format(OCP_PICO_CONFIG_UART_RS232_ID, 8, 2, UART_PARITY_EVEN);
-    gpio_set_function(OCP_PICO_CONFIG_UART_RS232_TX_PIN, GPIO_FUNC_UART);
-    gpio_set_function(OCP_PICO_CONFIG_UART_RS232_RX_PIN, GPIO_FUNC_UART);
-	return wzPicoInit();
+
+    int32_t status;
+
+	sleep_ms(3000);
+
+    itm3903cHwInitialize();
+	
+    status = wzPicoInit();
+
+    return status;
 }
 //-----------------------------------------------------------------------------
 static int32_t ocpPicoCpu0InitializeIpc(void){
@@ -86,50 +95,43 @@ static int32_t ocpPicoCpu0InitializeIpc(void){
 //-----------------------------------------------------------------------------
 static int32_t ocpPicoCpu0InitializeTraces(void){
 
-//	ocpTraceConfig_t config;
-//
-//	config.mem = trace1Buffer;
-//	config.size = OCP_CONFIG_TRACE1_SIZE;
-//	config.data = (void **)trace1Data;
-//	config.names = trace1Names;
-//
-//	ocpTraceInitialize(OCP_TRACE_1, &config, "Trace 1");
-//
 	return 0;
 }
 //-----------------------------------------------------------------------------
 static int32_t ocpPicoCpu0InitializeControlSystem(void){
 
-//	ocpCSConfig_t config;
-//
-//	/* Initializes controller lib */
-//	controllerInitialize();
-//
-//	/* Initializes control sys lib */
-//	config.fgetInputs = plecsGetInputs;
-//	config.fprocInputs = plecsProcInputs;
-//
-//	config.frun = controllerRun;
-//
-//	config.fprocOutputs = plecsProcOutputs;
-//	config.fapplyOutputs = plecsApplyOutputs;
-//
-//	config.fonEntry = 0;
-//	config.fonExit = 0;
-//	config.fhwInterface = 0;
-//	config.fcontrollerInterface = controllerInterface;
-//
-//	config.binputs = sys1InBuffer;
-//	config.bprocInputs = sys1ProcInBuffer;
-//
-//	config.boutputs = sys1OutBuffer;
-//	config.bprocOutputs = sys1ProcOutBuffer;
-//
-//	config.fenable = 0;
-//	config.fdisable = 0;
-//
-//	ocpCSInitialize(OCP_CS_1, &config, "Converter control");
-//
+	ocpCSMasterConfig_t config;
+	itm3903cControllerConfig_t itconfig;
+
+    /* Initializes controller and hardware interface libs */
+	itconfig.disable = 0;
+    itconfig.enable = 0;
+	itm3903cControllerInitialize(&itconfig);
+    itm3903cHwIfInitialize();
+
+    /* Initializes control sys lib */
+    config.binputs = (void *)0;
+    config.boutputs = (void *)0;
+
+    config.fhwInterface = itm3903cHwDigitalIf;
+    config.fhwStatus = itm3903cHwStatus;
+
+    config.fgetInputs = 0;
+
+    config.fapplyOutputs = 0;
+
+    config.frun = 0;
+    config.fcontrollerInterface = 0;
+    config.fcontrollerStatus = 0;
+
+    config.fenable = 0;
+    config.fdisable = 0;
+
+    config.fonEntry = 0;
+    config.fonExit = 0;
+
+	ocpCSMasterInitialize(OCP_CS_MASTER_1, &config, "Supply interface");
+
 	return 0;
 }
 //-----------------------------------------------------------------------------

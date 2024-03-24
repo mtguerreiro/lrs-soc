@@ -29,6 +29,9 @@
 #define WZ_PICO_INIT_CFG_SPI_RX_PIN	        OCP_PICO_CONFIG_WZ_SPI_RX_PIN
 #define WZ_PICO_INIT_CFG_SPI_CSN_PIN	    OCP_PICO_CONFIG_WZ_SPI_CSN_PIN
 
+/* W5500 reset */
+#define WZ_PICO_INIT_CFG_RST_PIN	        OCP_PICO_CONFIG_WZ_RST_PIN 
+
 /* If DHCP is set to 1, DHCP is used. Otherwise, static IP */
 #define WZ_PICO_INIT_CFG_USE_DHCP		    OCP_PICO_CONFIG_WZ_USE_DHCP
 

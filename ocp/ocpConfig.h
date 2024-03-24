@@ -33,6 +33,7 @@ typedef enum{
 	OCP_CS_END
 }ocpCSIDs_t;
 typedef enum{
+	OCP_CS_MASTER_1 = 0,
 	OCP_CS_MASTER_END
 }ocpCSMasterIDs_t;
 //=============================================================================

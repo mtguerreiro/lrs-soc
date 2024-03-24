@@ -67,7 +67,6 @@ static size_t trace0Data[OCP_PICO_C1_CONFIG_TRACE_0_MAX_SIGNALS];
 static struct repeating_timer timerAdc;
 
 static float texec = 0.0f;
-static float counter = 0.0f;
 static float chan_0 = 0.0f;
 static float chan_1 = 0.0f;
 
@@ -82,7 +81,7 @@ static float bOutputs[OCP_PICO_C1_CONFIG_OUTPUT_BUF_SIZE];
 //=============================================================================
 //-----------------------------------------------------------------------------
 void ocpPicoCpu1Initialize(void){
-    // sleep_ms(5000);
+
 	ocpPicoCpu1InitializeHw();
 	ocpPicoCpu1InitializeIpc();
 	ocpPicoCpu1InitializeTraces();
@@ -99,27 +98,8 @@ void ocpPicoCpu1Initialize(void){
 //-----------------------------------------------------------------------------
 static int32_t ocpPicoCpu1InitializeHw(void){
 
-
-    // printf("Core 1: Initializing ADC\n");
-    adc_init();
-
-    // GPIO 26 and 27 enabled
-    adc_gpio_init(26);
-    adc_gpio_init(27);
-    // printf("Core 1: Set round robin masking\n");
-    adc_set_round_robin(_u(0x03));
-    // printf("Core 1: Setup ADC FIFO\n");
-    adc_fifo_setup(true, false, 0, false, false);
-    adc_fifo_drain();
-    // printf("Core 1: ADC FIFO level: %d\n", adc_fifo_get_level());
-    
-
-   /*Using timer*/
+    /* A timer is used to trigger the ADC and run the control routine */
     add_repeating_timer_ms(1, ocpPicoAdcIrq, NULL, &timerAdc);
-
-
-
-    // uart_puts(UART_ID, " Hello, UART!\n");
 
     return 0;
 }
@@ -151,12 +131,10 @@ static int32_t ocpPicoCpu1InitializeTraces(void){
 
 	ocpTraceInitialize(OCP_TRACE_1, &config, "Pico Trace 1");
 
-    ocpTraceAddSignal(OCP_TRACE_1, (void *)&texec, "Exec. time");
-    ocpTraceAddSignal(OCP_TRACE_1, (void *)&counter, "Counter");
-
 	ocpTraceAddSignal(OCP_TRACE_1, (void *)&meas->v, "Channel 0");
 	ocpTraceAddSignal(OCP_TRACE_1, (void *)&meas->i, "Channel 1");
 
+    ocpTraceAddSignal(OCP_TRACE_1, (void *)&texec, "Exec. time");
 	return 0;
 }
 //-----------------------------------------------------------------------------
@@ -175,13 +153,11 @@ static int32_t ocpPicoCpu1InitializeControlSystem(void){
     config.binputs = (void *)bInputs;
     config.boutputs = (void *)bOutputs;
 
-    config.fhwInterface = itm3903cHwIf;
+    config.fhwInterface = itm3903cHwAnalogIf;
     config.fhwStatus = itm3903cHwStatus;
 
-    //config.fgetInputs = cukOpilGetMeasurements;
     config.fgetInputs = itm3903cHwGetMeasurements;
 
-    //config.fapplyOutputs = cukOpilUpdateControl;
     config.fapplyOutputs = itm3903cHwApplyOutputs;
 
     config.frun = itm3903cControllerRun;
