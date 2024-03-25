@@ -32,10 +32,10 @@ graph LR
 
 ### Prerequisites
 - NI LabVIEW Runtime 2022 Q3 Patch 1 (64-bit). [Labview Runtime](https://www.ni.com/en/support/downloads/software-products/download.labview-runtime.html#460613)
-- Access to the GUI App in the [labview folder](labview/builds/GUI App/GUI_App.exe)
+- Access to the GUI App in the [labview folder] (labview/builds/GUI App/GUI_App.exe)
 
 ### Requirements installation
-Need to install:
+
 - [Labview Runtime](https://www.ni.com/en/support/downloads/software-products/download.labview-runtime.html#460613) 
   - **Current Version in LabVIEW Development:** LabVIEW 2022 Q3 Patch 1 (64-bit)
 - Download GUI App in the [GUI_App folder](labview/builds/GUI_App/GUI_App.exe)
