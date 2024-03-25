@@ -43,11 +43,11 @@
 /* LED config */
 #define OCP_PICO_CONFIG_LED_PIN		                PICO_DEFAULT_LED_PIN
 
-/* UART definition */
-#define OCP_PICO_CONFIG_UART_RS232_ID               uart1
-#define OCP_PICO_CONFIG_UART_RS232_BAUD_RATE        9600
-#define OCP_PICO_CONFIG_UART_RS232_TX_PIN           4
-#define OCP_PICO_CONFIG_UART_RS232_RX_PIN           5
+/* RS232-UART definition */
+#define OCP_PICO_CONFIG_RS232_UART                  uart1
+#define OCP_PICO_CONFIG_RS232_UART_BAUD_RATE        9600
+#define OCP_PICO_CONFIG_RS232_UART_TX_PIN           4
+#define OCP_PICO_CONFIG_RS232_UART_RX_PIN           5
 //-----------------------------------------------------------------------------
 //=============================================================================
 
