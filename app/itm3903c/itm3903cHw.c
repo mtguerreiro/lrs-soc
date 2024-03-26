@@ -9,6 +9,7 @@
 #include "itm3903cHw.h"
 #include "hardware/uart.h"
 #include <stdio.h>
+#include <math.h>
 #include "pico/stdlib.h"
 #include "hardware/adc.h"
 #include "string.h"
@@ -37,7 +38,7 @@ typedef struct{
 //=============================================================================
 /*-------------------------------- Prototypes -------------------------------*/
 //=============================================================================
-static void itm3903HwFillResponseBuffer(char *buffer, int32_t *size);
+static int32_t itm3903HwGetSupplyResponse(char *buffer, uint32_t maxsize);
 static void itm3903cHwInitializeGpio(void);
 static void itm3903cHwInitializeAdc(void);
 static void itm3903cHwInitializeUart(void);
@@ -60,11 +61,6 @@ static float supplySlope = 0.0f;
  * - At the moment, a timer triggers execution of the ADC, which is read with
  *   blocking calls. Better would be if the ADC reading was non-blocking. 
  *   However, the pico adc hardware is a bit weird in this regard.
- * 
- * - Review itm3903HwFillResponseBuffer to return size, decrease time-out time
- * 
- * - In Python, change set_func_mode to be 'voltage' or 'current' instead of 
- *   0 or 1.
  */
 //=============================================================================
 
@@ -139,7 +135,6 @@ void itm3903cHwSetSlope(uint32_t channel, float slope){
 float itm3903cHwGetSlope(uint32_t channel){
 
     float slope; 
-    int32_t size_response = 0;
     char command[50];
     size_t size;
     
@@ -147,10 +142,9 @@ float itm3903cHwGetSlope(uint32_t channel){
 
     uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
     
-    char o[10]; 
-
-    itm3903HwFillResponseBuffer(o, &size_response);
-    slope = (float) strtod(o, NULL);
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+    if( size < 0 ) slope = NAN;
+    else slope = (float) strtod(command, NULL);
 
     return slope;
 }
@@ -168,7 +162,6 @@ void itm3903cHwSetOffset(uint32_t channel, float offset){
 float itm3903cHwGetOffset(uint32_t channel){
 
     float offset; 
-    int32_t size_response = 0;
     char command[50]; 
     size_t size;
     
@@ -176,16 +169,15 @@ float itm3903cHwGetOffset(uint32_t channel){
 
     uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
 
-    char o[10]; 
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
 
-    itm3903HwFillResponseBuffer(o, &size_response);
-
-    offset = (float) strtod(o, NULL);
+    if( size < 0 ) offset = NAN;
+    else offset = (float) strtod(command, NULL);
 
     return offset;
 }
 //-----------------------------------------------------------------------------
-int32_t itm3903cHwGetVersion(char * o){
+int32_t itm3903cHwGetVersion(char *o, uint32_t maxsize){
 
     int32_t size = 0;
     char command[] = "SYST:VERS?\r\n";
@@ -193,12 +185,12 @@ int32_t itm3903cHwGetVersion(char * o){
 
     uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) command_size);
 
-    itm3903HwFillResponseBuffer(o, &size);
+    size = itm3903HwGetSupplyResponse(o, maxsize);
 
     return size;
 }
 //-----------------------------------------------------------------------------
-int32_t itm3903cHwGetFuncMode(char * o){
+int32_t itm3903cHwGetFuncMode(char * o, uint32_t maxsize){
 
     int32_t size = 0;
     char command[] = "FUNC?\r\n";
@@ -206,12 +198,12 @@ int32_t itm3903cHwGetFuncMode(char * o){
 
     uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) command_size);
 
-    itm3903HwFillResponseBuffer(o, &size);
+    size = itm3903HwGetSupplyResponse(o, maxsize);
 
     return size;
 }
 //-----------------------------------------------------------------------------
-int32_t itm3903cHwGetError(char * o){
+int32_t itm3903cHwGetError(char * o, uint32_t maxsize){
 
     int32_t size = 0;
     char command[] = "SYST:ERR?\r\n";
@@ -219,12 +211,12 @@ int32_t itm3903cHwGetError(char * o){
 
     uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) command_size);
 
-    itm3903HwFillResponseBuffer(o, &size);
+    size = itm3903HwGetSupplyResponse(o, maxsize);
 
     return size;
 }
 //-----------------------------------------------------------------------------
-void itm3903cHwClearError(){
+void itm3903cHwClearError(void){
 
     char command[] = "SYST:CLE\r\n";
     size_t command_size = sizeof(command) - 1;
@@ -263,23 +255,20 @@ void itm3903cHwSetFuncMode(uint32_t funcMode){
     uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) command_size);
 }
 //-----------------------------------------------------------------------------
-uint32_t itm3903cHwGetOutputStatus() {
+uint32_t itm3903cHwGetOutputStatus(void) {
 
     uint32_t output_status;
-
+    int32_t size;
     char command[] = "OUTP?\r\n";
     
     size_t command_size = sizeof(command) - 1;
 
     uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) command_size);
-    
-    char o[4];
 
-    int32_t size = 0;
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
 
-    itm3903HwFillResponseBuffer(o, &size);
-
-    output_status = (uint32_t) atoi(o);
+    if( size < 0 ) output_status = 0xFFFFFFFF;
+    else output_status = (uint32_t) atoi(command);
 
     return output_status;
 }
@@ -316,22 +305,20 @@ void itm3903cHwSetValue(float value, bool currOrVolt){
     uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
 }
 //-----------------------------------------------------------------------------
-uint32_t itm3903cHwGetAnalogExternalStatus() {
-    uint32_t output_status;
+uint32_t itm3903cHwGetAnalogExternalStatus(void) {
 
+    uint32_t output_status;
+    int32_t size;
     char command[] = "EXT:PROG?\r\n";
 
     size_t command_size = sizeof(command) - 1;
 
     uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) command_size);
     
-    char o[4];
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
 
-    int32_t size = 0;
-
-    itm3903HwFillResponseBuffer(o, &size);
-
-    output_status = (uint32_t) atoi(o);
+    if( size < 0 ) output_status = 0xFFFFFFFF;
+    else output_status = (uint32_t) atoi(command);
 
     return output_status;
 }
@@ -342,29 +329,31 @@ uint32_t itm3903cHwGetAnalogExternalStatus() {
 /*----------------------------- Static functions ----------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-static void itm3903HwFillResponseBuffer(char *buffer, int32_t *size){
+static int32_t itm3903HwGetSupplyResponse(char *buffer, uint32_t maxsize){
+    
     uint8_t curr_char = (u_int8_t) '\r';
+    bool status;
+    int32_t size;
 
-    if(!uart_is_readable_within_us(OCP_PICO_CONFIG_RS232_UART, 1e6)) {
+    status = uart_is_readable_within_us(OCP_PICO_CONFIG_RS232_UART, OCP_PICO_CONFIG_RS232_UART_TO_MS * 1000);
+    if(status == false) {
         printf("UART timed out\n");
-        *size = -1;
-        return;
+        return -1;
     };
 
-    while(curr_char != (u_int8_t) '\n'){
+    size = 0;
+    while( (curr_char != ((u_int8_t) '\n')) && (size <= maxsize) ){
         
         curr_char = uart_getc(OCP_PICO_CONFIG_RS232_UART);
         *buffer++ = (char) curr_char;
-        (*size)++;
+        size++;
     }
 
     if(curr_char != '\n'){
-        *size = -1;
-        return;
+        return -1;
     }
 
-    // *buffer++ = '\0';
-    // (*size)++;
+    return size;
 }
 //-----------------------------------------------------------------------------
 static void itm3903cHwInitializeGpio(void){

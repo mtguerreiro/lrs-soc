@@ -91,54 +91,66 @@ class Hw:
 
         return self._get_offset(channel)
 
+
     def get_version(self):
 
         return self._get_version()
+
     
     def get_error(self):
 
         return self._get_error()
+
     
     def clear_error(self):
 
         return self._clear_error()
+
     
     def set_output_status(self, set_status):
 
         return self._set_output_status(set_status)
 
+
     def get_output_status(self):
 
         return self._get_output_status()
+
     
     def set_analog_external_status(self, set_status):
 
         return self._set_analog_external_status(set_status)
 
+
     def get_analog_external_status(self):
 
         return self._get_analog_external_status()
 
+
     def set_func_mode(self, func_mode):
 
         return self._set_func_mode(func_mode)
+
     
     def get_func_mode(self):
 
         return self._get_func_mode()
 
+
     def set_volt_value(self, value):
         return self._set_volt_value(value)
+
     
     def set_curr_value(self, value):
+
         return self._set_curr_value(value)
+
     
     def _get_version(self):
         """
         Returns the version of the firmware of the power supply
 
         """
-
         cmd = self._cmd.get_version
 
         tx_data = []
@@ -154,7 +166,9 @@ class Hw:
         version = struct.unpack(str_format, version_b)[0]
 
         string = version.decode()
+
         return (0, string)
+
 
     def _get_error(self):
         cmd = self._cmd.get_error
@@ -173,7 +187,9 @@ class Hw:
         error_msg = struct.unpack(str_format, error_msg_b)[0]
 
         string = error_msg.decode()
+
         return (0, string)
+
 
     def _clear_error(self):
         cmd = self._cmd.clear_error
@@ -189,12 +205,21 @@ class Hw:
 
         return (0,)
 
-    def _set_output_status(self, set_status):
+
+    def _set_output_status(self, output_status):
+
         cmd = self._cmd.set_output_status
+
+        if output_status is True:
+            output_status = 1
+        elif output_status is False:
+            output_status = 0
+        else:
+            return(-1, 'output_status can only be True or False')
 
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-        tx_data.extend( lrssoc.conversions.u32_to_u8(set_status, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(output_status, msb=False) )
 
         status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
 
@@ -213,12 +238,20 @@ class Hw:
                 return (-1, err_message)       
         
 
-    def _set_analog_external_status(self, set_status):
+    def _set_analog_external_status(self, analog_status):
+
         cmd = self._cmd.set_analog_external_status
+        
+        if analog_status is True:
+            analog_status = 1
+        elif analog_status is False:
+            analog_status = 0
+        else:
+            return(-1, 'analog_status can only be True or False')
 
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-        tx_data.extend( lrssoc.conversions.u32_to_u8(set_status, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(analog_status, msb=False) )
 
         status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
 
@@ -226,8 +259,6 @@ class Hw:
             print('Error setting analog external status. Error code {:}\r\n'.format(status))
             return (-1, status)
         
-        
-
         err_status, err_message = self.get_error()
 
         if "No error" in err_message:
@@ -237,6 +268,7 @@ class Hw:
                 return (-1, err_status)
             else: 
                 return (-1, err_message)   
+
 
     def _get_output_status(self):
 
@@ -252,7 +284,9 @@ class Hw:
             return (-1, status)
 
         output_status = struct.unpack('<i', output_status)[0]
+
         return (0, output_status > 0)
+
 
     def _get_analog_external_status(self):
 
@@ -268,7 +302,9 @@ class Hw:
             return (-1, status)
 
         output_status = struct.unpack('<i', output_status)[0]
+
         return (0, output_status > 0)
+
     
     def _set_slope(self, channel, slope):
         """
@@ -336,6 +372,7 @@ class Hw:
                 return (-1, err_status)
             else: 
                 return (-1, err_message)  
+
     
     def _set_offset(self, channel, offset):
         """
@@ -405,19 +442,27 @@ class Hw:
             else: 
                 return (-1, err_message)  
 
+
     def _set_func_mode(self, func_mode):
+
         cmd = self._cmd.set_func_mode
+
+        if func_mode == 'current':
+            func = 0
+        elif func_mode == 'voltage':
+            func = 1
+        else:
+            return (-1, 'Mode can only be \'current\' or \'voltage\'')
 
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-        tx_data.extend( lrssoc.conversions.u32_to_u8(func_mode, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(func, msb=False) )
 
         status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
 
         if status < 0:
             print('Error setting function mode. Error code {:}\r\n'.format(status))
-            return (-1, status)
-        
+            return (-1, status)        
         
         err_status, err_message = self.get_error()
 
@@ -428,6 +473,7 @@ class Hw:
                 return (-1, err_status)
             else: 
                 return (-1, err_message)  
+
     
     def _get_func_mode(self):
         cmd = self._cmd.get_func_mode
@@ -448,7 +494,13 @@ class Hw:
         string = func_mode.decode()
         string = func_mode.split(b'\x00')[0].decode()
 
+        if string == 'VOLTage\n':
+            string = 'voltage'
+        elif string == 'CURRent\n':
+            string = 'current'
+
         return (0, string)
+
 
     def _set_volt_value(self, value):
         cmd = self._cmd.set_volt_value
@@ -472,6 +524,7 @@ class Hw:
                 return (-1, err_status)
             else: 
                 return (-1, err_message)  
+
     
     def _set_curr_value(self, value):
         cmd = self._cmd.set_curr_value

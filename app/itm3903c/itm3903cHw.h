@@ -56,23 +56,23 @@ void itm3903cHwSetOffset(uint32_t channel, float offset);
 //-----------------------------------------------------------------------------
 float itm3903cHwGetOffset(uint32_t channel);
 //-----------------------------------------------------------------------------
-int32_t itm3903cHwGetVersion(char *o);
+int32_t itm3903cHwGetVersion(char *o, uint32_t maxsize);
 //-----------------------------------------------------------------------------
-int32_t itm3903cHwGetFuncMode(char *o);
+int32_t itm3903cHwGetFuncMode(char *, uint32_t maxsize);
 //-----------------------------------------------------------------------------
-int32_t itm3903cHwGetError(char *o);
+int32_t itm3903cHwGetError(char *o, uint32_t maxsize);
 //-----------------------------------------------------------------------------
-void itm3903cHwClearError();
+void itm3903cHwClearError(void);
 //-----------------------------------------------------------------------------
 void itm3903cHwSetOutputStatus(uint32_t setStatus);
 //-----------------------------------------------------------------------------
 void itm3903cHwSetFuncMode(uint32_t funcMode);
 //-----------------------------------------------------------------------------
-uint32_t itm3903cHwGetOutputStatus();
+uint32_t itm3903cHwGetOutputStatus(void);
 //-----------------------------------------------------------------------------
 void itm3903cHwSetAnalogExternalStatus(uint32_t setStatus);
 //-----------------------------------------------------------------------------
-uint32_t itm3903cHwGetAnalogExternalStatus();
+uint32_t itm3903cHwGetAnalogExternalStatus(void);
 //-----------------------------------------------------------------------------
 void itm3903cHwSetValue(float value, bool currOrVolt);
 //-----------------------------------------------------------------------------

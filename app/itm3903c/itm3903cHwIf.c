@@ -194,19 +194,19 @@ static int32_t itm3903cHwIfGetOffset(void *in, uint32_t insize, void **out, uint
 static int32_t itm3903cHwIfGetVersion(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
     char *o = (char *)*out;
     
-    return itm3903cHwGetVersion(o);
+    return itm3903cHwGetVersion(o, maxoutsize);
 }
 //-----------------------------------------------------------------------------
 static int32_t itm3903cHwIfGetFuncMode(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
     char *o = (char *)*out;
     
-    return itm3903cHwGetFuncMode(o);
+    return itm3903cHwGetFuncMode(o, maxoutsize);
 }
 //-----------------------------------------------------------------------------
 static int32_t itm3903cHwIfGetError(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
     char *o = (char *)*out;
     
-    return itm3903cHwGetError(o);
+    return itm3903cHwGetError(o, maxoutsize);
 }
 //-----------------------------------------------------------------------------
 static int32_t itm3903cHwIfClearError(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
