@@ -43,8 +43,6 @@ static int32_t ocpPicoCpu1InitializeControlSystem(void);
 //-----------------------------------------------------------------------------
 static int32_t ocpPicoCpu1InitializeInterface(void);
 //-----------------------------------------------------------------------------
-static bool ocpPicoAdcIrq(struct repeating_timer *t);
-//-----------------------------------------------------------------------------
 //=============================================================================
 
 //=============================================================================
@@ -63,14 +61,6 @@ static bool ocpPicoAdcIrq(struct repeating_timer *t);
 //=============================================================================
 static char trace0Names[OCP_PICO_C1_CONFIG_TRACE_0_NAME_LEN];
 static size_t trace0Data[OCP_PICO_C1_CONFIG_TRACE_0_MAX_SIGNALS];
-
-static struct repeating_timer timerAdc;
-
-static float texec = 0.0f;
-static float chan_0 = 0.0f;
-static float chan_1 = 0.0f;
-
-const float conversion_factor = 3.3f / (1 << 12);
 
 static float bInputs[OCP_PICO_C1_CONFIG_INPUT_BUF_SIZE];
 static float bOutputs[OCP_PICO_C1_CONFIG_OUTPUT_BUF_SIZE];
@@ -98,8 +88,7 @@ void ocpPicoCpu1Initialize(void){
 //-----------------------------------------------------------------------------
 static int32_t ocpPicoCpu1InitializeHw(void){
 
-    /* A timer is used to trigger the ADC and run the control routine */
-    add_repeating_timer_ms(1, ocpPicoAdcIrq, NULL, &timerAdc);
+    itm3903cHwInitializeC1();
 
     return 0;
 }
@@ -121,6 +110,8 @@ static int32_t ocpPicoCpu1InitializeTraces(void){
 
 	ocpTraceConfig_t config;
     itm3903cConfigMeasurements_t *meas;
+    
+    uint32_t texec;
 
     meas = (itm3903cConfigMeasurements_t *)bInputs;
 
@@ -134,7 +125,10 @@ static int32_t ocpPicoCpu1InitializeTraces(void){
 	ocpTraceAddSignal(OCP_TRACE_1, (void *)&meas->v, "Channel 0");
 	ocpTraceAddSignal(OCP_TRACE_1, (void *)&meas->i, "Channel 1");
 
-    ocpTraceAddSignal(OCP_TRACE_1, (void *)&texec, "Exec. time");
+    texec = itm3903cHwGetC1ControlExecTimeAddr();
+
+    ocpTraceAddSignal(OCP_TRACE_1, (void *)texec, "Exec time");
+
 	return 0;
 }
 //-----------------------------------------------------------------------------
@@ -180,26 +174,6 @@ static int32_t ocpPicoCpu1InitializeInterface(void){
 	ocpIfInitialize();
 
 	return 0;
-}
-//-----------------------------------------------------------------------------
-//=============================================================================
-
-//=============================================================================
-/*----------------------------------- IRQ -----------------------------------*/
-//=============================================================================
-//-----------------------------------------------------------------------------
-static bool ocpPicoAdcIrq(struct repeating_timer *t){
-    uint32_t ticks;
-
-    ticks = time_us_32();
-
-    ocpCSRun(OCP_CS_1);
-    ocpTraceSave(OCP_TRACE_1);
-
-    ticks = time_us_32() - ticks;
-    texec = ((float)ticks);
-
-    return true;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

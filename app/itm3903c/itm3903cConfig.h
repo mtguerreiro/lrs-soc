@@ -38,8 +38,6 @@ typedef struct{
     float v_gain;
     float v_ofs;
 }itm3903cConfigMeasGains_t;
-
-#define ITM3903C_CONFIG_ADC_GAIN_INV        (float)((3.3f / 4095.0f))
 //=============================================================================
 
 #endif /* ITM3903C_CONFIG_H_ */

@@ -74,7 +74,7 @@ static int32_t ocpPicoCpu0InitializeHw(void){
 
 	sleep_ms(3000);
 
-    itm3903cHwInitialize();
+    itm3903cHwInitializeC0();
 	
     status = wzPicoInit();
 
