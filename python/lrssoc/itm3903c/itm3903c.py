@@ -30,7 +30,9 @@ class ITM3903C:
 
         self._ctl_if = lrssoc.itm3903c.itm3903c_controller.Controller(ocp_if=self._ocp_if, cs_id=cs_id)
 
-        self._hw_if = lrssoc.itm3903c.itm3903c_hw.Hw(ocp_if=self._ocp_if, cs_id=cs_id)
+        self._hw_if = lrssoc.itm3903c.itm3903c_hw.DigitalHw(ocp_if=self._ocp_if, cs_id=1)
+
+        self._an_hw_if = lrssoc.itm3903c.itm3903c_hw.AnalogHw(ocp_if=self._ocp_if, cs_id=0)
 
         self._tr_if = lrssoc.itm3903c.itm3903c_trace.Trace(ocp_if=self._ocp_if, tr_id=tr_id)
         self._tr_id = tr_id

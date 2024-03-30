@@ -39,6 +39,9 @@ typedef struct{
 
     itm3903cConfigMeasGains_t gains;
 
+    /* Sampling period in us */
+    uint32_t ts;
+
 }itm3903cHwControl_t;
 //=============================================================================
 
@@ -58,7 +61,7 @@ static bool itm3903cHwAdcIrq(struct repeating_timer *t);
 //=============================================================================
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
-itm3903cHwControl_t hwControl = {.status = 0};
+itm3903cHwControl_t hwControl = {.status = 0, .ts = 10};
 
 static struct repeating_timer timerAdc;
 
@@ -91,9 +94,6 @@ int32_t itm3903cHwInitializeC0(void){
 }
 //-----------------------------------------------------------------------------
 int32_t itm3903cHwInitializeC1(void){
-
-    /* A timer is used to trigger the ADC and run the control routine */
-    add_repeating_timer_ms(1, itm3903cHwAdcIrq, NULL, &timerAdc);
 
     return 0;
 }
@@ -344,6 +344,26 @@ uint32_t itm3903cHwGetAnalogExternalStatus(void) {
     else output_status = (uint32_t) atoi(command);
 
     return output_status;
+}
+//-----------------------------------------------------------------------------
+void itm3903cHwAdcEnable(void){
+
+    /* A timer is used to trigger the ADC and run the control routine */
+    add_repeating_timer_ms(1, itm3903cHwAdcIrq, NULL, &timerAdc);
+}
+//-----------------------------------------------------------------------------
+void itm3903cHwAdcDisable(void){
+
+}
+//-----------------------------------------------------------------------------
+void itm3903cHwSetSamplingFreq(uint32_t freq){
+
+    hwControl.ts = 1000000 / freq;
+}
+//-----------------------------------------------------------------------------
+uint32_t itm3903cHwGetSamplingFreq(void){
+
+    return 1000000 / hwControl.ts;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

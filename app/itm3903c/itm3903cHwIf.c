@@ -54,6 +54,7 @@ static itm3903cHwIfControl_t hwControl;
 //=============================================================================
 /*-------------------------------- Prototypes -------------------------------*/
 //=============================================================================
+/* Digital interface */
 static int32_t itm3903cHwIfSetSlope(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfGetSlope(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfSetOffset(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
@@ -70,6 +71,9 @@ static int32_t itm3903cHwIfGetFuncMode(void *in, uint32_t insize, void **out, ui
 static int32_t itm3903cHwIfSetVoltValue(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfSetCurrValue(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
+/* Analog interface */
+static int32_t itm3903cHwIfSetSamplingFreq(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfGetSamplingFreq(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
 //=============================================================================
 
@@ -99,6 +103,9 @@ int32_t itm3903cHwIfInitialize(void){
 
     /* Initializes the request processor of the analog interface */
     rpInitialize(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_END, hwControl.analogIf.handles);
+
+    rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_SAMPLING_FREQ, itm3903cHwIfSetSamplingFreq);
+    rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_GET_SAMPLING_FREQ, itm3903cHwIfGetSamplingFreq);
 
     return 0;
 }
@@ -274,6 +281,7 @@ static int32_t itm3903cHwIfSetVoltValue(void *in, uint32_t insize, void **out, u
 }
 //-----------------------------------------------------------------------------
 static int32_t itm3903cHwIfSetCurrValue(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
     float curr_value;
 
     uint32_t *p = (uint32_t *)in;
@@ -283,6 +291,30 @@ static int32_t itm3903cHwIfSetCurrValue(void *in, uint32_t insize, void **out, u
     itm3903cHwSetValue(curr_value, false);
    
     return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfSetSamplingFreq(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    float freq;
+
+    uint32_t *p = (uint32_t *)in;
+
+    freq = *p;
+
+    itm3903cHwSetSamplingFreq(freq);
+   
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfGetSamplingFreq(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    uint32_t *o = (uint32_t *) *out;
+
+    uint32_t freq = itm3903cHwGetSamplingFreq();
+
+    *o = freq;
+
+    return 4;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

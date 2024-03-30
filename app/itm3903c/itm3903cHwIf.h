@@ -18,9 +18,9 @@
 typedef enum{
     /**
      * Command
-     *  ----------------------------------------------------------
-     *  | SET SLOPE (uint32)t | CHANNEL (uint32) | SLOPE (float) |
-     *  ----------------------------------------------------------
+     *  ---------------------------------------------------------
+     *  | SET SLOPE (uint32) | CHANNEL (uint32) | SLOPE (float) |
+     *  ---------------------------------------------------------
      *
      * Response
      * No response
@@ -92,6 +92,36 @@ typedef enum{
 }itm3903cHwDigitalIfCommands_t;
 
 typedef enum{
+
+    /**
+     * Command
+     *  ------------------------------------------
+     *  | SET SAMP FREQ (uint32) | FREQ (uint32) |
+     *  ------------------------------------------
+     * 
+     * Response
+     * No response
+     * 
+     * Notes
+     *  - FREQ is in Hz.
+     */
+    ITM3903C_HW_ANALOG_IF_SET_SAMPLING_FREQ,
+
+    /**
+     * Command
+     *  --------------------------
+     *  | GET SAMP FREQ (uint32) |
+     *  --------------------------
+     *
+     * Response
+     *  -----------------
+     *  | FREQ (uint32) |
+     *  -----------------
+     * 
+     * Notes
+     *  - FREQ is in Hz.
+     */
+    ITM3903C_HW_ANALOG_IF_GET_SAMPLING_FREQ,
 
     ITM3903C_HW_ANALOG_IF_END
 }itm3903cHwAnalogIfCommands_t;

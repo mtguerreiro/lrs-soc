@@ -7,7 +7,7 @@ Module ``itm3903c_hw``
 import lrssoc
 import struct
 
-class Commands:
+class DigitalCommands:
     """
     """
     def __init__(self):
@@ -27,33 +27,8 @@ class Commands:
         self.set_volt_value             = 13 # Programming Guide Page 79 [SOURce:]VOLTage[:LEVel][:IMMediate][:AMPLitude] <NRf+> 
         self.set_curr_value             = 14 # Programming Guide Page 54 [SOURce:]CURRent[:LEVel][:IMMediate][:AMPLitude] <NRf+>
 
-class MeasGains:
-
-    def __init__(self):
-        pass
-
-    def decode(self, data):
-        fmt = '<' + 'f' * 4
-        data = struct.unpack(fmt, data)
-
-        gains = {
-            'v_gain':      data[0],  'v_ofs':      data[1],
-            'i_gain':      data[2],  'i_ofs':      data[3],
-            }
-
-        return gains
-
-    def encode(self, gains):
-        data = [gains['v_gain'],      gains['v_ofs'],
-                gains['i_gain'],      gains['i_ofs'],
-                ]
-        fmt = '<' + 'f' * 4
-        data = struct.pack(fmt, *data)
-
-        return data
-
         
-class Hw:
+class DigitalHw:
     """
 
     Parameters
@@ -68,7 +43,7 @@ class Hw:
     """
     def __init__(self, ocp_if, cs_id):
 
-        self._cmd = Commands()
+        self._cmd = DigitalCommands()
         self._ocp_if = ocp_if
         self._cs_id = cs_id
 
@@ -548,3 +523,109 @@ class Hw:
                 return (-1, err_status)
             else: 
                 return (-1, err_message)  
+
+
+class AnalogCommands:
+    """
+    """
+    def __init__(self):
+        self.set_sampling_freq = 0
+        self.get_sampling_freq = 1
+
+
+class MeasGains:
+
+    def __init__(self):
+        pass
+
+    def decode(self, data):
+        fmt = '<' + 'f' * 4
+        data = struct.unpack(fmt, data)
+
+        gains = {
+            'v_gain':      data[0],  'v_ofs':      data[1],
+            'i_gain':      data[2],  'i_ofs':      data[3],
+            }
+
+        return gains
+
+    def encode(self, gains):
+        data = [gains['v_gain'],      gains['v_ofs'],
+                gains['i_gain'],      gains['i_ofs'],
+                ]
+        fmt = '<' + 'f' * 4
+        data = struct.pack(fmt, *data)
+
+        return data
+
+
+class AnalogHw:
+    """
+
+    Parameters
+    ----------
+
+    Raises
+    ------
+
+    Attributes
+    ----------
+        
+    """
+    def __init__(self, ocp_if, cs_id):
+
+        self._cmd = AnalogCommands()
+        self._ocp_if = ocp_if
+        self._cs_id = cs_id
+
+
+    def set_sampling_freq(self, freq):
+        """`freq` must be an integer in units of Hz."""
+        
+        return self._set_sampling_freq(int(freq))
+
+
+    def get_sampling_freq(self):
+        """Frequency is an integer returned in units of Hz."""
+        
+        return self._get_sampling_freq()
+    
+
+    def _set_sampling_freq(self, freq):
+        cmd = self._cmd.set_sampling_freq
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(freq, msb=False) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting the sampling freq. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+
+    def _get_sampling_freq(self):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.get_sampling_freq
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, freq = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting sampling frequency. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        freq = lrssoc.conversions.u8_to_u32(freq, msb=False)
+        
+        return (0, freq)
