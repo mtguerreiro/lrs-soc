@@ -183,6 +183,8 @@ int32_t itm3903cHwGetVersion(char *o, uint32_t maxsize){
     char command[] = "SYST:VERS?\r\n";
     size_t command_size = sizeof(command) - 1;
 
+    printf("get version cmd\n\n");
+
     uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) command_size);
 
     size = itm3903HwGetSupplyResponse(o, maxsize);
@@ -321,6 +323,327 @@ uint32_t itm3903cHwGetAnalogExternalStatus(void) {
     else output_status = (uint32_t) atoi(command);
 
     return output_status;
+}
+//-----------------------------------------------------------------------------
+//28.03.2024
+float itm3903cHwGetVoltageMeasurement(void){
+
+    float voltage_measurement; 
+    char command[50];
+    size_t size;
+    
+    size = snprintf(command, sizeof(command), "MEAS:VOLT?\r\n");   
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+    printf("\nSize: %d\n", size);
+    printf("Command: %s\n", command);
+    if( size < 0 ) voltage_measurement = NAN;
+    else voltage_measurement = (float) strtod(command, NULL);
+
+    return voltage_measurement;
+}
+//-----------------------------------------------------------------------------
+float itm3903cHwGetCurrentMeasurement(void){
+
+    float current_measurement; 
+    char command[50];
+    size_t size;
+    
+    size = snprintf(command, sizeof(command), "MEAS:CURR?\r\n");    
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+    if( size < 0 ) current_measurement = NAN;
+    else current_measurement = (float) strtod(command, NULL);
+
+    return current_measurement;
+}
+//-----------------------------------------------------------------------------
+float itm3903cHwGetVoltageMax(void){
+
+    float voltage_max; 
+    char command[50];
+    size_t size;
+    
+    size = snprintf(command, sizeof(command), "VOLT:LIM? \r\n");
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+    if( size < 0 ) voltage_max = NAN;
+    else voltage_max = (float) strtod(command, NULL);
+
+    return voltage_max;
+}
+//-----------------------------------------------------------------------------
+float itm3903cHwGetVoltageMin(void){
+
+    float voltage_min; 
+    char command[50];
+    size_t size;
+    
+    size = snprintf(command, sizeof(command), "VOLT:LIM:NEG? \r\n");
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+    if( size < 0 ) voltage_min = NAN;
+    else voltage_min = (float) strtod(command, NULL);
+
+    return voltage_min;
+}
+//-----------------------------------------------------------------------------
+void itm3903cHwSetVoltageMax(float value){
+
+    char command[50];
+    size_t size;
+        
+    size = snprintf(command, sizeof(command), "VOLT:LIM %f\r\n", value);
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+}
+//-----------------------------------------------------------------------------
+void itm3903cHwSetVoltageMin(float value){
+
+    char command[50];
+    size_t size;
+        
+    size = snprintf(command, sizeof(command), "VOLT:LIM:NEG %f\r\n", value);
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+}
+//-----------------------------------------------------------------------------
+//05.04.2024
+float itm3903cHwGetPowerMax(void){
+
+    float power_max; 
+    char command[50];
+    size_t size;
+    
+    size = snprintf(command, sizeof(command), "POW:LIM? \r\n");
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+    if( size < 0 ) power_max = NAN;
+    else power_max = (float) strtod(command, NULL);
+
+    return power_max;
+}
+//-----------------------------------------------------------------------------
+float itm3903cHwGetPowerMin(void){
+
+    float power_min; 
+    char command[50];
+    size_t size;
+    
+    size = snprintf(command, sizeof(command), "POW:LIM:NEG? \r\n");
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+    if( size < 0 ) power_min = NAN;
+    else power_min = (float) strtod(command, NULL);
+
+    return power_min;
+}
+//-----------------------------------------------------------------------------
+void itm3903cHwSetPowerMax(float value){
+
+    char command[50];
+    size_t size;
+        
+    size = snprintf(command, sizeof(command), "POW:LIM %f\r\n", value);
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+}
+//-----------------------------------------------------------------------------
+void itm3903cHwSetPowerMin(float value){
+
+    char command[50];
+    size_t size;
+        
+    size = snprintf(command, sizeof(command), "POW:LIM:NEG %f\r\n", value);
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+}
+//-----------------------------------------------------------------------------
+float itm3903cHwGetCurrentMax(void){
+
+    float current_max; 
+    char command[50];
+    size_t size;
+    
+    size = snprintf(command, sizeof(command), "CURR:LIM? \r\n");
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+    if( size < 0 ) current_max = NAN;
+    else current_max = (float) strtod(command, NULL);
+
+    return current_max;
+}
+//-----------------------------------------------------------------------------
+float itm3903cHwGetCurrentMin(void){
+
+    float current_min; 
+    char command[50];
+    size_t size;
+    
+    size = snprintf(command, sizeof(command), "CURR:LIM:NEG? \r\n");
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+    if( size < 0 ) current_min = NAN;
+    else current_min = (float) strtod(command, NULL);
+
+    return current_min;
+}
+//-----------------------------------------------------------------------------
+void itm3903cHwSetCurrentMax(float value){
+
+    char command[50];
+    size_t size;
+        
+    size = snprintf(command, sizeof(command), "CURR:LIM %f\r\n", value);
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+}
+//-----------------------------------------------------------------------------
+void itm3903cHwSetCurrentMin(float value){
+
+    char command[50];
+    size_t size;
+        
+    size = snprintf(command, sizeof(command), "CURR:LIM:NEG %f\r\n", value);
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+}
+//-----------------------------------------------------------------------------
+//08.04.2024
+uint32_t itm3903cHwGetVoltageProtectionStatus(void) {
+
+    uint32_t volt_prot_status;
+    int32_t size;
+    char command[] = "VOLT:PROT:STAT?\r\n";
+
+    size_t command_size = sizeof(command) - 1;
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) command_size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+
+    if( size < 0 ) volt_prot_status = 0xFFFFFFFF;
+    else volt_prot_status = (uint32_t) atoi(command);
+
+    return volt_prot_status;
+}
+//-----------------------------------------------------------------------------
+void itm3903cHwSetVoltageProtectionStatus(uint32_t setStatus){
+
+    char command[] = "VOLT:PROT:STAT 0\r\n";
+
+    size_t command_size = sizeof(command) - 1;
+    
+    if((bool) setStatus) {
+        command[15] = '1';
+    }
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) command_size); 
+}
+//-----------------------------------------------------------------------------
+uint32_t itm3903cHwGetPowerProtectionStatus(void) {
+
+    uint32_t power_prot_status;
+    int32_t size;
+    char command[] = "POW:PROT:STAT?\r\n";
+
+    size_t command_size = sizeof(command) - 1;
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) command_size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+
+    if( size < 0 ) power_prot_status = 0xFFFFFFFF;
+    else power_prot_status = (uint32_t) atoi(command);
+
+    return power_prot_status;
+}
+//-----------------------------------------------------------------------------
+void itm3903cHwSetPowerProtectionStatus(uint32_t setStatus){
+
+    char command[] = "POW:PROT:STAT 0\r\n";
+
+    size_t command_size = sizeof(command) - 1;
+    
+    if((bool) setStatus) {
+        command[14] = '1';
+    }
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) command_size); 
+}
+//-----------------------------------------------------------------------------
+uint32_t itm3903cHwGetCurrentProtectionStatus(void) {
+
+    uint32_t curr_prot_status;
+    int32_t size;
+    char command[] = "CURR:PROT:STAT?\r\n";
+
+    size_t command_size = sizeof(command) - 1;
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) command_size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+
+    if( size < 0 ) curr_prot_status = 0xFFFFFFFF;
+    else curr_prot_status = (uint32_t) atoi(command);
+
+    return curr_prot_status;
+}
+//-----------------------------------------------------------------------------
+void itm3903cHwSetCurrentProtectionStatus(uint32_t setStatus){
+
+    char command[] = "CURR:PROT:STAT 0\r\n";
+
+    size_t command_size = sizeof(command) - 1;
+    
+    if((bool) setStatus) {
+        command[15] = '1';
+    }
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) command_size); 
+}
+//-----------------------------------------------------------------------------
+float itm3903cHwGetVoltageSlewRate(void){
+
+    float slew_rate; 
+    char command[50];
+    size_t size;
+    
+    size = snprintf(command, sizeof(command), "VOLT:SLEW? \r\n");
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+    if( size < 0 ) slew_rate = NAN;
+    else slew_rate = (float) strtod(command, NULL);
+
+    return slew_rate;
+}
+//-----------------------------------------------------------------------------
+void itm3903cHwSetVoltageSlewRate(float value){
+
+    char command[50];
+    size_t size;
+        
+    size = snprintf(command, sizeof(command), "VOLT:SLEW %f\r\n", value);
+
+    uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
