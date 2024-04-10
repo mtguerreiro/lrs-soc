@@ -11,46 +11,43 @@ class Commands:
     """
     """
     def __init__(self):
-        self.set_slope                  = 0  # Programming Guide Page 111 [SOURce:]EXTern:PROGram:CHANnel:MX <NR1>,<NRf>
-        self.get_slope                  = 1  # Programming Guide Page 112 [SOURce:]EXTern:PROGram:CHANnel:MX? <NR1>
-        self.get_version                = 2  # Programming Guide Page 30 SYSTem:VERSion?
-        self.get_error                  = 3  # Programming Guide Page 31 SYSTem:ERRor?
-        self.clear_error                = 4  # Programming Guide Page 32 SYSTem:CLEar
-        self.set_output_status          = 5  # Programming Guide Page 118 OUTPut[:STATe] <CPD>
-        self.get_output_status          = 6  # Programming Guide Page 119 OUTPut[:STATe]?
-        self.set_analog_external_status = 7  # Programming Guide Page 109 [SOURce:]EXTern:PROGram[:STATe] <Bool>
-        self.get_analog_external_status = 8  # Programming Guide Page 110 [SOURce:]EXTern:PROGram[:STATe]?
-        self.set_offset                 = 9  # Programming Guide Page 112 [SOURce:]EXTern:PROGram:CHANnel:MB <NR1>,<NRf>
-        self.get_offset                 = 10 # Programming Guide Page 113 [SOURce:]EXTern:PROGram:CHANnel:MB? <NR1>
-        self.set_func_mode              = 11 # Programming Guide Page 51 [SOURce:]FUNCtion <CPD>                                  
-        self.get_func_mode              = 12 # Programming Guide Page 52 [SOURce:]FUNCtion?
-        self.set_volt_value             = 13 # Programming Guide Page 79 [SOURce:]VOLTage[:LEVel][:IMMediate][:AMPLitude] <NRf+> 
-        self.set_curr_value             = 14 # Programming Guide Page 54 [SOURce:]CURRent[:LEVel][:IMMediate][:AMPLitude] <NRf+>
-    #28.03.2024
-        self.get_voltage_measurement    = 15 # Programming Guide Page 280 MEASure[:SCALar]:VOLTage[:DC]?
-        self.get_current_measurement    = 16 # Programming Guide Page 276 MEASure[:SCALar]:CURRent[:DC]?
-        self.get_voltage_max            = 17 # Programming Guide Page 97 [SOURce:]VOLTage:LIMit[:POSitive][:IMMediate][:AMPLitude]? [MINimum|MAXimum|DEFault]
-        self.get_voltage_min            = 18 # Programming Guide Page 99 [SOURce:]VOLTage:LIMit:NEGative[:IMMediate][:AMPLitude]? [MINimum|MAXimum|DEFault]
-        self.set_voltage_max            = 19 # Programming Guide Page 96 [SOURce:]VOLTage:LIMit[:POSitive][:IMMediate][:AMPLitude] <NRf+>
-        self.set_voltage_min            = 20 # Programming Guide Page 98 [SOURce:]VOLTage:LIMit:NEGative[:IMMediate][:AMPLitude] <NRf+>
-    #05.04.2024
-        self.get_power_max              = 21 # Programming Guide Page 100 [SOURce:]POWer:LIMit[:POSitive][:IMMediate][:AMPLitude]? [MINimum|MAXimum|DEFault]
-        self.get_power_min              = 22 # Programming Guide Page 102 [SOURce:]POWer:LIMit:NEGative[:IMMediate][:AMPLitude]? [MINimum|MAXimum|DEFault]
-        self.set_power_max              = 23 # Programming Guide Page 100 [SOURce:]POWer:LIMit[:POSitive][:IMMediate][:AMPLitude] <NRf+>
-        self.set_power_min              = 24 # Programming Guide Page 101 [SOURce:]POWer:LIMit:NEGative[:IMMediate][:AMPLitude] <NRf+>
-        self.get_current_max            = 25 # Programming Guide Page 73 [SOURce:]CURRent:LIMit[:POSitive][:IMMediate][:AMPLitude]? [MINimum|MAXimum|DEFault]
-        self.get_current_min            = 26 # Programming Guide Page 75 [SOURce:]CURRent:LIMit:NEGative[:IMMediate][:AMPLitude]? [MINimum|MAXimum|DEFault]
-        self.set_current_max            = 27 # Programming Guide Page 72 [SOURce:]CURRent:LIMit[:POSitive][:IMMediate][:AMPLitude] <NRf+> 
-        self.set_current_min            = 28 # Programming Guide Page 74 [SOURce:]CURRent:LIMit:NEGative[:IMMediate][:AMPLitude] <NRf+>
-    #08.04.2024
-        self.get_voltage_protection_status = 29  # Programming Guide Page 86 [SOURce:]VOLTage[:OVER]:PROTection:STATe?
-        self.set_voltage_protection_status = 30  # Programming Guide Page 85 [SOURce:]VOLTage[:OVER]:PROTection:STATe <Bool>
-        self.get_power_protection_status   = 31  # Programming Guide Page 103 [SOURce:]POWer[:OVER]:PROTection:STATe?
-        self.set_power_protection_status   = 32  # Programming Guide Page 103 [SOURce:]POWer[:OVER]:PROTection:STATe <Bool>
-        self.get_current_protection_status = 33  # Programming Guide Page 61 [SOURce:]CURRent[:OVER]:PROTection:STATe?
-        self.set_current_protection_status = 34  # Programming Guide Page 61 [SOURce:]CURRent[:OVER]:PROTection:STATe <Bool>
-        self.get_voltage_slew_rate         = 35  # Programming Guide Page 81 [SOURce:]VOLTage:SLEW[:BOTH]? [MINimum|MAXimum|DEFault]
-        self.set_voltage_slew_rate         = 36  # Programming Guide Page 80 [SOURce:]VOLTage:SLEW[:BOTH] <NRf+>
+        self.set_slope                      = 0  # Programming Guide Page 111 [SOURce:]EXTern:PROGram:CHANnel:MX <NR1>,<NRf>
+        self.get_slope                      = 1  # Programming Guide Page 112 [SOURce:]EXTern:PROGram:CHANnel:MX? <NR1>
+        self.get_version                    = 2  # Programming Guide Page 30 SYSTem:VERSion?
+        self.get_error                      = 3  # Programming Guide Page 31 SYSTem:ERRor?
+        self.clear_error                    = 4  # Programming Guide Page 32 SYSTem:CLEar
+        self.set_output_status              = 5  # Programming Guide Page 118 OUTPut[:STATe] <CPD>
+        self.get_output_status              = 6  # Programming Guide Page 119 OUTPut[:STATe]?
+        self.set_analog_external_status     = 7  # Programming Guide Page 109 [SOURce:]EXTern:PROGram[:STATe] <Bool>
+        self.get_analog_external_status     = 8  # Programming Guide Page 110 [SOURce:]EXTern:PROGram[:STATe]?
+        self.set_offset                     = 9  # Programming Guide Page 112 [SOURce:]EXTern:PROGram:CHANnel:MB <NR1>,<NRf>
+        self.get_offset                     = 10 # Programming Guide Page 113 [SOURce:]EXTern:PROGram:CHANnel:MB? <NR1>
+        self.set_func_mode                  = 11 # Programming Guide Page 51 [SOURce:]FUNCtion <CPD>                                  
+        self.get_func_mode                  = 12 # Programming Guide Page 52 [SOURce:]FUNCtion?
+        self.set_volt_value                 = 13 # Programming Guide Page 79 [SOURce:]VOLTage[:LEVel][:IMMediate][:AMPLitude] <NRf+> 
+        self.set_curr_value                 = 14 # Programming Guide Page 54 [SOURce:]CURRent[:LEVel][:IMMediate][:AMPLitude] <NRf+>
+        self.get_voltage_measurement        = 15 # Programming Guide Page 280 MEASure[:SCALar]:VOLTage[:DC]?
+        self.get_current_measurement        = 16 # Programming Guide Page 276 MEASure[:SCALar]:CURRent[:DC]?
+        self.get_voltage_max                = 17 # Programming Guide Page 97 [SOURce:]VOLTage:LIMit[:POSitive][:IMMediate][:AMPLitude]? [MINimum|MAXimum|DEFault]
+        self.get_voltage_min                = 18 # Programming Guide Page 99 [SOURce:]VOLTage:LIMit:NEGative[:IMMediate][:AMPLitude]? [MINimum|MAXimum|DEFault]
+        self.set_voltage_max                = 19 # Programming Guide Page 96 [SOURce:]VOLTage:LIMit[:POSitive][:IMMediate][:AMPLitude] <NRf+>
+        self.set_voltage_min                = 20 # Programming Guide Page 98 [SOURce:]VOLTage:LIMit:NEGative[:IMMediate][:AMPLitude] <NRf+>
+        self.get_power_max                  = 21 # Programming Guide Page 100 [SOURce:]POWer:LIMit[:POSitive][:IMMediate][:AMPLitude]? [MINimum|MAXimum|DEFault]
+        self.get_power_min                  = 22 # Programming Guide Page 102 [SOURce:]POWer:LIMit:NEGative[:IMMediate][:AMPLitude]? [MINimum|MAXimum|DEFault]
+        self.set_power_max                  = 23 # Programming Guide Page 100 [SOURce:]POWer:LIMit[:POSitive][:IMMediate][:AMPLitude] <NRf+>
+        self.set_power_min                  = 24 # Programming Guide Page 101 [SOURce:]POWer:LIMit:NEGative[:IMMediate][:AMPLitude] <NRf+>
+        self.get_current_max                = 25 # Programming Guide Page 73 [SOURce:]CURRent:LIMit[:POSitive][:IMMediate][:AMPLitude]? [MINimum|MAXimum|DEFault]
+        self.get_current_min                = 26 # Programming Guide Page 75 [SOURce:]CURRent:LIMit:NEGative[:IMMediate][:AMPLitude]? [MINimum|MAXimum|DEFault]
+        self.set_current_max                = 27 # Programming Guide Page 72 [SOURce:]CURRent:LIMit[:POSitive][:IMMediate][:AMPLitude] <NRf+> 
+        self.set_current_min                = 28 # Programming Guide Page 74 [SOURce:]CURRent:LIMit:NEGative[:IMMediate][:AMPLitude] <NRf+>
+        self.get_voltage_protection_status  = 29 # Programming Guide Page 86 [SOURce:]VOLTage[:OVER]:PROTection:STATe?
+        self.set_voltage_protection_status  = 30 # Programming Guide Page 85 [SOURce:]VOLTage[:OVER]:PROTection:STATe <Bool>
+        self.get_power_protection_status    = 31 # Programming Guide Page 103 [SOURce:]POWer[:OVER]:PROTection:STATe?
+        self.set_power_protection_status    = 32 # Programming Guide Page 103 [SOURce:]POWer[:OVER]:PROTection:STATe <Bool>
+        self.get_current_protection_status  = 33 # Programming Guide Page 61 [SOURce:]CURRent[:OVER]:PROTection:STATe?
+        self.set_current_protection_status  = 34 # Programming Guide Page 61 [SOURce:]CURRent[:OVER]:PROTection:STATe <Bool>
+        self.get_voltage_slew_rate          = 35 # Programming Guide Page 81 [SOURce:]VOLTage:SLEW[:BOTH]? [MINimum|MAXimum|DEFault]
+        self.set_voltage_slew_rate          = 36 # Programming Guide Page 80 [SOURce:]VOLTage:SLEW[:BOTH] <NRf+>
 class MeasGains:
 
     def __init__(self):
@@ -169,65 +166,77 @@ class Hw:
 
         return self._set_curr_value(value)
 
-    #28.03.2024
+
     def get_voltage_measurement(self):
 
         return self._get_voltage_measurement()
+
 
     def get_current_measurement(self):
 
         return self._get_current_measurement()
 
+
     def get_voltage_max(self):
 
         return self._get_voltage_max()
 
+
     def get_voltage_min(self):
 
         return self._get_voltage_min()
-    
+
+
     def set_voltage_max(self, MAX):
 
         return self._set_voltage_max(MAX)
+
     
     def set_voltage_min(self, MIN):
 
         return self._set_voltage_min(MIN)
+
     
     def get_power_max(self):
 
         return self._get_power_max()
 
+
     def get_power_min(self):
 
         return self._get_power_min()
+
     
     def set_power_max(self, MAX):
 
         return self._set_power_max(MAX)
+
     
     def set_power_min(self, MIN):
 
         return self._set_power_min(MIN)
+
     
     def get_current_max(self):
 
         return self._get_current_max()
 
+
     def get_current_min(self):
 
         return self._get_current_min()
+
     
     def set_current_max(self, MAX):
 
         return self._set_current_max(MAX)
+
     
     def set_current_min(self, MIN):
 
         return self._set_current_min(MIN)
 
-    
-    #08.04.2024
+
     def get_voltage_protection_status(self):
 
         return self._get_voltage_protection_status()
@@ -256,16 +265,17 @@ class Hw:
     def set_current_protection_status(self, set_status):
 
         return self._set_current_protection_status(set_status)
+
         
     def get_voltage_slew_rate(self):
 
         return self._get_voltage_slew_rate()
 
+
     def set_voltage_slew_rate(self, value):
 
         return self._set_voltage_slew_rate(value)
     
-    #
     
     def _get_version(self):
         """
@@ -292,6 +302,10 @@ class Hw:
 
 
     def _get_error(self):
+        """
+        Returns the error information of the power supply
+
+        """
         cmd = self._cmd.get_error
 
         tx_data = []
@@ -313,6 +327,10 @@ class Hw:
 
 
     def _clear_error(self):
+        """
+        Clears the error queue
+
+        """    
         cmd = self._cmd.clear_error
 
         tx_data = []
@@ -328,7 +346,15 @@ class Hw:
 
 
     def _set_output_status(self, output_status):
+        """
 
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """    
         cmd = self._cmd.set_output_status
 
         if output_status is True:
@@ -360,7 +386,15 @@ class Hw:
         
 
     def _set_analog_external_status(self, analog_status):
+        """
 
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """    
         cmd = self._cmd.set_analog_external_status
         
         if analog_status is True:
@@ -392,7 +426,10 @@ class Hw:
 
 
     def _get_output_status(self):
+        """
+        Returns the status of the output
 
+        """
         cmd = self._cmd.get_output_status
 
         tx_data = []
@@ -410,7 +447,10 @@ class Hw:
 
 
     def _get_analog_external_status(self):
+        """
+        Returns the status of the external analog function
 
+        """
         cmd = self._cmd.get_analog_external_status
 
         tx_data = []
@@ -565,7 +605,15 @@ class Hw:
 
 
     def _set_func_mode(self, func_mode):
+        """
 
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """    
         cmd = self._cmd.set_func_mode
 
         if func_mode == 'current':
@@ -597,6 +645,10 @@ class Hw:
 
     
     def _get_func_mode(self):
+        """
+        Returns the working mode of the power suply
+
+        """
         cmd = self._cmd.get_func_mode
 
         tx_data = []
@@ -624,6 +676,15 @@ class Hw:
 
 
     def _set_volt_value(self, value):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """    
         cmd = self._cmd.set_volt_value
 
         tx_data = []
@@ -648,6 +709,15 @@ class Hw:
 
     
     def _set_curr_value(self, value):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """    
         cmd = self._cmd.set_curr_value
 
         tx_data = []
@@ -671,17 +741,11 @@ class Hw:
                 return (-1, err_message)
             
 
-#28.03.2024
     def _get_voltage_measurement(self):
         """
+        Returns the averaged voltage measurement
 
-        Parameters
-        ----------
-
-        Raises
-        ------
-
-        """    
+        """ 
         cmd = self._cmd.get_voltage_measurement
 
         tx_data = []
@@ -704,14 +768,10 @@ class Hw:
             else: 
                 return (-1, err_message)
 
+
     def _get_current_measurement(self):
         """
-
-        Parameters
-        ----------
-
-        Raises
-        ------
+        Returns the averaged current measurement
 
         """    
         cmd = self._cmd.get_current_measurement
@@ -735,22 +795,17 @@ class Hw:
                 return (-1, err_status)
             else: 
                 return (-1, err_message)
+
             
     def _get_voltage_max(self):
         """
+        Returns the voltage upper limit value in CC priority mode
 
-        Parameters
-        ----------
-
-        Raises
-        ------
-
-        """    
+        """   
         cmd = self._cmd.get_voltage_max
 
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-        #tx_data.extend( lrssoc.conversions.u32_to_u8(MAX, msb=False) )
         
         status, voltage_max_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
 
@@ -772,19 +827,13 @@ class Hw:
 
     def _get_voltage_min(self):
         """
+        Returns the voltage lower limit value VI in CC priority mode
 
-        Parameters
-        ----------
-
-        Raises
-        ------
-
-        """    
+        """   
         cmd = self._cmd.get_voltage_min
 
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-       # tx_data.extend( lrssoc.conversions.u32_to_u8(MAX, msb=False) )
         
         status, voltage_min_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
 
@@ -805,6 +854,15 @@ class Hw:
 
             
     def _set_voltage_max(self, value):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """    
         cmd = self._cmd.set_voltage_max
 
         tx_data = []
@@ -829,6 +887,15 @@ class Hw:
 
 
     def _set_voltage_min(self, value):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """    
         cmd = self._cmd.set_voltage_min
 
         tx_data = []
@@ -850,22 +917,17 @@ class Hw:
                 return (-1, err_status)
             else: 
                 return (-1, err_message)
+
             
     def _get_power_max(self):
         """
+        Returns the power upper limit value
 
-        Parameters
-        ----------
-
-        Raises
-        ------
-
-        """    
+        """     
         cmd = self._cmd.get_power_max
 
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-        #tx_data.extend( lrssoc.conversions.u32_to_u8(MAX, msb=False) )
         
         status, power_max_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
 
@@ -887,19 +949,13 @@ class Hw:
 
     def _get_power_min(self):
         """
+        Returns the power lower limit value P-
 
-        Parameters
-        ----------
-
-        Raises
-        ------
-
-        """    
+        """  
         cmd = self._cmd.get_power_min
 
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-       # tx_data.extend( lrssoc.conversions.u32_to_u8(MAX, msb=False) )
         
         status, power_min_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
 
@@ -920,6 +976,15 @@ class Hw:
 
             
     def _set_power_max(self, value):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """    
         cmd = self._cmd.set_power_max
 
         tx_data = []
@@ -944,6 +1009,15 @@ class Hw:
 
 
     def _set_power_min(self, value):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """    
         cmd = self._cmd.set_power_min
 
         tx_data = []
@@ -966,21 +1040,16 @@ class Hw:
             else: 
                 return (-1, err_message)
 
+
     def _get_current_max(self):
         """
+        Returns the current upper limit value in CV priority mode
 
-        Parameters
-        ----------
-
-        Raises
-        ------
-
-        """    
+        """     
         cmd = self._cmd.get_current_max
 
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-        #tx_data.extend( lrssoc.conversions.u32_to_u8(MAX, msb=False) )
         
         status, current_max_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
 
@@ -1002,19 +1071,13 @@ class Hw:
 
     def _get_current_min(self):
         """
+        Returns the current lower limit value I- in CV priority mode
 
-        Parameters
-        ----------
-
-        Raises
-        ------
-
-        """    
+        """     
         cmd = self._cmd.get_current_min
 
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-       # tx_data.extend( lrssoc.conversions.u32_to_u8(MAX, msb=False) )
         
         status, current_min_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
 
@@ -1035,6 +1098,15 @@ class Hw:
 
             
     def _set_current_max(self, value):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """    
         cmd = self._cmd.set_current_max
 
         tx_data = []
@@ -1059,6 +1131,15 @@ class Hw:
 
 
     def _set_current_min(self, value):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """    
         cmd = self._cmd.set_current_min
 
         tx_data = []
@@ -1080,9 +1161,13 @@ class Hw:
                 return (-1, err_status)
             else: 
                 return (-1, err_message)
-#08.04.2024
-    def _get_voltage_protection_status(self):
 
+
+    def _get_voltage_protection_status(self):
+        """
+        Returns the status of overvoltage protection
+
+        """     
         cmd = self._cmd.get_voltage_protection_status
 
         tx_data = []
@@ -1100,7 +1185,15 @@ class Hw:
 
         
     def _set_voltage_protection_status(self, volt_prot_status):
+        """
 
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """    
         cmd = self._cmd.set_voltage_protection_status
         
         if volt_prot_status is True:
@@ -1132,7 +1225,10 @@ class Hw:
 
 
     def _get_power_protection_status(self):
+        """
+        Returns the status of power protection
 
+        """     
         cmd = self._cmd.get_power_protection_status
 
         tx_data = []
@@ -1150,7 +1246,15 @@ class Hw:
 
         
     def _set_power_protection_status(self, pow_prot_status):
+        """
 
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """    
         cmd = self._cmd.set_power_protection_status
         
         if pow_prot_status is True:
@@ -1182,7 +1286,10 @@ class Hw:
 
 
     def _get_current_protection_status(self):
+        """
+        Returns the status of overcurrent protection
 
+        """     
         cmd = self._cmd.get_current_protection_status
 
         tx_data = []
@@ -1200,7 +1307,15 @@ class Hw:
 
         
     def _set_current_protection_status(self, curr_prot_status):
+        """
 
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """   
         cmd = self._cmd.set_current_protection_status
         
         if curr_prot_status is True:
@@ -1233,19 +1348,13 @@ class Hw:
 
     def _get_voltage_slew_rate(self):
         """
+        Returns the voltage rise and fall times
 
-        Parameters
-        ----------
-
-        Raises
-        ------
-
-        """    
+        """     
         cmd = self._cmd.get_voltage_slew_rate
 
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-        #tx_data.extend( lrssoc.conversions.u32_to_u8(MAX, msb=False) )
         
         status, voltage_slew_rate_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
 
@@ -1266,6 +1375,15 @@ class Hw:
 
 
     def _set_voltage_slew_rate(self, value):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
         cmd = self._cmd.set_voltage_slew_rate
 
         tx_data = []

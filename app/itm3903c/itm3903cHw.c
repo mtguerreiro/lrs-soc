@@ -325,7 +325,6 @@ uint32_t itm3903cHwGetAnalogExternalStatus(void) {
     return output_status;
 }
 //-----------------------------------------------------------------------------
-//28.03.2024
 float itm3903cHwGetVoltageMeasurement(void){
 
     float voltage_measurement; 
@@ -416,7 +415,6 @@ void itm3903cHwSetVoltageMin(float value){
     uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
 }
 //-----------------------------------------------------------------------------
-//05.04.2024
 float itm3903cHwGetPowerMax(void){
 
     float power_max; 
@@ -525,7 +523,6 @@ void itm3903cHwSetCurrentMin(float value){
     uart_write_blocking(OCP_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
 }
 //-----------------------------------------------------------------------------
-//08.04.2024
 uint32_t itm3903cHwGetVoltageProtectionStatus(void) {
 
     uint32_t volt_prot_status;

@@ -41,18 +41,93 @@ typedef enum{
      */
     ITM3903C_HW_DIGITAL_IF_GET_SLOPE,
 
+    /**
+     * Command
+     *  --------------------------------------------------------
+     *  | GET VERSION (uint32)t | *O (char) | MAXSIZE (uint32) |
+     *  --------------------------------------------------------
+     *
+     * Response
+     *  ------------------
+     *  | SIZE (uint32) |
+     *  ------------------
+     */
     ITM3903C_HW_DIGITAL_IF_GET_VERSION,
 
+    /**
+     * Command
+     *  --------------------------------------------------------
+     *  | GET ERROR (uint32)t | *O (char) | MAXSIZE (uint32) |
+     *  --------------------------------------------------------
+     *
+     * Response
+     *  ------------------
+     *  | SIZE (uint32) |
+     *  ------------------
+     */
     ITM3903C_HW_DIGITAL_IF_GET_ERROR,
 
+    /**
+     * Command
+     *  -------------------------
+     *  | CLEAR ERROR (uint32)t |
+     *  -------------------------
+     *
+     * Response
+     * No response
+     *
+     */
     ITM3903C_HW_DIGITAL_IF_CLEAR_ERROR,
 
+
+    /**
+     * Command
+     *  ----------------------------------------------------
+     *  | SET OUTPUT STATUS (uint32)t | SETSTATUS (uint32) |
+     *  ----------------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
     ITM3903C_HW_DIGITAL_IF_SET_OUTPUT_STATUS,
 
+    /**
+     * Command
+     *  -------------------------------
+     *  | GET OUTPUT STATUS (uint32)t |
+     *  -------------------------------
+     *
+     * Response
+     *  --------------------------
+     *  | OUTPUT_STATUS (uint32) |
+     *  --------------------------
+     */
     ITM3903C_HW_DIGITAL_IF_GET_OUTPUT_STATUS,
 
+    /**
+     * Command
+     *  -------------------------------------------------------------
+     *  | SET ANALOG EXTERNAL STATUS (uint32)t | SETSTATUS (uint32) |
+     *  -------------------------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
     ITM3903C_HW_DIGITAL_IF_SET_ANALOG_EXTERNAL_STATUS,
 
+    /**
+     * Command
+     *  ----------------------------------------
+     *  | GET ANALOG EXTERNAL STATUS (uint32)t |
+     *  ----------------------------------------
+     *
+     * Response
+     *  --------------------------
+     *  | OUTPUT_STATUS (uint32) |
+     *  --------------------------
+     */
     ITM3903C_HW_DIGITAL_IF_GET_ANALOG_EXTERNAL_STATUS,
     
     /**
@@ -80,62 +155,332 @@ typedef enum{
      */
     ITM3903C_HW_DIGITAL_IF_GET_OFFSET,
 
+    /**
+     * Command
+     *  --------------------------------------------------
+     *  | SET FUNCTION MODE (uint32) | FUNCMODE (uint32) |
+     *  --------------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
     ITM3903C_HW_DIGITAL_IF_SET_FUNC_MODE,
 
+    /**
+     * Command
+     *  --------------------------------------------------------------
+     *  | GET FUNCTION MODE (uint32)t | *O (char) | MAXSIZE (uint32) |
+     *  --------------------------------------------------------------
+     *
+     * Response
+     *  ------------------
+     *  | SIZE (uint32) |
+     *  ------------------
+     */
     ITM3903C_HW_DIGITAL_IF_GET_FUNC_MODE,
 
+    /**
+     * Command
+     *  ----------------------------------------------------------
+     *  | SET VALUE (uint32) | VALUE (float) | CURRORVOLT (bool) |
+     *  ----------------------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
     ITM3903C_HW_DIGITAL_IF_SET_VOLT_VALUE,
 
+    /**
+     * Command
+     *  ----------------------------------------------------------
+     *  | SET VALUE (uint32) | VALUE (float) | CURRORVOLT (bool) |
+     *  ----------------------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
     ITM3903C_HW_DIGITAL_IF_SET_CURR_VALUE,
 
-    //28.03.2024
-    ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_MEASUREMENT,//compare with get_slope and get_offset
+    /**
+     * Command
+     *  ------------------------------------
+     *  | GET VOLTAGE MESAUREMENT (uint32) |
+     *  ------------------------------------
+     *
+     * Response
+     *  --------------------------------
+     *  | VOLTAGE_MEASUREMENT (uint32) |
+     *  --------------------------------
+     */
+    ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_MEASUREMENT,
 
-    ITM3903C_HW_DIGITAL_IF_GET_CURRENT_MEASUREMENT,//compare with get_slope and get_offset
+    /**
+     * Command
+     *  ------------------------------------
+     *  | GET CURRENT MESAUREMENT (uint32) |
+     *  ------------------------------------
+     *
+     * Response
+     *  --------------------------------
+     *  | CURRENT_MEASUREMENT (uint32) |
+     *  --------------------------------
+     */
+    ITM3903C_HW_DIGITAL_IF_GET_CURRENT_MEASUREMENT,
 
-    ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_MAX,//compare with get_slope and get_offset
-    
-    ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_MIN,//compare with get_slope and get_offset
+    /**
+     * Command
+     *  --------------------------------
+     *  | GET VOLTAGE MAXIMUM (uint32) |
+     *  --------------------------------
+     *
+     * Response
+     *  ------------------------
+     *  | VOLTAGE_MAX (uint32) |
+     *  ------------------------
+     */
+    ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_MAX,
 
-    ITM3903C_HW_DIGITAL_IF_SET_VOLTAGE_MAX,//compare with set_volt_value
+    /**
+     * Command
+     *  --------------------------------
+     *  | GET VOLTAGE MINIMUM (uint32) |
+     *  --------------------------------
+     *
+     * Response
+     *  ------------------------
+     *  | VOLTAGE_MIN (uint32) |
+     *  ------------------------
+     */
+    ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_MIN,
 
-    ITM3903C_HW_DIGITAL_IF_SET_VOLTAGE_MIN,//compare with set_volt_value
-    //05.04.2024
+    /**
+     * Command
+     *  ------------------------------------------------
+     *  | SET VOLTAGE MAXIMUM (uint32) | VALUE (float) |
+     *  ------------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
+    ITM3903C_HW_DIGITAL_IF_SET_VOLTAGE_MAX,
+
+    /**
+     * Command
+     *  ------------------------------------------------
+     *  | SET VOLTAGE MINIMUM (uint32) | VALUE (float) |
+     *  ------------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
+    ITM3903C_HW_DIGITAL_IF_SET_VOLTAGE_MIN,
+
+    /**
+     * Command
+     *  ------------------------------
+     *  | GET POWER MAXIMUM (uint32) |
+     *  ------------------------------
+     *
+     * Response
+     *  ----------------------
+     *  | POWER_MAX (uint32) |
+     *  ----------------------
+     */
     ITM3903C_HW_DIGITAL_IF_GET_POWER_MAX,
 
+    /**
+     * Command
+     *  ------------------------------
+     *  | GET POWER MINIMUM (uint32) |
+     *  ------------------------------
+     *
+     * Response
+     *  ----------------------
+     *  | POWER_MIN (uint32) |
+     *  ----------------------
+     */
     ITM3903C_HW_DIGITAL_IF_GET_POWER_MIN,
 
+    /**
+     * Command
+     *  ----------------------------------------------
+     *  | SET POWER MAXIMUM (uint32) | VALUE (float) |
+     *  ----------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
     ITM3903C_HW_DIGITAL_IF_SET_POWER_MAX,
 
+    /**
+     * Command
+     *  ----------------------------------------------
+     *  | SET POWER MINIMUM (uint32) | VALUE (float) |
+     *  ----------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
     ITM3903C_HW_DIGITAL_IF_SET_POWER_MIN,
 
+    /**
+     * Command
+     *  --------------------------------
+     *  | GET CURRENT MAXIMUM (uint32) |
+     *  --------------------------------
+     *
+     * Response
+     *  ------------------------
+     *  | CURRENT_MAX (uint32) |
+     *  ------------------------
+     */
     ITM3903C_HW_DIGITAL_IF_GET_CURRENT_MAX,
 
+    /**
+     * Command
+     *  --------------------------------
+     *  | GET CURRENT MINIMUM (uint32) |
+     *  --------------------------------
+     *
+     * Response
+     *  ------------------------
+     *  | CURRENT_MIN (uint32) |
+     *  ------------------------
+     */
     ITM3903C_HW_DIGITAL_IF_GET_CURRENT_MIN,
 
+    /**
+     * Command
+     *  ------------------------------------------------
+     *  | SET CURRENT MAXIMUM (uint32) | VALUE (float) |
+     *  ------------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
     ITM3903C_HW_DIGITAL_IF_SET_CURRENT_MAX,
 
+    /**
+     * Command
+     *  ------------------------------------------------
+     *  | SET CURRENT MINIMUM (uint32) | VALUE (float) |
+     *  ------------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
     ITM3903C_HW_DIGITAL_IF_SET_CURRENT_MIN,
-    //08.04.2024
 
+    /**
+     * Command
+     *  -------------------------------------------
+     *  | GET VOLTAGE PROTECTION STATUS (uint32)t |
+     *  -------------------------------------------
+     *
+     * Response
+     *  -----------------------------
+     *  | VOLT_PROT_STATUS (uint32) |
+     *  -----------------------------
+     */
     ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_PROTECTION_STATUS,
 
+    /**
+     * Command
+     *  ----------------------------------------------------------------
+     *  | SET VOLTAGE PROTECTION STATUS (uint32)t | SETSTATUS (uint32) |
+     *  ----------------------------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
     ITM3903C_HW_DIGITAL_IF_SET_VOLTAGE_PROTECTION_STATUS,
 
+    /**
+     * Command
+     *  -----------------------------------------
+     *  | GET POWER PROTECTION STATUS (uint32)t |
+     *  -----------------------------------------
+     *
+     * Response
+     *  ------------------------------
+     *  | POWER_PROT_STATUS (uint32) |
+     *  ------------------------------
+     */
     ITM3903C_HW_DIGITAL_IF_GET_POWER_PROTECTION_STATUS,
 
+    /**
+     * Command
+     *  --------------------------------------------------------------
+     *  | SET POWER PROTECTION STATUS (uint32)t | SETSTATUS (uint32) |
+     *  --------------------------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
     ITM3903C_HW_DIGITAL_IF_SET_POWER_PROTECTION_STATUS,
 
+    /**
+     * Command
+     *  -------------------------------------------
+     *  | GET CURRENT PROTECTION STATUS (uint32)t |
+     *  -------------------------------------------
+     *
+     * Response
+     *  -----------------------------
+     *  | CURR_PROT_STATUS (uint32) |
+     *  -----------------------------
+     */
     ITM3903C_HW_DIGITAL_IF_GET_CURRENT_PROTECTION_STATUS,
 
+    /**
+     * Command
+     *  ----------------------------------------------------------------
+     *  | SET CURRENT PROTECTION STATUS (uint32)t | SETSTATUS (uint32) |
+     *  ----------------------------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
     ITM3903C_HW_DIGITAL_IF_SET_CURRENT_PROTECTION_STATUS,
-    
+
+    /**
+     * Command
+     *  -----------------------------------
+     *  | GET VOLTAGE SLEW RATE (uint32)t |
+     *  -----------------------------------
+     *
+     * Response
+     *  ----------------------
+     *  | SLEW_RATE (uint32) |
+     *  ----------------------
+     */
     ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_SLOW_RATE,
 
+    /**
+     * Command
+     *  ---------------------------------------------------
+     *  | SET VOLTAGE SLEW RATE (uint32)t | VALUE (float) |
+     *  ---------------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
     ITM3903C_HW_DIGITAL_IF_SET_VOLTAGE_SLOW_RATE,
-    //
     
-    ITM3903C_HW_DIGITAL_IF_END
+    ITM3903C_HW_DIGITAL_IF_END   
 }itm3903cHwDigitalIfCommands_t;
 
 typedef enum{

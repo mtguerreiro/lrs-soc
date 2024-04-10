@@ -76,7 +76,6 @@ uint32_t itm3903cHwGetAnalogExternalStatus(void);
 //-----------------------------------------------------------------------------
 void itm3903cHwSetValue(float value, bool currOrVolt);
 //-----------------------------------------------------------------------------
-//24.03.2024
 float itm3903cHwGetVoltageMeasurement(void);
 //-----------------------------------------------------------------------------
 float itm3903cHwGetCurrentMeasurement(void);
@@ -89,7 +88,6 @@ void itm3903cHwSetVoltageMax(float value);
 //-----------------------------------------------------------------------------
 void itm3903cHwSetVoltageMin(float value);
 //-----------------------------------------------------------------------------
-//05.04.2024
 float itm3903cHwGetPowerMax(void);
 //-----------------------------------------------------------------------------
 float itm3903cHwGetPowerMin(void);
@@ -106,7 +104,6 @@ void itm3903cHwSetCurrentMax(float value);
 //-----------------------------------------------------------------------------
 void itm3903cHwSetCurrentMin(float value);
 //-----------------------------------------------------------------------------
-//08.04.2024
 uint32_t itm3903cHwGetVoltageProtectionStatus(void);
 //-----------------------------------------------------------------------------
 void itm3903cHwSetVoltageProtectionStatus(uint32_t setStatus);
