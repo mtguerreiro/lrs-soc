@@ -80,9 +80,9 @@ uint32_t itm3903cHwGetAnalogExternalStatus(void);
 //-----------------------------------------------------------------------------
 void itm3903cHwSetValue(float value, bool currOrVolt);
 //-----------------------------------------------------------------------------
-void itm3903cHwAdcEnable(void);
+void itm3903cHwSetSamplingStatus(uint32_t status);
 //-----------------------------------------------------------------------------
-void itm3903cHwAdcDisable(void);
+uint32_t itm3903cHwGetSamplingStatus(void);
 //-----------------------------------------------------------------------------
 void itm3903cHwSetSamplingFreq(uint32_t freq);
 //-----------------------------------------------------------------------------

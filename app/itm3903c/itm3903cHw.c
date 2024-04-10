@@ -44,6 +44,10 @@ typedef struct{
     /* Sampling period in us */
     uint32_t ts;
 
+    /* A timer is used to trigger the ADC and run the control routine */
+    struct repeating_timer samplingTimer;
+    bool samplingEnabled;
+
 }itm3903cHwControl_t;
 //=============================================================================
 
@@ -68,9 +72,7 @@ static bool itm3903cHwAdcIrq(struct repeating_timer *t);
 //=============================================================================
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
-itm3903cHwControl_t hwControl = {.status = 0, .ts = 10};
-
-static struct repeating_timer timerAdc;
+static itm3903cHwControl_t hwControl = {.status = 0, .ts = 10, .samplingEnabled = false};
 
 static float texec = 0.0f;
 
@@ -106,8 +108,6 @@ int32_t itm3903cHwInitializeC0(void){
 int32_t itm3903cHwInitializeC1(void){
 
     itm3903cHwInitializeDac();
-
-    add_repeating_timer_ms(1, itm3903cHwAdcIrq, NULL, &timerAdc);
 
     return 0;
 }
@@ -360,19 +360,33 @@ uint32_t itm3903cHwGetAnalogExternalStatus(void) {
     return output_status;
 }
 //-----------------------------------------------------------------------------
-void itm3903cHwAdcEnable(void){
+void itm3903cHwSetSamplingStatus(uint32_t status){
 
-    /* A timer is used to trigger the ADC and run the control routine */
-    add_repeating_timer_ms(1, itm3903cHwAdcIrq, NULL, &timerAdc);
+    if( status ){
+        add_repeating_timer_us((int64_t) hwControl.ts, itm3903cHwAdcIrq, NULL, &hwControl.samplingTimer);
+        hwControl.samplingEnabled = true;
+    }
+    else{
+        cancel_repeating_timer(&hwControl.samplingTimer);
+        hwControl.samplingEnabled = false;
+    }
 }
 //-----------------------------------------------------------------------------
-void itm3903cHwAdcDisable(void){
+uint32_t itm3903cHwGetSamplingStatus(void){
 
+    if( hwControl.samplingEnabled == true ) return 1;
+
+    return 0;
 }
 //-----------------------------------------------------------------------------
 void itm3903cHwSetSamplingFreq(uint32_t freq){
 
     hwControl.ts = 1000000 / freq;
+
+    if( hwControl.samplingEnabled == true){
+        cancel_repeating_timer(&hwControl.samplingTimer);
+        add_repeating_timer_us((int64_t) hwControl.ts, itm3903cHwAdcIrq, NULL, &hwControl.samplingTimer);
+    }
 }
 //-----------------------------------------------------------------------------
 uint32_t itm3903cHwGetSamplingFreq(void){
@@ -534,6 +548,8 @@ static bool itm3903cHwAdcIrq(struct repeating_timer *t){
     
     uint32_t ticks;
 
+	gpio_put(ITM3903C_PICO_LED_1, 1);
+
     ticks = time_us_32();
 
     ocpCSRun(OCP_CS_1);
@@ -541,6 +557,8 @@ static bool itm3903cHwAdcIrq(struct repeating_timer *t){
 
     ticks = time_us_32() - ticks;
     texec = ((float)ticks);
+
+	gpio_put(ITM3903C_PICO_LED_1, 0);
 
     return true;
 }

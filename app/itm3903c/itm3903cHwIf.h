@@ -95,6 +95,38 @@ typedef enum{
 
     /**
      * Command
+     *  ------------------------------------------------
+     *  | SET SAMPL. STATUS (uint32) | STATUS (uint32) |
+     *  ------------------------------------------------
+     *
+     * Response
+     * No response
+     * 
+     * Notes
+     *  - If STATUS is set to 0, sampling is disable. Any other value enables 
+     *  sampling.
+     */
+    ITM3903C_HW_ANALOG_IF_SET_SAMPLING_STATUS,
+
+    /**
+     * Command
+     *  ------------------------------
+     *  | GET SAMPL. STATUS (uint32) |
+     *  ------------------------------
+     *
+     * Response
+     *  -------------------
+     *  | STATUS (uint32) |
+     *  -------------------
+     * 
+     * Notes
+     *  - If STATUS is set to 0, sampling is disable. Any other value enables 
+     *  sampling.
+     */
+    ITM3903C_HW_ANALOG_IF_GET_SAMPLING_STATUS,
+
+    /**
+     * Command
      *  ------------------------------------------
      *  | SET SAMP FREQ (uint32) | FREQ (uint32) |
      *  ------------------------------------------

@@ -529,9 +529,11 @@ class AnalogCommands:
     """
     """
     def __init__(self):
-        self.set_sampling_freq  = 0
-        self.get_sampling_freq  = 1
-        self.set_dac1           = 2
+        self.set_sampling_status    = 0
+        self.get_sampling_status    = 1
+        self.set_sampling_freq      = 2
+        self.get_sampling_freq      = 3
+        self.set_dac1               = 4
 
 
 class MeasGains:
@@ -580,14 +582,73 @@ class AnalogHw:
         self._cs_id = cs_id
 
 
+    def set_sampling_status(self, status):
+        """Sets the sampling status.
+
+        Setting status to True enables sampling, while setting it to False
+        disables it.
+
+        Parameters
+        ----------
+        status : bool
+            Sampling status
+
+        Returns
+        -------
+        tuple
+            Returns a tuple of the form `(status, error)`. If the command was
+            executed successfully, `status` is 0 and `error` is empty.
+            Otherwise, `status` is an error code and `error` is non-empty.
+        """
+        
+        return self._set_sampling_status( int(bool(status)) )
+
+
+    def get_sampling_status(self):
+        """Gets the sampling status.
+        
+        Returns
+        -------
+        tuple
+            Returns a tuple of the form `(status, samp_status)`. If the command
+            was executed successfully, `status` is 0 and `samp_status` is the
+            sampling status. Otherwise, `status` is an error code and
+            `samp_status` contains additional error information.
+        """
+        
+        return self._get_sampling_status()
+
+    
     def set_sampling_freq(self, freq):
-        """`freq` must be an integer in units of Hz."""
+        """Sets the sampling frequency. `freq` must be an integer in units of Hz.
+
+        Parameters
+        ----------
+        freq : integer
+            Sampling frequency.
+
+        Returns
+        -------
+        tuple
+            Returns a tuple of the form `(status, error)`. If the command was
+            executed successfully, `status` is 0 and `error` is empty.
+            Otherwise, `status` is an error code and `error` is non-empty.
+        """
         
         return self._set_sampling_freq(int(freq))
 
 
     def get_sampling_freq(self):
-        """Frequency is an integer returned in units of Hz."""
+        """Gets the sampling frequency. `freq` is returned as integer in units of Hz.
+        
+        Returns
+        -------
+        tuple
+            Returns a tuple of the form `(status, freq)`. If the command was
+            executed successfully, `status` is 0 and `freq` is the frequency,
+            in Hz. Otherwise, `status` is an error code and `freq` contains
+            additional error information.
+        """
         
         return self._get_sampling_freq()
     
@@ -598,6 +659,39 @@ class AnalogHw:
         
         return self._set_dac1(int(channel), int(data))
 
+
+    def _set_sampling_status(self, status):
+        cmd = self._cmd.set_sampling_status
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(status, msb=False) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting the sampling status. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        return (0,)
+
+    
+    def _get_sampling_status(self):
+        cmd = self._cmd.get_sampling_status
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, freq = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting sampling status. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        status = lrssoc.conversions.u8_to_u32(freq, msb=False)
+        
+        return (0, bool(status))
+    
 
     def _set_sampling_freq(self, freq):
         cmd = self._cmd.set_sampling_freq
@@ -612,17 +706,10 @@ class AnalogHw:
             print('Error setting the sampling freq. Error code {:}\r\n'.format(status))
             return (-1, status)
 
+        return (0,)
 
+    
     def _get_sampling_freq(self):
-        """
-
-        Parameters
-        ----------
-
-        Raises
-        ------
-
-        """
         cmd = self._cmd.get_sampling_freq
 
         tx_data = []
@@ -637,7 +724,7 @@ class AnalogHw:
         freq = lrssoc.conversions.u8_to_u32(freq, msb=False)
         
         return (0, freq)
-
+    
 
     def _set_dac1(self, channel, data):
         cmd = self._cmd.set_dac1

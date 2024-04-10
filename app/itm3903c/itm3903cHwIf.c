@@ -72,6 +72,8 @@ static int32_t itm3903cHwIfSetVoltValue(void *in, uint32_t insize, void **out, u
 static int32_t itm3903cHwIfSetCurrValue(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
 /* Analog interface */
+static int32_t itm3903cHwIfSetSamplingStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfGetSamplingStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfSetSamplingFreq(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfGetSamplingFreq(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfSetDacA1(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
@@ -105,6 +107,8 @@ int32_t itm3903cHwIfInitialize(void){
     /* Initializes the request processor of the analog interface */
     rpInitialize(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_END, hwControl.analogIf.handles);
 
+    rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_SAMPLING_STATUS, itm3903cHwIfSetSamplingStatus);
+    rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_GET_SAMPLING_STATUS, itm3903cHwIfGetSamplingStatus);
     rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_SAMPLING_FREQ, itm3903cHwIfSetSamplingFreq);
     rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_GET_SAMPLING_FREQ, itm3903cHwIfGetSamplingFreq);
     rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_DAC_A1, itm3903cHwIfSetDacA1);
@@ -293,6 +297,30 @@ static int32_t itm3903cHwIfSetCurrValue(void *in, uint32_t insize, void **out, u
     itm3903cHwSetValue(curr_value, false);
    
     return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfSetSamplingStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    uint32_t status;
+
+    status = *( (uint32_t *)in );
+
+    itm3903cHwSetSamplingStatus(status);
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfGetSamplingStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    uint32_t *o = (u_int32_t *) *out;
+
+    uint32_t status;
+
+    status = itm3903cHwGetSamplingStatus();
+
+    *o = status;
+
+    return 4;
 }
 //-----------------------------------------------------------------------------
 static int32_t itm3903cHwIfSetSamplingFreq(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
