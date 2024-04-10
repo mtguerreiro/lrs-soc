@@ -74,6 +74,7 @@ static int32_t itm3903cHwIfSetCurrValue(void *in, uint32_t insize, void **out, u
 /* Analog interface */
 static int32_t itm3903cHwIfSetSamplingFreq(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfGetSamplingFreq(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfSetDacA1(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
 //=============================================================================
 
@@ -106,6 +107,7 @@ int32_t itm3903cHwIfInitialize(void){
 
     rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_SAMPLING_FREQ, itm3903cHwIfSetSamplingFreq);
     rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_GET_SAMPLING_FREQ, itm3903cHwIfGetSamplingFreq);
+    rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_DAC_A1, itm3903cHwIfSetDacA1);
 
     return 0;
 }
@@ -295,11 +297,9 @@ static int32_t itm3903cHwIfSetCurrValue(void *in, uint32_t insize, void **out, u
 //-----------------------------------------------------------------------------
 static int32_t itm3903cHwIfSetSamplingFreq(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
 
-    float freq;
+    uint32_t freq;
 
-    uint32_t *p = (uint32_t *)in;
-
-    freq = *p;
+    freq = *( (uint32_t *)in );
 
     itm3903cHwSetSamplingFreq(freq);
    
@@ -315,6 +315,19 @@ static int32_t itm3903cHwIfGetSamplingFreq(void *in, uint32_t insize, void **out
     *o = freq;
 
     return 4;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfSetDacA1(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    uint32_t channel, data;
+    uint32_t *p = (uint32_t *)in;
+
+    channel = *p++;
+    data = *p;
+
+    itm3903cHwDac1Write(channel, data);
+   
+    return 0;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

@@ -20,6 +20,10 @@ void mcp49x2Write(mcp49x2_t *mcp, uint16_t data, uint16_t flags){
 
 	dataWrite = (data << mcp->res) | flags;
 
+#if MCP49X2_CFG_IS_LITTLE_ENDIAN == 1
+	dataWrite = ((dataWrite & 0xFFU) << 8U) | ((dataWrite & 0xFF00U) >> 8U);
+#endif
+
 	mcp->csClear();
 	mcp->spiWrite((uint8_t *)(&dataWrite), 2);
 	mcp->csSet();

@@ -24,6 +24,8 @@
 #include "ocp/ocp/ocpConfig.h"
 #include "ocp/hardware/pico/ocpPicoConfig.h"
 
+#include "ocp/hardware/pico/mcp49x2.h"
+
 #include "itm3903cPicoConfig.h"
 //=============================================================================
 
@@ -55,6 +57,11 @@ static void itm3903cHwInitializeUart(void);
 static void itm3903cHwInitializeSpi(void);
 static void itm3903cHwInitializeMeasGains(void);
 
+static void itm3903cHwInitializeDac(void);
+static void itm3903cHwDacSpiWrite(uint8_t *data, uint32_t size);
+static void itm3903cHwDac1SpiCsSet(void);
+static void itm3903cHwDac1SpiCsClear(void);
+
 static bool itm3903cHwAdcIrq(struct repeating_timer *t);
 //=============================================================================
 
@@ -66,6 +73,9 @@ itm3903cHwControl_t hwControl = {.status = 0, .ts = 10};
 static struct repeating_timer timerAdc;
 
 static float texec = 0.0f;
+
+mcp49x2_t dac_1;
+
 //=============================================================================
 
 //=============================================================================
@@ -94,6 +104,10 @@ int32_t itm3903cHwInitializeC0(void){
 }
 //-----------------------------------------------------------------------------
 int32_t itm3903cHwInitializeC1(void){
+
+    itm3903cHwInitializeDac();
+
+    add_repeating_timer_ms(1, itm3903cHwAdcIrq, NULL, &timerAdc);
 
     return 0;
 }
@@ -366,6 +380,15 @@ uint32_t itm3903cHwGetSamplingFreq(void){
     return 1000000 / hwControl.ts;
 }
 //-----------------------------------------------------------------------------
+void itm3903cHwDac1Write(uint32_t channel, uint32_t data){
+
+    uint16_t flags = MCP49X2_CFG_SET_GA_1 | MCP49X2_CFG_DIS_SHDN;
+
+    if( channel != 0 ) flags |= MCP49X2_CFG_WRITE_CH_B;
+
+    mcp49x2Write(&dac_1, ((uint16_t) (data & 0x0FFF)), flags);
+}
+//-----------------------------------------------------------------------------
 //=============================================================================
 
 //=============================================================================
@@ -403,11 +426,11 @@ static void itm3903cHwInitializeGpio(void){
 
     gpio_init(ITM3903C_PICO_LED_1);
 	gpio_set_dir(ITM3903C_PICO_LED_1, GPIO_OUT);
-	gpio_put(ITM3903C_PICO_LED_1, 0);
+	gpio_put(ITM3903C_PICO_LED_1, 1);
 
     gpio_init(ITM3903C_PICO_LED_2);
 	gpio_set_dir(ITM3903C_PICO_LED_2, GPIO_OUT);
-	gpio_put(ITM3903C_PICO_LED_2, 0);
+	gpio_put(ITM3903C_PICO_LED_2, 1);
 
     gpio_init(ITM3903C_PICO_RELAY_1);
 	gpio_set_dir(ITM3903C_PICO_RELAY_1, GPIO_OUT);
@@ -462,6 +485,43 @@ static void itm3903cHwInitializeMeasGains(void){
 
     hwControl.gains.v_gain = 1.0f;
     hwControl.gains.v_ofs =  0.0f;
+}
+//-----------------------------------------------------------------------------
+static void itm3903cHwInitializeDac(void){
+
+    dac_1.spiWrite = itm3903cHwDacSpiWrite;
+
+    dac_1.csSet = itm3903cHwDac1SpiCsSet;
+    dac_1.csClear = itm3903cHwDac1SpiCsClear;
+
+    dac_1.res = MCP49X2_RES_12_BIT;
+
+    dac_1.ldacSet = 0;
+    dac_1.ldacClear = 0;
+
+    dac_1.shdnSet = 0;
+    dac_1.shdnClear = 0;
+}
+//-----------------------------------------------------------------------------
+static void itm3903cHwDacSpiWrite(uint8_t *data, uint32_t size){
+
+    spi_write_blocking(ITM3903C_PICO_CONFIG_DAC_SPI, data, size);
+}
+//-----------------------------------------------------------------------------
+static void itm3903cHwDac1SpiCsSet(void){
+
+    asm volatile("nop \n nop \n nop");
+    gpio_put(ITM3903C_PICO_CONFIG_DAC_A1_CS_PIN, 1);
+    gpio_put(ITM3903C_PICO_CONFIG_DAC_A2_A3_CS_PIN, 1);
+    asm volatile("nop \n nop \n nop");
+}
+//-----------------------------------------------------------------------------
+static void itm3903cHwDac1SpiCsClear(void){
+
+    asm volatile("nop \n nop \n nop");
+    gpio_put(ITM3903C_PICO_CONFIG_DAC_A1_CS_PIN, 0);
+    gpio_put(ITM3903C_PICO_CONFIG_DAC_A2_A3_CS_PIN, 0);
+    asm volatile("nop \n nop \n nop");
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

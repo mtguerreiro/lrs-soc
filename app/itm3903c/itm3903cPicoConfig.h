@@ -28,7 +28,7 @@
 
 /* SPI for DACs */
 #define ITM3903C_PICO_CONFIG_DAC_SPI                spi1
-#define ITM3903C_PICO_CONFIG_DAC_SPI_CLK            (10 * 1000 * 1000) /* Hz */
+#define ITM3903C_PICO_CONFIG_DAC_SPI_CLK            (1 * 1000 * 1000) /* Hz */
 #define ITM3903C_PICO_CONFIG_DAC_SPI_CLK_PIN        10
 #define ITM3903C_PICO_CONFIG_DAC_SPI_SD_PIN         11
 #define ITM3903C_PICO_CONFIG_DAC_A1_CS_PIN          12

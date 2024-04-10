@@ -123,6 +123,8 @@ typedef enum{
      */
     ITM3903C_HW_ANALOG_IF_GET_SAMPLING_FREQ,
 
+    ITM3903C_HW_ANALOG_IF_SET_DAC_A1,
+
     ITM3903C_HW_ANALOG_IF_END
 }itm3903cHwAnalogIfCommands_t;
 //=============================================================================

@@ -2,6 +2,7 @@
  * @file MCP49X2.h
  *
  * @brief MCP49x2 driver. Compatible with MCP4902/4912/4922.
+ * 
  */
 
 #ifndef MCP49X2_H_
@@ -63,6 +64,8 @@ typedef struct mcp49x2_t{
     mcp49x2Res_t res;
 
 }mcp49x2_t;
+
+#define MCP49X2_CFG_IS_LITTLE_ENDIAN    1
 //=============================================================================
 
 //=============================================================================

@@ -529,8 +529,9 @@ class AnalogCommands:
     """
     """
     def __init__(self):
-        self.set_sampling_freq = 0
-        self.get_sampling_freq = 1
+        self.set_sampling_freq  = 0
+        self.get_sampling_freq  = 1
+        self.set_dac1           = 2
 
 
 class MeasGains:
@@ -591,6 +592,13 @@ class AnalogHw:
         return self._get_sampling_freq()
     
 
+    def set_dac1(self, channel, data):
+        """`channel` must be 0 or 1 (A or B), `data` must be an integer,
+        between 0 - 4095."""
+        
+        return self._set_dac1(int(channel), int(data))
+
+
     def _set_sampling_freq(self, freq):
         cmd = self._cmd.set_sampling_freq
 
@@ -629,3 +637,20 @@ class AnalogHw:
         freq = lrssoc.conversions.u8_to_u32(freq, msb=False)
         
         return (0, freq)
+
+
+    def _set_dac1(self, channel, data):
+        cmd = self._cmd.set_dac1
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(channel, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(data, msb=False) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting output of DAC 1. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        return (0,)
