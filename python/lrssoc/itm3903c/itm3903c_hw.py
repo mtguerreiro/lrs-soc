@@ -346,13 +346,13 @@ class Hw:
 
 
     def _set_output_status(self, output_status):
-        """
+        """The output status function enables or disables the output.
 
         Parameters
         ----------
+        output_status : bool
+            If set to true, output is enabled. If false, output is disabled.
 
-        Raises
-        ------
 
         """    
         cmd = self._cmd.set_output_status

@@ -18,60 +18,66 @@
 typedef enum{
     /**
      * Command
-     *  ----------------------------------------------------------
-     *  | SET SLOPE (uint32)t | CHANNEL (uint32) | SLOPE (float) |
-     *  ----------------------------------------------------------
+     *  ---------------------------------------------------------
+     *  | SET SLOPE (uint32) | CHANNEL (uint32) | SLOPE (float) |
+     *  ---------------------------------------------------------
      *
      * Response
      * No response
-     *
+     * 
+     * Notes
+     *  -channel: 1,2,3
+     *  -value range of slope: min(-9000) to max(9000)
      */
     ITM3903C_HW_DIGITAL_IF_SET_SLOPE,
 
     /**
      * Command
-     *  ------------------------------------------
-     *  | GET SLOPE (uint32)t | CHANNEL (uint32) |
-     *  ------------------------------------------
+     *  -----------------------------------------
+     *  | GET SLOPE (uint32) | CHANNEL (uint32) |
+     *  -----------------------------------------
      *
      * Response
      *  ------------------
      *  | SLOPE (uint32) |
      *  ------------------
+     * 
+     * Notes
+     *  -channel: 1,2,3
      */
     ITM3903C_HW_DIGITAL_IF_GET_SLOPE,
 
     /**
      * Command
-     *  --------------------------------------------------------
-     *  | GET VERSION (uint32)t | *O (char) | MAXSIZE (uint32) |
-     *  --------------------------------------------------------
+     *  ------------------------
+     *  | GET VERSION (uint32) |
+     *  ------------------------
      *
      * Response
-     *  ------------------
-     *  | SIZE (uint32) |
-     *  ------------------
+     *  --------------------
+     *  | Version (string) |
+     *  --------------------
      */
     ITM3903C_HW_DIGITAL_IF_GET_VERSION,
 
     /**
      * Command
-     *  --------------------------------------------------------
-     *  | GET ERROR (uint32)t | *O (char) | MAXSIZE (uint32) |
-     *  --------------------------------------------------------
+     *  ----------------------
+     *  | GET ERROR (uint32) |
+     *  ----------------------
      *
      * Response
      *  ------------------
-     *  | SIZE (uint32) |
+     *  | ERROR (string) |
      *  ------------------
      */
     ITM3903C_HW_DIGITAL_IF_GET_ERROR,
 
     /**
      * Command
-     *  -------------------------
-     *  | CLEAR ERROR (uint32)t |
-     *  -------------------------
+     *  ------------------------
+     *  | CLEAR ERROR (uint32) |
+     *  ------------------------
      *
      * Response
      * No response
@@ -82,21 +88,23 @@ typedef enum{
 
     /**
      * Command
-     *  ----------------------------------------------------
-     *  | SET OUTPUT STATUS (uint32)t | SETSTATUS (uint32) |
-     *  ----------------------------------------------------
+     *  ------------------------------------------------
+     *  | SET OUTPUT STATUS (uint32) | STATUS (uint32) |
+     *  ------------------------------------------------
      *
      * Response
      * No response
-     *
+     * 
+     * Notes
+     *  -enable or disable the output.
      */
     ITM3903C_HW_DIGITAL_IF_SET_OUTPUT_STATUS,
 
     /**
      * Command
-     *  -------------------------------
-     *  | GET OUTPUT STATUS (uint32)t |
-     *  -------------------------------
+     *  ------------------------------
+     *  | GET OUTPUT STATUS (uint32) |
+     *  ------------------------------
      *
      * Response
      *  --------------------------
@@ -107,21 +115,23 @@ typedef enum{
 
     /**
      * Command
-     *  -------------------------------------------------------------
-     *  | SET ANALOG EXTERNAL STATUS (uint32)t | SETSTATUS (uint32) |
-     *  -------------------------------------------------------------
+     *  ---------------------------------------------------------
+     *  | SET ANALOG EXTERNAL STATUS (uint32) | STATUS (uint32) |
+     *  ----------------------------------------------------------
      *
      * Response
      * No response
-     *
+     * 
+     * Notes
+     *  -enable or disable the analog external.
      */
     ITM3903C_HW_DIGITAL_IF_SET_ANALOG_EXTERNAL_STATUS,
 
     /**
      * Command
-     *  ----------------------------------------
-     *  | GET ANALOG EXTERNAL STATUS (uint32)t |
-     *  ----------------------------------------
+     *  ---------------------------------------
+     *  | GET ANALOG EXTERNAL STATUS (uint32) |
+     *  ---------------------------------------
      *
      * Response
      *  --------------------------
@@ -149,9 +159,9 @@ typedef enum{
      *  ------------------------------------------
      *
      * Response
-     *  -------------------
-     *  | OFFSET (uint32) |
-     *  -------------------
+     *  ------------------
+     *  | OFFSET (float) |
+     *  ------------------
      */
     ITM3903C_HW_DIGITAL_IF_GET_OFFSET,
 
@@ -163,28 +173,30 @@ typedef enum{
      *
      * Response
      * No response
-     *
+     * 
+     * Notes
+     *  - If FUNCMODE is 0, then current mode is set. If 1, the voltage mode.
      */
     ITM3903C_HW_DIGITAL_IF_SET_FUNC_MODE,
 
     /**
      * Command
-     *  --------------------------------------------------------------
-     *  | GET FUNCTION MODE (uint32)t | *O (char) | MAXSIZE (uint32) |
-     *  --------------------------------------------------------------
+     *  ------------------------------
+     *  | GET FUNCTION MODE (uint32) |
+     *  ------------------------------
      *
      * Response
-     *  ------------------
-     *  | SIZE (uint32) |
-     *  ------------------
+     *  --------------------
+     *  | FUCMODE (string) |
+     *  --------------------
      */
     ITM3903C_HW_DIGITAL_IF_GET_FUNC_MODE,
 
     /**
      * Command
-     *  ----------------------------------------------------------
-     *  | SET VALUE (uint32) | VALUE (float) | CURRORVOLT (bool) |
-     *  ----------------------------------------------------------
+     *  --------------------------------------
+     *  | SET VALUE (uint32) | VALUE (float) | 
+     *  --------------------------------------
      *
      * Response
      * No response
@@ -194,9 +206,9 @@ typedef enum{
 
     /**
      * Command
-     *  ----------------------------------------------------------
-     *  | SET VALUE (uint32) | VALUE (float) | CURRORVOLT (bool) |
-     *  ----------------------------------------------------------
+     *  --------------------------------------
+     *  | SET VALUE (uint32) | VALUE (float) |
+     *  --------------------------------------
      *
      * Response
      * No response
@@ -212,8 +224,11 @@ typedef enum{
      *
      * Response
      *  --------------------------------
-     *  | VOLTAGE_MEASUREMENT (uint32) |
+     *  | VOLTAGE_MEASUREMENT (float) |
      *  --------------------------------
+     * 
+     * Note 
+     *  -Values returned in volts.
      */
     ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_MEASUREMENT,
 
@@ -225,8 +240,11 @@ typedef enum{
      *
      * Response
      *  --------------------------------
-     *  | CURRENT_MEASUREMENT (uint32) |
+     *  | CURRENT_MEASUREMENT (float) |
      *  --------------------------------
+     * 
+     * Note 
+     *  -Values returned in amperes.
      */
     ITM3903C_HW_DIGITAL_IF_GET_CURRENT_MEASUREMENT,
 
@@ -237,9 +255,12 @@ typedef enum{
      *  --------------------------------
      *
      * Response
-     *  ------------------------
-     *  | VOLTAGE_MAX (uint32) |
-     *  ------------------------
+     *  -----------------------
+     *  | VOLTAGE_MAX (float) |
+     *  -----------------------
+     * 
+     * Note 
+     *  -Values returned in volts.
      */
     ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_MAX,
 
@@ -250,9 +271,12 @@ typedef enum{
      *  --------------------------------
      *
      * Response
-     *  ------------------------
-     *  | VOLTAGE_MIN (uint32) |
-     *  ------------------------
+     *  -----------------------
+     *  | VOLTAGE_MIN (float) |
+     *  -----------------------
+     * 
+     * Note 
+     *  -Values returned in volts.
      */
     ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_MIN,
 
@@ -287,9 +311,9 @@ typedef enum{
      *  ------------------------------
      *
      * Response
-     *  ----------------------
-     *  | POWER_MAX (uint32) |
-     *  ----------------------
+     *  ---------------------
+     *  | POWER_MAX (float) |
+     *  ---------------------
      */
     ITM3903C_HW_DIGITAL_IF_GET_POWER_MAX,
 
@@ -300,9 +324,9 @@ typedef enum{
      *  ------------------------------
      *
      * Response
-     *  ----------------------
-     *  | POWER_MIN (uint32) |
-     *  ----------------------
+     *  ---------------------
+     *  | POWER_MIN (float) |
+     *  ---------------------
      */
     ITM3903C_HW_DIGITAL_IF_GET_POWER_MIN,
 
@@ -337,9 +361,12 @@ typedef enum{
      *  --------------------------------
      *
      * Response
-     *  ------------------------
-     *  | CURRENT_MAX (uint32) |
-     *  ------------------------
+     *  -----------------------
+     *  | CURRENT_MAX (float) |
+     *  -----------------------
+     * 
+     * Note 
+     *  -Values returned in amperes.
      */
     ITM3903C_HW_DIGITAL_IF_GET_CURRENT_MAX,
 
@@ -350,9 +377,12 @@ typedef enum{
      *  --------------------------------
      *
      * Response
-     *  ------------------------
-     *  | CURRENT_MIN (uint32) |
-     *  ------------------------
+     *  -----------------------
+     *  | CURRENT_MIN (float) |
+     *  -----------------------
+     * 
+     * Note 
+     *  -Values returned in amperes.
      */
     ITM3903C_HW_DIGITAL_IF_GET_CURRENT_MIN,
 
@@ -383,7 +413,7 @@ typedef enum{
     /**
      * Command
      *  -------------------------------------------
-     *  | GET VOLTAGE PROTECTION STATUS (uint32)t |
+     *  | GET VOLTAGE PROTECTION STATUS (uint32) |
      *  -------------------------------------------
      *
      * Response
@@ -396,19 +426,21 @@ typedef enum{
     /**
      * Command
      *  ----------------------------------------------------------------
-     *  | SET VOLTAGE PROTECTION STATUS (uint32)t | SETSTATUS (uint32) |
+     *  | SET VOLTAGE PROTECTION STATUS (uint32) | SETSTATUS (uint32) |
      *  ----------------------------------------------------------------
      *
      * Response
      * No response
-     *
+     * 
+     * Notes
+     *  -enable or disable the overvoltage protection.
      */
     ITM3903C_HW_DIGITAL_IF_SET_VOLTAGE_PROTECTION_STATUS,
 
     /**
      * Command
      *  -----------------------------------------
-     *  | GET POWER PROTECTION STATUS (uint32)t |
+     *  | GET POWER PROTECTION STATUS (uint32) |
      *  -----------------------------------------
      *
      * Response
@@ -421,19 +453,21 @@ typedef enum{
     /**
      * Command
      *  --------------------------------------------------------------
-     *  | SET POWER PROTECTION STATUS (uint32)t | SETSTATUS (uint32) |
+     *  | SET POWER PROTECTION STATUS (uint32) | SETSTATUS (uint32) |
      *  --------------------------------------------------------------
      *
      * Response
      * No response
-     *
+     * 
+     * Notes
+     *  -enable or disable the power protection.
      */
     ITM3903C_HW_DIGITAL_IF_SET_POWER_PROTECTION_STATUS,
 
     /**
      * Command
      *  -------------------------------------------
-     *  | GET CURRENT PROTECTION STATUS (uint32)t |
+     *  | GET CURRENT PROTECTION STATUS (uint32) |
      *  -------------------------------------------
      *
      * Response
@@ -446,24 +480,26 @@ typedef enum{
     /**
      * Command
      *  ----------------------------------------------------------------
-     *  | SET CURRENT PROTECTION STATUS (uint32)t | SETSTATUS (uint32) |
+     *  | SET CURRENT PROTECTION STATUS (uint32) | SETSTATUS (uint32) |
      *  ----------------------------------------------------------------
      *
      * Response
      * No response
-     *
+     * 
+     * Notes
+     *  -enable or disable the overcurrent protection.
      */
     ITM3903C_HW_DIGITAL_IF_SET_CURRENT_PROTECTION_STATUS,
 
     /**
      * Command
      *  -----------------------------------
-     *  | GET VOLTAGE SLEW RATE (uint32)t |
+     *  | GET VOLTAGE SLEW RATE (uint32) |
      *  -----------------------------------
      *
      * Response
      *  ----------------------
-     *  | SLEW_RATE (uint32) |
+     *  | SLEW_RATE (float) |
      *  ----------------------
      */
     ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_SLOW_RATE,
@@ -471,7 +507,7 @@ typedef enum{
     /**
      * Command
      *  ---------------------------------------------------
-     *  | SET VOLTAGE SLEW RATE (uint32)t | VALUE (float) |
+     *  | SET VOLTAGE SLEW RATE (uint32) | VALUE (float) |
      *  ---------------------------------------------------
      *
      * Response
