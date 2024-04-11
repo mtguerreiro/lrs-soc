@@ -26,8 +26,9 @@ typedef enum{
      * No response
      * 
      * Notes
+     *  -the function is used to set the linear calibration coefficient of the channel (1/2/3)
      *  -channel: 1,2,3
-     *  -value range of slope: min(-9000) to max(9000)
+     *  -value range of slope (i.e. the linear calibration coefficient): min(-9000) to max(9000)
      */
     ITM3903C_HW_DIGITAL_IF_SET_SLOPE,
 
@@ -43,6 +44,7 @@ typedef enum{
      *  ------------------
      * 
      * Notes
+     *  -the function is used to query the linear calibration coefficient of the channel (1/2/3).
      *  -channel: 1,2,3
      */
     ITM3903C_HW_DIGITAL_IF_GET_SLOPE,
@@ -148,7 +150,12 @@ typedef enum{
      *
      * Response
      * No response
-     *
+     * 
+     * Notes
+      * Notes
+     *  -the function is used to set the offset calibration coefficient of the channel (1/2/3).
+     *  -channel: 1,2,3
+     *  -value range of offset (i.e. offset calibration coefficient): min(-9000) to max(9000)
      */
     ITM3903C_HW_DIGITAL_IF_SET_OFFSET,
 
@@ -162,6 +169,10 @@ typedef enum{
      *  ------------------
      *  | OFFSET (float) |
      *  ------------------
+     * 
+     * Notes
+     *  -the function is used to query the offset calibration coefficient of the channel (1/2/3).
+     *  -channel: 1,2,3
      */
     ITM3903C_HW_DIGITAL_IF_GET_OFFSET,
 
@@ -175,6 +186,7 @@ typedef enum{
      * No response
      * 
      * Notes
+     *  -the function is used to set the working mode of the power supply
      *  - If FUNCMODE is 0, then current mode is set. If 1, the voltage mode.
      */
     ITM3903C_HW_DIGITAL_IF_SET_FUNC_MODE,
@@ -200,7 +212,9 @@ typedef enum{
      *
      * Response
      * No response
-     *
+     * 
+     * Note 
+     *  -value in volts.
      */
     ITM3903C_HW_DIGITAL_IF_SET_VOLT_VALUE,
 
@@ -212,7 +226,9 @@ typedef enum{
      *
      * Response
      * No response
-     *
+     * 
+     * Note 
+     *  -value in amperes.
      */
     ITM3903C_HW_DIGITAL_IF_SET_CURR_VALUE,
 
@@ -288,7 +304,9 @@ typedef enum{
      *
      * Response
      * No response
-     *
+     * 
+     * Note 
+     *  -value in volts.
      */
     ITM3903C_HW_DIGITAL_IF_SET_VOLTAGE_MAX,
 
@@ -300,7 +318,9 @@ typedef enum{
      *
      * Response
      * No response
-     *
+     * 
+     * Note 
+     *  -value in volts.
      */
     ITM3903C_HW_DIGITAL_IF_SET_VOLTAGE_MIN,
 
@@ -394,7 +414,9 @@ typedef enum{
      *
      * Response
      * No response
-     *
+     * 
+     * Note 
+     *  -value in amperes.
      */
     ITM3903C_HW_DIGITAL_IF_SET_CURRENT_MAX,
 
@@ -406,7 +428,9 @@ typedef enum{
      *
      * Response
      * No response
-     *
+     * 
+     * Note 
+     *  -value in amperes.
      */
     ITM3903C_HW_DIGITAL_IF_SET_CURRENT_MIN,
 

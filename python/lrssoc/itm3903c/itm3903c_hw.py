@@ -346,13 +346,13 @@ class Hw:
 
 
     def _set_output_status(self, output_status):
-        """The output status function enables or disables the output.
+        """
+        The output status function enables or disables the output.
 
         Parameters
         ----------
         output_status : bool
             If set to true, output is enabled. If false, output is disabled.
-
 
         """    
         cmd = self._cmd.set_output_status
@@ -387,12 +387,12 @@ class Hw:
 
     def _set_analog_external_status(self, analog_status):
         """
-
+        enables or disables the analog external.
+        
         Parameters
         ----------
-
-        Raises
-        ------
+        analog_status : bool
+            If set to true, analog external is enabled. If false, analog external is disabled.
 
         """    
         cmd = self._cmd.set_analog_external_status
@@ -469,13 +469,14 @@ class Hw:
     
     def _set_slope(self, channel, slope):
         """
-
+        set the linear calibration coefficient of the channel (1/2/3)
+        
         Parameters
         ----------
-
-        Raises
-        ------
-
+        channel: uint32, can be set to 1,2,3
+        slope: float
+            value range of slope (i.e. the linear calibration coefficient): min(-9000) to max(9000)
+            
         """    
         cmd = self._cmd.set_slope
 
@@ -503,12 +504,11 @@ class Hw:
 
     def _get_slope(self, channel):
         """
-
+        query the linear calibration coefficient of the channel (1/2/3)
+        
         Parameters
         ----------
-
-        Raises
-        ------
+        channel: uint32, can be set to 1,2,3
 
         """    
         cmd = self._cmd.get_slope
@@ -537,13 +537,14 @@ class Hw:
     
     def _set_offset(self, channel, offset):
         """
-
+        set the offset calibration coefficient of the channel (1/2/3)
+        
         Parameters
         ----------
-
-        Raises
-        ------
-
+        channel: uint32, can be set to 1,2,3
+        offset: float
+            value range of offset (i.e. offset calibration coefficient): min(-9000) to max(9000)
+          
         """    
         cmd = self._cmd.set_offset
 
@@ -571,12 +572,11 @@ class Hw:
 
     def _get_offset(self, channel):
         """
-
+        query the offset calibration coefficient of the channel (1/2/3)
+        
         Parameters
         ----------
-
-        Raises
-        ------
+        channel: uint32, can be set to 1,2,3
 
         """    
         cmd = self._cmd.get_offset
@@ -606,12 +606,12 @@ class Hw:
 
     def _set_func_mode(self, func_mode):
         """
-
+        set the working mode of the power supply
+        
         Parameters
         ----------
-
-        Raises
-        ------
+        func_mode: uint32
+            If FUNCMODE is 0, then current mode is set. If 1, the voltage mode.
 
         """    
         cmd = self._cmd.set_func_mode
@@ -677,13 +677,12 @@ class Hw:
 
     def _set_volt_value(self, value):
         """
-
+        set the output voltage value Vs in CV priority mode
+        
         Parameters
         ----------
-
-        Raises
-        ------
-
+        value: float, range: MIN to MAX
+        
         """    
         cmd = self._cmd.set_volt_value
 
@@ -710,13 +709,12 @@ class Hw:
     
     def _set_curr_value(self, value):
         """
-
+        set the output current value Is in CC priority mode
+        
         Parameters
         ----------
-
-        Raises
-        ------
-
+        value: float, range: MIN to MAX
+        
         """    
         cmd = self._cmd.set_curr_value
 
@@ -855,13 +853,12 @@ class Hw:
             
     def _set_voltage_max(self, value):
         """
-
+        set the voltage upper limit value Vh in CC priority mode
+        
         Parameters
         ----------
-
-        Raises
-        ------
-
+        value: float, MIN to MAX
+        
         """    
         cmd = self._cmd.set_voltage_max
 
@@ -888,14 +885,13 @@ class Hw:
 
     def _set_voltage_min(self, value):
         """
-
+        set the voltage lower limit value Vl in CC priority mode
+        
         Parameters
         ----------
-
-        Raises
-        ------
-
-        """    
+        value: float, MIN to MAX
+        
+        """      
         cmd = self._cmd.set_voltage_min
 
         tx_data = []
@@ -977,13 +973,12 @@ class Hw:
             
     def _set_power_max(self, value):
         """
-
+        set the power upper limit value P+
+        
         Parameters
         ----------
-
-        Raises
-        ------
-
+        value: float, MIN to MAX
+        
         """    
         cmd = self._cmd.set_power_max
 
@@ -1010,13 +1005,12 @@ class Hw:
 
     def _set_power_min(self, value):
         """
-
+        set the power lower limit value P-
+        
         Parameters
         ----------
-
-        Raises
-        ------
-
+        value: float, MIN to MAX
+        
         """    
         cmd = self._cmd.set_power_min
 
@@ -1099,13 +1093,12 @@ class Hw:
             
     def _set_current_max(self, value):
         """
-
+        set the current upper limit value I+ in CV priority mode
+        
         Parameters
         ----------
-
-        Raises
-        ------
-
+        value: float, MIN to MAX
+        
         """    
         cmd = self._cmd.set_current_max
 
@@ -1132,13 +1125,12 @@ class Hw:
 
     def _set_current_min(self, value):
         """
-
+        set the current lower limit value I- in CV priority mode
+        
         Parameters
         ----------
-
-        Raises
-        ------
-
+        value: float, MIN to MAX
+        
         """    
         cmd = self._cmd.set_current_min
 
