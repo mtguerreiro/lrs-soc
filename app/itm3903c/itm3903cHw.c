@@ -41,6 +41,8 @@ typedef struct{
 
     itm3903cConfigMeasGains_t gains;
 
+    itm3903cConfigDacGains_t dacGains;
+
     /* Sampling period in us */
     uint32_t ts;
 
@@ -65,6 +67,8 @@ static void itm3903cHwInitializeDac(void);
 static void itm3903cHwDacSpiWrite(uint8_t *data, uint32_t size);
 static void itm3903cHwDac1SpiCsSet(void);
 static void itm3903cHwDac1SpiCsClear(void);
+static void itm3903cHwDac23SpiCsSet(void);
+static void itm3903cHwDac23SpiCsClear(void);
 
 static bool itm3903cHwAdcIrq(struct repeating_timer *t);
 //=============================================================================
@@ -72,11 +76,23 @@ static bool itm3903cHwAdcIrq(struct repeating_timer *t);
 //=============================================================================
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
-static itm3903cHwControl_t hwControl = {.status = 0, .ts = 10, .samplingEnabled = false};
+static itm3903cHwControl_t hwControl = {
+    .status = 0,
+    .ts = 10,
+    .samplingEnabled = false,
+    .dacGains.a1_offset_gain = 1.0f,
+    .dacGains.a1_offset_offset = 0.0f,
+    .dacGains.a1_adj_gain = 1.0f,
+    .dacGains.a1_adj_offset = 0.0f,
+    .dacGains.a2_gain = 1.0f,
+    .dacGains.a2_offset = 0.0f,
+    .dacGains.a3_gain = 1.0f,
+    .dacGains.a3_offset = 0.0f
+    };
 
 static float texec = 0.0f;
 
-mcp49x2_t dac_1;
+mcp49x2_t dac_1, dac_23;
 
 //=============================================================================
 
@@ -394,11 +410,24 @@ uint32_t itm3903cHwGetSamplingFreq(void){
     return 1000000 / hwControl.ts;
 }
 //-----------------------------------------------------------------------------
-void itm3903cHwDac1Write(uint32_t channel, uint32_t data){
+void itm3903cHwDac1WriteOffset(float offset){
+
+    uint16_t flags = MCP49X2_CFG_SET_GA_1 | MCP49X2_CFG_DIS_SHDN | MCP49X2_CFG_WRITE_CH_B;
+
+    uint16_t data = (uint16_t)(hwControl.dacGains.a1_offset_gain * offset + hwControl.dacGains.a1_offset_offset);
+
+    printf("\n\nWriting %d to data\n\n\r", (int)data);
+
+    mcp49x2Write(&dac_1, ((uint16_t) (data & 0x0FFF)), flags);
+}
+//-----------------------------------------------------------------------------
+void itm3903cHwDac1WriteAdj(float adj){
 
     uint16_t flags = MCP49X2_CFG_SET_GA_1 | MCP49X2_CFG_DIS_SHDN;
 
-    if( channel != 0 ) flags |= MCP49X2_CFG_WRITE_CH_B;
+    uint16_t data = (uint16_t)(hwControl.dacGains.a1_adj_gain * adj + hwControl.dacGains.a1_adj_offset);
+
+    printf("\n\nWriting %d to data\n\n\r", (int)data);
 
     mcp49x2Write(&dac_1, ((uint16_t) (data & 0x0FFF)), flags);
 }
@@ -503,6 +532,8 @@ static void itm3903cHwInitializeMeasGains(void){
 //-----------------------------------------------------------------------------
 static void itm3903cHwInitializeDac(void){
 
+    uint16_t flags;
+
     dac_1.spiWrite = itm3903cHwDacSpiWrite;
 
     dac_1.csSet = itm3903cHwDac1SpiCsSet;
@@ -515,6 +546,33 @@ static void itm3903cHwInitializeDac(void){
 
     dac_1.shdnSet = 0;
     dac_1.shdnClear = 0;
+
+    /* Writes 0 to the DAC's outputs so that it is not initially undefined */
+    flags = MCP49X2_CFG_SET_GA_1 | MCP49X2_CFG_DIS_SHDN;
+    mcp49x2Write(&dac_1, 0, flags);
+
+    flags = MCP49X2_CFG_SET_GA_1 | MCP49X2_CFG_DIS_SHDN | MCP49X2_CFG_WRITE_CH_B;
+    mcp49x2Write(&dac_1, 0, flags);
+
+    dac_23.spiWrite = itm3903cHwDacSpiWrite;
+
+    dac_23.csSet = itm3903cHwDac23SpiCsSet;
+    dac_23.csClear = itm3903cHwDac23SpiCsClear;
+
+    dac_23.res = MCP49X2_RES_12_BIT;
+
+    dac_23.ldacSet = 0;
+    dac_23.ldacClear = 0;
+
+    dac_23.shdnSet = 0;
+    dac_23.shdnClear = 0;
+
+    /* Writes 0 to the DAC's outputs so that it is not initially undefined */
+    flags = MCP49X2_CFG_SET_GA_1 | MCP49X2_CFG_DIS_SHDN;
+    mcp49x2Write(&dac_23, 0, flags);
+
+    flags = MCP49X2_CFG_SET_GA_1 | MCP49X2_CFG_DIS_SHDN | MCP49X2_CFG_WRITE_CH_B;
+    mcp49x2Write(&dac_23, 0, flags);
 }
 //-----------------------------------------------------------------------------
 static void itm3903cHwDacSpiWrite(uint8_t *data, uint32_t size){
@@ -526,7 +584,6 @@ static void itm3903cHwDac1SpiCsSet(void){
 
     asm volatile("nop \n nop \n nop");
     gpio_put(ITM3903C_PICO_CONFIG_DAC_A1_CS_PIN, 1);
-    gpio_put(ITM3903C_PICO_CONFIG_DAC_A2_A3_CS_PIN, 1);
     asm volatile("nop \n nop \n nop");
 }
 //-----------------------------------------------------------------------------
@@ -534,6 +591,19 @@ static void itm3903cHwDac1SpiCsClear(void){
 
     asm volatile("nop \n nop \n nop");
     gpio_put(ITM3903C_PICO_CONFIG_DAC_A1_CS_PIN, 0);
+    asm volatile("nop \n nop \n nop");
+}
+//-----------------------------------------------------------------------------
+static void itm3903cHwDac23SpiCsSet(void){
+
+    asm volatile("nop \n nop \n nop");
+    gpio_put(ITM3903C_PICO_CONFIG_DAC_A2_A3_CS_PIN, 1);
+    asm volatile("nop \n nop \n nop");
+}
+//-----------------------------------------------------------------------------
+static void itm3903cHwDac23SpiCsClear(void){
+
+    asm volatile("nop \n nop \n nop");
     gpio_put(ITM3903C_PICO_CONFIG_DAC_A2_A3_CS_PIN, 0);
     asm volatile("nop \n nop \n nop");
 }

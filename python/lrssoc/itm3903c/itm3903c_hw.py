@@ -533,7 +533,8 @@ class AnalogCommands:
         self.get_sampling_status    = 1
         self.set_sampling_freq      = 2
         self.get_sampling_freq      = 3
-        self.set_dac1               = 4
+        self.set_dac1_offset        = 4
+        self.set_dac1_adj           = 5
 
 
 class MeasGains:
@@ -653,13 +654,46 @@ class AnalogHw:
         return self._get_sampling_freq()
     
 
-    def set_dac1(self, channel, data):
-        """`channel` must be 0 or 1 (A or B), `data` must be an integer,
-        between 0 - 4095."""
+    def set_dac1_offset(self, offset):
+        """Sets offset of DAC channel 1. `offset` is in volts.
+
+
+        Parameters
+        ----------
+        offset : float
+            Offset, in volts.
+
+        Returns
+        -------
+        tuple
+            Returns a tuple of the form `(status, error)`. If the command was
+            executed successfully, `status` is 0 and `error` is empty.
+            Otherwise, `status` is an error code and `error` is non-empty.
+        """
         
-        return self._set_dac1(int(channel), int(data))
+        return self._set_dac1_offset(float(offset))
 
 
+    def set_dac1_adj(self, adj):
+        """Sets adjust of DAC channel 1. `adj` is in volts.
+
+
+        Parameters
+        ----------
+        adj : float
+            Adjust, in volts.
+
+        Returns
+        -------
+        tuple
+            Returns a tuple of the form `(status, error)`. If the command was
+            executed successfully, `status` is 0 and `error` is empty.
+            Otherwise, `status` is an error code and `error` is non-empty.
+        """
+        
+        return self._set_dac1_adj(float(adj))
+
+    
     def _set_sampling_status(self, status):
         cmd = self._cmd.set_sampling_status
 
@@ -726,18 +760,34 @@ class AnalogHw:
         return (0, freq)
     
 
-    def _set_dac1(self, channel, data):
-        cmd = self._cmd.set_dac1
+    def _set_dac1_offset(self, offset):
+        cmd = self._cmd.set_dac1_offset
 
         tx_data = []
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
-        tx_data.extend( lrssoc.conversions.u32_to_u8(channel, msb=False) )
-        tx_data.extend( lrssoc.conversions.u32_to_u8(data, msb=False) )
+        tx_data.extend( list(struct.pack('<f', offset)) )
 
         status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
 
         if status < 0:
-            print('Error setting output of DAC 1. Error code {:}\r\n'.format(status))
+            print('Error setting offset of DAC 1. Error code {:}\r\n'.format(status))
             return (-1, status)
 
         return (0,)
+    
+
+    def _set_dac1_adj(self, adj):
+        cmd = self._cmd.set_dac1_adj
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( list(struct.pack('<f', adj)) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting adj of DAC 1. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        return (0,)
+    

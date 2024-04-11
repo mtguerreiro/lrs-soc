@@ -155,7 +155,33 @@ typedef enum{
      */
     ITM3903C_HW_ANALOG_IF_GET_SAMPLING_FREQ,
 
-    ITM3903C_HW_ANALOG_IF_SET_DAC_A1,
+    /**
+     * Command
+     *  -----------------------------------------------
+     *  | SET DAC A1 OFFSET (uint32) | OFFSET (float) |
+     *  -----------------------------------------------
+     * 
+     * Response
+     * No response
+     * 
+     * Notes
+     *  - OFFSET is in volts.
+     */
+    ITM3903C_HW_ANALOG_IF_SET_DAC_A1_OFFSET,
+
+    /**
+     * Command
+     *  -----------------------------------------
+     *  | SET DAC A1 ADJ (uint32) | ADJ (float) |
+     *  -----------------------------------------
+     * 
+     * Response
+     * No response
+     * 
+     * Notes
+     *  - ADJ is in volts.
+     */
+    ITM3903C_HW_ANALOG_IF_SET_DAC_A1_ADJ,
 
     ITM3903C_HW_ANALOG_IF_END
 }itm3903cHwAnalogIfCommands_t;

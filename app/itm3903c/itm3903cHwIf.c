@@ -76,7 +76,8 @@ static int32_t itm3903cHwIfSetSamplingStatus(void *in, uint32_t insize, void **o
 static int32_t itm3903cHwIfGetSamplingStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfSetSamplingFreq(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfGetSamplingFreq(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
-static int32_t itm3903cHwIfSetDacA1(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfSetDacA1Offset(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfSetDacA1Adj(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
 //=============================================================================
 
@@ -111,7 +112,8 @@ int32_t itm3903cHwIfInitialize(void){
     rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_GET_SAMPLING_STATUS, itm3903cHwIfGetSamplingStatus);
     rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_SAMPLING_FREQ, itm3903cHwIfSetSamplingFreq);
     rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_GET_SAMPLING_FREQ, itm3903cHwIfGetSamplingFreq);
-    rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_DAC_A1, itm3903cHwIfSetDacA1);
+    rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_DAC_A1_OFFSET, itm3903cHwIfSetDacA1Offset);
+    rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_DAC_A1_ADJ, itm3903cHwIfSetDacA1Adj);
 
     return 0;
 }
@@ -345,15 +347,24 @@ static int32_t itm3903cHwIfGetSamplingFreq(void *in, uint32_t insize, void **out
     return 4;
 }
 //-----------------------------------------------------------------------------
-static int32_t itm3903cHwIfSetDacA1(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+static int32_t itm3903cHwIfSetDacA1Offset(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
 
-    uint32_t channel, data;
-    uint32_t *p = (uint32_t *)in;
+    float offset;
 
-    channel = *p++;
-    data = *p;
+    offset = *( (float *)in );
 
-    itm3903cHwDac1Write(channel, data);
+    itm3903cHwDac1WriteOffset(offset);
+   
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfSetDacA1Adj(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    float adj;
+
+    adj = *( (float *)in );
+
+    itm3903cHwDac1WriteAdj(adj);
    
     return 0;
 }

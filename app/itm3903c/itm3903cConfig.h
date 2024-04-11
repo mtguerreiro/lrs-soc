@@ -38,6 +38,20 @@ typedef struct{
     float v_gain;
     float v_ofs;
 }itm3903cConfigMeasGains_t;
+
+typedef struct{
+    float a1_offset_gain;
+    float a1_offset_offset;
+
+    float a1_adj_gain;
+    float a1_adj_offset;
+
+    float a2_gain;
+    float a2_offset;
+
+    float a3_gain;
+    float a3_offset;
+}itm3903cConfigDacGains_t;
 //=============================================================================
 
 #endif /* ITM3903C_CONFIG_H_ */
