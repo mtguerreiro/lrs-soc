@@ -1178,14 +1178,14 @@ class Hw:
         
     def _set_voltage_protection_status(self, volt_prot_status):
         """
-
+        enables or disables the overvoltage protection.
+        
         Parameters
         ----------
+        volt_prot_status : bool
+            If set to true, overvoltage protection is enabled. If false, overvoltage protection is disabled.
 
-        Raises
-        ------
-
-        """    
+        """   
         cmd = self._cmd.set_voltage_protection_status
         
         if volt_prot_status is True:
@@ -1239,14 +1239,14 @@ class Hw:
         
     def _set_power_protection_status(self, pow_prot_status):
         """
-
+        enables or disables the power protection.
+        
         Parameters
         ----------
+        pow_prot_status : bool
+            If set to true, power protection is enabled. If false, power protection is disabled.
 
-        Raises
-        ------
-
-        """    
+        """      
         cmd = self._cmd.set_power_protection_status
         
         if pow_prot_status is True:
@@ -1300,12 +1300,12 @@ class Hw:
         
     def _set_current_protection_status(self, curr_prot_status):
         """
-
+        enables or disables the overcurrent protection.
+        
         Parameters
         ----------
-
-        Raises
-        ------
+        curr_prot_status : bool
+            If set to true, overcurrent protection is enabled. If false, overcurrent protection is disabled.
 
         """   
         cmd = self._cmd.set_current_protection_status
@@ -1368,14 +1368,13 @@ class Hw:
 
     def _set_voltage_slew_rate(self, value):
         """
-
+        set the voltage rise and fall time
+        
         Parameters
         ----------
-
-        Raises
-        ------
-
-        """
+        value: float, MIN to MAX
+        
+        """    
         cmd = self._cmd.set_voltage_slew_rate
 
         tx_data = []
