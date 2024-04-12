@@ -111,17 +111,17 @@ int32_t wzPicoInit(void){
 //-----------------------------------------------------------------------------
 static void wzPicoInitializeCriticalSection(void){
 
-	critical_section_init(&crit_sec);
+	//critical_section_init(&crit_sec);
 }
 //-----------------------------------------------------------------------------
 static void wzPicoCriticalSectionEnter(void){
 
-	critical_section_enter_blocking(&crit_sec);
+	//critical_section_enter_blocking(&crit_sec);
 }
 //-----------------------------------------------------------------------------
 static void wzPicoCriticalSectionExit(void){
 
-	critical_section_exit(&crit_sec);
+	//critical_section_exit(&crit_sec);
 }
 //-----------------------------------------------------------------------------
 static void wzPicoInitW5500(void){

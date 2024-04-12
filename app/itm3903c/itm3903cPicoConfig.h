@@ -41,6 +41,10 @@
 /* Additional LEDs */
 #define ITM3903C_PICO_LED_1                         6
 #define ITM3903C_PICO_LED_2                         7
+
+/* PWM slice for timer */
+#define ITM3903C_PICO_CONFIG_PWM_SLICE              0
+#define ITM3903C_PICO_CONFIG_PWM_CLK_DIV            125
 //=============================================================================
 
 #endif /* ITM3903C_PICO_CONFIG_H_ */

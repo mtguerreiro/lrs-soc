@@ -18,6 +18,7 @@
 #include "hardware/adc.h"
 #include "hardware/uart.h"
 #include "hardware/spi.h"
+#include "hardware/pwm.h"
 
 #include "ocp/ocp/ocpTrace.h"
 #include "ocp/ocp/ocpCS.h"
@@ -61,6 +62,7 @@ static void itm3903cHwInitializeGpio(void);
 static void itm3903cHwInitializeAdc(void);
 static void itm3903cHwInitializeUart(void);
 static void itm3903cHwInitializeSpi(void);
+static void itm3903cHwInitializeTimer(void);
 static void itm3903cHwInitializeMeasGains(void);
 
 static void itm3903cHwInitializeDac(void);
@@ -70,7 +72,7 @@ static void itm3903cHwDac1SpiCsClear(void);
 static void itm3903cHwDac23SpiCsSet(void);
 static void itm3903cHwDac23SpiCsClear(void);
 
-static bool itm3903cHwAdcIrq(struct repeating_timer *t);
+static void itm3903cHwAdcIrq(void);
 //=============================================================================
 
 //=============================================================================
@@ -78,7 +80,7 @@ static bool itm3903cHwAdcIrq(struct repeating_timer *t);
 //=============================================================================
 static itm3903cHwControl_t hwControl = {
     .status = 0,
-    .ts = 10,
+    .ts = 1000,
     .samplingEnabled = false,
     .dacGains.a1_offset_gain = 1.0f,
     .dacGains.a1_offset_offset = 0.0f,
@@ -123,6 +125,7 @@ int32_t itm3903cHwInitializeC0(void){
 //-----------------------------------------------------------------------------
 int32_t itm3903cHwInitializeC1(void){
 
+    itm3903cHwInitializeTimer();
     itm3903cHwInitializeDac();
 
     return 0;
@@ -378,14 +381,13 @@ uint32_t itm3903cHwGetAnalogExternalStatus(void) {
 //-----------------------------------------------------------------------------
 void itm3903cHwSetSamplingStatus(uint32_t status){
 
-    if( status ){
-        add_repeating_timer_us((int64_t) hwControl.ts, itm3903cHwAdcIrq, NULL, &hwControl.samplingTimer);
-        hwControl.samplingEnabled = true;
-    }
-    else{
-        cancel_repeating_timer(&hwControl.samplingTimer);
-        hwControl.samplingEnabled = false;
-    }
+    bool enable;
+
+    if( status ) enable = true;
+    else enable = false;
+
+    pwm_set_enabled(ITM3903C_PICO_CONFIG_PWM_SLICE, enable);
+    hwControl.samplingEnabled = enable;
 }
 //-----------------------------------------------------------------------------
 uint32_t itm3903cHwGetSamplingStatus(void){
@@ -397,17 +399,16 @@ uint32_t itm3903cHwGetSamplingStatus(void){
 //-----------------------------------------------------------------------------
 void itm3903cHwSetSamplingFreq(uint32_t freq){
 
-    hwControl.ts = 1000000 / freq;
+    hwControl.ts = 1000000L / freq;
 
     if( hwControl.samplingEnabled == true){
-        cancel_repeating_timer(&hwControl.samplingTimer);
-        add_repeating_timer_us((int64_t) hwControl.ts, itm3903cHwAdcIrq, NULL, &hwControl.samplingTimer);
+        pwm_set_wrap(ITM3903C_PICO_CONFIG_PWM_SLICE, hwControl.ts - 1);
     }
 }
 //-----------------------------------------------------------------------------
 uint32_t itm3903cHwGetSamplingFreq(void){
 
-    return 1000000 / hwControl.ts;
+    return (uint32_t)(1000000L / hwControl.ts);
 }
 //-----------------------------------------------------------------------------
 void itm3903cHwDac1WriteOffset(float offset){
@@ -415,8 +416,6 @@ void itm3903cHwDac1WriteOffset(float offset){
     uint16_t flags = MCP49X2_CFG_SET_GA_1 | MCP49X2_CFG_DIS_SHDN | MCP49X2_CFG_WRITE_CH_B;
 
     uint16_t data = (uint16_t)(hwControl.dacGains.a1_offset_gain * offset + hwControl.dacGains.a1_offset_offset);
-
-    printf("\n\nWriting %d to data\n\n\r", (int)data);
 
     mcp49x2Write(&dac_1, ((uint16_t) (data & 0x0FFF)), flags);
 }
@@ -426,8 +425,6 @@ void itm3903cHwDac1WriteAdj(float adj){
     uint16_t flags = MCP49X2_CFG_SET_GA_1 | MCP49X2_CFG_DIS_SHDN;
 
     uint16_t data = (uint16_t)(hwControl.dacGains.a1_adj_gain * adj + hwControl.dacGains.a1_adj_offset);
-
-    printf("\n\nWriting %d to data\n\n\r", (int)data);
 
     mcp49x2Write(&dac_1, ((uint16_t) (data & 0x0FFF)), flags);
 }
@@ -519,6 +516,24 @@ static void itm3903cHwInitializeSpi(void){
     gpio_init(ITM3903C_PICO_CONFIG_DAC_A2_A3_CS_PIN);
 	gpio_set_dir(ITM3903C_PICO_CONFIG_DAC_A2_A3_CS_PIN, GPIO_OUT);
 	gpio_put(ITM3903C_PICO_CONFIG_DAC_A2_A3_CS_PIN, 1);
+}
+//-----------------------------------------------------------------------------
+static void itm3903cHwInitializeTimer(void){
+
+    /* Mask slice's IRQ output into PWM block, register interrupt handler  */
+    pwm_clear_irq(ITM3903C_PICO_CONFIG_PWM_SLICE);
+    pwm_set_irq_enabled(ITM3903C_PICO_CONFIG_PWM_SLICE, true);
+    irq_set_exclusive_handler(PWM_IRQ_WRAP, itm3903cHwAdcIrq);
+    irq_set_enabled(PWM_IRQ_WRAP, true);
+
+    pwm_config config = pwm_get_default_config();
+
+    /* Set divider and initial clock div */
+    pwm_config_set_clkdiv(&config, (float)ITM3903C_PICO_CONFIG_PWM_CLK_DIV);
+    pwm_config_set_wrap(&config, hwControl.ts - 1);
+
+    /* Load configurations */
+    pwm_init(ITM3903C_PICO_CONFIG_PWM_SLICE, &config, false);
 }
 //-----------------------------------------------------------------------------
 static void itm3903cHwInitializeMeasGains(void){
@@ -614,9 +629,11 @@ static void itm3903cHwDac23SpiCsClear(void){
 /*----------------------------------- IRQ -----------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-static bool itm3903cHwAdcIrq(struct repeating_timer *t){
+static void itm3903cHwAdcIrq(void){
     
     uint32_t ticks;
+
+    pwm_clear_irq(ITM3903C_PICO_CONFIG_PWM_SLICE);
 
 	gpio_put(ITM3903C_PICO_LED_1, 1);
 
@@ -629,8 +646,6 @@ static bool itm3903cHwAdcIrq(struct repeating_timer *t){
     texec = ((float)ticks);
 
 	gpio_put(ITM3903C_PICO_LED_1, 0);
-
-    return true;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
