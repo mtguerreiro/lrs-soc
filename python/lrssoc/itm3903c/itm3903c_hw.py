@@ -11,21 +11,43 @@ class DigitalCommands:
     """
     """
     def __init__(self):
-        self.set_slope                  = 0  # Programming Guide Page 111 [SOURce:]EXTern:PROGram:CHANnel:MX <NR1>,<NRf>
-        self.get_slope                  = 1  # Programming Guide Page 112 [SOURce:]EXTern:PROGram:CHANnel:MX? <NR1>
-        self.get_version                = 2  # Programming Guide Page 30 SYSTem:VERSion?
-        self.get_error                  = 3  # Programming Guide Page 31 SYSTem:ERRor?
-        self.clear_error                = 4  # Programming Guide Page 32 SYSTem:CLEar
-        self.set_output_status          = 5  # Programming Guide Page 118 OUTPut[:STATe] <CPD>
-        self.get_output_status          = 6  # Programming Guide Page 119 OUTPut[:STATe]?
-        self.set_analog_external_status = 7  # Programming Guide Page 109 [SOURce:]EXTern:PROGram[:STATe] <Bool>
-        self.get_analog_external_status = 8  # Programming Guide Page 110 [SOURce:]EXTern:PROGram[:STATe]?
-        self.set_offset                 = 9  # Programming Guide Page 112 [SOURce:]EXTern:PROGram:CHANnel:MB <NR1>,<NRf>
-        self.get_offset                 = 10 # Programming Guide Page 113 [SOURce:]EXTern:PROGram:CHANnel:MB? <NR1>
-        self.set_func_mode              = 11 # Programming Guide Page 51 [SOURce:]FUNCtion <CPD>                                  
-        self.get_func_mode              = 12 # Programming Guide Page 52 [SOURce:]FUNCtion?
-        self.set_volt_value             = 13 # Programming Guide Page 79 [SOURce:]VOLTage[:LEVel][:IMMediate][:AMPLitude] <NRf+> 
-        self.set_curr_value             = 14 # Programming Guide Page 54 [SOURce:]CURRent[:LEVel][:IMMediate][:AMPLitude] <NRf+>
+        self.set_slope                      = 0  # Programming Guide Page 111 [SOURce:]EXTern:PROGram:CHANnel:MX <NR1>,<NRf>
+        self.get_slope                      = 1  # Programming Guide Page 112 [SOURce:]EXTern:PROGram:CHANnel:MX? <NR1>
+        self.get_version                    = 2  # Programming Guide Page 30 SYSTem:VERSion?
+        self.get_error                      = 3  # Programming Guide Page 31 SYSTem:ERRor?
+        self.clear_error                    = 4  # Programming Guide Page 32 SYSTem:CLEar
+        self.set_output_status              = 5  # Programming Guide Page 118 OUTPut[:STATe] <CPD>
+        self.get_output_status              = 6  # Programming Guide Page 119 OUTPut[:STATe]?
+        self.set_analog_external_status     = 7  # Programming Guide Page 109 [SOURce:]EXTern:PROGram[:STATe] <Bool>
+        self.get_analog_external_status     = 8  # Programming Guide Page 110 [SOURce:]EXTern:PROGram[:STATe]?
+        self.set_offset                     = 9  # Programming Guide Page 112 [SOURce:]EXTern:PROGram:CHANnel:MB <NR1>,<NRf>
+        self.get_offset                     = 10 # Programming Guide Page 113 [SOURce:]EXTern:PROGram:CHANnel:MB? <NR1>
+        self.set_func_mode                  = 11 # Programming Guide Page 51 [SOURce:]FUNCtion <CPD>                                  
+        self.get_func_mode                  = 12 # Programming Guide Page 52 [SOURce:]FUNCtion?
+        self.set_volt_value                 = 13 # Programming Guide Page 79 [SOURce:]VOLTage[:LEVel][:IMMediate][:AMPLitude] <NRf+> 
+        self.set_curr_value                 = 14 # Programming Guide Page 54 [SOURce:]CURRent[:LEVel][:IMMediate][:AMPLitude] <NRf+>
+        self.get_voltage_measurement        = 15 # Programming Guide Page 280 MEASure[:SCALar]:VOLTage[:DC]?
+        self.get_current_measurement        = 16 # Programming Guide Page 276 MEASure[:SCALar]:CURRent[:DC]?
+        self.get_voltage_max                = 17 # Programming Guide Page 97 [SOURce:]VOLTage:LIMit[:POSitive][:IMMediate][:AMPLitude]? [MINimum|MAXimum|DEFault]
+        self.get_voltage_min                = 18 # Programming Guide Page 99 [SOURce:]VOLTage:LIMit:NEGative[:IMMediate][:AMPLitude]? [MINimum|MAXimum|DEFault]
+        self.set_voltage_max                = 19 # Programming Guide Page 96 [SOURce:]VOLTage:LIMit[:POSitive][:IMMediate][:AMPLitude] <NRf+>
+        self.set_voltage_min                = 20 # Programming Guide Page 98 [SOURce:]VOLTage:LIMit:NEGative[:IMMediate][:AMPLitude] <NRf+>
+        self.get_power_max                  = 21 # Programming Guide Page 100 [SOURce:]POWer:LIMit[:POSitive][:IMMediate][:AMPLitude]? [MINimum|MAXimum|DEFault]
+        self.get_power_min                  = 22 # Programming Guide Page 102 [SOURce:]POWer:LIMit:NEGative[:IMMediate][:AMPLitude]? [MINimum|MAXimum|DEFault]
+        self.set_power_max                  = 23 # Programming Guide Page 100 [SOURce:]POWer:LIMit[:POSitive][:IMMediate][:AMPLitude] <NRf+>
+        self.set_power_min                  = 24 # Programming Guide Page 101 [SOURce:]POWer:LIMit:NEGative[:IMMediate][:AMPLitude] <NRf+>
+        self.get_current_max                = 25 # Programming Guide Page 73 [SOURce:]CURRent:LIMit[:POSitive][:IMMediate][:AMPLitude]? [MINimum|MAXimum|DEFault]
+        self.get_current_min                = 26 # Programming Guide Page 75 [SOURce:]CURRent:LIMit:NEGative[:IMMediate][:AMPLitude]? [MINimum|MAXimum|DEFault]
+        self.set_current_max                = 27 # Programming Guide Page 72 [SOURce:]CURRent:LIMit[:POSitive][:IMMediate][:AMPLitude] <NRf+> 
+        self.set_current_min                = 28 # Programming Guide Page 74 [SOURce:]CURRent:LIMit:NEGative[:IMMediate][:AMPLitude] <NRf+>
+        self.get_voltage_protection_status  = 29 # Programming Guide Page 86 [SOURce:]VOLTage[:OVER]:PROTection:STATe?
+        self.set_voltage_protection_status  = 30 # Programming Guide Page 85 [SOURce:]VOLTage[:OVER]:PROTection:STATe <Bool>
+        self.get_power_protection_status    = 31 # Programming Guide Page 103 [SOURce:]POWer[:OVER]:PROTection:STATe?
+        self.set_power_protection_status    = 32 # Programming Guide Page 103 [SOURce:]POWer[:OVER]:PROTection:STATe <Bool>
+        self.get_current_protection_status  = 33 # Programming Guide Page 61 [SOURce:]CURRent[:OVER]:PROTection:STATe?
+        self.set_current_protection_status  = 34 # Programming Guide Page 61 [SOURce:]CURRent[:OVER]:PROTection:STATe <Bool>
+        self.get_voltage_slew_rate          = 35 # Programming Guide Page 81 [SOURce:]VOLTage:SLEW[:BOTH]? [MINimum|MAXimum|DEFault]
+        self.set_voltage_slew_rate          = 36 # Programming Guide Page 80 [SOURce:]VOLTage:SLEW[:BOTH] <NRf+>
 
         
 class DigitalHw:
@@ -120,6 +142,116 @@ class DigitalHw:
 
         return self._set_curr_value(value)
 
+
+    def get_voltage_measurement(self):
+
+        return self._get_voltage_measurement()
+
+
+    def get_current_measurement(self):
+
+        return self._get_current_measurement()
+
+
+    def get_voltage_max(self):
+
+        return self._get_voltage_max()
+
+
+    def get_voltage_min(self):
+
+        return self._get_voltage_min()
+
+
+    def set_voltage_max(self, MAX):
+
+        return self._set_voltage_max(MAX)
+
+    
+    def set_voltage_min(self, MIN):
+
+        return self._set_voltage_min(MIN)
+
+    
+    def get_power_max(self):
+
+        return self._get_power_max()
+
+
+    def get_power_min(self):
+
+        return self._get_power_min()
+
+    
+    def set_power_max(self, MAX):
+
+        return self._set_power_max(MAX)
+
+    
+    def set_power_min(self, MIN):
+
+        return self._set_power_min(MIN)
+
+    
+    def get_current_max(self):
+
+        return self._get_current_max()
+
+
+    def get_current_min(self):
+
+        return self._get_current_min()
+
+    
+    def set_current_max(self, MAX):
+
+        return self._set_current_max(MAX)
+
+    
+    def set_current_min(self, MIN):
+
+        return self._set_current_min(MIN)
+
+
+    def get_voltage_protection_status(self):
+
+        return self._get_voltage_protection_status()
+    
+    
+    def set_voltage_protection_status(self, set_status):
+
+        return self._set_voltage_protection_status(set_status)
+
+
+    def get_power_protection_status(self):
+
+        return self._get_power_protection_status()
+    
+    
+    def set_power_protection_status(self, set_status):
+
+        return self._set_power_protection_status(set_status)
+
+
+    def get_current_protection_status(self):
+
+        return self._get_current_protection_status()
+    
+    
+    def set_current_protection_status(self, set_status):
+
+        return self._set_current_protection_status(set_status)
+
+        
+    def get_voltage_slew_rate(self):
+
+        return self._get_voltage_slew_rate()
+
+
+    def set_voltage_slew_rate(self, value):
+
+        return self._set_voltage_slew_rate(value)
+    
     
     def _get_version(self):
         """
@@ -146,6 +278,10 @@ class DigitalHw:
 
 
     def _get_error(self):
+        """
+        Returns the error information of the power supply
+
+        """
         cmd = self._cmd.get_error
 
         tx_data = []
@@ -167,6 +303,10 @@ class DigitalHw:
 
 
     def _clear_error(self):
+        """
+        Clears the error queue
+
+        """    
         cmd = self._cmd.clear_error
 
         tx_data = []
@@ -182,7 +322,15 @@ class DigitalHw:
 
 
     def _set_output_status(self, output_status):
+        """
+        The output status function enables or disables the output.
 
+        Parameters
+        ----------
+        output_status : bool
+            If set to true, output is enabled. If false, output is disabled.
+
+        """    
         cmd = self._cmd.set_output_status
 
         if output_status is True:
@@ -214,7 +362,15 @@ class DigitalHw:
         
 
     def _set_analog_external_status(self, analog_status):
+        """
+        enables or disables the analog external.
+        
+        Parameters
+        ----------
+        analog_status : bool
+            If set to true, analog external is enabled. If false, analog external is disabled.
 
+        """    
         cmd = self._cmd.set_analog_external_status
         
         if analog_status is True:
@@ -246,7 +402,10 @@ class DigitalHw:
 
 
     def _get_output_status(self):
+        """
+        Returns the status of the output
 
+        """
         cmd = self._cmd.get_output_status
 
         tx_data = []
@@ -264,7 +423,10 @@ class DigitalHw:
 
 
     def _get_analog_external_status(self):
+        """
+        Returns the status of the external analog function
 
+        """
         cmd = self._cmd.get_analog_external_status
 
         tx_data = []
@@ -283,13 +445,14 @@ class DigitalHw:
     
     def _set_slope(self, channel, slope):
         """
-
+        set the linear calibration coefficient of the channel (1/2/3)
+        
         Parameters
         ----------
-
-        Raises
-        ------
-
+        channel: uint32, can be set to 1,2,3
+        slope: float
+            value range of slope (i.e. the linear calibration coefficient): min(-9000) to max(9000)
+            
         """    
         cmd = self._cmd.set_slope
 
@@ -317,12 +480,11 @@ class DigitalHw:
 
     def _get_slope(self, channel):
         """
-
+        query the linear calibration coefficient of the channel (1/2/3)
+        
         Parameters
         ----------
-
-        Raises
-        ------
+        channel: uint32, can be set to 1,2,3
 
         """    
         cmd = self._cmd.get_slope
@@ -351,13 +513,14 @@ class DigitalHw:
     
     def _set_offset(self, channel, offset):
         """
-
+        set the offset calibration coefficient of the channel (1/2/3)
+        
         Parameters
         ----------
-
-        Raises
-        ------
-
+        channel: uint32, can be set to 1,2,3
+        offset: float
+            value range of offset (i.e. offset calibration coefficient): min(-9000) to max(9000)
+          
         """    
         cmd = self._cmd.set_offset
 
@@ -385,12 +548,11 @@ class DigitalHw:
 
     def _get_offset(self, channel):
         """
-
+        query the offset calibration coefficient of the channel (1/2/3)
+        
         Parameters
         ----------
-
-        Raises
-        ------
+        channel: uint32, can be set to 1,2,3
 
         """    
         cmd = self._cmd.get_offset
@@ -419,7 +581,15 @@ class DigitalHw:
 
 
     def _set_func_mode(self, func_mode):
+        """
+        set the working mode of the power supply
+        
+        Parameters
+        ----------
+        func_mode: uint32
+            If FUNCMODE is 0, then current mode is set. If 1, the voltage mode.
 
+        """    
         cmd = self._cmd.set_func_mode
 
         if func_mode == 'current':
@@ -451,6 +621,10 @@ class DigitalHw:
 
     
     def _get_func_mode(self):
+        """
+        Returns the working mode of the power suply
+
+        """
         cmd = self._cmd.get_func_mode
 
         tx_data = []
@@ -478,6 +652,14 @@ class DigitalHw:
 
 
     def _set_volt_value(self, value):
+        """
+        set the output voltage value Vs in CV priority mode
+        
+        Parameters
+        ----------
+        value: float, range: MIN to MAX
+        
+        """    
         cmd = self._cmd.set_volt_value
 
         tx_data = []
@@ -502,6 +684,14 @@ class DigitalHw:
 
     
     def _set_curr_value(self, value):
+        """
+        set the output current value Is in CC priority mode
+        
+        Parameters
+        ----------
+        value: float, range: MIN to MAX
+        
+        """    
         cmd = self._cmd.set_curr_value
 
         tx_data = []
@@ -522,7 +712,666 @@ class DigitalHw:
             if err_status < 0:
                 return (-1, err_status)
             else: 
+                return (-1, err_message)
+            
+
+    def _get_voltage_measurement(self):
+        """
+        Returns the averaged voltage measurement
+
+        """ 
+        cmd = self._cmd.get_voltage_measurement
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, voltage_measurement_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting voltage measurement. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        voltage_measurement = struct.unpack('<f', voltage_measurement_b)[0]
+        
+        err_status, err_message = self.get_error()
+        if "No error" in err_message:
+            return (0, voltage_measurement)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)
+
+
+    def _get_current_measurement(self):
+        """
+        Returns the averaged current measurement
+
+        """    
+        cmd = self._cmd.get_current_measurement
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, current_measurement_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting current measurement. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        current_measurement = struct.unpack('<f', current_measurement_b)[0]
+        
+        err_status, err_message = self.get_error()
+        if "No error" in err_message:
+            return (0, current_measurement)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)
+
+            
+    def _get_voltage_max(self):
+        """
+        Returns the voltage upper limit value in CC priority mode
+
+        """   
+        cmd = self._cmd.get_voltage_max
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, voltage_max_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting voltage_max. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        voltage_max = struct.unpack('<f', voltage_max_b)[0]
+        
+        err_status, err_message = self.get_error()
+        if "No error" in err_message:
+            return (0, voltage_max)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
                 return (-1, err_message)  
+
+
+    def _get_voltage_min(self):
+        """
+        Returns the voltage lower limit value VI in CC priority mode
+
+        """   
+        cmd = self._cmd.get_voltage_min
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, voltage_min_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting voltage_min. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        voltage_min = struct.unpack('<f', voltage_min_b)[0]
+        
+        err_status, err_message = self.get_error()
+        if "No error" in err_message:
+            return (0, voltage_min)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)
+
+            
+    def _set_voltage_max(self, value):
+        """
+        set the voltage upper limit value Vh in CC priority mode
+        
+        Parameters
+        ----------
+        value: float, MIN to MAX
+        
+        """    
+        cmd = self._cmd.set_voltage_max
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( list(struct.pack('<f', value)) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting voltage max. Error code {:}\r\n'.format(status))
+            return (-1, status)
+    
+        err_status, err_message = self.get_error()
+
+        if "No error" in err_message:
+            return (0,)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)  
+
+
+    def _set_voltage_min(self, value):
+        """
+        set the voltage lower limit value Vl in CC priority mode
+        
+        Parameters
+        ----------
+        value: float, MIN to MAX
+        
+        """      
+        cmd = self._cmd.set_voltage_min
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( list(struct.pack('<f', value)) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting voltage min. Error code {:}\r\n'.format(status))
+            return (-1, status)
+    
+        err_status, err_message = self.get_error()
+
+        if "No error" in err_message:
+            return (0,)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)
+
+            
+    def _get_power_max(self):
+        """
+        Returns the power upper limit value
+
+        """     
+        cmd = self._cmd.get_power_max
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, power_max_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting power max. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        power_max = struct.unpack('<f', power_max_b)[0]
+        
+        err_status, err_message = self.get_error()
+        if "No error" in err_message:
+            return (0, power_max)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)  
+
+
+    def _get_power_min(self):
+        """
+        Returns the power lower limit value P-
+
+        """  
+        cmd = self._cmd.get_power_min
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, power_min_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting power min. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        power_min = struct.unpack('<f', power_min_b)[0]
+        
+        err_status, err_message = self.get_error()
+        if "No error" in err_message:
+            return (0, power_min)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)
+
+            
+    def _set_power_max(self, value):
+        """
+        set the power upper limit value P+
+        
+        Parameters
+        ----------
+        value: float, MIN to MAX
+        
+        """    
+        cmd = self._cmd.set_power_max
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( list(struct.pack('<f', value)) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting power max. Error code {:}\r\n'.format(status))
+            return (-1, status)
+    
+        err_status, err_message = self.get_error()
+
+        if "No error" in err_message:
+            return (0,)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)  
+
+
+    def _set_power_min(self, value):
+        """
+        set the power lower limit value P-
+        
+        Parameters
+        ----------
+        value: float, MIN to MAX
+        
+        """    
+        cmd = self._cmd.set_power_min
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( list(struct.pack('<f', value)) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting power min. Error code {:}\r\n'.format(status))
+            return (-1, status)
+    
+        err_status, err_message = self.get_error()
+
+        if "No error" in err_message:
+            return (0,)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)
+
+
+    def _get_current_max(self):
+        """
+        Returns the current upper limit value in CV priority mode
+
+        """     
+        cmd = self._cmd.get_current_max
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, current_max_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting current max. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        current_max = struct.unpack('<f', current_max_b)[0]
+        
+        err_status, err_message = self.get_error()
+        if "No error" in err_message:
+            return (0, current_max)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)  
+
+
+    def _get_current_min(self):
+        """
+        Returns the current lower limit value I- in CV priority mode
+
+        """     
+        cmd = self._cmd.get_current_min
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, current_min_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting current min. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        current_min = struct.unpack('<f', current_min_b)[0]
+        
+        err_status, err_message = self.get_error()
+        if "No error" in err_message:
+            return (0, current_min)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)
+
+            
+    def _set_current_max(self, value):
+        """
+        set the current upper limit value I+ in CV priority mode
+        
+        Parameters
+        ----------
+        value: float, MIN to MAX
+        
+        """    
+        cmd = self._cmd.set_current_max
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( list(struct.pack('<f', value)) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting current max. Error code {:}\r\n'.format(status))
+            return (-1, status)
+    
+        err_status, err_message = self.get_error()
+
+        if "No error" in err_message:
+            return (0,)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)  
+
+
+    def _set_current_min(self, value):
+        """
+        set the current lower limit value I- in CV priority mode
+        
+        Parameters
+        ----------
+        value: float, MIN to MAX
+        
+        """    
+        cmd = self._cmd.set_current_min
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( list(struct.pack('<f', value)) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting current min. Error code {:}\r\n'.format(status))
+            return (-1, status)
+    
+        err_status, err_message = self.get_error()
+
+        if "No error" in err_message:
+            return (0,)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)
+
+
+    def _get_voltage_protection_status(self):
+        """
+        Returns the status of overvoltage protection
+
+        """     
+        cmd = self._cmd.get_voltage_protection_status
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+
+        status, output_status = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting voltage protection status. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        output_status = struct.unpack('<i', output_status)[0]
+
+        return (0, output_status > 0)
+
+        
+    def _set_voltage_protection_status(self, volt_prot_status):
+        """
+        enables or disables the overvoltage protection.
+        
+        Parameters
+        ----------
+        volt_prot_status : bool
+            If set to true, overvoltage protection is enabled. If false, overvoltage protection is disabled.
+
+        """   
+        cmd = self._cmd.set_voltage_protection_status
+        
+        if volt_prot_status is True:
+            volt_prot_status = 1
+        elif volt_prot_status is False:
+            volt_prot_status = 0
+        else:
+            return(-1, 'volt_prot_status can only be True or False')
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(volt_prot_status, msb=False) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting voltage protection status. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        err_status, err_message = self.get_error()
+
+        if "No error" in err_message:
+            return (0,)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)
+
+
+    def _get_power_protection_status(self):
+        """
+        Returns the status of power protection
+
+        """     
+        cmd = self._cmd.get_power_protection_status
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+
+        status, output_status = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting power protection status. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        output_status = struct.unpack('<i', output_status)[0]
+
+        return (0, output_status > 0)
+
+        
+    def _set_power_protection_status(self, pow_prot_status):
+        """
+        enables or disables the power protection.
+        
+        Parameters
+        ----------
+        pow_prot_status : bool
+            If set to true, power protection is enabled. If false, power protection is disabled.
+
+        """      
+        cmd = self._cmd.set_power_protection_status
+        
+        if pow_prot_status is True:
+            pow_prot_status = 1
+        elif pow_prot_status is False:
+            pow_prot_status = 0
+        else:
+            return(-1, 'pow_prot_status can only be True or False')
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(pow_prot_status, msb=False) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting power protection status. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        err_status, err_message = self.get_error()
+
+        if "No error" in err_message:
+            return (0,)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)
+
+
+    def _get_current_protection_status(self):
+        """
+        Returns the status of overcurrent protection
+
+        """     
+        cmd = self._cmd.get_current_protection_status
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+
+        status, output_status = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting current protection status. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        output_status = struct.unpack('<i', output_status)[0]
+
+        return (0, output_status > 0)
+
+        
+    def _set_current_protection_status(self, curr_prot_status):
+        """
+        enables or disables the overcurrent protection.
+        
+        Parameters
+        ----------
+        curr_prot_status : bool
+            If set to true, overcurrent protection is enabled. If false, overcurrent protection is disabled.
+
+        """   
+        cmd = self._cmd.set_current_protection_status
+        
+        if curr_prot_status is True:
+            curr_prot_status = 1
+        elif curr_prot_status is False:
+            curr_prot_status = 0
+        else:
+            return(-1, 'curr_prot_status can only be True or False')
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(curr_prot_status, msb=False) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting current protection status. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        err_status, err_message = self.get_error()
+
+        if "No error" in err_message:
+            return (0,)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message) 
+
+
+    def _get_voltage_slew_rate(self):
+        """
+        Returns the voltage rise and fall times
+
+        """     
+        cmd = self._cmd.get_voltage_slew_rate
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, voltage_slew_rate_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting voltage slew rate. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        voltage_slew_rate = struct.unpack('<f', voltage_slew_rate_b)[0]
+        
+        err_status, err_message = self.get_error()
+        if "No error" in err_message:
+            return (0, voltage_slew_rate)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)  
+
+
+    def _set_voltage_slew_rate(self, value):
+        """
+        set the voltage rise and fall time
+        
+        Parameters
+        ----------
+        value: float, MIN to MAX
+        
+        """    
+        cmd = self._cmd.set_voltage_slew_rate
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( list(struct.pack('<f', value)) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+        
+        if status < 0:
+            print('Error setting voltage slew rate. Error code {:}\r\n'.format(status))
+            return (-1, status)
+    
+        err_status, err_message = self.get_error()
+
+        if "No error" in err_message:
+            return (0,)
+        else:
+            if err_status < 0:
+                return (-1, err_status)
+            else: 
+                return (-1, err_message)
 
 
 class AnalogCommands:
@@ -701,6 +1550,7 @@ class AnalogHw:
         tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
         tx_data.extend( lrssoc.conversions.u32_to_u8(status, msb=False) )
 
+
         status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
 
         if status < 0:
@@ -790,4 +1640,3 @@ class AnalogHw:
             return (-1, status)
 
         return (0,)
-    

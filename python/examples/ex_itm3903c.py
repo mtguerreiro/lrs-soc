@@ -13,11 +13,11 @@ import scipy.signal
 
 # --- Input ---
 port = 8080
-host = '192.168.0.211'
+host = '131.246.75.132'
 
 settings = {'host':host, 'port':port}
 
-hw = lrssoc.itm3903c.itm3903c.ITM3903C(comm='ethernet', comm_settings=settings)
+hw = lrssoc.itm3903c.itm3903c.ITM3903C(comm='ethernet', comm_settings=settings, cs_id=1)
 
 trace = lrssoc.itm3903c.itm3903c_trace.Trace(hw._ocp_if, 0)
 
