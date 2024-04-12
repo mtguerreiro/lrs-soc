@@ -720,9 +720,7 @@ void itm3903cHwSetSamplingFreq(uint32_t freq){
 
     hwControl.ts = 1000000L / freq;
 
-    if( hwControl.samplingEnabled == true){
-        pwm_set_wrap(ITM3903C_PICO_CONFIG_PWM_SLICE, hwControl.ts - 1);
-    }
+    pwm_set_wrap(ITM3903C_PICO_CONFIG_PWM_SLICE, hwControl.ts - 1);
 }
 //-----------------------------------------------------------------------------
 uint32_t itm3903cHwGetSamplingFreq(void){
@@ -844,7 +842,8 @@ static void itm3903cHwInitializeTimer(void){
     pwm_set_irq_enabled(ITM3903C_PICO_CONFIG_PWM_SLICE, true);
     irq_set_exclusive_handler(PWM_IRQ_WRAP, itm3903cHwAdcIrq);
     irq_set_enabled(PWM_IRQ_WRAP, true);
-
+    irq_set_priority(PWM_IRQ_WRAP, ITM3903C_PICO_CONFIG_PWM_IRQ_PRIO);
+    
     pwm_config config = pwm_get_default_config();
 
     /* Set divider and initial clock div */

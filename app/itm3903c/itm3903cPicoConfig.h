@@ -45,6 +45,8 @@
 /* PWM slice for timer */
 #define ITM3903C_PICO_CONFIG_PWM_SLICE              0
 #define ITM3903C_PICO_CONFIG_PWM_CLK_DIV            125
+
+#define ITM3903C_PICO_CONFIG_PWM_IRQ_PRIO           PICO_HIGHEST_IRQ_PRIORITY
 //=============================================================================
 
 #endif /* ITM3903C_PICO_CONFIG_H_ */
