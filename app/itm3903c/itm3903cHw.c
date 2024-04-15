@@ -82,14 +82,14 @@ static itm3903cHwControl_t hwControl = {
     .status = 0,
     .ts = 1000,
     .samplingEnabled = false,
-    .dacGains.a1_offset_gain = 1.0f,
-    .dacGains.a1_offset_offset = 0.0f,
-    .dacGains.a1_adj_gain = 1.0f,
-    .dacGains.a1_adj_offset = 0.0f,
-    .dacGains.a2_gain = 1.0f,
-    .dacGains.a2_offset = 0.0f,
-    .dacGains.a3_gain = 1.0f,
-    .dacGains.a3_offset = 0.0f
+    .dacGains.a1_offset_gain = 576.91514275f,
+    .dacGains.a1_offset_offset = -3.54150406f,
+    .dacGains.a1_adj_gain = 1343.33223761f,
+    .dacGains.a1_adj_offset = -9.3829024f,
+    .dacGains.a2_gain = 404.40256795f,
+    .dacGains.a2_offset = -9.42171167f,
+    .dacGains.a3_gain = 403.96189302f,
+    .dacGains.a3_offset = -8.33781641f
     };
 
 static float texec = 0.0f;
@@ -744,6 +744,24 @@ void itm3903cHwDac1WriteAdj(float adj){
     uint16_t data = (uint16_t)(hwControl.dacGains.a1_adj_gain * adj + hwControl.dacGains.a1_adj_offset);
 
     mcp49x2Write(&dac_1, ((uint16_t) (data & 0x0FFF)), flags);
+}
+//-----------------------------------------------------------------------------
+void itm3903cHwDac23WriteA2(float value){
+
+    uint16_t flags = MCP49X2_CFG_SET_GA_1 | MCP49X2_CFG_DIS_SHDN;
+
+    uint16_t data = (uint16_t)(hwControl.dacGains.a2_gain * value + hwControl.dacGains.a2_offset);
+
+    mcp49x2Write(&dac_23, ((uint16_t) (data & 0x0FFF)), flags);
+}
+//-----------------------------------------------------------------------------
+void itm3903cHwDac23WriteA3(float value){
+
+    uint16_t flags = MCP49X2_CFG_SET_GA_1 | MCP49X2_CFG_DIS_SHDN | MCP49X2_CFG_WRITE_CH_B;
+
+    uint16_t data = (uint16_t)(hwControl.dacGains.a3_gain * value + hwControl.dacGains.a3_offset);
+
+    mcp49x2Write(&dac_23, ((uint16_t) (data & 0x0FFF)), flags);
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

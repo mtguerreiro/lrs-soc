@@ -635,6 +635,34 @@ typedef enum{
      */
     ITM3903C_HW_ANALOG_IF_SET_DAC_A1_ADJ,
 
+    /**
+     * Command
+     *  -----------------------------------------
+     *  | SET DAC23 A2 (uint32) | VALUE (float) |
+     *  -----------------------------------------
+     * 
+     * Response
+     * No response
+     * 
+     * Notes
+     *  - VALUE is in volts.
+     */
+    ITM3903C_HW_ANALOG_IF_SET_DAC_A2,
+
+    /**
+     * Command
+     *  -----------------------------------------
+     *  | SET DAC23 A3 (uint32) | VALUE (float) |
+     *  -----------------------------------------
+     * 
+     * Response
+     * No response
+     * 
+     * Notes
+     *  - VALUE is in volts.
+     */
+    ITM3903C_HW_ANALOG_IF_SET_DAC_A3,
+    
     ITM3903C_HW_ANALOG_IF_END
 }itm3903cHwAnalogIfCommands_t;
 //=============================================================================

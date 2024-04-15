@@ -1384,6 +1384,8 @@ class AnalogCommands:
         self.get_sampling_freq      = 3
         self.set_dac1_offset        = 4
         self.set_dac1_adj           = 5
+        self.set_dac23_a2           = 6
+        self.set_dac23_a3           = 7
 
 
 class MeasGains:
@@ -1542,6 +1544,40 @@ class AnalogHw:
         
         return self._set_dac1_adj(float(adj))
 
+
+    def set_dac23_a2(self, value):
+        """Sets value of DAC channel a2. `value` is in volts.
+        Parameters
+        ----------
+        value : float
+            Value, in volts.
+        Returns
+        -------
+        tuple
+            Returns a tuple of the form `(status, error)`. If the command was
+            executed successfully, `status` is 0 and `error` is empty.
+            Otherwise, `status` is an error code and `error` is non-empty.
+        """
+
+        return self._set_dac23_a2(float(value))
+
+
+    def set_dac23_a3(self, value):
+        """Sets value of DAC channel a3. `value` is in volts.
+        Parameters
+        ----------
+        value : float
+            Value, in volts.
+        Returns
+        -------
+        tuple
+            Returns a tuple of the form `(status, error)`. If the command was
+            executed successfully, `status` is 0 and `error` is empty.
+            Otherwise, `status` is an error code and `error` is non-empty.
+        """
+
+        return self._set_dac23_a3(float(value))
+
     
     def _set_sampling_status(self, status):
         cmd = self._cmd.set_sampling_status
@@ -1637,6 +1673,38 @@ class AnalogHw:
 
         if status < 0:
             print('Error setting adj of DAC 1. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        return (0,)
+
+
+    def _set_dac23_a2(self, value):
+        cmd = self._cmd.set_dac23_a2
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( list(struct.pack('<f', value)) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting a2 of DAC 23. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        return (0,)
+
+
+    def _set_dac23_a3(self, value):
+        cmd = self._cmd.set_dac23_a3
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( list(struct.pack('<f', value)) )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting a3 of DAC 23. Error code {:}\r\n'.format(status))
             return (-1, status)
 
         return (0,)

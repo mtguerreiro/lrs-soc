@@ -101,6 +101,8 @@ static int32_t itm3903cHwIfSetSamplingFreq(void *in, uint32_t insize, void **out
 static int32_t itm3903cHwIfGetSamplingFreq(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfSetDacA1Offset(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfSetDacA1Adj(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfSetDacA2(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfSetDacA3(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
 //=============================================================================
 
@@ -159,7 +161,9 @@ int32_t itm3903cHwIfInitialize(void){
     rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_GET_SAMPLING_FREQ, itm3903cHwIfGetSamplingFreq);
     rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_DAC_A1_OFFSET, itm3903cHwIfSetDacA1Offset);
     rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_DAC_A1_ADJ, itm3903cHwIfSetDacA1Adj);
-
+    rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_DAC_A2, itm3903cHwIfSetDacA2);
+    rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_DAC_A3, itm3903cHwIfSetDacA3);
+    
     return 0;
 }
 //-----------------------------------------------------------------------------
@@ -659,6 +663,28 @@ static int32_t itm3903cHwIfSetDacA1Adj(void *in, uint32_t insize, void **out, ui
     adj = *( (float *)in );
 
     itm3903cHwDac1WriteAdj(adj);
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfSetDacA2(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    float value;
+
+    value = *( (float *)in );
+
+    itm3903cHwDac23WriteA2(value);
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfSetDacA3(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    float value;
+
+    value = *( (float *)in );
+
+    itm3903cHwDac23WriteA3(value);
 
     return 0;
 }
