@@ -117,12 +117,14 @@ int32_t wzTcpServerRun(uint8_t sn, uint16_t port){
             /* Writes data */
             size = ret;
             ntx = 0;
+            n = 0;
             while( ntx < size ){
                n = send(sn, p, ret);
-               if( n <= 0 ) break;
+               if( n < 0 ) break;
                ntx += n;
+               p += n;
             }
-            if( ntx != n ){
+            if( ntx != size ){
 #if WZ_TCP_SERVER_CFG_DEBUG == 1
                printf("%s (sn %d): Error sending data. Should send %d but sent only %d. Closing socket...\r\n", __func__, sn, size, ntx);
 #endif

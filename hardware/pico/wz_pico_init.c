@@ -9,7 +9,9 @@
 #include "wz_pico_init.h"
 
 #include "stdio.h"
+#include "pico/stdlib.h"
 #include "pico/sync.h"
+#include "pico/unique_id.h"
 
 #include "wiznet/dhcp.h"
 #include "wiznet/socket.h"
@@ -111,17 +113,17 @@ int32_t wzPicoInit(void){
 //-----------------------------------------------------------------------------
 static void wzPicoInitializeCriticalSection(void){
 
-	//critical_section_init(&crit_sec);
+	critical_section_init(&crit_sec);
 }
 //-----------------------------------------------------------------------------
 static void wzPicoCriticalSectionEnter(void){
 
-	//critical_section_enter_blocking(&crit_sec);
+	critical_section_enter_blocking(&crit_sec);
 }
 //-----------------------------------------------------------------------------
 static void wzPicoCriticalSectionExit(void){
 
-	//critical_section_exit(&crit_sec);
+	critical_section_exit(&crit_sec);
 }
 //-----------------------------------------------------------------------------
 static void wzPicoInitW5500(void){
@@ -152,6 +154,18 @@ static void wzPicoInitW5500DHCP(void){
 
 	uint8_t buf[2048];
 	uint32_t dhcpStatus;
+
+	pico_unique_board_id_t id;
+
+	/* We set the MAC as pico's ID */
+	pico_get_unique_board_id(&id);
+
+	gWIZNETINFO.mac[0] = id.id[2];
+	gWIZNETINFO.mac[1] = id.id[3];
+	gWIZNETINFO.mac[2] = id.id[4];
+	gWIZNETINFO.mac[3] = id.id[5];
+	gWIZNETINFO.mac[4] = id.id[6];
+	gWIZNETINFO.mac[5] = id.id[7];
 
 	setSHAR(gWIZNETINFO.mac);
 

@@ -252,6 +252,118 @@ class DigitalHw:
 
         return self._set_voltage_slew_rate(value)
     
+
+    def config_slope_offset(self, channel, a_in, a_out):
+
+        mx = (a_out[1] - a_out[0]) / (a_in[1] - a_in[0])
+        mb = a_out[1] - a_in[1] * mx
+
+        status = self.set_slope(channel, mx)
+        if status[0] < 0:
+            print('Error setting slope of channel {:}. Status: {:}, error {:}'.format(channel, status[0], status[1]))
+            return status
+        
+        status = self.set_offset(channel, mb)
+        if status[0] < 0:
+            print('Error setting offset of channel {:}. Status: {:}, error {:}'.format(channel, status[0], status[1]))
+            return status
+
+        return (0, (mx, mb))
+
+    
+    def setup_supply(self, settings):
+
+        if 'mode' not in settings:
+            print('Cannot run setup if `mode` is not specified.\n\r')
+            return (-1, )
+
+        if (settings['mode'] != 'current') and (settings['mode'] != 'voltage'):
+            print('Cannot run setup. `mode` must be \'voltage\' or \'current\'')
+            return (-1,)
+        
+        print('Setting mode to {:}...'.format(settings['mode']))
+        status = self.set_func_mode(settings['mode'])
+        if( status[0] < 0 ):
+            print('Could not complete setup. Error setting `mode` ({:})'.format(status[1]))
+            return (-1, status[1])
+        else:
+            print('Mode set.\n\r')
+        
+        if 'power_lim' in settings:
+            plim = settings['power_lim']
+            print('Setting power limits to {:} W and {:} W...'.format(plim[0], plim[1]))
+            status_min = self.set_power_min(plim[0])
+            status_max = self.set_power_max(plim[1])
+            if( (status_max[0] < 0) or (status_min[0] < 0) ):
+                print('Error setting power limits... Status: {:} {:}.\n\r'. format(status_min[1], status_max[1]))
+                return ( -1, (status_min[1], status_max[1]) )
+            else:
+                print('Power limits set.\n\r')
+        else:
+            print('Skipping setting power limits...\n\r')
+
+        if ( (settings['mode'] == 'voltage') and ('curr_lim' in settings) ):
+            ilim = settings['curr_lim']
+            print('Setting current limits to {:} A and {:} A...'.format(ilim[0], ilim[1]))
+            status_min = self.set_current_min(ilim[0])
+            status_max = self.set_current_max(ilim[1])
+            if( (status_max[0] < 0) or (status_min[0] < 0) ):
+                print('Error setting current limits... Status: {:} {:}.\n\r'. format(status_min[1], status_max[1]))
+                return ( -1, (status_min[1], status_max[1]) )
+            else:
+                print('Current limits set.\n\r')
+
+        elif ( (settings['mode'] == 'voltage') and ('curr_lim' not in settings) ):
+            print('Skipping setting current limits...\n\r')
+
+        if ( (settings['mode'] == 'current') and ('volt_lim' in settings) ):
+            vlim = settings['volt_lim']
+            print('Setting voltage limits to {:} V and {:} V...'.format(vlim[0], vlim[1]))
+            status_min = self.set_voltage_min(vlim[0])
+            status_max = self.set_voltage_max(vlim[1])
+            if( (status_max[0] < 0) or (status_min[0] < 0) ):
+                print('Error setting voltage limits... Status: {:} {:}.\n\r'. format(status_min[1], status_max[1]))
+                return ( -1, (status_min[1], status_max[1]) )
+            else:
+                print('Voltage limits set.\n\r')
+
+        elif ( (settings['mode'] == 'current') and ('volt_lim' not in settings) ):
+            print('Skipping setting voltage limits...\n\r')
+            
+        if 'analog_1' in settings:
+            ain, aout = settings['analog_1'][0], settings['analog_1'][1]
+            print('Setting analog channel 1: {:}\t{:}...'.format(ain, aout))
+            status = self.config_slope_offset(1, ain, aout)
+            if( status[0] < 0 ):
+                print('Error setting analog channel 1... Status: {:}\n\r'.format(status[1]))
+            else:
+                print('Analog channel 1 set.\n\r')
+
+        if 'analog_2' in settings:
+            ain, aout = settings['analog_2'][0], settings['analog_2'][1]
+            print('Setting analog channel 2: {:}\t{:}...'.format(ain, aout))
+            status = self.config_slope_offset(2, ain, aout)
+            if( status[0] < 0 ):
+                print('Error setting analog channel 2... Status: {:}\n\r'.format(status[1]))
+            else:
+                print('Analog channel 2 set.\n\r')
+        else:
+            print('Skipping setting analog channel 2.\n\r')
+
+        if 'analog_3' in settings:
+            ain, aout = settings['analog_3'][0], settings['analog_3'][1]
+            print('Setting analog channel 3: {:}\t{:}...'.format(ain, aout))
+            status = self.config_slope_offset(3, ain, aout)
+            if( status[0] < 0 ):
+                print('Error setting analog channel 3... Status: {:}\n\r'.format(status[1]))
+            else:
+                print('Analog channel 3 set.\n\r')
+        else:
+            print('Skipping setting analog channel 3.\n\r')
+            
+        print('Setup completed.\n\r')            
+        return (0,)
+
     
     def _get_version(self):
         """
@@ -571,6 +683,10 @@ class DigitalHw:
         
         err_status, err_message = self.get_error()
 
+        if err_status < 0 :
+            print('Error getting supply error. Error code {:}\r\n'.format(err_status))
+            return (-1, err_status)
+        
         if "No error" in err_message:
             return (0, offset)
         else:

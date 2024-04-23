@@ -261,16 +261,6 @@ class ITM3903C:
             return (-1, status)
 
         return self._hw_if.clear_status()
-
-
-    def set_slope(self, channel, slope):
-      
-        return self._hw_if.set_slope( int(channel), float(slope) )
-    
-        
-    def get_slope(self, channel):
-
-        return self._hw_if.get_slope( int(channel) )
         
     # ========================================================================
 
