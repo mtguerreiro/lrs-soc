@@ -10,7 +10,7 @@
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
 /* System clock */
-#define OCP_PICO_CONFIG_CLK_KHZ                     (96 * 1000)
+#define OCP_PICO_CONFIG_CLK_KHZ                     (125 * 1000)
 
 /* Server's port that will be listening for connections */
 #define OCP_PICO_CONFIG_TCP_SERVER_PORT_OCP			8080
@@ -29,7 +29,7 @@
 
 /* RAM for scope data */
 #define OCP_PICO_CONFIG_MEM_TRACE_ADR				(OCP_PICO_CONFIG_MEM_CPU1_TO_CPU0_ADR + OCP_PICO_CONFIG_MEM_CPU1_TO_CPU0_SIZE)
-#define OCP_PICO_CONFIG_MEM_TRACE_SIZE_MAX			(180 * 1024)
+#define OCP_PICO_CONFIG_MEM_TRACE_SIZE_MAX			(200 * 1024)
 
 /* SPI configs */
 #define OCP_PICO_CONFIG_WZ_SPI			            PICO_DEFAULT_SPI_INSTANCE	

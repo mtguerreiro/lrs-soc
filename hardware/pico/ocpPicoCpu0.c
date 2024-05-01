@@ -70,13 +70,13 @@ void ocpPicoCpu0Initialize(void *params){
 //-----------------------------------------------------------------------------
 static int32_t ocpPicoCpu0InitializeHw(void){
 
-    int32_t status;
+    int32_t status = 0;
 
 	sleep_ms(3000);
 
     itm3903cHwInitializeC0();
 	
-    status = wzPicoInit();
+    //status = wzPicoInit(0);
 
     return status;
 }

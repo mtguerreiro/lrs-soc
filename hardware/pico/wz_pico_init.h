@@ -37,13 +37,22 @@
 
 /* Prints debugging info if enabled */
 #define WZ_PICO_INIT_CFG_DBG                1
+
+typedef void (*wzPicoInitLock_t)(void);
+typedef void (*wzPicoInitUnlock_t)(void);
+
+typedef struct wiznetInitConfig_t{
+
+    wzPicoInitLock_t lock;
+    wzPicoInitUnlock_t unlock;
+}wzPicoInitConfig_t;
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-int32_t wzPicoInit(void);
+int32_t wzPicoInit(wzPicoInitConfig_t *config);
 //-----------------------------------------------------------------------------
 //=============================================================================
 

@@ -21,7 +21,8 @@
 //=============================================================================
 /*------------------------------- Prototypes --------------------------------*/
 //=============================================================================
-static void wzPicoInitW5500(void);
+static void wzPicoInitW5500(wzPicoInitLock_t lock, wzPicoInitUnlock_t unlock);
+typedef void (*wzPicoInitUnlock_t)(void);
 static void wzPicoInitW5500DHCP(void);
 static void wzPicoInitTimer(void);
 
@@ -75,7 +76,7 @@ static struct repeating_timer timer;
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-int32_t wzPicoInit(void){
+int32_t wzPicoInit(wzPicoInitConfig_t *config){
 
 	spi_init(WZ_PICO_INIT_CFG_SPI, WZ_PICO_INIT_CFG_SPI_CLK);
 	gpio_set_function(WZ_PICO_INIT_CFG_SPI_SCK_PIN, GPIO_FUNC_SPI);
@@ -97,9 +98,12 @@ int32_t wzPicoInit(void){
 	add_repeating_timer_ms(1000, wzPicoDhcpTimer, NULL, &timer);
 #endif
 
-	wzPicoInitializeCriticalSection();
-
-	wzPicoInitW5500();
+	if( config != 0 ){
+		wzPicoInitW5500(config->lock, config->unlock);
+	}
+	else{
+		wzPicoInitW5500(0, 0);
+	}
 
 	return 0;
 }
@@ -126,9 +130,16 @@ static void wzPicoCriticalSectionExit(void){
 	critical_section_exit(&crit_sec);
 }
 //-----------------------------------------------------------------------------
-static void wzPicoInitW5500(void){
+static void wzPicoInitW5500(wzPicoInitLock_t lock, wzPicoInitUnlock_t unlock){
 
-	reg_wizchip_cris_cbfunc(wzPicoCriticalSectionEnter, wzPicoCriticalSectionExit);
+	if( (lock == 0) && (unlock == 0) ){
+		wzPicoInitializeCriticalSection();
+		reg_wizchip_cris_cbfunc(wzPicoCriticalSectionEnter, wzPicoCriticalSectionExit);
+	}
+	else{
+		reg_wizchip_cris_cbfunc(lock, unlock);
+	}
+
 	reg_wizchip_cs_cbfunc(wzPicoW5500ChipSelect, wzPicoW5500ChipDeselect);
 	reg_wizchip_spi_cbfunc(wzPicoSPIRead, wzPicoSPIWrite);
 	reg_wizchip_spiburst_cbfunc(wzPicoSPIBurstRead, wzPicoSPIBurstWrite);
@@ -152,7 +163,7 @@ static void wzPicoInitW5500(void){
 //-----------------------------------------------------------------------------
 static void wzPicoInitW5500DHCP(void){
 
-	uint8_t buf[2048];
+	uint8_t buf[1024];
 	uint32_t dhcpStatus;
 
 	pico_unique_board_id_t id;
@@ -173,6 +184,11 @@ static void wzPicoInitW5500DHCP(void){
 	reg_dhcp_cbfunc(wzPicoW5500IPAssignCB, wzPicoW5500IPAssignCB, wzPicoW5500IPConflictCB);
 
 	while(1){
+
+#if WZ_PICO_INIT_CFG_DBG == 1
+		printf("Running DHCP...\n\r");
+#endif
+
 		dhcpStatus = DHCP_run();
 
 		if(dhcpStatus == DHCP_IP_LEASED) break;
@@ -210,24 +226,24 @@ static uint8_t wzPicoSPIRead(void){
 
 	uint8_t data;
 
-	spi_read_blocking(spi_default, 0xFF, &data, 1);
+	spi_read_blocking(WZ_PICO_INIT_CFG_SPI, 0xFF, &data, 1);
 
 	return data;
 }
 //-----------------------------------------------------------------------------
 static void wzPicoSPIWrite(uint8_t data){
 
-	spi_write_blocking(spi_default, &data, 1);
+	spi_write_blocking(WZ_PICO_INIT_CFG_SPI, &data, 1);
 }
 //-----------------------------------------------------------------------------
 static void wzPicoSPIBurstRead(uint8_t *data, uint16_t size){
 
-	spi_read_blocking(spi_default, 0xFF, data, size);
+	spi_read_blocking(WZ_PICO_INIT_CFG_SPI, 0xFF, data, size);
 }
 //-----------------------------------------------------------------------------
 static void wzPicoSPIBurstWrite(uint8_t *data, uint16_t size){
 
-	spi_write_blocking(spi_default, data, size);
+	spi_write_blocking(WZ_PICO_INIT_CFG_SPI, data, size);
 }
 //-----------------------------------------------------------------------------
 static bool wzPicoDhcpTimer(struct repeating_timer *t){
