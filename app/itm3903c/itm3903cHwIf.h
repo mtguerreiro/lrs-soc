@@ -662,7 +662,53 @@ typedef enum{
      *  - VALUE is in volts.
      */
     ITM3903C_HW_ANALOG_IF_SET_DAC_A3,
-    
+
+    /**
+     * Command
+     *  -------------------------------------------
+     *  | SET CAL DATA (uint32) | DATA (8 floats) |
+     *  -------------------------------------------
+     * 
+     * Response
+     * No response
+     * 
+     * Notes
+     *  - Calibration data is expected in the following order:
+     *    - A1_ADJ_GAIN
+     *    - A1_ADJ_OFFSET
+     *    - A1_OFFSET_GAIN
+     *    - A1_OFFSET_OFFSET
+     *    - A2_GAIN
+     *    - A2_OFFSET
+     *    - A3_GAIN
+     *    - A3_OFFSET
+     */
+    ITM3903C_HW_ANALOG_IF_SET_DAC_CAL_DATA,
+
+    /**
+     * Command
+     *  -------------------------------------------
+     *  | GET CAL DATA (uint32) | DATA (8 floats) |
+     *  -------------------------------------------
+     * 
+     * Response
+     *  -----------------------
+     *  | CAL DATA (8 floats) |
+     *  -----------------------
+     * 
+     * Notes
+     *  - Calibration data is returned in the following order:
+     *    - A1_ADJ_GAIN
+     *    - A1_ADJ_OFFSET
+     *    - A1_OFFSET_GAIN
+     *    - A1_OFFSET_OFFSET
+     *    - A2_GAIN
+     *    - A2_OFFSET
+     *    - A3_GAIN
+     *    - A3_OFFSET
+     */
+    ITM3903C_HW_ANALOG_IF_GET_DAC_CAL_DATA,
+
     ITM3903C_HW_ANALOG_IF_END
 }itm3903cHwAnalogIfCommands_t;
 //=============================================================================

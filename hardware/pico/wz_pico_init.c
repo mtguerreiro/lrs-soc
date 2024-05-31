@@ -171,6 +171,8 @@ static void wzPicoInitW5500DHCP(void){
 	/* We set the MAC as pico's ID */
 	pico_get_unique_board_id(&id);
 
+	printf("My unique id is %x %x %x %x %x %x %x %x\r\n", id.id[0], id.id[1], id.id[2], id.id[3], id.id[4], id.id[5], id.id[6], id.id[7]);
+
 	gWIZNETINFO.mac[0] = id.id[2];
 	gWIZNETINFO.mac[1] = id.id[3];
 	gWIZNETINFO.mac[2] = id.id[4];

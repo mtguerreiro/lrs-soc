@@ -13,7 +13,7 @@ import scipy.signal
 
 # --- Input ---
 port = 8080
-host = '131.246.75.132'
+host = '131.246.75.233'
 
 settings = {'host':host, 'port':port}
 
@@ -24,3 +24,9 @@ trace = lrssoc.itm3903c.itm3903c_trace.Trace(hw._ocp_if, 0)
 hw_if = hw._hw_if
 
 #status, (traces, data) = trace.read()
+
+def cal(x, y):
+
+    a = np.polyfit(x, y, 1)
+
+    return (a[0], a[1])

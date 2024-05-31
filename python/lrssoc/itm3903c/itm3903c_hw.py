@@ -1502,6 +1502,8 @@ class AnalogCommands:
         self.set_dac1_adj           = 5
         self.set_dac23_a2           = 6
         self.set_dac23_a3           = 7
+        self.set_dac_cal_data       = 8
+        self.get_dac_cal_data       = 9
 
 
 class MeasGains:
@@ -1530,6 +1532,48 @@ class MeasGains:
         return data
 
 
+class DacCalData:
+
+    def __init__(self):
+        pass
+
+    def decode(self, data):
+        fmt = '<' + 'f' * 8
+        data = struct.unpack(fmt, data)
+
+        gains = {
+            'dac1_adj_gain':        data[0],
+            'dac1_adj_offset':      data[1],
+
+            'dac1_offset_gain':     data[2],
+            'dac1_offset_offset':   data[3],
+
+            'dac2_gain':            data[4],
+            'dac2_offset':          data[5],
+
+            'dac3_gain':            data[6],
+            'dac3_offset':          data[7],
+            }
+
+        return gains
+
+    def encode(self, gains):
+        data = [
+            gains['dac1_adj_gain'],
+            gains['dac1_adj_offset'],
+            gains['dac1_offset_gain'],
+            gains['dac1_offset_offset'],
+            gains['dac2_gain'],
+            gains['dac2_offset'],
+            gains['dac3_gain'],
+            gains['dac3_offset'],
+                ]
+        
+        fmt = '<' + 'f' * 8
+        data = struct.pack(fmt, *data)
+
+        return data
+    
 class AnalogHw:
     """
 
@@ -1694,6 +1738,41 @@ class AnalogHw:
 
         return self._set_dac23_a3(float(value))
 
+
+    def set_dac_cal_data(self, data):
+        """Sets the calibration data for the DAC channels.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        tuple
+            Returns a tuple of the form `(status, error)`. If the command was
+            executed successfully, `status` is 0 and `error` is empty.
+            Otherwise, `status` is an error code and `error` is non-empty.
+        """
+
+        return self._set_dac_cal_data(data)
+    
+
+    def get_dac_cal_data(self):
+        """Gets the calibration data for the DAC channels.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        tuple
+            Returns a tuple of the form `(status, data)`. If the command was
+            executed successfully, `status` is 0 and `data` is the calibration
+            data of the board. Otherwise, `status` is negative and `error` is
+            an error code.
+        """
+
+        return self._get_dac_cal_data()
+
     
     def _set_sampling_status(self, status):
         cmd = self._cmd.set_sampling_status
@@ -1824,3 +1903,38 @@ class AnalogHw:
             return (-1, status)
 
         return (0,)
+
+
+    def _set_dac_cal_data(self, data):
+        cmd = self._cmd.set_dac_cal_data
+
+        data_b = DacCalData().encode(data)
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( data_b )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting dac cal data. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        return (0,)
+
+
+    def _get_dac_cal_data(self):
+        cmd = self._cmd.get_dac_cal_data
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, data_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting dac cal data. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        data = DacCalData().decode(data_b)
+        
+        return (0, data)

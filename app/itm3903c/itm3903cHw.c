@@ -82,9 +82,9 @@ static itm3903cHwControl_t hwControl = {
     .status = 0,
     .ts = 1000,
     .samplingEnabled = false,
+    .dacGains.a1_adj_gain = 1343.33223761f,
     .dacGains.a1_offset_gain = 576.91514275f,
     .dacGains.a1_offset_offset = -3.54150406f,
-    .dacGains.a1_adj_gain = 1343.33223761f,
     .dacGains.a1_adj_offset = -9.3829024f,
     .dacGains.a2_gain = 404.40256795f,
     .dacGains.a2_offset = -9.42171167f,
@@ -762,6 +762,38 @@ void itm3903cHwDac23WriteA3(float value){
     uint16_t data = (uint16_t)(hwControl.dacGains.a3_gain * value + hwControl.dacGains.a3_offset);
 
     mcp49x2Write(&dac_23, ((uint16_t) (data & 0x0FFF)), flags);
+}
+//-----------------------------------------------------------------------------
+void itm3903cHwSetDacCalData(float *data){
+
+    hwControl.dacGains.a1_adj_gain = *data++;
+    hwControl.dacGains.a1_adj_offset = *data++;
+
+    hwControl.dacGains.a1_offset_gain = *data++;
+    hwControl.dacGains.a1_offset_offset = *data++;
+
+    hwControl.dacGains.a2_gain = *data++;
+    hwControl.dacGains.a2_offset = *data++;
+
+    hwControl.dacGains.a3_gain = *data++;
+    hwControl.dacGains.a3_offset = *data++;
+}
+//-----------------------------------------------------------------------------
+uint32_t itm3903cHwGetDacCalData(float *data){
+
+    *data++ = hwControl.dacGains.a1_adj_gain;
+    *data++ = hwControl.dacGains.a1_adj_offset;
+
+    *data++ = hwControl.dacGains.a1_offset_gain;
+    *data++ = hwControl.dacGains.a1_offset_offset;
+
+    *data++ = hwControl.dacGains.a2_gain;
+    *data++ = hwControl.dacGains.a2_offset;
+
+    *data++ = hwControl.dacGains.a3_gain;
+    *data++ = hwControl.dacGains.a3_offset;
+
+    return (8 * 4);
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

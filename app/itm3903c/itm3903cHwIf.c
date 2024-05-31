@@ -104,6 +104,8 @@ static int32_t itm3903cHwIfSetDacA1Adj(void *in, uint32_t insize, void **out, ui
 static int32_t itm3903cHwIfSetDacA2(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfSetDacA3(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
+static int32_t itm3903cHwIfSetDacCalData(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfGetDacCalData(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //=============================================================================
 
 //=============================================================================
@@ -163,7 +165,10 @@ int32_t itm3903cHwIfInitialize(void){
     rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_DAC_A1_ADJ, itm3903cHwIfSetDacA1Adj);
     rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_DAC_A2, itm3903cHwIfSetDacA2);
     rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_DAC_A3, itm3903cHwIfSetDacA3);
-    
+
+    rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_DAC_CAL_DATA, itm3903cHwIfSetDacCalData);
+    rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_GET_DAC_CAL_DATA, itm3903cHwIfGetDacCalData);
+
     return 0;
 }
 //-----------------------------------------------------------------------------
@@ -687,6 +692,25 @@ static int32_t itm3903cHwIfSetDacA3(void *in, uint32_t insize, void **out, uint3
     itm3903cHwDac23WriteA3(value);
 
     return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfSetDacCalData(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    float *data = (float *) in;
+
+    itm3903cHwSetDacCalData(data);
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfGetDacCalData(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    float *data = (float *) *out;
+    uint32_t calsize;
+
+    calsize = itm3903cHwGetDacCalData(data);
+
+    return calsize;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
