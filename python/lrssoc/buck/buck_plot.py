@@ -24,7 +24,7 @@ class Plot:
     """
     def __init__(self):
 
-        plt.style.use('seaborn-bright')
+        #plt.style.use('seaborn-bright')
         matplotlib.rcParams['mathtext.fontset'] = 'cm'
         matplotlib.rcParams['font.family'] = 'Times New Roman'
         matplotlib.rcParams.update({'font.size': 12})

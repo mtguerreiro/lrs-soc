@@ -150,7 +150,7 @@ int32_t boostControlEnergycint_rhoRun(void *meas, void *outputs){
     boostConfigControl_t *o = (boostConfigControl_t *)outputs;
 
 //values from sensors
-    i_l = m->i_l_avg;
+    i_l = m->i_l;
     i_o = m->i_o;
     v_i = m->v_dc_in;
     v_o = m->v_out;

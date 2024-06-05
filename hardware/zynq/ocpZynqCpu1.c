@@ -128,10 +128,10 @@ static char trace1Names[OCP_ZYNQ_C1_CONFIG_TRACE_0_NAME_LEN];
 static size_t trace1Data[OCP_ZYNQ_C1_CONFIG_TRACE_0_MAX_SIGNALS];
 
 static float bInputs1[OCP_ZYNQ_C1_CONFIG_INPUT_BUF_SIZE];
-static float bOutputs1[OCP_ZYNQ_C1_CONFIG_OUTPUT_BUG_SIZE];
+static float bOutputs1[OCP_ZYNQ_C1_CONFIG_OUTPUT_BUF_SIZE];
 
 static float bInputs2[OCP_ZYNQ_C1_CONFIG_INPUT_BUF_SIZE];
-static float bOutputs2[OCP_ZYNQ_C1_CONFIG_OUTPUT_BUG_SIZE];
+static float bOutputs2[OCP_ZYNQ_C1_CONFIG_OUTPUT_BUF_SIZE];
 
 static float texec_buck = 0.0f;
 
@@ -180,7 +180,7 @@ static int32_t ocpZynqCpu1InitializeHw(void *intcInst){
 
     buckHwConfig.intc = intcInst;
     buckHwConfig.irqhandle = ocpZynqCpu1AdcIrq3;
-    buckHwInitialize(&buckHwConfig);
+    //buckHwInitialize(&buckHwConfig);
 
     /* Initialize timer for benchmarking */
     InitBenchmarking();
@@ -305,7 +305,6 @@ static int32_t ocpZynqCpu1InitializeTracesMeasBoost(void){
     /* Other signals to add */
     //references = (boostConfigReferences_t *)bOutputs;
     //ocpTraceAddSignal(OCP_TRACE_1, &references->v_o, "Reference");
-    ocpTraceAddSignal(OCP_TRACE_1, &texec_boost, "Exec. time");
     
     return 0;
 }
@@ -532,42 +531,36 @@ static int32_t ocpZynqCpu1InitializeInterfaceBuck(void){
 //-----------------------------------------------------------------------------
 void ocpZynqCpu1AdcIrq(void *callbackRef){
 
-	static uint32_t start_ticks = 0;
+	static uint32_t ticks = 0;
 
-    tperiod = TicksToS(start_ticks - GetTicks()) / 1e-6;
-
-    start_ticks = GetTicks();
+    ticks = GetTicks();
 
     ocpCSRun(OCP_CS_1);
     ocpTraceSave(OCP_TRACE_1);
 
     ticks = ticks - GetTicks();
-    texec_boost = TicksToS(ticks) / 1e-6;
+    texec_boost_sw = TicksToS(ticks) / 1e-6;
 }
 //-----------------------------------------------------------------------------
 void ocpZynqCpu1AdcIrq2(void *callbackRef){
-	//code for second interruption
 
+	static uint32_t ticks = 0;
 
-	static uint32_t start_ticks2 = 0;
-	tperiod2 = TicksToS(start_ticks2 - GetTicks()) / 1e-6;
-	start_ticks2 = GetTicks();
-
+	ticks = GetTicks();
 
 	uint32_t currentController = get_active_controller();
-
 
 	if (currentController == 5){
 
 		boostConfigMeasurements_t *meas;
 		boostConfigControl_t *outputs;
-		meas = (boostConfigMeasurements_t *)bInputs;
-		outputs = (boostConfigControl_t *)bOutputs;
+		meas = (boostConfigMeasurements_t *)bInputs1;
+		outputs = (boostConfigControl_t *)bOutputs1;
 
 		boostControlEnergycint_rhoRun(meas, outputs);
 	}
 
-	texec2 = TicksToS(start_ticks2 - GetTicks()) / 1e-6;
+	texec_boost_ctl = TicksToS(ticks - GetTicks()) / 1e-6;
 
 }
 //-----------------------------------------------------------------------------

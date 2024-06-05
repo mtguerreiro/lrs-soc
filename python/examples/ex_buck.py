@@ -14,7 +14,7 @@ import scipy.signal
 # --- Input ---
 port = 8080
 
-host = '131.246.75.145'
+host = '131.246.75.147'
 settings = {'host':host, 'port':port}
 
 buck = lrssoc.buck.buck.Buck(1, 'ethernet', settings, tr_id=1)
