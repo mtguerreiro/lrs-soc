@@ -20,6 +20,8 @@
 #include "boostControlStartup.h"
 #include "boostControlEnergyc.h"
 #include "boostControlEnergycint.h"
+#include "boostControlEnergycMPC.h"
+#include "boostControlLinearization.h"
 
 //=============================================================================
 
@@ -75,7 +77,10 @@ static int32_t boostControllerInterfaceReset(void *in, uint32_t insize, void **o
 static int32_t boostControllerInterfaceSetReferences(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t boostControllerInterfaceGetReferences(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //=============================================================================
-
+// function to obtain value of controllers.active
+uint32_t get_active_controller(void) {
+    return controllers.active;
+}
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
@@ -168,6 +173,19 @@ static void boostControllerInitializeControllers(void){
     controllers.getParams[BOOST_CONTROLLER_ENERGYCINT] = boostControlEnergycintGetParams;
     controllers.run[BOOST_CONTROLLER_ENERGYCINT] = boostControlEnergycintRun;
     controllers.reset[BOOST_CONTROLLER_ENERGYCINT] = boostControlEnergycintReset;
+
+
+    controllers.initialize[BOOST_CONTROLLER_ENERGYCMPC] = boostControlEnergycMPCInitialize;
+    controllers.setParams[BOOST_CONTROLLER_ENERGYCMPC] = boostControlEnergycMPCSetParams;
+    controllers.getParams[BOOST_CONTROLLER_ENERGYCMPC] = boostControlEnergycMPCGetParams;
+    controllers.run[BOOST_CONTROLLER_ENERGYCMPC] = boostControlEnergycMPCRun;
+    controllers.reset[BOOST_CONTROLLER_ENERGYCMPC] = boostControlEnergycMPCReset;
+
+    controllers.initialize[BOOST_CONTROLLER_LINEARIZATION] = boostControlLinearizationInitialize;
+    controllers.setParams[BOOST_CONTROLLER_LINEARIZATION] = boostControlLinearizationSetParams;
+    controllers.getParams[BOOST_CONTROLLER_LINEARIZATION] = boostControlLinearizationGetParams;
+    controllers.run[BOOST_CONTROLLER_LINEARIZATION] = boostControlLinearizationRun;
+    controllers.reset[BOOST_CONTROLLER_LINEARIZATION] = boostControlLinearizationReset;
 
     /* Initializes all registered controllers */
     for(k = 0; k < BOOST_CONTROLLER_END; k++){

@@ -479,6 +479,97 @@ typedef enum{
 	     *  -------------------------------
 	     */
 	    BOOST_HW_IF_GET_PWM_INV,
+		   /**
+		     * Command
+		     *  -------------------------------------------------------
+		     *  | SET ADC COMPARATOR RESET (uint32) | ENABLE (uint32) |
+		     *  -------------------------------------------------------
+		     *
+		     * Response
+		     * No response
+		     *
+		     * Notes
+		     * - ENABLE should be either 0 or 1. A value of 1 enables generation of an
+		     *   interrupt signal, and a value of 0 disables it.
+		     */
+		    BOOST_HW_IF_SET_ADC_COMP_RESET,
+
+		    /**
+		     * Command
+		     *  -------------------------------------
+		     *  | GET ADC COMPARATOR RESET (uint32) |
+		     *  -------------------------------------
+		     *
+		     * Response
+		     *  -------------------
+		     *  | ENABLE (uint32) |
+		     *  -------------------
+		     */
+		    BOOST_HW_IF_GET_ADC_COMP_RESET,
+
+			/**
+			 * Command
+			 *  -------------------------------------------------------
+			 *  | SET ADC COMPARATOR RESET (uint32) | ENABLE (uint32) |
+			 *  -------------------------------------------------------
+			 *
+			 * Response
+			 * No response
+			 *
+			 * Notes
+			 * - ENABLE should be a 32-bit value where each bit enables one protection comparator of ADC channels.
+			 *  A value of 1 enables generation of an interrupt signal  (shunt trip) if protection limit is violated, and a value of 0 disables it.
+			 *  Although the value to be introduced is a 32-bit value, the bits taken in consideration are defined by the
+			 *  number of channels in the ADC. Currently there are 16 channels but only 6 channels are being used so this
+			 *  value should be 0x3F (only the 6 LSB set).
+			 */
+
+			BOOST_HW_IF_SET_ADC_COMP_ENABLE,
+		    /**
+		     * Command
+		     *  -------------------------------------
+		     *  | GET ADC COMPARATOR RESET (uint32) |
+		     *  -------------------------------------
+		     *
+		     * Response
+		     *  -------------------
+		     *  | ENABLE (uint32) |
+		     *  -------------------
+		     */
+			BOOST_HW_IF_GET_ADC_COMP_ENABLE,
+		    /**
+		     * Command
+		     *  -------------------------------------------------------
+		     *  | SET ADC DONE INT FACTOR (uint8) | FACTOR (uint8) |
+		     *  -------------------------------------------------------
+		     *
+		     * Response
+		     * No response
+		     *
+		     * Notes
+		     * - FACTOR is written for second interruption which is produced every FACTOR times
+		     * the first interruption is produced.
+		     *
+		     *
+		     */
+		    BOOST_HW_IF_SET_ADC_DONE_INT_FACTOR,
+
+		    /**
+		     * Command
+		     *  ----------------------------------
+		     *  | GET ADC DONE INT FACTOR (uint32) |
+		     *  ----------------------------------
+		     *
+		     * Response
+		     *  ----------------------
+		     *  | FACTOR (uint8) |
+		     *  ----------------------
+		     *
+		     * Notes
+		     * - FACTOR for second interruption which is produced every FACTOR times
+		     * the first interruption is produced.
+		     */
+		    BOOST_HW_IF_GET_ADC_DONE_INT_FACTOR,
 
 
 

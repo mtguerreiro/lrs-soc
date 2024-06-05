@@ -20,6 +20,8 @@ typedef enum{
     BOOST_CONTROLLER_STARTUP,
 	BOOST_CONTROLLER_ENERGYC,	  //added for new controller
 	BOOST_CONTROLLER_ENERGYCINT,  //added for new controller
+	BOOST_CONTROLLER_ENERGYCMPC,  //added for new controller
+	BOOST_CONTROLLER_LINEARIZATION, //added for new controller
 	BOOST_CONTROLLER_END
 }boostControllers_t;
 
@@ -59,6 +61,7 @@ int32_t boostControllerRun(void *meas, int32_t nmeas, void *outputs, int32_t nma
 //-----------------------------------------------------------------------------
 int32_t boostControllerStatus(void);
 //-----------------------------------------------------------------------------
+uint32_t get_active_controller(void);
 //=============================================================================
 
 #endif /* BOOST_CONTROLLER_H_ */

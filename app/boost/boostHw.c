@@ -27,9 +27,10 @@
 #define BOOST_HW_CONFIG_PWM_FREQ_HZ          ((uint32_t) 100000 )
 #define BOOST_HW_CONFIG_PWM_DEAD_TIME_NS     ((float) 200e-9 )
 #define BOOST_HW_CONFIG_PWM_BASE              XPAR_AXI_PWM_0_S00_AXI_BASEADDR //XPAR_LRSSOC_BD_AXI_PWM_1_0_BASEADDR
-#define BOOST_HW_CONFIG_ADC_BASE              XPAR_ADC_PSCTL_0_S00_AXI_BASEADDR
+#define BOOST_HW_CONFIG_ADC_BASE              XPAR_ADC_PSCTL_V2_0_0_BASEADDR //XPAR_ADC_PSCTL_0_S00_AXI_BASEADDR
 
 #define BOOST_HW_CONFIG_IRQ_PL_CPU1           ZYNQ_CONFIG_IRQ_PL_TO_CPU1
+#define BOOST_HW_CONFIG_IRQ2_PL_CPU1          ZYNQ_CONFIG_IRQ2_PL_TO_CPU1
 #define BOOST_HW_CONFIG_ADC_BUFFER            ZYNQ_CONFIG_MEM_PL_TO_CPU1_ADR
 
 #define BOOST_HW_CONFIG_GPIO_ID               XPAR_AXI_GPIO_0_DEVICE_ID
@@ -44,6 +45,30 @@
 /* PWM peripheral clock, in Hz */
 #define BOOST_HW_PWM_CLK                      100000000
 #define BOOST_HW_ADC_CLK                      100000000
+
+//enabling adc protections
+#define BOOST_HW_CONFIG_ADC_COMP_ENABLE 	 0x3F //32bits value with only 6 LSB set
+
+//protections
+#define BOOST_HW_CONFIG_ADC_LIMIT0           0x0E920000  //30V - 0V
+#define BOOST_HW_CONFIG_ADC_LIMIT1           0x09A10000  //30V - 0V
+#define BOOST_HW_CONFIG_ADC_LIMIT2           0x09B50000  //30V - 0V
+#define BOOST_HW_CONFIG_ADC_LIMIT3           0x09960678  //10A - 10V
+#define BOOST_HW_CONFIG_ADC_LIMIT4           0x09960678  //10A - 10V
+#define BOOST_HW_CONFIG_ADC_LIMIT5           0x0B7C04C4  //10A - 10V
+
+//not (yet) used
+#define BOOST_HW_CONFIG_ADC_LIMIT6           0x00000000
+#define BOOST_HW_CONFIG_ADC_LIMIT7           0x00000000
+#define BOOST_HW_CONFIG_ADC_LIMIT8           0x00000000
+#define BOOST_HW_CONFIG_ADC_LIMIT9           0x00000000
+#define BOOST_HW_CONFIG_ADC_LIMIT10          0x00000000
+#define BOOST_HW_CONFIG_ADC_LIMIT11          0x00000000
+#define BOOST_HW_CONFIG_ADC_LIMIT12          0x00000000
+#define BOOST_HW_CONFIG_ADC_LIMIT13          0x00000000
+#define BOOST_HW_CONFIG_ADC_LIMIT14          0x00000000
+#define BOOST_HW_CONFIG_ADC_LIMIT15          0x00000000
+
 
 typedef struct{
 
@@ -66,7 +91,7 @@ typedef struct{
 //=============================================================================
 /*-------------------------------- Prototypes -------------------------------*/
 //=============================================================================
-static void boostHwInitializeAdc(void *intc, boostHwAdcIrqHandle_t irqhandle);
+static void boostHwInitializeAdc(void *intc, boostHwAdcIrqHandle_t irqhandle, boostHwAdcIrqHandle_t irqhandle2);
 static void boostHwInitializePwm(void);
 static void boostHwInitializeGpio(void);
 static void boostHwInitializeMeasGains(void);
@@ -85,7 +110,7 @@ static float i_i_filt = 0.0f, i_1_filt = 0.0f, i_o_filt = 0.0f, i_2_filt = 0.0f;
 //-----------------------------------------------------------------------------
 int32_t boostHwInitialize(boostHwInitConfig_t *config){
 
-    boostHwInitializeAdc(config->intc, config->irqhandle);
+    boostHwInitializeAdc(config->intc, config->irqhandle, config->irqhandle2);
     boostHwInitializePwm();
     boostHwInitializeGpio();
     boostHwInitializeMeasGains();
@@ -237,6 +262,33 @@ uint32_t boostHwGetAdcInterruptEnable(void){
     return zynqAxiAdcInterruptEnableRead(BOOST_HW_CONFIG_ADC_BASE);
 }
 //-----------------------------------------------------------------------------
+void boostHwSetAdcCompReset(uint32_t enable){
+
+    zynqAxiAdcCompResetWrite(BOOST_HW_CONFIG_ADC_BASE, enable);
+}
+//-----------------------------------------------------------------------------
+uint32_t boostHwGetAdcCompReset(void){
+
+    return zynqAxiAdcCompResetRead(BOOST_HW_CONFIG_ADC_BASE);
+}
+
+//-----------------------------------------------------------------------------
+void boostHwSetAdcDoneIntFactor(uint8_t factor){
+
+
+
+    zynqAxiAdcDoneIntFactorWrite(BOOST_HW_CONFIG_ADC_BASE, factor);
+}
+//-----------------------------------------------------------------------------
+uint8_t boostHwGetAdcDoneIntFactor(void){
+
+    uint8_t factor;
+
+    factor = zynqAxiAdcDoneIntFactorRead(BOOST_HW_CONFIG_ADC_BASE);
+
+    return factor;
+}
+//-----------------------------------------------------------------------------
 void boostHwSetAdcSpiFreq(uint32_t freq){
 
     uint32_t clkdiv;
@@ -257,6 +309,20 @@ uint32_t boostHwGetAdcSpiFreq(void){
     return freq;
 }
 //-----------------------------------------------------------------------------
+void boostHwSetAdcCompEnable(uint32_t enable){
+
+    zynqAxiAdcCompEnableWrite(BOOST_HW_CONFIG_ADC_BASE, enable);
+}
+//-----------------------------------------------------------------------------
+uint32_t boostHwGetAdcCompEnable(void){
+
+    return zynqAxiAdcCompEnableRead(BOOST_HW_CONFIG_ADC_BASE);
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 int32_t boostHwGetMeasurements(void *meas){
 
     boostConfigMeasurements_t *dst;
@@ -267,6 +333,14 @@ int32_t boostHwGetMeasurements(void *meas){
 
     /* Measurements */
 
+    dst->i_o =  hwControl.gains.i_o_gain * ((float)(*src++)) + hwControl.gains.i_o_ofs;
+    dst->i_l =  hwControl.gains.i_l_gain * ((float)(*src++)) + hwControl.gains.i_l_ofs;
+    dst->v_dc_in = hwControl.gains.v_dc_in_gain * ((float)(*src++)) + hwControl.gains.v_dc_in_ofs;
+    src++; //v_in measuring not used
+    dst->v_dc_out = hwControl.gains.v_dc_out_gain * ((float)(*src++)) + hwControl.gains.v_dc_out_ofs;
+    dst->v_out  = hwControl.gains.v_out_gain * ((float)(*src++)) + hwControl.gains.v_out_ofs;
+
+ /*
        dst->v_dc_in = hwControl.gains.v_dc_in_gain * ((float)(*src++)) + hwControl.gains.v_dc_in_ofs;
        dst->v_dc_out = hwControl.gains.v_dc_out_gain * ((float)(*src++)) + hwControl.gains.v_dc_out_ofs;
        dst->v_out  = hwControl.gains.v_out_gain * ((float)(*src++)) + hwControl.gains.v_out_ofs;
@@ -274,7 +348,7 @@ int32_t boostHwGetMeasurements(void *meas){
        dst->i_l =  hwControl.gains.i_l_gain * ((float)(*src++)) + hwControl.gains.i_l_ofs;
        dst->i_l_avg =  hwControl.gains.i_l_avg_gain * ((float)(*src++)) + hwControl.gains.i_l_avg_ofs;
        dst->i_o =  hwControl.gains.i_o_gain * ((float)(*src++)) + hwControl.gains.i_o_ofs;
-
+*/
 
 
     /* Protection */
@@ -327,7 +401,7 @@ void boostHwControllerDisable(void){
 void boostHwControllerEnable(void){
 
     boostHwSetPwmOutputEnable(1);
-    //boostHwSetPwmInv(1); starts as pwm inverted output
+
 }
 //-----------------------------------------------------------------------------
 void boostHwSetInputRelay(uint32_t state){
@@ -413,7 +487,7 @@ void boostHwShutDown(void){
 /*----------------------------- Static functions ----------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-static void boostHwInitializeAdc(void *intc, boostHwAdcIrqHandle_t irqhandle){
+static void boostHwInitializeAdc(void *intc, boostHwAdcIrqHandle_t irqhandle, boostHwAdcIrqHandle_t irqhandle2){
 
     uint32_t clkdiv;
 
@@ -428,8 +502,36 @@ static void boostHwInitializeAdc(void *intc, boostHwAdcIrqHandle_t irqhandle){
     zynqAxiAdcBufferAddressWrite(BOOST_HW_CONFIG_ADC_BASE, BOOST_HW_CONFIG_ADC_BUFFER);
 
     zynqAxiAdcInterruptConfig(intc, BOOST_HW_CONFIG_IRQ_PL_CPU1, irqhandle);
+    zynqAxiAdcInterrupt2Config(intc, BOOST_HW_CONFIG_IRQ2_PL_CPU1, irqhandle2);
 
     zynqAxiAdcEnableWrite(BOOST_HW_CONFIG_ADC_BASE, 1);
+
+    //check these
+/*
+    zynqAxiAdcCompResetWrite(BOOST_HW_CONFIG_ADC_BASE, 1);
+    zynqAxiAdcCompEnableWrite(BOOST_HW_CONFIG_ADC_BASE, BOOST_HW_CONFIG_ADC_COMP_ENABLE);
+    zynqAxiAdcCompResetWrite(BOOST_HW_CONFIG_ADC_BASE, 0);
+
+    zynqAxiAdcLimit0Write(BOOST_HW_CONFIG_ADC_BASE, BOOST_HW_CONFIG_ADC_LIMIT0);
+    zynqAxiAdcLimit1Write(BOOST_HW_CONFIG_ADC_BASE, BOOST_HW_CONFIG_ADC_LIMIT1);
+    zynqAxiAdcLimit2Write(BOOST_HW_CONFIG_ADC_BASE, BOOST_HW_CONFIG_ADC_LIMIT2);
+    zynqAxiAdcLimit3Write(BOOST_HW_CONFIG_ADC_BASE, BOOST_HW_CONFIG_ADC_LIMIT3);
+    zynqAxiAdcLimit4Write(BOOST_HW_CONFIG_ADC_BASE, BOOST_HW_CONFIG_ADC_LIMIT4);
+    zynqAxiAdcLimit5Write(BOOST_HW_CONFIG_ADC_BASE, BOOST_HW_CONFIG_ADC_LIMIT5);
+
+
+    zynqAxiAdcLimit6Write(BOOST_HW_CONFIG_ADC_BASE, BOOST_HW_CONFIG_ADC_LIMIT6);
+    zynqAxiAdcLimit7Write(BOOST_HW_CONFIG_ADC_BASE, BOOST_HW_CONFIG_ADC_LIMIT7);
+    zynqAxiAdcLimit8Write(BOOST_HW_CONFIG_ADC_BASE, BOOST_HW_CONFIG_ADC_LIMIT8);
+    zynqAxiAdcLimit9Write(BOOST_HW_CONFIG_ADC_BASE, BOOST_HW_CONFIG_ADC_LIMIT9);
+    zynqAxiAdcLimit10Write(BOOST_HW_CONFIG_ADC_BASE, BOOST_HW_CONFIG_ADC_LIMIT10);
+    zynqAxiAdcLimit11Write(BOOST_HW_CONFIG_ADC_BASE, BOOST_HW_CONFIG_ADC_LIMIT11);
+    zynqAxiAdcLimit12Write(BOOST_HW_CONFIG_ADC_BASE, BOOST_HW_CONFIG_ADC_LIMIT12);
+    zynqAxiAdcLimit13Write(BOOST_HW_CONFIG_ADC_BASE, BOOST_HW_CONFIG_ADC_LIMIT13);
+    zynqAxiAdcLimit14Write(BOOST_HW_CONFIG_ADC_BASE, BOOST_HW_CONFIG_ADC_LIMIT14);
+    zynqAxiAdcLimit15Write(BOOST_HW_CONFIG_ADC_BASE, BOOST_HW_CONFIG_ADC_LIMIT15);
+*/
+    //--------------------------------------------------------------------------
 }
 //-----------------------------------------------------------------------------
 static void boostHwInitializePwm(void){

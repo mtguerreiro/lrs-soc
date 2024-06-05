@@ -24,7 +24,7 @@ typedef struct{
 
     void *intc;
     boostHwAdcIrqHandle_t irqhandle;
-
+    boostHwAdcIrqHandle_t irqhandle2;
 }boostHwInitConfig_t;
 
 //=============================================================================
@@ -78,6 +78,10 @@ uint32_t boostHwGetAdcManualTrigger(void);
 void boostHwSetAdcInterruptEnable(uint32_t enable);
 //-----------------------------------------------------------------------------
 uint32_t boostHwGetAdcInterruptEnable(void);
+//-----------------------------------------------------------------------------
+void boostHwSetAdcDoneIntFactor(uint8_t factor);
+//-----------------------------------------------------------------------------
+uint8_t boostHwGetAdcDoneIntFactor(void);
 //-----------------------------------------------------------------------------
 void boostHwSetAdcSpiFreq(uint32_t freq);
 //-----------------------------------------------------------------------------

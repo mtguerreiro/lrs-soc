@@ -18,7 +18,7 @@ import scipy.signal
 # --- Input ---
 port = 8080
 
-host = '131.246.75.192'
+host = '131.246.75.145' #131.246.75.192
 settings = {'host':host, 'port':port}
 
 boost = lrssoc.boost.boost.Boost(0, 'ethernet', settings, 0)
@@ -28,6 +28,7 @@ plot = lrssoc.boost.boost_plot.Plot()
 #status, (traces, data, t) = boost.read_trace()
 #boost._hw_if.set_adc_spi_freq(10000000)
 #boost._hw_if.set_pwm_inv()
+#boost._hw_if.set_pwm_duty(0.5)
 
 def save_data(file, data):
 

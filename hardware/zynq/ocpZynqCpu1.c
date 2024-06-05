@@ -80,6 +80,8 @@ static int32_t ocpZynqCpu1InitializeInterfaceBoost(void);
 //-----------------------------------------------------------------------------
 void ocpZynqCpu1AdcIrq(void *callbackRef);
 //-----------------------------------------------------------------------------
+void ocpZynqCpu1AdcIrq2(void *callbackRef);
+//-----------------------------------------------------------------------------
 //=============================================================================
 
 //=============================================================================
@@ -98,7 +100,7 @@ void ocpZynqCpu1AdcIrq(void *callbackRef);
 #define OCP_ZYNQ_C1_CONFIG_TRACE_0_MAX_SIGNALS		40
 
 #define OCP_ZYNQ_C1_CONFIG_INPUT_BUF_SIZE           50
-#define OCP_ZYNQ_C1_CONFIG_OUTPUT_BUG_SIZE          20
+#define OCP_ZYNQ_C1_CONFIG_OUTPUT_BUF_SIZE          20
 #define OCP_ZYNQ_C1_CONFIG_REFERENCE_BUF_SIZE       20
 //=============================================================================
 
@@ -109,10 +111,12 @@ static char trace0Names[OCP_ZYNQ_C1_CONFIG_TRACE_0_NAME_LEN];
 static size_t trace0Data[OCP_ZYNQ_C1_CONFIG_TRACE_0_MAX_SIGNALS];
 
 static float bInputs[OCP_ZYNQ_C1_CONFIG_INPUT_BUF_SIZE];
-static float bOutputs[OCP_ZYNQ_C1_CONFIG_OUTPUT_BUG_SIZE];
+static float bOutputs[OCP_ZYNQ_C1_CONFIG_OUTPUT_BUF_SIZE];
 
 static float texec = 0.0f;
-
+static float tperiod = 0.0f;
+static float texec2 = 0.0f;
+static float tperiod2 = 0.0f;
 //=============================================================================
 
 //=============================================================================
@@ -145,7 +149,7 @@ static int32_t ocpZynqCpu1InitializeHw(void *intcInst){
 
     config.intc = intcInst;
     config.irqhandle = ocpZynqCpu1AdcIrq;
-
+    config.irqhandle2 = ocpZynqCpu1AdcIrq2;
     //cukHwInitialize(&config);
     boostHwInitialize(&config);
 
@@ -236,7 +240,7 @@ static int32_t ocpZynqCpu1InitializeTracesMeasBoost(void){
     ocpTraceAddSignal(OCP_TRACE_1, &meas->v_out, "Output voltage");
 
     ocpTraceAddSignal(OCP_TRACE_1, &meas->i_l, "Inductor current");
-    ocpTraceAddSignal(OCP_TRACE_1, &meas->i_l_avg, "Inductor current (filt)");
+  //ocpTraceAddSignal(OCP_TRACE_1, &meas->i_l_avg, "Inductor current (filt)");
     ocpTraceAddSignal(OCP_TRACE_1, &meas->i_o, "Output current current");
 
     /* Adds control signals to trace */
@@ -252,7 +256,11 @@ static int32_t ocpZynqCpu1InitializeTracesMeasBoost(void){
     //references = (boostConfigReferences_t *)bOutputs;
     //ocpTraceAddSignal(OCP_TRACE_1, &references->v_o, "Reference");
     ocpTraceAddSignal(OCP_TRACE_1, &texec, "Exec. time");
+    ocpTraceAddSignal(OCP_TRACE_1, &tperiod, "Period time");
 
+    ocpTraceAddSignal(OCP_TRACE_1, &texec2, "Exec. time 2nd int");
+    ocpTraceAddSignal(OCP_TRACE_1, &tperiod2, "Period time 2nd int");
+    ocpTraceAddSignal(OCP_TRACE_1, &outputs->rho, "rho");
 }
 //-----------------------------------------------------------------------------
 static int32_t ocpZynqCpu1InitializeControlSystem(void){
@@ -308,6 +316,7 @@ static int32_t ocpZynqCpu1InitializeControlSystemBoost(void){
     boostHwIfInitialize();
 
     boostHwSetPwmInv(1); //pwm_inv set by default
+    boostHwSetAdcDoneIntFactor(2); //done_int_factor set 2 by default
 
     /* Initializes control sys lib */
     config.binputs = (void *)bInputs;
@@ -391,17 +400,48 @@ static int32_t ocpZynqCpu1InitializeInterfaceBoost(void){
 //-----------------------------------------------------------------------------
 void ocpZynqCpu1AdcIrq(void *callbackRef){
 
-    uint32_t ticks;
+	static uint32_t start_ticks = 0;
 
-    ticks = GetTicks();
+    tperiod = TicksToS(start_ticks - GetTicks()) / 1e-6;
+
+    start_ticks = GetTicks();
 
     ocpCSRun(OCP_CS_1);
     ocpTraceSave(OCP_TRACE_1);
 
-    ticks = ticks - GetTicks();
-    texec = TicksToS(ticks) / 1e-6;
+    //end_ticks = GetTicks();
+    //texec = TicksToS(start_ticks - end_ticks) / 1e-6;
+
+    texec = TicksToS(start_ticks - GetTicks()) / 1e-6;
 }
 //-----------------------------------------------------------------------------
+void ocpZynqCpu1AdcIrq2(void *callbackRef){
+	//code for second interruption
+
+
+	static uint32_t start_ticks2 = 0;
+	tperiod2 = TicksToS(start_ticks2 - GetTicks()) / 1e-6;
+	start_ticks2 = GetTicks();
+
+
+	uint32_t currentController = get_active_controller();
+
+
+	if (currentController == 5){
+
+		boostConfigMeasurements_t *meas;
+		boostConfigControl_t *outputs;
+		meas = (boostConfigMeasurements_t *)bInputs;
+		outputs = (boostConfigControl_t *)bOutputs;
+
+		boostControlEnergycint_rhoRun(meas, outputs);
+	}
+
+	texec2 = TicksToS(start_ticks2 - GetTicks()) / 1e-6;
+
+}
+//-----------------------------------------------------------------------------
+
 //=============================================================================
 
 #endif /* SOC_CPU1 */
