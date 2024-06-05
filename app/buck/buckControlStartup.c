@@ -1,7 +1,7 @@
 /*
- * buckSfbControl.c
+ * buckControlStartup.c
  *
- *  Created on: 30 de ago. de 2023
+ *  Created on: 26.10.2023
  *      Author: marco
  */
 
@@ -9,12 +9,12 @@
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
-#include "buckControlDisabled.h"
-#include "buckConfig.h"
+#include "buckControlStartup.h"
 
 #include "ocpConfig.h"
 #include "ocpTrace.h"
 
+#include "buckConfig.h"
 //=============================================================================
 
 //=============================================================================
@@ -26,40 +26,58 @@
 //=============================================================================
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
-
+static float u = 0.0f;
+static float ufinal = 0.5f;
+static float uinc = 50.0f / 100000.0f;
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void buckControlDisabledInitialize(void){
+void buckControlStartupInitialize(void){
 
-	//ocpTraceAddSignal(OCP_TRACE_1, (void *)&i_ac, "Grid current");
 }
 //-----------------------------------------------------------------------------
-int32_t buckControlDisabledSetParams(void *params, uint32_t n){
+int32_t buckControlStartupSetParams(void *params, uint32_t n){
+
+    float *p = (float *)params;
+
+    uinc = *p++;
+    ufinal = *p++;
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
-int32_t buckControlDisabledGetParams(void *in, uint32_t insize, void *out, uint32_t maxoutsize){
+int32_t buckControlStartupGetParams(void *in, uint32_t insize, void *out, uint32_t maxoutsize){
 
-    return 0;
+    float *p = (float *)out;
+
+    *p++ = uinc;
+    *p++ = ufinal;
+
+    return 8;
 }
 //-----------------------------------------------------------------------------
-int32_t buckControlDisabledRun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, void *outputs, int32_t nmaxoutputs){
+int32_t buckControlStartupRun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, void *outputs, int32_t nmaxoutputs){
 
     buckConfigMeasurements_t *m = (buckConfigMeasurements_t *)meas;
+    buckConfigReferences_t *r = (buckConfigReferences_t *)refs;
     buckConfigControl_t *o = (buckConfigControl_t *)outputs;
 
-    o->u = 0.0f;
+    u += uinc;
+
+    if( u >= ufinal ) u = ufinal;
+    if( u <= 0.0f ) u = 0.0f;
+
+    o->u = u;
 
     return sizeof(buckConfigControl_t);
 }
 //-----------------------------------------------------------------------------
-void buckControlDisabledReset(void){
+void buckControlStartupReset(void){
 
+    u = 0.0f;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

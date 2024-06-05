@@ -1,6 +1,6 @@
 """
 Module ``buck_trace``
-=====================
+======================
 
 
 """
@@ -56,9 +56,9 @@ class Trace:
     def reset(self):
         """
         """
-        status, = self._ocp_if.trace_reset( self._tr_id )
+        status = self._ocp_if.trace_reset( self._tr_id )
 
-        if status < 0 :
+        if status[0] < 0 :
             return (-1, status)
 
         return (0,)
@@ -74,10 +74,10 @@ class Trace:
 
         trace_size = int( 4 * n_traces * size )
 
-        status, = self._ocp_if.trace_set_size( self._tr_id, trace_size )
+        status = self._ocp_if.trace_set_size( self._tr_id, trace_size )
 
-        if status < 0 :
-            return (-1, status)
+        if status[0] < 0 :
+            return (-1, status[0])
 
         return (0,)
 

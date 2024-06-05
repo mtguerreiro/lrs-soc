@@ -50,7 +50,7 @@ static int32_t ocpWinInitializeInterface(void);
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
 
-#define OCP_WIN_CONFIG_TRACE_0_SIZE             (40 * 1024 * 1024)
+#define OCP_WIN_CONFIG_TRACE_0_SIZE             (100 * 1024 * 1024)
 
 #define OCP_WIN_CONFIG_TRACE_0_NAME_LEN         800
 #define OCP_WIN_CONFIG_TRACE_0_MAX_SIGNALS      20

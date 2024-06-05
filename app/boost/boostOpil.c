@@ -47,28 +47,15 @@ int32_t boostOpilUpdateMeasurements(void *meas, int32_t size){
 //-----------------------------------------------------------------------------
 int32_t boostOpilGetMeasurements(void *meas){
 
-    float *src;
-    boostConfigMeasurements_t *dst;
+    int32_t size;
 
-    src = (float *)(&xtMeasurements);
-    dst = (boostConfigMeasurements_t *)meas;
+    uint8_t *src, *dst;
 
-    dst->v_dc_in = (*src++);
-    dst->v_dc_out = (*src++);
-    dst->v_out =   (*src++);
-    dst->i_l =  (*src++);
-    dst->i_l_avg =  (*src++);
-    dst->i_o = (*src++);
+    dst = (uint8_t *)( meas );
+    src = (uint8_t *)( &xtMeasurements );
+    size = sizeof(stypesMeasurements_t);
 
-//    int32_t size;
-//
-//    uint8_t *src, *dst;
-//
-//    dst = (uint8_t *)( meas );
-//    src = (uint8_t *)( &xtMeasurements );
-//    size = sizeof(stypesMeasurements_t);
-//
-//    while(size--) *dst++ = *src++;
+    while(size--) *dst++ = *src++;
 
     return sizeof(boostConfigMeasurements_t);
 }

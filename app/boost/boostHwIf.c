@@ -109,10 +109,10 @@ int32_t boostHwIfInitialize(void){
 
     rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_SET_PWM_OVF_TRIGGER_ENABLE, boostHwIfSetPwmOvfTriggerEnable);
     rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_GET_PWM_OVF_TRIGGER_ENABLE, boostHwIfGetPwmOvfTriggerEnable);
-//-------------------------------------------------------------------------------------------------------------------------------added by rodolfo
+
     rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_SET_PWM_INV, boostHwIfSetPwmInv);
     rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_GET_PWM_INV, boostHwIfGetPwmInv);
-//-------------------------------------------------------------------------------------------------------------------------------
+
     rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_SET_PWM_FREQ, boostHwIfSetPwmFrequency);
     rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_GET_PWM_FREQ, boostHwIfGetPwmFrequency);
 
@@ -267,7 +267,6 @@ static int32_t boostHwIfGetPwmOvfTriggerEnable(void *in, uint32_t insize, void *
     return 4;
 }
 //-----------------------------------------------------------------------------
-
 static int32_t boostHwIfSetPwmInv(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
 
     uint32_t enable;
@@ -298,7 +297,6 @@ static int32_t boostHwIfGetPwmInv(void *in, uint32_t insize, void **out, uint32_
 
     return 4;
 }
-
 //-----------------------------------------------------------------------------
 static int32_t boostHwIfSetPwmFrequency(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
 

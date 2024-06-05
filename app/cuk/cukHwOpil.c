@@ -155,17 +155,6 @@ int32_t cukHwOpilGetMeasurements(void *meas){
 
     meassize = cukOpilGetMeasurements(meas);
 
-    /* Protection */
-    if( (cukmeas->i_i > CUK_CONFIG_I_PRIM_LIM) || (cukmeas->i_1 > CUK_CONFIG_I_PRIM_LIM) ) hwControl.status = 1;
-    if( (cukmeas->i_i < -CUK_CONFIG_I_PRIM_LIM) || (cukmeas->i_1 < -CUK_CONFIG_I_PRIM_LIM) ) hwControl.status = 1;
-
-    if( (cukmeas->v_in > CUK_CONFIG_V_PRIM_LIM) || (cukmeas->v_dc > CUK_CONFIG_V_PRIM_LIM) || (cukmeas->v_1 > CUK_CONFIG_V_PRIM_LIM) ) hwControl.status = 1;
-
-    if( (cukmeas->i_o > CUK_CONFIG_I_SEC_LIM) || (cukmeas->i_2 > CUK_CONFIG_I_SEC_LIM) ) hwControl.status = 1;
-    if( (cukmeas->i_o < -CUK_CONFIG_I_SEC_LIM) || (cukmeas->i_2 < -CUK_CONFIG_I_SEC_LIM) ) hwControl.status = 1;
-
-    if( (cukmeas->v_out > CUK_CONFIG_V_SEC_LIM) || (cukmeas->v_dc_out > CUK_CONFIG_V_SEC_LIM) || (cukmeas->v_2 > CUK_CONFIG_V_SEC_LIM) ) hwControl.status = 1;
-
     i_1_filt = cukHwOpilExpMovAvg(cukmeas->i_1, i_1_filt);
     cukmeas->i_1_filt = i_1_filt;
 
@@ -181,13 +170,41 @@ int32_t cukHwOpilGetMeasurements(void *meas){
     cukmeas->p_in = cukmeas->i_1 * cukmeas->v_dc;
     cukmeas->p_out = i_o_filt * cukmeas->v_dc_out;
 
-    if( hwControl.status != 0 ){
-        //cukOpilSetPwmDuty(0.0f);
-        cukHwOpilShutDown();
-        return -1;
-    }
-    else
-        return meassize;
+    return meassize;
+
+    /* Protection */
+//    if( (cukmeas->i_i > CUK_CONFIG_I_PRIM_LIM) || (cukmeas->i_1 > CUK_CONFIG_I_PRIM_LIM) ) hwControl.status = 1;
+//    if( (cukmeas->i_i < -CUK_CONFIG_I_PRIM_LIM) || (cukmeas->i_1 < -CUK_CONFIG_I_PRIM_LIM) ) hwControl.status = 1;
+//
+//    if( (cukmeas->v_in > CUK_CONFIG_V_PRIM_LIM) || (cukmeas->v_dc > CUK_CONFIG_V_PRIM_LIM) || (cukmeas->v_1 > CUK_CONFIG_V_PRIM_LIM) ) hwControl.status = 1;
+//
+//    if( (cukmeas->i_o > CUK_CONFIG_I_SEC_LIM) || (cukmeas->i_2 > CUK_CONFIG_I_SEC_LIM) ) hwControl.status = 1;
+//    if( (cukmeas->i_o < -CUK_CONFIG_I_SEC_LIM) || (cukmeas->i_2 < -CUK_CONFIG_I_SEC_LIM) ) hwControl.status = 1;
+//
+//    if( (cukmeas->v_out > CUK_CONFIG_V_SEC_LIM) || (cukmeas->v_dc_out > CUK_CONFIG_V_SEC_LIM) || (cukmeas->v_2 > CUK_CONFIG_V_SEC_LIM) ) hwControl.status = 1;
+//
+//    i_1_filt = cukHwOpilExpMovAvg(cukmeas->i_1, i_1_filt);
+//    cukmeas->i_1_filt = i_1_filt;
+//
+//    i_i_filt = cukHwOpilExpMovAvg(cukmeas->i_i, i_i_filt);
+//    cukmeas->i_i_filt = i_i_filt;
+//
+//    i_o_filt = cukHwOpilExpMovAvg(cukmeas->i_o, i_o_filt);
+//    cukmeas->i_o_filt = i_o_filt;
+//
+//    i_2_filt = cukHwOpilExpMovAvg(cukmeas->i_2, i_2_filt);
+//    cukmeas->i_2_filt = i_2_filt;
+//
+//    cukmeas->p_in = cukmeas->i_1 * cukmeas->v_dc;
+//    cukmeas->p_out = i_o_filt * cukmeas->v_dc_out;
+//
+//    if( hwControl.status != 0 ){
+//        //cukOpilSetPwmDuty(0.0f);
+//        cukHwOpilShutDown();
+//        return -1;
+//    }
+//    else
+//        return meassize;
 }
 //-----------------------------------------------------------------------------
 int32_t cukHwOpilApplyOutputs(void *outputs, int32_t size){

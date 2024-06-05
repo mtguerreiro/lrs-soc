@@ -45,6 +45,7 @@ class Controllers:
             'sfb'        : {'id':5, 'if':SFB()},
             'sfb_int'    : {'id':6, 'if':SFBINT()},
             'pch'        : {'id':7, 'if':PCH()},
+            'energy_mpc' : {'id':8, 'if':EnergyMpc()},
             }
 
 
@@ -263,6 +264,8 @@ class EnergyInt:
         K = scipy.signal.place_poles(A, B, poles).gain_matrix.reshape(-1)
 
         gains = {'k1':K[0], 'k2':K[1], 'k3':K[2], 'dt':dt}
+
+        print('Kains: {:}'.format(gains))
 
         return gains
     
@@ -671,6 +674,60 @@ class PCH:
 
         return ctl_params
     
+
+class EnergyMpc:
+    def __init__(self):
+        pass
+    
+
+    def set(self, params):
+      
+        a0 = params['a0']
+        a1 = params['a1']
+        a2 = params['a2']
+
+        b1 = params['b1']
+        b2 = params['b2']
+
+        en = params['notch_en']
+        
+        data = list(struct.pack('<ffffff', a0, a1, a2, b1, b2, en))
+        
+        return data
+    
+
+    def get(self, data):
+
+        pars = struct.unpack('<ffffff', data)
+
+        params = {
+            'a0': pars[0],
+            'a1': pars[1],
+            'a2': pars[2],
+            'b1': pars[3],
+            'b2': pars[4],
+            'notch_en': pars[5],
+            }
+
+        return params
+
+
+    def discrete_notch(self, fc, Q, dt):
+        
+        wc = 2 * np.pi * fc
+        
+        num = [1, 0 , wc**2]
+        den = [1, wc/Q, wc**2]
+        tf = (num, den)
+
+        num_d, den_d, _ = scipy.signal.cont2discrete(tf, dt)
+        num_d = num_d.reshape(-1) / den_d[0]
+
+        filt = {'a0':num_d[0], 'a1':num_d[1], 'a2':num_d[2], 'b1':den_d[1], 'b2':den_d[2]}
+        print(num_d, den_d)
+        
+        return filt
+
 
 class Controller:
     """

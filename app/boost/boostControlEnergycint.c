@@ -108,7 +108,7 @@ int32_t boostControlEnergycintRun(void *meas, int32_t nmeas, void *refs, int32_t
     boostConfigControl_t *o = (boostConfigControl_t *)outputs;
 
 //values from sensors
-    i_l = m->i_l_avg;
+    i_l = m->i_l;
     i_o = m->i_o;
     v_i = m->v_dc_in;
     v_o = m->v_out;

@@ -53,17 +53,17 @@ class Commands:
         self.clear_status = 26
         self.get_status = 27
 
-        self.set_pwm_inv = 28  #added
-        self.get_pwm_inv = 29   #added
+        self.set_pwm_inv = 28
+        self.get_pwm_inv = 29
         
-        self.set_adc_comp_reset = 30  #added
-        self.get_adc_comp_reset = 31   #added
+        self.set_adc_comp_reset = 30
+        self.get_adc_comp_reset = 31
 
-        self.set_adc_comp_enable = 32  #added
-        self.get_adc_comp_enable = 33   #added
+        self.set_adc_comp_enable = 32
+        self.get_adc_comp_enable = 33
         
-        self.set_adc_done_int_factor = 34  #added
-        self.get_adc_done_int_factor = 35   #added
+        self.set_adc_done_int_factor = 34
+        self.get_adc_done_int_factor = 35
 
 """
 class MeasGains:
@@ -156,6 +156,7 @@ class Hw:
     def get_pwm_ovf_trigger_enable(self):
 
         return self._get_pwm_ovf_trigger_enable()
+
 
     def set_pwm_inv(self, enable):
 
@@ -313,7 +314,6 @@ class Hw:
             return (-1, status)
         
         return (status, int(enable))
-
 
 
     def set_input_relay(self, state):
@@ -575,7 +575,8 @@ class Hw:
 
         enable = lrssoc.conversions.u8_to_u32(enable, msb=False)
         
-        return (0, enable)   
+        return (0, enable)
+
 
     def _set_pwm_freq(self, freq):
         """

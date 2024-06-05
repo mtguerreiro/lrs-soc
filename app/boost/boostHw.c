@@ -30,7 +30,7 @@
 #define BOOST_HW_CONFIG_ADC_BASE              XPAR_ADC_PSCTL_V2_0_0_BASEADDR //XPAR_ADC_PSCTL_0_S00_AXI_BASEADDR
 
 #define BOOST_HW_CONFIG_IRQ_PL_CPU1           ZYNQ_CONFIG_IRQ_PL_TO_CPU1
-#define BOOST_HW_CONFIG_IRQ2_PL_CPU1          ZYNQ_CONFIG_IRQ2_PL_TO_CPU1
+#define BOOST_HW_CONFIG_IRQ_PL_CPU1_2         ZYNQ_CONFIG_IRQ_PL_TO_CPU1_3
 #define BOOST_HW_CONFIG_ADC_BUFFER            ZYNQ_CONFIG_MEM_PL_TO_CPU1_ADR
 
 #define BOOST_HW_CONFIG_GPIO_ID               XPAR_AXI_GPIO_0_DEVICE_ID
@@ -158,7 +158,6 @@ uint32_t boostHwGetPwmOvfTriggerEnable(void){
     return zynqAxiPwmOvfTriggerEnableRead(BOOST_HW_CONFIG_PWM_BASE);
 }
 //-----------------------------------------------------------------------------
-
 void boostHwSetPwmInv(uint32_t enable){
 
     zynqAxiPwmInvWrite(BOOST_HW_CONFIG_PWM_BASE, enable);
@@ -168,7 +167,6 @@ uint32_t boostHwGetPwmInv(void){
 
     return zynqAxiPwmInvRead(BOOST_HW_CONFIG_PWM_BASE);
 }
-
 //-----------------------------------------------------------------------------
 void boostHwSetPwmFrequency(uint32_t freq){
 
@@ -332,24 +330,12 @@ int32_t boostHwGetMeasurements(void *meas){
     dst = (boostConfigMeasurements_t *)meas;
 
     /* Measurements */
-
     dst->i_o =  hwControl.gains.i_o_gain * ((float)(*src++)) + hwControl.gains.i_o_ofs;
     dst->i_l =  hwControl.gains.i_l_gain * ((float)(*src++)) + hwControl.gains.i_l_ofs;
     dst->v_dc_in = hwControl.gains.v_dc_in_gain * ((float)(*src++)) + hwControl.gains.v_dc_in_ofs;
-    src++; //v_in measuring not used
+    dst->v_in = hwControl.gains.v_in_gain * ((float)(*src++)) + hwControl.gains.v_in_ofs;
     dst->v_dc_out = hwControl.gains.v_dc_out_gain * ((float)(*src++)) + hwControl.gains.v_dc_out_ofs;
     dst->v_out  = hwControl.gains.v_out_gain * ((float)(*src++)) + hwControl.gains.v_out_ofs;
-
- /*
-       dst->v_dc_in = hwControl.gains.v_dc_in_gain * ((float)(*src++)) + hwControl.gains.v_dc_in_ofs;
-       dst->v_dc_out = hwControl.gains.v_dc_out_gain * ((float)(*src++)) + hwControl.gains.v_dc_out_ofs;
-       dst->v_out  = hwControl.gains.v_out_gain * ((float)(*src++)) + hwControl.gains.v_out_ofs;
-
-       dst->i_l =  hwControl.gains.i_l_gain * ((float)(*src++)) + hwControl.gains.i_l_ofs;
-       dst->i_l_avg =  hwControl.gains.i_l_avg_gain * ((float)(*src++)) + hwControl.gains.i_l_avg_ofs;
-       dst->i_o =  hwControl.gains.i_o_gain * ((float)(*src++)) + hwControl.gains.i_o_ofs;
-*/
-
 
     /* Protection */
     if( (dst->i_l > BOOST_CONFIG_I_LIM) || (dst->i_o > BOOST_CONFIG_I_LIM) ) hwControl.status = 1;
@@ -502,7 +488,7 @@ static void boostHwInitializeAdc(void *intc, boostHwAdcIrqHandle_t irqhandle, bo
     zynqAxiAdcBufferAddressWrite(BOOST_HW_CONFIG_ADC_BASE, BOOST_HW_CONFIG_ADC_BUFFER);
 
     zynqAxiAdcInterruptConfig(intc, BOOST_HW_CONFIG_IRQ_PL_CPU1, irqhandle);
-    zynqAxiAdcInterrupt2Config(intc, BOOST_HW_CONFIG_IRQ2_PL_CPU1, irqhandle2);
+    zynqAxiAdcInterrupt2Config(intc, BOOST_HW_CONFIG_IRQ_PL_CPU1_2, irqhandle2);
 
     zynqAxiAdcEnableWrite(BOOST_HW_CONFIG_ADC_BASE, 1);
 
@@ -538,6 +524,9 @@ static void boostHwInitializePwm(void){
 
     boostHwSetPwmReset(1);
 
+    boostHwSetPwmInv(1);
+	boostHwSetAdcDoneIntFactor(2); //done_int_factor set 2 by default
+
     boostHwSetPwmFrequency(BOOST_HW_CONFIG_PWM_FREQ_HZ);
     boostHwSetPwmDuty(0.0f);
     boostHwSetPwmDeadTime(BOOST_HW_CONFIG_PWM_DEAD_TIME_NS);
@@ -560,24 +549,26 @@ static void boostHwInitializeGpio(void){
 //-----------------------------------------------------------------------------
 static void boostHwInitializeMeasGains(void){
 
+    hwControl.gains.i_o_gain = BOOST_CONFIG_IO_AVG_GAIN;
+    hwControl.gains.i_o_ofs =  BOOST_CONFIG_IO_AVG_OFFS;
+
     hwControl.gains.i_l_gain = BOOST_CONFIG_IL_GAIN;
     hwControl.gains.i_l_ofs =  BOOST_CONFIG_IL_OFFS;
 
     hwControl.gains.i_l_avg_gain = BOOST_CONFIG_IL_AVG_GAIN;
-    hwControl.gains.i_l_avg_ofs = BOOST_CONFIG_IL_AVG_OFFS;
+    hwControl.gains.i_l_avg_ofs =  BOOST_CONFIG_IL_AVG_OFFS;
     
-    hwControl.gains.i_o_gain = BOOST_CONFIG_IO_AVG_GAIN;
-    hwControl.gains.i_o_ofs =  BOOST_CONFIG_IO_AVG_OFFS;
-
     hwControl.gains.v_dc_in_gain = BOOST_CONFIG_V_DC_IN_GAIN;
     hwControl.gains.v_dc_in_ofs =  BOOST_CONFIG_V_DC_IN_OFFS;
+
+    hwControl.gains.v_in_gain = BOOST_CONFIG_V_IN_GAIN;
+    hwControl.gains.v_in_ofs =  BOOST_CONFIG_V_IN_OFFS;
 
     hwControl.gains.v_dc_out_gain = BOOST_CONFIG_V_DC_OUT_GAIN;
     hwControl.gains.v_dc_out_ofs =  BOOST_CONFIG_V_DC_OUT_OFFS;
 
     hwControl.gains.v_out_gain = BOOST_CONFIG_V_OUT_GAIN;
     hwControl.gains.v_out_ofs = BOOST_CONFIG_V_OUT_OFFS;
-
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
