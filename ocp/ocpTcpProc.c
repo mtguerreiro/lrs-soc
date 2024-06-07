@@ -44,7 +44,7 @@ int32_t ocpTcpProcInitialize(ocpTcpProcConfig_t *config){
     return 0;
 }
 //-----------------------------------------------------------------------------
-int32_t ocpTcpProc(uint32_t sn){
+int32_t ocpTcpProc(int32_t sn){
 
     int32_t ret;
     int32_t size;

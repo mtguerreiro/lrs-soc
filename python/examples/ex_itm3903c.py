@@ -22,6 +22,7 @@ hw = lrssoc.itm3903c.itm3903c.ITM3903C(comm='ethernet', comm_settings=settings, 
 trace = lrssoc.itm3903c.itm3903c_trace.Trace(hw._ocp_if, 0)
 
 hw_if = hw._hw_if
+ahw_if = hw._an_hw_if
 
 #status, (traces, data) = trace.read()
 

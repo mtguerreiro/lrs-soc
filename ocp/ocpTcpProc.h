@@ -14,8 +14,8 @@
 //=============================================================================
 #define OCP_TCP_PROC_CFG_DEBUG      1
 #define OCP_TCP_PROC_BUF_SIZE       128
-typedef int32_t (*ocpTcpProcRead_t)(uint32_t sn, uint8_t *buf, uint16_t size, int32_t to, void *arg);
-typedef int32_t (*ocpTcpProcWrite_t)(uint32_t sn, const uint8_t *buf, uint16_t size, int32_t to, void *arg);
+typedef int32_t (*ocpTcpProcRead_t)(int32_t sn, uint8_t *buf, uint16_t size, int32_t to, void *arg);
+typedef int32_t (*ocpTcpProcWrite_t)(int32_t sn, const uint8_t *buf, uint16_t size, int32_t to, void *arg);
 
 
 typedef struct ocpTcpProcConfig_t{
@@ -31,7 +31,7 @@ typedef struct ocpTcpProcConfig_t{
 //-----------------------------------------------------------------------------
 int32_t ocpTcpProcInitialize(ocpTcpProcConfig_t *config);
 //-----------------------------------------------------------------------------
-int32_t ocpTcpProc(uint32_t sn);
+int32_t ocpTcpProc(int32_t sn);
 //-----------------------------------------------------------------------------
 //=============================================================================
 
