@@ -125,23 +125,32 @@ typedef struct{
 	rphandle_t handles[OCP_IF_CMD_END];
 	rpctx_t rp;
 
+	ocpIfMasterLock_t lock;
+	ocpIfMasterUnlock_t unlock;
+
 }ocpIfControl_t;
 
 #define OCP_IF_CONFIG_DUAL_CORE_COMM_TO		60000
+#define OCP_IF_CONFIG_LOCK_TO				1000
 //=============================================================================
 
 //=============================================================================
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
 
-static ocpIfControl_t xcontrol;
+static ocpIfControl_t xcontrol = {.lock = 0, .unlock = 0};
 //=============================================================================
 
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-int32_t ocpIfMasterInitialize(void){
+int32_t ocpIfMasterInitialize(ocpIfMasterConfig_t *config){
+
+	if( config != 0 ){
+		xcontrol.lock = config->lock;
+		xcontrol.unlock = config->unlock;
+	}
 
 	rpInitialize( &xcontrol.rp, OCP_IF_CMD_END, xcontrol.handles );
 
@@ -170,7 +179,17 @@ int32_t ocpIfMasterInitialize(void){
 //-----------------------------------------------------------------------------
 int32_t ocpIfMaster(void *in, int32_t insize, void **out, int32_t maxoutsize){
 
-	return rpRequest( &xcontrol.rp, in, insize, out, maxoutsize);
+	int32_t status = 0;
+
+	if( xcontrol.lock ) status = xcontrol.lock(OCP_IF_CONFIG_LOCK_TO);
+
+	if( status != 0 ) return status;
+
+	status = rpRequest( &xcontrol.rp, in, insize, out, maxoutsize);
+
+	if( xcontrol.unlock ) xcontrol.unlock();
+
+	return status; 
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

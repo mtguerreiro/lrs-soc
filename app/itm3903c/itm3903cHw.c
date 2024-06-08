@@ -379,7 +379,6 @@ uint32_t itm3903cHwGetAnalogExternalStatus(void) {
     return output_status;
 }
 //-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
 float itm3903cHwGetVoltageMeasurement(void){
 
     float voltage_measurement; 
@@ -391,8 +390,7 @@ float itm3903cHwGetVoltageMeasurement(void){
     uart_write_blocking(ITM3903C_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
     
     size = itm3903HwGetSupplyResponse(command, sizeof(command));
-    printf("\nSize: %d\n", size);
-    printf("Command: %s\n", command);
+
     if( size < 0 ) voltage_measurement = NAN;
     else voltage_measurement = (float) strtod(command, NULL);
 

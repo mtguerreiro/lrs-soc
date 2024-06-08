@@ -38,7 +38,7 @@ static int32_t ocpPicoCpu0InitializeTraces(void);
 //-----------------------------------------------------------------------------
 static int32_t ocpPicoCpu0InitializeControlSystem(void);
 //-----------------------------------------------------------------------------
-static int32_t ocpPicoCpu0InitializeInterface(void);
+static int32_t ocpPicoCpu0InitializeInterface(ocpPicoInitConfig_t *config);
 //-----------------------------------------------------------------------------
 //=============================================================================
 
@@ -52,13 +52,13 @@ static int32_t ocpPicoCpu0InitializeInterface(void);
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void ocpPicoCpu0Initialize(void *params){
+void ocpPicoCpu0Initialize(ocpPicoInitConfig_t *config){
 
 	ocpPicoCpu0InitializeHw();
 	ocpPicoCpu0InitializeIpc();
 	ocpPicoCpu0InitializeTraces();
 	ocpPicoCpu0InitializeControlSystem();
-	ocpPicoCpu0InitializeInterface();
+	ocpPicoCpu0InitializeInterface(config);
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
@@ -135,9 +135,14 @@ static int32_t ocpPicoCpu0InitializeControlSystem(void){
 	return 0;
 }
 //-----------------------------------------------------------------------------
-static int32_t ocpPicoCpu0InitializeInterface(void){
+static int32_t ocpPicoCpu0InitializeInterface(ocpPicoInitConfig_t *config){
 
-	ocpIfMasterInitialize();
+    ocpIfMasterConfig_t ifConfig;
+
+    ifConfig.lock = config->ifLock;
+    ifConfig.unlock = config->ifUnlock;    
+
+	ocpIfMasterInitialize(&ifConfig);
 
 	return 0;
 }
