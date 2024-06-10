@@ -90,6 +90,15 @@ uint32_t boostHwOpilGetPwmInv(void){
     return 0;
 }
 //-----------------------------------------------------------------------------
+void boostHwOpilSetPwmBypass(uint32_t enable){
+
+}
+//-----------------------------------------------------------------------------
+uint32_t boostHwOpilGetPwmBypass(void){
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
 void boostHwOpilSetPwmFrequency(uint32_t freq){
 
 }

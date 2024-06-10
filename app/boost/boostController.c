@@ -20,6 +20,7 @@
 #include "boostControlStartup.h"
 #include "boostControlEnergyc.h"
 #include "boostControlEnergycint.h"
+#include "boostControlEnergycintFPGA.h"
 
 //=============================================================================
 
@@ -168,6 +169,12 @@ static void boostControllerInitializeControllers(void){
     controllers.getParams[BOOST_CONTROLLER_ENERGYCINT] = boostControlEnergycintGetParams;
     controllers.run[BOOST_CONTROLLER_ENERGYCINT] = boostControlEnergycintRun;
     controllers.reset[BOOST_CONTROLLER_ENERGYCINT] = boostControlEnergycintReset;
+
+    controllers.initialize[BOOST_CONTROLLER_ENERGYCINT_FPGA] = boostControlEnergycintFPGAInitialize;
+	controllers.setParams[BOOST_CONTROLLER_ENERGYCINT_FPGA] = boostControlEnergycintFPGASetParams;
+	controllers.getParams[BOOST_CONTROLLER_ENERGYCINT_FPGA] = boostControlEnergycintFPGAGetParams;
+	controllers.run[BOOST_CONTROLLER_ENERGYCINT_FPGA] = boostControlEnergycintFPGARun;
+	controllers.reset[BOOST_CONTROLLER_ENERGYCINT_FPGA] = boostControlEnergycintFPGAReset;
 
     /* Initializes all registered controllers */
     for(k = 0; k < BOOST_CONTROLLER_END; k++){

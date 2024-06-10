@@ -26,9 +26,11 @@
 #define ZYNQ_AXI_PWM_OVF_TRIGGER_ENABLE_OFS     2
 #define ZYNQ_AXI_PWM_OVF_TRIGGER_ENABLE_MASK    (1 << ZYNQ_AXI_PWM_OVF_TRIGGER_ENABLE_OFS)
 
-#define ZYNQ_AXI_PWM_INV_OFS     3
-#define ZYNQ_AXI_PWM_INV_MASK    (1 << ZYNQ_AXI_PWM_INV_OFS)
+#define ZYNQ_AXI_PWM_INV_OFS     				3
+#define ZYNQ_AXI_PWM_INV_MASK    				(1 << ZYNQ_AXI_PWM_INV_OFS)
 
+#define ZYNQ_AXI_PWM_BYPASS_OFS     			4
+#define ZYNQ_AXI_PWM_BYPASS_MASK    			(1 << ZYNQ_AXI_PWM_BYPASS_OFS)
 //=============================================================================
 
 //=============================================================================
@@ -51,6 +53,10 @@ void zynqAxiPwmInvWrite(uint32_t pwmBase, uint32_t enable);
 //-----------------------------------------------------------------------------
 uint32_t zynqAxiPwmInvRead(uint32_t pwmBase);
 //-----------------------------------------------------------------------------
+void zynqAxiPwmBypassWrite(uint32_t pwmBase, uint32_t enable);
+//-----------------------------------------------------------------------------
+uint32_t zynqAxiPwmBypassRead(uint32_t pwmBase);
+//-----------------------------------------------------------------------------
 void zynqAxiPwmControlWrite(uint32_t pwmBase, uint32_t data);
 //-----------------------------------------------------------------------------
 uint32_t zynqAxiPwmControlRead(uint32_t pwmBase);
@@ -66,7 +72,5 @@ uint32_t zynqAxiPwmDutyRead(uint32_t pwmBase);
 void zynqAxiPwmDeadTimeWrite(uint32_t pwmBase, uint32_t deadtime);
 //-----------------------------------------------------------------------------
 uint32_t zynqAxiPwmDeadTimeRead(uint32_t pwmBase);
-//-----------------------------------------------------------------------------
-//=============================================================================
 
 #endif /* ZYNQ_AXI_PWM_H_ */

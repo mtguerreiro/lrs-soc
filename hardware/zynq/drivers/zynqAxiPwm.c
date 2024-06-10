@@ -126,6 +126,34 @@ uint32_t zynqAxiPwmInvRead(uint32_t pwmBase){
 }
 
 //-----------------------------------------------------------------------------
+//new functions for pwm duty bypass
+//-----------------------------------------------------------------------------
+
+void zynqAxiPwmBypassWrite(uint32_t pwmBase, uint32_t enable){
+
+    uint32_t control;
+
+    enable = (enable & 0x01) << ZYNQ_AXI_PWM_BYPASS_OFS;
+
+    control = zynqAxiPwmControlRead(pwmBase) & (~ZYNQ_AXI_PWM_BYPASS_MASK);
+
+    control = control | enable;
+
+    zynqAxiPwmControlWrite(pwmBase, control);
+}
+//-----------------------------------------------------------------------------
+uint32_t zynqAxiPwmBypassRead(uint32_t pwmBase){
+
+    uint32_t enable;
+
+    enable = zynqAxiPwmControlRead(pwmBase) & (ZYNQ_AXI_PWM_BYPASS_MASK);
+
+    enable = enable >> ZYNQ_AXI_PWM_BYPASS_OFS;
+
+    return enable;
+}
+
+//-----------------------------------------------------------------------------
 void zynqAxiPwmControlWrite(uint32_t pwmBase, uint32_t data){
     
     Xil_Out32(pwmBase + ZYNQ_AXI_PWM_CONTROL_REG_OFS, data);
@@ -165,5 +193,7 @@ uint32_t zynqAxiPwmDeadTimeRead(uint32_t pwmBase){
 
     return Xil_In32(pwmBase + ZYNQ_AXI_PWM_DEADTIME_REG_OFS);
 }
+//-----------------------------------------------------------------------------
+
 //-----------------------------------------------------------------------------
 //=============================================================================

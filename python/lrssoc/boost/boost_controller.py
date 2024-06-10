@@ -40,7 +40,8 @@ class Controllers:
             0            : {'id':0, 'if':None},
             'startup'    : {'id':1, 'if':Startup()},
             'energyc'    : {'id':2, 'if':Energyc()}, #added for new controller
-            'energycint' : {'id':3, 'if':Energycint()} #added for new controller
+            'energycint' : {'id':3, 'if':Energycint()}, #added for new controller
+            'energycintFPGA' : {'id':4, 'if':EnergycintFPGA()} #added for new controller
             }
 
 
@@ -131,6 +132,37 @@ class Energycint:    #added for new controller
             'K1': pars[3],
             'K2': pars[4],
             'alpha':pars[5]
+            }
+
+        return params
+
+class EnergycintFPGA:    #added for new controller
+    def __init__(self):
+        pass
+    
+
+    def set(self, params):
+
+        Li = params['Li']
+        Co = params['Co']
+        K1 = params['K1']
+        K2 = params['K2']
+        K3 = params['K3'] 
+        data = list(struct.pack('<ffffff', Li, Co, K1, K2, K3))
+        
+        return data
+    
+
+    def get(self, data):
+
+        pars = struct.unpack('<ffffff', data)
+
+        params = {
+            'Li': pars[0],
+            'Co': pars[1],
+            'K1': pars[2],
+            'K2': pars[3],
+            'K3': pars[4]
             }
 
         return params

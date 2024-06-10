@@ -42,6 +42,10 @@ void boostHwOpilSetPwmInv(uint32_t enable);
 //-----------------------------------------------------------------------------
 uint32_t boostHwOpilGetPwmInv(void);
 //-----------------------------------------------------------------------------
+void boostHwOpilSetPwmBypass(uint32_t enable);
+//-----------------------------------------------------------------------------
+uint32_t boostHwOpilGetPwmBypass(void);
+//-----------------------------------------------------------------------------
 void boostHwOpilSetPwmFrequency(uint32_t freq);
 //-----------------------------------------------------------------------------
 uint32_t boostHwOpilGetPwmFrequency(void);

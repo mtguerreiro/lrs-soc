@@ -50,6 +50,9 @@ static int32_t boostHwIfGetPwmOvfTriggerEnable(void *in, uint32_t insize, void *
 static int32_t boostHwIfSetPwmInv(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t boostHwIfGetPwmInv(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
+static int32_t boostHwIfSetPwmBypass(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t boostHwIfGetPwmBypass(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+
 static int32_t boostHwIfSetPwmFrequency(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t boostHwIfGetPwmFrequency(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
@@ -103,6 +106,9 @@ int32_t boostHwIfInitialize(void){
 //-------------------------------------------------------------------------------------------------------------------------------added by rodolfo
     rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_SET_PWM_INV, boostHwIfSetPwmInv);
     rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_GET_PWM_INV, boostHwIfGetPwmInv);
+//-------------------------------------------------------------------------------------------------------------------------------
+    rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_SET_PWM_BYPASS, boostHwIfSetPwmBypass);
+    rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_GET_PWM_BYPASS, boostHwIfGetPwmBypass);
 //-------------------------------------------------------------------------------------------------------------------------------
     rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_SET_PWM_FREQ, boostHwIfSetPwmFrequency);
     rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_GET_PWM_FREQ, boostHwIfGetPwmFrequency);
@@ -279,8 +285,39 @@ static int32_t boostHwIfGetPwmInv(void *in, uint32_t insize, void **out, uint32_
 
     return 4;
 }
-
 //-----------------------------------------------------------------------------
+static int32_t boostHwIfSetPwmBypass(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    uint32_t enable;
+
+    enable = *( (uint32_t *)in ) & 0x01;
+
+#ifdef BOOST_HW_IF_CONFIG_OPIL
+    boostHwOpilSetPwmBypass(enable);
+#else
+    boostHwSetPwmBypass(enable);
+#endif
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t boostHwIfGetPwmBypass(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    uint32_t *o = (uint32_t *)*out;
+    uint32_t enable;
+
+#ifdef BOOST_HW_IF_CONFIG_OPIL
+    enable = boostHwOpilGetPwmBypass();
+#else
+    enable = boostHwGetPwmBypass();
+#endif
+
+    *o = enable;
+
+    return 4;
+}
+//-----------------------------------------------------------------------------
+
 static int32_t boostHwIfSetPwmFrequency(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
 
     uint32_t freq;

@@ -480,7 +480,9 @@ typedef enum{
 	     */
 	    BOOST_HW_IF_GET_PWM_INV,
 
+		BOOST_HW_IF_SET_PWM_BYPASS,
 
+		BOOST_HW_IF_GET_PWM_BYPASS,
 
     BOOST_HW_IF_END
 }boostHwIfCommands_t;

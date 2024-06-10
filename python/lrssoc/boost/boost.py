@@ -245,6 +245,39 @@ class Boost:
         return self.get_controller_params('energycint')
     
 
+ #added for new controller
+    # ------------------------------------------------------------------------  
+    # -------------------------- EnergycintFPGA controller --------------------------
+    # ------------------------------------------------------------------------
+    def energycintFPGA_ctl_enable(self, reset=False):
+
+        return self.enable_controller('energycintFPGA', reset=reset)
+    
+
+    def energycintFPGA_ctl_set_params(self, uinc=None, ufinal=None):
+
+        params = {}
+        if L is not None:
+            params['L'] = float(L)
+        if C is not None:
+            params['C'] = float(C)
+        if KI is not None:
+            params['KI'] = float(KI)
+        if K1 is not None:
+            params['K1'] = float(K1)    
+        if K2 is not None:
+            params['K2'] = float(K2)
+        if alpha is not None:
+            params['alpha'] = float(alpha)
+
+        return self.set_controller_params('energycintFPGA', params)
+
+
+    def energycintFPGA_ctl_get_params(self):
+
+        return self.get_controller_params('energycintFPGA')
+    
+
 
     
     # ------------------------------------------------------------------------

@@ -10,6 +10,7 @@
 #include "boostHw.h"
 
 #include "xparameters.h"
+
 #include "zynqAxiPwm.h"
 #include "zynqAxiAdc.h"
 
@@ -23,10 +24,12 @@
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
+
 #define BOOST_HW_CONFIG_ADC_SPI_FREQ_HZ      ((uint32_t)10000000)
 #define BOOST_HW_CONFIG_PWM_FREQ_HZ          ((uint32_t) 100000 )
 #define BOOST_HW_CONFIG_PWM_DEAD_TIME_NS     ((float) 200e-9 )
-#define BOOST_HW_CONFIG_PWM_BASE              XPAR_AXI_PWM_0_S00_AXI_BASEADDR //XPAR_LRSSOC_BD_AXI_PWM_1_0_BASEADDR
+
+#define BOOST_HW_CONFIG_PWM_BASE              XPAR_AXI_PWM_0_S00_AXI_BASEADDR
 #define BOOST_HW_CONFIG_ADC_BASE              XPAR_ADC_PSCTL_0_S00_AXI_BASEADDR
 
 #define BOOST_HW_CONFIG_IRQ_PL_CPU1           ZYNQ_CONFIG_IRQ_PL_TO_CPU1
@@ -142,6 +145,16 @@ void boostHwSetPwmInv(uint32_t enable){
 uint32_t boostHwGetPwmInv(void){
 
     return zynqAxiPwmInvRead(BOOST_HW_CONFIG_PWM_BASE);
+}
+//-----------------------------------------------------------------------------
+void boostHwSetPwmBypass(uint32_t enable){
+
+    zynqAxiPwmBypassWrite(BOOST_HW_CONFIG_PWM_BASE, enable);
+}
+//-----------------------------------------------------------------------------
+uint32_t boostHwGetPwmBypass(void){
+
+    return zynqAxiPwmBypassRead(BOOST_HW_CONFIG_PWM_BASE);
 }
 
 //-----------------------------------------------------------------------------
@@ -325,7 +338,7 @@ void boostHwControllerDisable(void){
 }
 //-----------------------------------------------------------------------------
 void boostHwControllerEnable(void){
-
+	boostHwSetBypass(1);          // Default for all controllers
     boostHwSetPwmOutputEnable(1);
     //boostHwSetPwmInv(1); starts as pwm inverted output
 }
@@ -393,6 +406,7 @@ uint32_t boostHwGetMeasGains(boostConfigMeasGains_t *gains){
 void boostHwShutDown(void){
 
     float u;
+    float sfb;
 
     u = boostHwGetPwmDuty();
     boostHwSetInputRelay(0);
