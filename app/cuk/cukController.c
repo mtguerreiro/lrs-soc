@@ -24,6 +24,7 @@
 #include "cukControlSfb.h"
 #include "cukControlSfbInt.h"
 #include "cukControlPch.h"
+#include "cukControlEnergyMpc.h"
 
 //=============================================================================
 
@@ -194,6 +195,12 @@ static void cukControllerInitializeControllers(void){
     controllers.getParams[CUK_CONTROLLER_PCH] = cukControlPchGetParams;
     controllers.run[CUK_CONTROLLER_PCH] = cukControlPchRun;
     controllers.reset[CUK_CONTROLLER_PCH] = cukControlPchReset;
+
+    controllers.initialize[CUK_CONTROLLER_ENERGY_MPC] = cukControlEnergyMpcInitialize;
+    controllers.setParams[CUK_CONTROLLER_ENERGY_MPC] = cukControlEnergyMpcSetParams;
+    controllers.getParams[CUK_CONTROLLER_ENERGY_MPC] = cukControlEnergyMpcGetParams;
+    controllers.run[CUK_CONTROLLER_ENERGY_MPC] = cukControlEnergyMpcRun;
+    controllers.reset[CUK_CONTROLLER_ENERGY_MPC] = cukControlEnergyMpcReset;
 
     /* Initializes all registered controllers */
     for(k = 0; k < CUK_CONTROLLER_END; k++){

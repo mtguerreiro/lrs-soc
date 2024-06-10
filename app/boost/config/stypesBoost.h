@@ -14,7 +14,7 @@
 #include "stdint.h"
 #include "stddef.h"
 
-#include "C:\Users\r_perez\Documents\C\lrs-soc-zynq_boost\app\boost\boostConfig.h"
+#include "..\boostConfig.h"
 //=============================================================================
 
 //=============================================================================

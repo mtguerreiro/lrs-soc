@@ -23,8 +23,8 @@ class Boost:
         
     """
     def __init__(self, cs_id, comm, comm_settings, tr_id=0):
-    
-        self._cs_id = 0
+
+        self._cs_id = cs_id
 
         self._ocp_if = lrssoc.ocp.iface.Interface(comm_type=comm, settings=comm_settings)
 
@@ -244,6 +244,32 @@ class Boost:
 
         return self.get_controller_params('energycint')
     
+ #added for new controller
+    # ------------------------------------------------------------------------  
+    # -------------------------- EnergycMPC controller --------------------------
+    # ------------------------------------------------------------------------
+    def energycmpc_ctl_enable(self, reset=False):
+
+        return self.enable_controller('energycmpc', reset=reset)
+    
+
+    def energycmpc_ctl_set_params(self, uinc=None, ufinal=None):
+
+        params = {}
+        if L is not None:
+            params['L'] = float(L)
+        if C is not None:
+            params['C'] = float(C)
+        if d_min is not None:
+            params['d_min'] = float(d_min)
+        if d_max is not None:
+            params['d_max'] = float(d_max)    
+        if i_l_min is not None:
+            params['i_l_min'] = float(i_l_min)
+        if i_l_max is not None:
+            params['i_l_max'] = float(i_l_max)
+
+        return self.set_controller_params('energycmpc', params)
 
  #added for new controller
     # ------------------------------------------------------------------------  
@@ -279,6 +305,51 @@ class Boost:
     
 
 
+    def energycmpc_ctl_get_params(self):
+
+        return self.get_controller_params('energycmpc')
+    
+    #-------------------------------------------------------------------------
+     #added for new controller
+    # ------------------------------------------------------------------------  
+    # -------------------------- Linearization controller --------------------
+    # This controller works with 2 frequencies and two processes:
+    # - Process 1: Linearization part that converts rho to u (duty cycle) and is
+    #  executed according to switching frequency SF (100 kHz).
+    # - Process 2: Selected controller that produces rho and it is being executed 
+    # according to control frequency CF (CF must be a factor of SF).
+    # ------------------------------------------------------------------------
+    def linearization_ctl_enable(self, reset=False):
+
+        return self.enable_controller('linearization', reset=reset)
+    
+
+    def linearization_ctl_set_params(self, uinc=None, ufinal=None):
+
+        params = {}
+        if L is not None:
+            params['L'] = float(L)
+        if C is not None:
+            params['C'] = float(C)
+        if KI is not None:
+            params['KI'] = float(KI)
+        if K1 is not None:
+            params['K1'] = float(K1)    
+        if K2 is not None:
+            params['K2'] = float(K2)
+        if alpha is not None:
+            params['alpha'] = float(alpha)
+        if control_f is not None:
+            params['control_f'] = float(control_f)
+        if control_s is not None:
+            params['control_s'] = float(control_s)
+
+        return self.set_controller_params('linearization', params)
+
+
+    def linearization_ctl_get_params(self):
+
+        return self.get_controller_params('linearization')
     
     # ------------------------------------------------------------------------
     

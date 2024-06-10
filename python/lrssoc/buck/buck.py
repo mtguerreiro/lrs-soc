@@ -1,19 +1,12 @@
 """
 Module ``buck``
-==============
+================
 
 
 """
 import lrssoc
-
-class Commands:
-    """
-    """
-    def __init__(self):
-        self.blink = 0
-        self.adc_en = 1
-        self.adc_config = 2
-        self.pwm_config = 3
+import numpy as np
+import matplotlib.pyplot as plt
 
 
 class Buck:
@@ -31,17 +24,25 @@ class Buck:
     """
     def __init__(self, cs_id, comm, comm_settings, tr_id=0):
 
-        self._cs_id = 0
+        self._cs_id = cs_id
 
         self._ocp_if = lrssoc.ocp.iface.Interface(comm_type=comm, settings=comm_settings)
 
         self._ctl_if = lrssoc.buck.buck_controller.Controller(ocp_if=self._ocp_if, cs_id=cs_id)
 
+        self._hw_if = lrssoc.buck.buck_hw.Hw(ocp_if=self._ocp_if, cs_id=cs_id)
+
         self._tr_if = lrssoc.buck.buck_trace.Trace(ocp_if=self._ocp_if, tr_id=tr_id)
         self._tr_id = tr_id
 
+        self._plot = lrssoc.buck.buck_plot.Plot()
+
     
-    def cs_enable(self):
+    # ========================================================================
+    # =========================== System functions ===========================
+    # ========================================================================
+    
+    def enable(self):
         """
         """
         status, = self._ocp_if.cs_enable( self._cs_id )
@@ -51,7 +52,7 @@ class Buck:
         return (0,)
         
 
-    def cs_disable(self):
+    def disable(self):
         """
         """
         status, = self._ocp_if.cs_disable( self._cs_id )
@@ -61,7 +62,7 @@ class Buck:
         return (0,)
 
 
-    def cs_status(self):
+    def status(self):
         """
         """
         cmdstatus, status = self._ocp_if.cs_status( self._cs_id )
@@ -70,9 +71,14 @@ class Buck:
             return (-1, cmd_status)
 
         return (0, status)
-        
 
-    def controller_disable(self):
+    # ========================================================================
+
+    # ========================================================================
+    # ========================= Controller functions =========================
+    # ========================================================================
+    
+    def disable_controller(self):
         """
         """
         status, = self._ctl_if.set( 0 )
@@ -82,7 +88,7 @@ class Buck:
         return (0,)
 
     
-    def controller_enable(self, controller, reset=True):
+    def enable_controller(self, controller, reset=True):
         """
         """
         if reset is True:
@@ -97,7 +103,7 @@ class Buck:
         return (0,)
 
 
-    def controller_set_params(self, controller, params):
+    def set_controller_params(self, controller, params):
         """
         """
         status, new_params = self._ctl_if.get_params( controller )
@@ -115,7 +121,7 @@ class Buck:
         return (0,)
 
 
-    def controller_get(self):
+    def get_controller(self):
         """
         """
         status, controller = self._ctl_if.get()
@@ -125,7 +131,7 @@ class Buck:
         return (0, controller)
 
 
-    def controller_get_params(self, controller):
+    def get_controller_params(self, controller):
         """
         """
         status, params = self._ctl_if.get_params(controller)
@@ -135,17 +141,107 @@ class Buck:
         return (0, params)
 
 
-    def trace_read(self):
+    def set_ref(self, ref):
         """
         """
-        status, trace_data = self._tr_if.read()
+        status = self._ctl_if.set_ref(ref)
+        if status[0] != 0:
+            return (-1, status)
+
+        return (0,)        
+
+
+    def get_ref(self):
+        """
+        """
+        status, ref = self._ctl_if.get_ref()
         if status != 0:
             return (-1, status)
+
+        return (0, ref)
+
+    # ------------------------------------------------------------------------
+    # -------------------------- Startup controller --------------------------
+    # ------------------------------------------------------------------------
+    def startup_ctl_enable(self, reset=False):
+
+        return self.enable_controller('startup', reset=reset)
+    
+
+    def startup_ctl_set_params(self, uinc=None, ufinal=None):
+
+        params = {}
+        if uinc is not None:
+            params['uinc'] = float(uinc)
+        if ufinal is not None:
+            params['ufinal'] = float(ufinal)
+
+        return self.set_controller_params('startup', params)
+
+
+    def startup_ctl_get_params(self):
+
+        return self.get_controller_params('startup')
+    # ------------------------------------------------------------------------
+
+    # ------------------------------------------------------------------------
+    # ------------------------- State feedback + int -------------------------
+    # ------------------------------------------------------------------------
+    def sfb_int_ctl_enable(self, reset=True):
+
+        return self.enable_controller('sfb_int', reset=reset)
+
+            
+    def sfb_int_ctl_set_time_resp(self, ts, os, method='approx'):
+
+        status, freq = self._hw_if.get_pwm_frequency()
+        if status != 0:
+            return (-1, status)
+
+        dt = 1 / float(freq)
         
-        return (0, trace_data)
+        sfbc = lrssoc.buck.buck_controller.SFBINT()
+
+        params = sfbc.params(float(ts), float(os), dt=dt, method=method)
+
+        return self.set_controller_params('sfb_int', params)
 
 
-    def trace_reset(self):
+    def sfb_int_ctl_get_time_resp(self):
+
+        #sfbc = lrssoc.cuk.cuk_controller.SFBINT()
+        
+        status, params = self.get_controller_params('sfb_int')
+        if status != 0:
+            return (-1, status)
+
+        return params
+    # ------------------------------------------------------------------------
+
+
+    # ========================================================================
+    
+    # ========================================================================
+    # =========================== Trace functions ============================
+    # ========================================================================
+    def read_trace(self):
+        """
+        """
+        status, (traces, trace_data) = self._tr_if.read()
+        if status != 0:
+            return (-1, status)
+
+        status, freq = self._hw_if.get_pwm_frequency()
+        if status != 0:
+            return (-1, status)
+
+        t = 1 / freq * np.arange( len(trace_data[0]) )
+        trace_data = np.array(trace_data).T
+        
+        return (0, (traces, trace_data, t))
+
+
+    def reset_trace(self):
         """
         """
         status, = self._tr_if.reset()
@@ -155,17 +251,17 @@ class Buck:
         return (0,)
 
 
-    def trace_set_size(self, size):
+    def set_trace_size(self, size):
         """
         """
-        status, = self._tr_if.set_size(size)
-        if status != 0:
-            return (-1, status)
+        status = self._tr_if.set_size(size)
+        if status[0] != 0:
+            return (-1, status[0])
 
         return (0,)
 
 
-    def trace_get_size(self):
+    def get_trace_size(self):
         """
         """
         status, size = self._tr_if.get_size()
@@ -173,3 +269,74 @@ class Buck:
             return (-1, status)
 
         return (0, size)
+
+    # ========================================================================
+    
+    # ========================================================================
+    # ============================= HW functions =============================
+    # ========================================================================
+    
+    def get_hw_status(self):
+
+        status, hw_status = self._hw_if.get_status()
+        if status != 0:
+            return (-1, status)
+
+        return (0, hw_status)
+    
+
+    def clear_hw_status(self):
+
+        status = self.disable_controller()
+
+        if status[0] != 0:
+            return (-1, status)
+
+        return self._hw_if.clear_status()
+
+
+    def set_input_relay(self, state):
+
+        if state != 0: state = 1
+        
+        return self._hw_if.set_input_relay( int(state) )
+
+
+    def set_output_relay(self, state):
+
+        if state != 0: state = 1
+        
+        return self._hw_if.set_output_relay( int(state) )    
+ 
+    # ========================================================================
+
+    # ========================================================================
+    # ============================ Plot functions ============================
+    # ========================================================================
+
+    def plot(self, data, t=None, ax=None):
+        self._plot.measurements(data, t)
+        
+
+    def plot_live(self, dt):
+
+        status, freq = self._hw_if.get_pwm_frequency()
+        if status != 0:
+            return (-1, status)
+
+        n_samples = round(dt * freq)
+
+        self.set_trace_size(n_samples)
+
+        t = 1 / freq * np.arange( n_samples )
+
+        fig, axes = plt.subplots(nrows=2, ncols=2)
+        fig.set_size_inches(10, 6)
+
+        while True:
+            status, (traces, data, t) = self.read_trace()
+            self._plot.measurements(data, t, fig=fig)
+            plt.pause(dt)
+            self.reset_trace()
+            
+    # ========================================================================

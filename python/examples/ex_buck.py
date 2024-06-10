@@ -4,11 +4,7 @@ import struct
 import numpy as np
 import matplotlib.pyplot as plt
 plt.ion()
-from scipy.interpolate import interp1d
 
-from numpy import asarray
-from numpy import savetxt
-from numpy import loadtxt
 import time
 
 import pickle
@@ -18,17 +14,17 @@ import scipy.signal
 # --- Input ---
 port = 8080
 
-host = '131.246.75.145' #131.246.75.192
+host = '131.246.75.147'
 settings = {'host':host, 'port':port}
 
-boost = lrssoc.boost.boost.Boost(0, 'ethernet', settings, 0)
+buck = lrssoc.buck.buck.Buck(1, 'ethernet', settings, tr_id=1)
 
-plot = lrssoc.boost.boost_plot.Plot()
+boost = lrssoc.boost.boost.Boost(0, 'ethernet', settings, tr_id=0)
 
-#status, (traces, data, t) = boost.read_trace()
-#boost._hw_if.set_adc_spi_freq(10000000)
-#boost._hw_if.set_pwm_inv()
-#boost._hw_if.set_pwm_duty(0.5)
+#plot = lrssoc.buck.buck_plot.Plot()
+
+#status, (traces, data, t) = buck.read_trace()
+
 
 def save_data(file, data):
 

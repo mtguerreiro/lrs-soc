@@ -496,7 +496,7 @@ static void uifocpIfProcessThread(void *param){
 static void uifaceNetworkThread(void *p){
     struct netif *netif;
     /* the mac address of the board. this should be unique per board */
-    unsigned char mac_ethernet_address[] = { 0x00, 0x0a, 0x35, 0x00, 0x01, 0x02 };
+    unsigned char mac_ethernet_address[] = { 0x00, 0x0a, 0x35, 0x00, 0x11, 0x02 };
 #if LWIP_IPV6==0
     ip_addr_t ipaddr, netmask, gw;
 #if UIFACE_CONFIG_USE_DHCP==1

@@ -154,11 +154,39 @@ uint32_t boostHwOpilGetAdcInterruptEnable(void){
     return 0;
 }
 //-----------------------------------------------------------------------------
+void boostHwOpilSetAdcCompReset(uint32_t enable){
+
+}
+//-----------------------------------------------------------------------------
+uint32_t boostHwOpilGetAdcCompReset(void){
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+void boostHwOpilSetAdcDoneIntFactor(uint8_t factor){
+
+}
+//-----------------------------------------------------------------------------
+uint32_t boostHwOpilGetAdcDoneIntFactor(void){
+
+    return 0;
+}
+
+//-----------------------------------------------------------------------------
 void boostHwOpilSetAdcSpiFreq(uint32_t freq){
 
 }
 //-----------------------------------------------------------------------------
 uint32_t boostHwOpilGetAdcSpiFreq(void){
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+void boostHwOpilSetAdcCompEnable(uint32_t freq){
+
+}
+//-----------------------------------------------------------------------------
+uint32_t boostHwOpilGetAdcCompEnable(void){
 
     return 0;
 }

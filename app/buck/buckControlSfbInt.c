@@ -1,26 +1,30 @@
-/*
- * buckSfbControl.c
- *
- *  Created on: 30 de ago. de 2023
- *      Author: marco
- */
 
 #ifdef SOC_CPU1
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
-#include "buckControlDisabled.h"
-#include "buckConfig.h"
+#include "buckControlSfbInt.h"
 
 #include "ocpConfig.h"
 #include "ocpTrace.h"
+
+#include "buckConfig.h"
+//=============================================================================
+
+//=============================================================================
+/*-------------------------------- Prototypes -------------------------------*/
+//=============================================================================
 
 //=============================================================================
 
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-
+static float k1 = 0.0f, k2 = 0.0f, ke = 0.0f;
+static float dt = 0.0f;
+static float x1 = 0.0f, x2 = 0.0f;
+static float xe = 0.0f, xe_1 = 0.0f;
+static float u = 0.0f;
 //=============================================================================
 
 //=============================================================================
@@ -33,34 +37,67 @@
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void buckControlDisabledInitialize(void){
+void buckControlSfbIntInitialize(void){
 
-	//ocpTraceAddSignal(OCP_TRACE_1, (void *)&i_ac, "Grid current");
 }
 //-----------------------------------------------------------------------------
-int32_t buckControlDisabledSetParams(void *params, uint32_t n){
+int32_t buckControlSfbIntSetParams(void *params, uint32_t n){
+
+    float *p = (float *)params;
+
+    k1 = *p++;
+    k2 = *p++;
+    ke = *p++;
+    dt = *p++;
 
 	return 0;
 }
 //-----------------------------------------------------------------------------
-int32_t buckControlDisabledGetParams(void *in, uint32_t insize, void *out, uint32_t maxoutsize){
+int32_t buckControlSfbIntGetParams(void *in, uint32_t insize, void *out, uint32_t maxoutsize){
 
-    return 0;
+    float *p = (float *)out;
+
+    *p++ = k1;
+    *p++ = k2;
+    *p++ = ke;
+    *p++ = dt;
+
+    return 16;
 }
 //-----------------------------------------------------------------------------
-int32_t buckControlDisabledRun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, void *outputs, int32_t nmaxoutputs){
+int32_t buckControlSfbIntRun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, void *outputs, int32_t nmaxoutputs){
 
     buckConfigMeasurements_t *m = (buckConfigMeasurements_t *)meas;
+    buckConfigReferences_t *r = (buckConfigReferences_t *)refs;
     buckConfigControl_t *o = (buckConfigControl_t *)outputs;
 
-    o->u = 0.0f;
+    /* States */
+    x1 = m->i_l;
+    x2 = m->v_dc_out;
+
+    /* Deviations */
+    xe = r->v_o - m->v_dc_out;
+
+    /* Integral */
+    xe = xe_1 + dt * (r->v_o - m->v_out);
+    xe_1 = xe;
+
+    /* Control */
+    u = -k1 * x1 - k2 * x2 - ke * xe;
+
+    if( u > 1.0f ) u = 1.0f;
+    if( u < 0.0f ) u = 0.0f;
+
+    o->u = u;
 
     return sizeof(buckConfigControl_t);
 }
 //-----------------------------------------------------------------------------
-void buckControlDisabledReset(void){
+void buckControlSfbIntReset(void){
 
+    xe_1 = 0.0f;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
+
 #endif /* SOC_CPU1 */

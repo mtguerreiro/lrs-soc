@@ -70,9 +70,23 @@ void boostHwOpilSetAdcInterruptEnable(uint32_t enable);
 //-----------------------------------------------------------------------------
 uint32_t boostHwOpilGetAdcInterruptEnable(void);
 //-----------------------------------------------------------------------------
+void boostHwOpilSetAdcCompReset(uint32_t enable);
+//-----------------------------------------------------------------------------
+uint32_t boostHwOpilGetAdcCompReset(void);
+//-----------------------------------------------------------------------------
+
+void boostHwOpilSetAdcDoneIntFactor(uint8_t factor);
+//-----------------------------------------------------------------------------
+uint32_t boostHwOpilGetAdcDoneIntFactor(void);
+
+//-----------------------------------------------------------------------------
 void boostHwOpilSetAdcSpiFreq(uint32_t freq);
 //-----------------------------------------------------------------------------
 uint32_t boostHwOpilGetAdcSpiFreq(void);
+//-----------------------------------------------------------------------------
+void boostHwOpilSetAdcCompEnable(uint32_t freq);
+//-----------------------------------------------------------------------------
+uint32_t boostHwOpilGetAdcCompEnable(void);
 //-----------------------------------------------------------------------------
 int32_t boostHwOpilGetMeasurements(void *meas);
 //-----------------------------------------------------------------------------

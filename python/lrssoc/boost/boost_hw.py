@@ -53,9 +53,17 @@ class Commands:
         self.clear_status = 26
         self.get_status = 27
 
-        self.set_pwm_inv = 28  #added
-        self.get_pwm_inv = 29   #added
+        self.set_pwm_inv = 28
+        self.get_pwm_inv = 29
+        
+        self.set_adc_comp_reset = 30
+        self.get_adc_comp_reset = 31
 
+        self.set_adc_comp_enable = 32
+        self.get_adc_comp_enable = 33
+        
+        self.set_adc_done_int_factor = 34
+        self.get_adc_done_int_factor = 35
 
 """
 class MeasGains:
@@ -148,6 +156,7 @@ class Hw:
     def get_pwm_ovf_trigger_enable(self):
 
         return self._get_pwm_ovf_trigger_enable()
+
 
     def set_pwm_inv(self, enable):
 
@@ -251,7 +260,30 @@ class Hw:
         """Gets ADC interrupt status.
         """
         return self._get_adc_int_enable()
+   
+   
+    def set_adc_comp_reset(self, reset):
+        """Resets ADC protection comparators.
+        """
+        return self._set_adc_comp_reset(reset)
+
+
+    def get_adc_comp_reset(self):
+        """Gets ADC reset status.
+        """
+        return self._get_adc_comp_reset()
     
+    def set_adc_done_int_factor(self, factor):
+        """sets done interruption factor for 2nd interruption.
+        """
+        return self._set_adc_done_int_factor(factor)
+
+
+    def get_adc_done_int_factor(self):
+        """Gets done iterruption factor of 2nd interruption.
+        """
+        return self._get_adc_done_int_factor()
+           
     
     def set_adc_spi_freq(self, freq):
         """Sets ADC SPI clock frequency, in Hz.
@@ -267,6 +299,21 @@ class Hw:
             return (-1, status)
         
         return (status, int(freq))
+
+    def set_adc_comp_enable(self, enable):
+        """Enables ADC comparators.
+        """
+        return self._set_adc_comp_enable(int(enable))
+
+
+    def get_adc_comp_enable(self):
+        """Gets status of ADC comparators.
+        """
+        status, enable = self._get_adc_comp_enable()
+        if status != 0:
+            return (-1, status)
+        
+        return (status, int(enable))
 
 
     def set_input_relay(self, state):
@@ -528,7 +575,8 @@ class Hw:
 
         enable = lrssoc.conversions.u8_to_u32(enable, msb=False)
         
-        return (0, enable)   
+        return (0, enable)
+
 
     def _set_pwm_freq(self, freq):
         """
@@ -834,6 +882,110 @@ class Hw:
         enable = lrssoc.conversions.u8_to_u32(enable, msb=False)
         
         return (0, enable)
+
+
+    def _set_adc_comp_reset(self, enable):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.set_adc_comp_reset
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(enable, msb=False) )
+        
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error reseting ADC comparators. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        return (0,)
+    
+
+    def _get_adc_comp_reset(self):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.get_adc_comp_reset
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, enable = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting ADC int enable. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        enable = lrssoc.conversions.u8_to_u32(enable, msb=False)
+        
+        return (0, enable)
+
+ 
+    def _set_adc_done_int_factor(self, enable):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.set_adc_done_int_factor
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(enable, msb=False) )
+        
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting done_int_factor. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        return (0,)
+    
+
+    def _get_adc_done_int_factor(self):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.get_adc_done_int_factor
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, enable = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting done_int_factor. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        enable = lrssoc.conversions.u8_to_u32(enable, msb=False)
+        
+        return (0, enable)
+ 
+    
     
 
     def _set_adc_spi_freq(self, freq):
@@ -886,6 +1038,59 @@ class Hw:
         
         return (0, freq)
 
+
+    def _set_adc_comp_enable(self, enable):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.set_adc_comp_enable
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(enable, msb=False) )
+        
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error enabling ADC comparators. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        return (0,)
+
+
+    def _get_adc_comp_enable(self):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.get_adc_comp_enable
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, enable = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting ADC comparators status. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        enable = lrssoc.conversions.u8_to_u32(enable, msb=False)
+        
+        return (0, enable)
+        
+        
+        
 
     def _set_input_relay(self, state):
         """

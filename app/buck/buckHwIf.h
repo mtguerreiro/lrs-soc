@@ -1,10 +1,10 @@
 /*
- * boostHwIf.h
+ * buckHwIf.h
  *
  */
 
-#ifndef BOOST_HW_IF_H_
-#define BOOST_HW_IF_H_
+#ifndef BUCK_HW_IF_H_
+#define BUCK_HW_IF_H_
 
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
@@ -30,7 +30,7 @@ typedef enum{
      *   PWM under reset (the PWM becomes inactive). A value of 0 releases the
      *   PWM for operation.
      */
-    BOOST_HW_IF_SET_PWM_RESET,
+    BUCK_HW_IF_SET_PWM_RESET,
 
     /**
      * Command
@@ -43,7 +43,7 @@ typedef enum{
      *  | RESET (uint32) |
      *  ------------------
      */
-    BOOST_HW_IF_GET_PWM_RESET,
+    BUCK_HW_IF_GET_PWM_RESET,
 
     /**
      * Command
@@ -59,7 +59,7 @@ typedef enum{
      *   at the GPIOs, and the state of the GPIOs depends on the PWM signals.
      *   A value of 0 disables the PWM signals and the GPIOs are set to 0.
      */
-    BOOST_HW_IF_SET_PWM_OUTPUT_ENABLE,
+    BUCK_HW_IF_SET_PWM_OUTPUT_ENABLE,
 
     /**
      * Command
@@ -72,7 +72,7 @@ typedef enum{
      *  | OUTPUT ENABLE (uint32) |
      *  --------------------------
      */
-    BOOST_HW_IF_GET_PWM_OUTPUT_ENABLE,
+    BUCK_HW_IF_GET_PWM_OUTPUT_ENABLE,
 
     /**
      * Command
@@ -90,7 +90,7 @@ typedef enum{
      *   signal is used to trigger the ADC. Thus, if disabled, no ADC
      *   conversions will be triggered, even if the ADC is enabled.
      */
-    BOOST_HW_IF_SET_PWM_OVF_TRIGGER_ENABLE,
+    BUCK_HW_IF_SET_PWM_OVF_TRIGGER_ENABLE,
 
     /**
      * Command
@@ -103,7 +103,7 @@ typedef enum{
      *  | OVF TRIGGER ENABLE (uint32) |
      *  -------------------------------
      */
-    BOOST_HW_IF_GET_PWM_OVF_TRIGGER_ENABLE,
+    BUCK_HW_IF_GET_PWM_OVF_TRIGGER_ENABLE,
 
     /**
      * Command
@@ -124,7 +124,7 @@ typedef enum{
      *   PERIOD must be an integer value and is always truncated. Thus, it is
      *   not possible to generate arbitrary PWM frequencies.
      */
-    BOOST_HW_IF_SET_PWM_FREQ,
+    BUCK_HW_IF_SET_PWM_FREQ,
 
     /**
      * Command
@@ -140,7 +140,7 @@ typedef enum{
      * Notes
      * - FREQUENCY is given in Hz.
      */
-    BOOST_HW_IF_GET_PWM_FREQ,
+    BUCK_HW_IF_GET_PWM_FREQ,
 
     /**
      * Command
@@ -160,7 +160,7 @@ typedef enum{
      *   COUNTER must be a integer, and is truncated, which limits the
      *   resolution of the actual duty cycle .
      */
-    BOOST_HW_IF_SET_PWM_DUTY,
+    BUCK_HW_IF_SET_PWM_DUTY,
 
     /**
      * Command
@@ -176,7 +176,7 @@ typedef enum{
      * Notes
      * - Duty-cycle is given as a value between 0 and 1.
      */
-    BOOST_HW_IF_GET_PWM_DUTY,
+    BUCK_HW_IF_GET_PWM_DUTY,
 
     /**
      * Command
@@ -200,7 +200,7 @@ typedef enum{
      *   resulting in a period of 10 ns, the dead time can only be multiples of
      *   10 ns.
      */
-    BOOST_HW_IF_SET_PWM_DEAD_TIME,
+    BUCK_HW_IF_SET_PWM_DEAD_TIME,
 
     /**
      * Command
@@ -216,7 +216,7 @@ typedef enum{
      * Notes
      * - PWM dead time, in nanoseconds.
      */
-    BOOST_HW_IF_GET_PWM_DEAD_TIME,
+    BUCK_HW_IF_GET_PWM_DEAD_TIME,
 
     /**
      * Command
@@ -233,7 +233,7 @@ typedef enum{
      *   place when the ADC is triggered, either by the PWM overflow signal, or
      *   by a manual trigger.
      */
-    BOOST_HW_IF_SET_ADC_ENABLE,
+    BUCK_HW_IF_SET_ADC_ENABLE,
 
     /**
      * Command
@@ -249,7 +249,7 @@ typedef enum{
      * Notes
      * - DUTY is given as a value between 0 and 1.
      */
-    BOOST_HW_IF_GET_ADC_ENABLE,
+    BUCK_HW_IF_GET_ADC_ENABLE,
 
     /**
      * Command
@@ -267,7 +267,7 @@ typedef enum{
      *   conversion. If TRIGGER is not cleared, no further conversions take
      *   place, even if the PWM overflow signal is enabled.
      */
-    BOOST_HW_IF_SET_ADC_MANUAL_TRIG,
+    BUCK_HW_IF_SET_ADC_MANUAL_TRIG,
 
     /**
      * Command
@@ -280,7 +280,7 @@ typedef enum{
      *  | TRIGGER (uint32) |
      *  --------------------
      */
-    BOOST_HW_IF_GET_ADC_MANUAL_TRIG,
+    BUCK_HW_IF_GET_ADC_MANUAL_TRIG,
 
     /**
      * Command
@@ -295,7 +295,7 @@ typedef enum{
      * - ENABLE should be either 0 or 1. A value of 1 enables generation of an
      *   interrupt signal, and a value of 0 disables it.
      */
-    BOOST_HW_IF_SET_ADC_INT_ENABLE,
+    BUCK_HW_IF_SET_ADC_INT_ENABLE,
 
     /**
      * Command
@@ -308,7 +308,7 @@ typedef enum{
      *  | ENABLE (uint32) |
      *  -------------------
      */
-    BOOST_HW_IF_GET_ADC_INT_ENABLE,
+    BUCK_HW_IF_GET_ADC_INT_ENABLE,
 
     /**
      * Command
@@ -328,7 +328,7 @@ typedef enum{
      *   COUNTER is truncated; therefore, arbitrary SPI frequencies cannot be
      *   generated.
      */
-    BOOST_HW_IF_SET_ADC_SPI_FREQ,
+    BUCK_HW_IF_SET_ADC_SPI_FREQ,
 
     /**
      * Command
@@ -344,7 +344,7 @@ typedef enum{
      * Notes
      * - FREQUENCY is given in Hz.
      */
-    BOOST_HW_IF_GET_ADC_SPI_FREQ,
+    BUCK_HW_IF_GET_ADC_SPI_FREQ,
 
     /**
      * Command
@@ -356,7 +356,7 @@ typedef enum{
      * No response
      *
      */
-    BOOST_HW_IF_SET_INPUT_RELAY,
+    BUCK_HW_IF_SET_INPUT_RELAY,
 
     /**
      * Command
@@ -370,7 +370,7 @@ typedef enum{
      *  ------------------------
      *
      */
-    BOOST_HW_IF_GET_INPUT_RELAY,
+    BUCK_HW_IF_GET_INPUT_RELAY,
 
     /**
      * Command
@@ -382,7 +382,7 @@ typedef enum{
      * No response
      *
      */
-    BOOST_HW_IF_SET_OUTPUT_RELAY,
+    BUCK_HW_IF_SET_OUTPUT_RELAY,
 
     /**
      * Command
@@ -396,7 +396,7 @@ typedef enum{
      *  -------------------------
      *
      */
-    BOOST_HW_IF_GET_OUTPUT_RELAY,
+    BUCK_HW_IF_GET_OUTPUT_RELAY,
 
     /**
      * Command
@@ -408,7 +408,7 @@ typedef enum{
      * No response
      *
      */
-    BOOST_HW_IF_SET_MEAS_GAINS,
+    BUCK_HW_IF_SET_MEAS_GAINS,
 
     /**
      * Command
@@ -422,7 +422,7 @@ typedef enum{
      *  -------------------
      *
      */
-    BOOST_HW_IF_GET_MEAS_GAINS,
+    BUCK_HW_IF_GET_MEAS_GAINS,
 
     /**
      * Command
@@ -434,7 +434,7 @@ typedef enum{
      * No response
      *
      */
-    BOOST_HW_IF_CLEAR_STATUS,
+    BUCK_HW_IF_CLEAR_STATUS,
 
     /**
      * Command
@@ -448,7 +448,7 @@ typedef enum{
      *  -------------------
      *
      */
-    BOOST_HW_IF_GET_STATUS,
+    BUCK_HW_IF_GET_STATUS,
 
     /**
      * Command
@@ -463,7 +463,7 @@ typedef enum{
      * - INV should be either 0 or 1. PWM A and B outputs are XOR'ed with
      *   the INV bit.
      */
-    BOOST_HW_IF_SET_PWM_INV,
+    BUCK_HW_IF_SET_PWM_INV,
 
     /**
      * Command
@@ -476,106 +476,10 @@ typedef enum{
      *  | INV (uint32) |
      *  --------------------
      */
-    BOOST_HW_IF_GET_PWM_INV,
-	
-   /**
-	 * Command
-	 *  -------------------------------------------------------
-	 *  | SET ADC COMPARATOR RESET (uint32) | ENABLE (uint32) |
-	 *  -------------------------------------------------------
-	 *
-	 * Response
-	 * No response
-	 *
-	 * Notes
-	 * - ENABLE should be either 0 or 1. A value of 1 enables generation of an
-	 *   interrupt signal, and a value of 0 disables it.
-	 */
-	BOOST_HW_IF_SET_ADC_COMP_RESET,
+    BUCK_HW_IF_GET_PWM_INV,
 
-	/**
-	 * Command
-	 *  -------------------------------------
-	 *  | GET ADC COMPARATOR RESET (uint32) |
-	 *  -------------------------------------
-	 *
-	 * Response
-	 *  -------------------
-	 *  | ENABLE (uint32) |
-	 *  -------------------
-	 */
-	BOOST_HW_IF_GET_ADC_COMP_RESET,
-
-	/**
-	 * Command
-	 *  -------------------------------------------------------
-	 *  | SET ADC COMPARATOR RESET (uint32) | ENABLE (uint32) |
-	 *  -------------------------------------------------------
-	 *
-	 * Response
-	 * No response
-	 *
-	 * Notes
-	 * - ENABLE should be a 32-bit value where each bit enables one protection comparator of ADC channels.
-	 *  A value of 1 enables generation of an interrupt signal  (shunt trip) if protection limit is violated, and a value of 0 disables it.
-	 *  Although the value to be introduced is a 32-bit value, the bits taken in consideration are defined by the
-	 *  number of channels in the ADC. Currently there are 16 channels but only 6 channels are being used so this
-	 *  value should be 0x3F (only the 6 LSB set).
-	 */
-
-	BOOST_HW_IF_SET_ADC_COMP_ENABLE,
-	/**
-	 * Command
-	 *  -------------------------------------
-	 *  | GET ADC COMPARATOR RESET (uint32) |
-	 *  -------------------------------------
-	 *
-	 * Response
-	 *  -------------------
-	 *  | ENABLE (uint32) |
-	 *  -------------------
-	 */
-	BOOST_HW_IF_GET_ADC_COMP_ENABLE,
-	/**
-	 * Command
-	 *  -------------------------------------------------------
-	 *  | SET ADC DONE INT FACTOR (uint8) | FACTOR (uint8) |
-	 *  -------------------------------------------------------
-	 *
-	 * Response
-	 * No response
-	 *
-	 * Notes
-	 * - FACTOR is written for second interruption which is produced every FACTOR times
-	 * the first interruption is produced.
-	 *
-	 *
-	 */
-	BOOST_HW_IF_SET_ADC_DONE_INT_FACTOR,
-
-	/**
-	 * Command
-	 *  ----------------------------------
-	 *  | GET ADC DONE INT FACTOR (uint32) |
-	 *  ----------------------------------
-	 *
-	 * Response
-	 *  ----------------------
-	 *  | FACTOR (uint8) |
-	 *  ----------------------
-	 *
-	 * Notes
-	 * - FACTOR for second interruption which is produced every FACTOR times
-	 * the first interruption is produced.
-	 */
-	BOOST_HW_IF_GET_ADC_DONE_INT_FACTOR,
-
-	BOOST_HW_IF_SET_PWM_BYPASS,
-
-	BOOST_HW_IF_GET_PWM_BYPASS,
-
-    BOOST_HW_IF_END
-}boostHwIfCommands_t;
+    BUCK_HW_IF_END
+}buckHwIfCommands_t;
 
 //=============================================================================
 
@@ -583,10 +487,10 @@ typedef enum{
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-int32_t boostHwIfInitialize(void);
+int32_t buckHwIfInitialize(void);
 //-----------------------------------------------------------------------------
-int32_t boostHwIf(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+int32_t buckHwIf(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
 //=============================================================================
 
-#endif /* BOOST_HW_IF_H_ */
+#endif /* BUCK_HW_IF_H_ */

@@ -119,7 +119,7 @@ int32_t ipcClientRequest(void *req, int32_t reqsize,
 		void **resp, int32_t maxrespsize,
 		uint32_t timeout){
 
-	int32_t status;
+	int32_t status = -1;
 	int32_t size;
 
 	if( ipcClientCtl.lock != 0 ){

@@ -1,20 +1,11 @@
-/*
- * buckSfbControl.c
- *
- *  Created on: 30 de ago. de 2023
- *      Author: marco
- */
 
-#ifdef SOC_CPU1
+#ifndef BUCK_CONTROL_SFB_INT_H_
+#define BUCK_CONTROL_SFB_INT_H_
+
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
-#include "buckControlDisabled.h"
-#include "buckConfig.h"
-
-#include "ocpConfig.h"
-#include "ocpTrace.h"
-
+#include "stdint.h"
 //=============================================================================
 
 //=============================================================================
@@ -24,43 +15,19 @@
 //=============================================================================
 
 //=============================================================================
-/*--------------------------------- Globals ---------------------------------*/
-//=============================================================================
-
-//=============================================================================
-
-//=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void buckControlDisabledInitialize(void){
-
-	//ocpTraceAddSignal(OCP_TRACE_1, (void *)&i_ac, "Grid current");
-}
+void buckControlSfbIntInitialize(void);
 //-----------------------------------------------------------------------------
-int32_t buckControlDisabledSetParams(void *params, uint32_t n){
-
-	return 0;
-}
+int32_t buckControlSfbIntSetParams(void *params, uint32_t n);
 //-----------------------------------------------------------------------------
-int32_t buckControlDisabledGetParams(void *in, uint32_t insize, void *out, uint32_t maxoutsize){
-
-    return 0;
-}
+int32_t buckControlSfbIntGetParams(void *in, uint32_t insize, void *out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
-int32_t buckControlDisabledRun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, void *outputs, int32_t nmaxoutputs){
-
-    buckConfigMeasurements_t *m = (buckConfigMeasurements_t *)meas;
-    buckConfigControl_t *o = (buckConfigControl_t *)outputs;
-
-    o->u = 0.0f;
-
-    return sizeof(buckConfigControl_t);
-}
+int32_t buckControlSfbIntRun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, void *outputs, int32_t nmaxoutputs);
 //-----------------------------------------------------------------------------
-void buckControlDisabledReset(void){
-
-}
+void buckControlSfbIntReset(void);
 //-----------------------------------------------------------------------------
 //=============================================================================
-#endif /* SOC_CPU1 */
+
+#endif /* BUCK_CONTROL_SFB_INT_H_ */

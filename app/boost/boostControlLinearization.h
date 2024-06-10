@@ -1,20 +1,17 @@
 /*
- * buckSfbControl.c
+ * boostControlEnergycint.h
  *
- *  Created on: 30 de ago. de 2023
- *      Author: marco
+ *  Created on: 29.03.2023
+ *      Author: rodolfo
  */
 
-#ifdef SOC_CPU1
+#ifndef BOOST_CONTROL_LINEARIZATION_H_
+#define BOOST_CONTROL_LINEARIZATION_H_
+
 //=============================================================================
 /*-------------------------------- Includes ---------------------------------*/
 //=============================================================================
-#include "buckControlDisabled.h"
-#include "buckConfig.h"
-
-#include "ocpConfig.h"
-#include "ocpTrace.h"
-
+#include "stdint.h"
 //=============================================================================
 
 //=============================================================================
@@ -24,43 +21,22 @@
 //=============================================================================
 
 //=============================================================================
-/*--------------------------------- Globals ---------------------------------*/
-//=============================================================================
-
-//=============================================================================
-
-//=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void buckControlDisabledInitialize(void){
-
-	//ocpTraceAddSignal(OCP_TRACE_1, (void *)&i_ac, "Grid current");
-}
+void boostControlLinearizationInitialize(void);
 //-----------------------------------------------------------------------------
-int32_t buckControlDisabledSetParams(void *params, uint32_t n){
-
-	return 0;
-}
+int32_t boostControlLinearizationSetParams(void *params, uint32_t n);
 //-----------------------------------------------------------------------------
-int32_t buckControlDisabledGetParams(void *in, uint32_t insize, void *out, uint32_t maxoutsize){
-
-    return 0;
-}
+int32_t boostControlLinearizationGetParams(void *in, uint32_t insize, void *out, uint32_t maxoutsize);
 //-----------------------------------------------------------------------------
-int32_t buckControlDisabledRun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, void *outputs, int32_t nmaxoutputs){
-
-    buckConfigMeasurements_t *m = (buckConfigMeasurements_t *)meas;
-    buckConfigControl_t *o = (buckConfigControl_t *)outputs;
-
-    o->u = 0.0f;
-
-    return sizeof(buckConfigControl_t);
-}
+int32_t boostControlLinearizationRun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, void *outputs, int32_t nmaxoutputs);
 //-----------------------------------------------------------------------------
-void buckControlDisabledReset(void){
-
-}
+void boostControlLinearizationReset(void);
 //-----------------------------------------------------------------------------
 //=============================================================================
-#endif /* SOC_CPU1 */
+int32_t boostControlEnergycint_rhoRun(void *meas, void *outputs);
+//-----------------------------------------------------------------------------
+float integrator_euler_rho(float input, float output_1, float ts);
+
+#endif /* BOOST_CONTROL_LINEARIZATION_H_ */

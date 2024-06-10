@@ -42,6 +42,8 @@ class Controllers:
             'energyc'    : {'id':2, 'if':Energyc()}, #added for new controller
             'energycint' : {'id':3, 'if':Energycint()}, #added for new controller
             'energycintFPGA' : {'id':4, 'if':EnergycintFPGA()} #added for new controller
+            'energycmpc' : {'id':5, 'if':Energycmpc()}, #added for new controller
+            'linearization' : {'id':6, 'if':Linearization()} #added for new controller
             }
 
 
@@ -163,6 +165,76 @@ class EnergycintFPGA:    #added for new controller
             'K1': pars[2],
             'K2': pars[3],
             'K3': pars[4]
+            }
+
+        return params
+
+class Energycmpc:    #added for new controller
+    def __init__(self):
+        pass
+    
+
+    def set(self, params):
+
+        L = params['L']
+        C = params['C']
+        d_min = params['d_min']
+        d_max = params['d_max']
+        i_l_min = params['i_l_min']
+        i_l_max = params['i_l_max']
+        data = list(struct.pack('<ffffff', L, C, d_min, d_max, i_l_min, i_l_max))
+        
+        return data
+    
+
+    def get(self, data):
+
+        pars = struct.unpack('<ffffff', data)
+
+        params = {
+            'L': pars[0],
+            'C': pars[1],
+            'd_min': pars[2],
+            'd_max': pars[3],
+            'i_l_min': pars[4],
+            'i_l_max':pars[5]
+            }
+
+        return params
+
+class Linearization:    #added for new controller
+    def __init__(self):
+        pass
+    
+
+    def set(self, params):
+
+        L = params['L']
+        C = params['C']
+        KI = params['KI']
+        K1 = params['K1']
+        K2 = params['K2']
+        alpha = params['alpha']
+        control_f = params['control_f']
+        control_s = params['control_s']
+        data = list(struct.pack('<ffffffff', L, C, KI, K1, K2, alpha, control_f, control_s))
+        
+        return data
+    
+
+    def get(self, data):
+
+        pars = struct.unpack('<ffffffff', data)
+
+        params = {
+            'L': pars[0],
+            'C': pars[1],
+            'KI': pars[2],
+            'K1': pars[3],
+            'K2': pars[4],
+            'alpha':pars[5],
+            'control_f' :pars[6],
+            'control_s' :pars[7]
             }
 
         return params
