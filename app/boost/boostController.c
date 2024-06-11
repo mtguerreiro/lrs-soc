@@ -21,7 +21,7 @@
 #include "boostControlEnergyc.h"
 #include "boostControlEnergycint.h"
 #include "boostControlEnergycintFPGA.h"
-#include "boostControlEnergycMPC.h"
+//#include "boostControlEnergycMPC.h"
 #include "boostControlLinearization.h"
 
 //=============================================================================
@@ -181,11 +181,11 @@ static void boostControllerInitializeControllers(void){
 	controllers.run[BOOST_CONTROLLER_ENERGYCINT_FPGA] = boostControlEnergycintFPGARun;
 	controllers.reset[BOOST_CONTROLLER_ENERGYCINT_FPGA] = boostControlEnergycintFPGAReset;
 
-    controllers.initialize[BOOST_CONTROLLER_ENERGYCMPC] = boostControlEnergycMPCInitialize;
-    controllers.setParams[BOOST_CONTROLLER_ENERGYCMPC] = boostControlEnergycMPCSetParams;
-    controllers.getParams[BOOST_CONTROLLER_ENERGYCMPC] = boostControlEnergycMPCGetParams;
-    controllers.run[BOOST_CONTROLLER_ENERGYCMPC] = boostControlEnergycMPCRun;
-    controllers.reset[BOOST_CONTROLLER_ENERGYCMPC] = boostControlEnergycMPCReset;
+    //controllers.initialize[BOOST_CONTROLLER_ENERGYCMPC] = boostControlEnergycMPCInitialize;
+    //controllers.setParams[BOOST_CONTROLLER_ENERGYCMPC] = boostControlEnergycMPCSetParams;
+    //controllers.getParams[BOOST_CONTROLLER_ENERGYCMPC] = boostControlEnergycMPCGetParams;
+    //controllers.run[BOOST_CONTROLLER_ENERGYCMPC] = boostControlEnergycMPCRun;
+    //controllers.reset[BOOST_CONTROLLER_ENERGYCMPC] = boostControlEnergycMPCReset;
 
     controllers.initialize[BOOST_CONTROLLER_LINEARIZATION] = boostControlLinearizationInitialize;
     controllers.setParams[BOOST_CONTROLLER_LINEARIZATION] = boostControlLinearizationSetParams;

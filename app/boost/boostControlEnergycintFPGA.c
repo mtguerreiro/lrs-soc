@@ -7,9 +7,28 @@
 #include "ocpTrace.h"
 
 #include "boostConfig.h"
-//#include "xboostcontrol.h"
+#include "xboostcontrol.h"
 #include "xparameters.h"
 #include "boostHw.h"
+
+#include <stdlib.h>
+//=============================================================================
+/*----------------------------- Definitions ---------------------------------*/
+//=============================================================================
+#define min_i				-40.0f
+#define max_i				40.0f
+#define range_i 			(max_i - min_i)
+#define adc_res_i			4095.0f
+
+#define min_v				0.0f
+#define max_v				30.0f
+#define range_v 			(max_v - min_v)
+#define adc_res_v			4095.0f
+
+#define ts					1.0e-5f
+
+#define FREQ_SPLIT_FACTOR 	1
+
 //=============================================================================
 /*--------------------------------- Globals ---------------------------------*/
 //=============================================================================
@@ -44,17 +63,18 @@ void boostControlEnergycintFPGAInitialize(void){
 		print("ERROR: Lookup of accelerator configuration failed.\n\r");
 		return XST_FAILURE;
 	}
-	status = XBoostcontrol_CfgInitialize(&HlsBoostcontrol, BoostcontrolPtr);
+	int status = XBoostcontrol_CfgInitialize(&HlsBoostcontrol, BoostcontrolPtr);
 		if (status != XST_SUCCESS) {
 		print("ERROR: Could not initialize accelerator.\n\r");
 		exit(-1);
 	}
 
-	XBoostcontrol_Set_Li(&HlsBoostcontrol, *((u32*)&Li));
-	XBoostcontrol_Set_min_v(&HlsBoostcontrol, *((u32*)&min_v));
-	XBoostcontrol_Set_adc_gain_v_inv(&HlsBoostcontrol, *((u32*)&adc_gain_v_inv));
+	//float min_v_lval = min_v;
+	//XBoostcontrol_Set_Li(&HlsBoostcontrol, *((u32*)&Li));
+	//XBoostcontrol_Set_min_v(&HlsBoostcontrol, *((u32*)&min_v_lval));
+	//XBoostcontrol_Set_adc_gain_v_inv(&HlsBoostcontrol, *((u32*)&adc_gain_v_inv));
 
-	boostHwSetBypass(0);
+	//boostHwSetPwmBypass(0);
 
 	XBoostcontrol_Start(&HlsBoostcontrol);
 }
@@ -88,13 +108,17 @@ int32_t boostControlEnergycintFPGAGetParams(void *in, uint32_t insize, void *out
 //-----------------------------------------------------------------------------
 int32_t boostControlEnergycintFPGARun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, void *outputs, int32_t nmaxoutputs){
 
+	boostHwSetPwmBypass(0);
+	float min_v_lval = min_v;
+	XBoostcontrol_Set_Li(&HlsBoostcontrol, *((u32*)&Li));
+	XBoostcontrol_Set_min_v(&HlsBoostcontrol, *((u32*)&min_v_lval));
+	XBoostcontrol_Set_adc_gain_v_inv(&HlsBoostcontrol, *((u32*)&adc_gain_v_inv));
+
 	controlCounter++;
 
     boostConfigMeasurements_t *m = (boostConfigMeasurements_t *)meas;
     boostConfigReferences_t *r = (boostConfigReferences_t *)refs;
     boostConfigControl_t *o = (boostConfigControl_t *)outputs;
-
-    static float D = 0.0f;
 
     float i_in_conv = (m->i_l) * adc_gain_i_inv + min_i;
 	float i_out_conv = (m->i_o) * adc_gain_i_inv + min_i;
@@ -106,6 +130,9 @@ int32_t boostControlEnergycintFPGARun(void *meas, int32_t nmeas, void *refs, int
 	float energySetPoint = 0.5f * ( Li * (Po / v_in_conv) * (Po / v_in_conv) + Co * (r->v_o) * (r->v_o) );
 	float energyDerivative = v_in_conv * i_in_conv - Po;
 
+	XBoostcontrol_Set_v_in(&HlsBoostcontrol, *((u32*)&(m->v_dc_in))); //PiL
+	XBoostcontrol_Set_v_out(&HlsBoostcontrol, *((u32*)&(m->v_out))); //PiL
+
 	// Integral approximation using Tustin transform: x[n] = x[n-1] + (T/2)*(e[n] + e[n-1])
 	// Simulation of slow controller with f_ctrl = f_s / FREQ_SPLIT_FACTOR
 	if (controlCounter == FREQ_SPLIT_FACTOR)
@@ -114,12 +141,12 @@ int32_t boostControlEnergycintFPGARun(void *meas, int32_t nmeas, void *refs, int
 		prevError = actualEnergy - energySetPoint;
 
 		controllerOut = - k1 * errorIntegral - k2 * actualEnergy - k3 * energyDerivative;
+		updateLinearizationInput(controllerOut);
 		controlCounter = 0;
 	}
 
-	updateLinearizationInput(controllerOut);
-
-	o->u = D; //In case of skipping Feedback Linearization
+	o->u = boostHwGetPwmDuty(); //PiL
+	o->v_o_reference = r->v_o;  //PiL
 
     return sizeof(boostConfigControl_t);
 }

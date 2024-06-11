@@ -398,7 +398,7 @@ void boostHwControllerDisable(void){
 }
 //-----------------------------------------------------------------------------
 void boostHwControllerEnable(void){
-	boostHwSetBypass(1);          // Default for all controllers
+	boostHwSetPwmBypass(1);          // Default for all controllers
     boostHwSetPwmOutputEnable(1);
 
 }
