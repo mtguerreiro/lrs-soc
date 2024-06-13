@@ -394,15 +394,15 @@ static int32_t ocpZynqCpu1InitializeControlSystemBoost(void){
     config.fhwInterface = boostHwIf;
     config.fhwStatus = boostHwStatus;
 //for HW
-    //config.fgetInputs = boostHwGetMeasurements;
-    //config.fapplyOutputs = boostHwApplyOutputs;
-    //config.fenable = boostHwEnable;
-    //config.fdisable = boostHwDisable;
+    config.fgetInputs = boostHwGetMeasurements;
+    config.fapplyOutputs = boostHwApplyOutputs;
+    config.fenable = boostHwEnable;
+    config.fdisable = boostHwDisable;
 //for simulation
-    config.fgetInputs = boostOpilGetMeasurements;
-    config.fapplyOutputs = boostOpilUpdateControl;
-    config.fenable = 0;
-    config.fdisable = boostOpilDisable;
+    //config.fgetInputs = boostOpilGetMeasurements;
+    //config.fapplyOutputs = boostOpilUpdateControl;
+    //config.fenable = 0;
+    //config.fdisable = boostOpilDisable;
 
     config.frun = boostControllerRun;
     config.fcontrollerInterface = boostControllerInterface;

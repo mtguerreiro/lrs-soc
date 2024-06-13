@@ -92,16 +92,10 @@ typedef struct{
 #define BOOST_CONFIG_IO_AVG_GAIN        (float)((0.01177f))
 #define BOOST_CONFIG_IO_AVG_OFFS       (float)((-24.19f))
 
-#define BOOST_CONFIG_IL_AVG_GAIN        (float)((1.0f))
-#define BOOST_CONFIG_IL_AVG_OFFS        (float)((0.0f))
-
-#define BOOST_CONFIG_IO_AVG_GAIN        (float)((0.01177f))
-#define BOOST_CONFIG_IO_AVG_OFFS        (float)((-24.19f))
-
 #define BOOST_CONFIG_L                 ((float)(47e-6))
 #define BOOST_CONFIG_C                 ((float)(156.6e-6))
 
-#define BOOST_CONFIG_I_LIM             (10.0f)
+#define BOOST_CONFIG_I_LIM             (8.0f)
 #define BOOST_CONFIG_V_LIM             (30.0f)
 
 #define BOOST_CONFIG_SHUTDOWN_U_DEC     0.005
