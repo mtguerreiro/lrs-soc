@@ -112,10 +112,10 @@ int32_t boostControlEnergycintFPGARun(void *meas, int32_t nmeas, void *refs, int
     boostConfigReferences_t *r = (boostConfigReferences_t *)refs;
     boostConfigControl_t *o = (boostConfigControl_t *)outputs;
 
-    float i_in_conv = (m->i_l) * adc_gain_i_l_inv + min_i_l;
-	float i_out_conv = (m->i_o) * adc_gain_i_o_inv + min_i_o;
-	float v_out_conv = (m->v_dc_out) * adc_gain_v_out_inv + min_v_out;
-	float v_in_conv = (m->v_dc_in) * adc_gain_v_in_inv + min_v_in;
+    float i_in_conv = (m->i_l);
+	float i_out_conv = (m->i_o);
+	float v_out_conv = (m->v_dc_out);
+	float v_in_conv = (m->v_dc_in);
 	float Po = v_out_conv * i_out_conv;
 
 	float actualEnergy = 0.5f * ( Li * i_in_conv * i_in_conv + Co * v_out_conv * v_out_conv );
@@ -148,6 +148,16 @@ int32_t boostControlEnergycintFPGARun(void *meas, int32_t nmeas, void *refs, int
 	o->v_o_reference = r->v_o;
 	//--------------------------------------------------------------
 */
+	//----------------- HW debug signals ---------------------------
+	XBoostcontrol_Start(&HlsBoostcontrol);
+	u32 dutyTest32 = XBoostcontrol_Get_D_debug(&HlsBoostcontrol);
+	u32 vInTest32 = XBoostcontrol_Get_v_out_debug(&HlsBoostcontrol);
+	u32 vOutTest32 = XBoostcontrol_Get_v_in_debug(&HlsBoostcontrol);
+	float dutyTest = *((float*)&dutyTest32);
+	float vInTest = *((float*)&vInTest32);
+	float vOutTest = *((float*)&vOutTest32);
+	//--------------------------------------------------------------
+
     return sizeof(boostConfigControl_t);
 }
 
