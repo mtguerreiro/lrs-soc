@@ -21,7 +21,7 @@ int32_t boostControlEnergycintFPGAGetParams(void *in, uint32_t insize, void *out
 //-----------------------------------------------------------------------------
 int32_t boostControlEnergycintFPGARun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, void *outputs, int32_t nmaxoutputs);
 //-----------------------------------------------------------------------------
-void updateLinearizationInput(float controllerOut);
+void updateStates(float state1, float state2, float state3);
 //-----------------------------------------------------------------------------
 void boostControlEnergycintFPGAReset(void);
 //-----------------------------------------------------------------------------
