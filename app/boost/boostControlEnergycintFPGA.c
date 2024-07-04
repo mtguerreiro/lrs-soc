@@ -49,7 +49,6 @@ static float errorIntegral = 0.0f;
 static float prevError = 0.0f;
 
 static short controlCounter = 0;
-static short init = 1;
 
 static float min_v_in = BOOST_CONFIG_V_DC_IN_OFFS;
 static float min_v_out = BOOST_CONFIG_V_DC_OUT_OFFS;
@@ -125,16 +124,8 @@ int32_t boostControlEnergycintFPGAGetParams(void *in, uint32_t insize, void *out
 //-----------------------------------------------------------------------------
 int32_t boostControlEnergycintFPGARun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, void *outputs, int32_t nmaxoutputs){
 
-	if ( init == 1 )
-	{
-		XBoostcontrol_Set_Li(&HlsBoostcontrol, *((u32*)&Li));
-		XBoostcontrol_Set_min_v_in(&HlsBoostcontrol, *((u32*)&min_v_in));
-		XBoostcontrol_Set_min_v_out(&HlsBoostcontrol, *((u32*)&min_v_out));
-		XBoostcontrol_Set_adc_gain_v_in_inv(&HlsBoostcontrol, *((u32*)&adc_gain_v_in_inv));
-		XBoostcontrol_Set_adc_gain_v_out_inv(&HlsBoostcontrol, *((u32*)&adc_gain_v_out_inv));
-		//boostHwSetPwmBypass(0);
-		init = 0;
-	}
+	// Controller not working properly on Hardware when setting Bypass in the reset function
+	boostHwSetPwmBypass(0);
 
 	controlCounter++;
 
@@ -142,11 +133,20 @@ int32_t boostControlEnergycintFPGARun(void *meas, int32_t nmeas, void *refs, int
     boostConfigReferences_t *r = (boostConfigReferences_t *)refs;
     boostConfigControl_t *o = (boostConfigControl_t *)outputs;
 
-    // Do not use adc_gain_inv and min values when testing on hardware !!!
-    float i_in_conv = (m->i_l) * adc_gain_i_l_inv + min_i_l;
-	float i_out_conv = (m->i_o) * adc_gain_i_o_inv + min_i_o;
-	float v_out_conv = (m->v_dc_out) * adc_gain_v_out_inv + min_v_out;
-	float v_in_conv = (m->v_dc_in) * adc_gain_v_in_inv + min_v_in;
+    //----------------- HW ----------------------------------------
+	float i_in_conv = (m->i_l);
+	float i_out_conv = (m->i_o);
+	float v_out_conv = (m->v_dc_out);
+	float v_in_conv = (m->v_dc_in);
+	//-------------------------------------------------------------
+
+    //----------------- PiL ----------------------------------------
+    //float i_in_conv = (m->i_l) * adc_gain_i_l_inv + min_i_l;
+	//float i_out_conv = (m->i_o) * adc_gain_i_o_inv + min_i_o;
+	//float v_out_conv = (m->v_dc_out) * adc_gain_v_out_inv + min_v_out;
+	//float v_in_conv = (m->v_dc_in) * adc_gain_v_in_inv + min_v_in;
+	//--------------------------------------------------------------
+
 	float Po = v_out_conv * i_out_conv;
 
 	float actualEnergy = 0.5f * ( Li * i_in_conv * i_in_conv + Co * v_out_conv * v_out_conv );
@@ -154,10 +154,10 @@ int32_t boostControlEnergycintFPGARun(void *meas, int32_t nmeas, void *refs, int
 	float energyDerivative = v_in_conv * i_in_conv - Po;
 
 	//----------------- PiL ----------------------------------------
-	uint16_t v_in_u16 = (uint16_t)(m->v_dc_in);
-	uint16_t v_out_u16 = (uint16_t)(m->v_dc_out);
-	XBoostcontrol_Set_v_in(&HlsBoostcontrol, *((u32*)&v_in_u16));
-	XBoostcontrol_Set_v_out(&HlsBoostcontrol, *((u32*)&v_out_u16));
+	//uint16_t v_in_u16 = (uint16_t)(m->v_dc_in);
+	//uint16_t v_out_u16 = (uint16_t)(m->v_dc_out);
+	//XBoostcontrol_Set_v_in(&HlsBoostcontrol, *((u32*)&v_in_u16));
+	//XBoostcontrol_Set_v_out(&HlsBoostcontrol, *((u32*)&v_out_u16));
 	//--------------------------------------------------------------
 
 	// Integral approximation using Tustin transform: x[n] = x[n-1] + (T/2)*(e[n] + e[n-1])
@@ -172,11 +172,11 @@ int32_t boostControlEnergycintFPGARun(void *meas, int32_t nmeas, void *refs, int
 	}
 
 	//----------------- PiL ----------------------------------------
-	uint32_t D_u32;
-	D_u32 = XBoostcontrol_Get_D(&HlsBoostcontrol);
-	o->u = *((float*)&D_u32);
-	o->v_o_reference = r->v_o;
+	//uint32_t D_u32;
+	//D_u32 = XBoostcontrol_Get_D(&HlsBoostcontrol);
+	//o->u = *((float*)&D_u32);
 	//--------------------------------------------------------------
+	o->v_o_reference = r->v_o;
 
     return sizeof(boostConfigControl_t);
 }
@@ -205,7 +205,12 @@ void boostControlEnergycintFPGAReset(void){
 	errorIntegral = 0.0f;
 	prevError = 0.0f;
 	controlCounter = 0;
-	init = 1;
+	XBoostcontrol_Set_Li(&HlsBoostcontrol, *((u32*)&Li));
+	XBoostcontrol_Set_min_v_in(&HlsBoostcontrol, *((u32*)&min_v_in));
+	XBoostcontrol_Set_min_v_out(&HlsBoostcontrol, *((u32*)&min_v_out));
+	XBoostcontrol_Set_adc_gain_v_in_inv(&HlsBoostcontrol, *((u32*)&adc_gain_v_in_inv));
+	XBoostcontrol_Set_adc_gain_v_out_inv(&HlsBoostcontrol, *((u32*)&adc_gain_v_out_inv));
+	//boostHwSetPwmBypass(0);
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
