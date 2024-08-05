@@ -19,6 +19,7 @@
 #include "buckControlDisabled.h"
 #include "buckControlStartup.h"
 #include "buckControlSfbInt.h"
+#include "buckControlSfbIntFPGA.h"
 
 //=============================================================================
 
@@ -159,6 +160,12 @@ static void buckControllerInitializeControllers(void){
     controllers.getParams[BUCK_CONTROLLER_SFB_INT] = buckControlSfbIntGetParams;
     controllers.run[BUCK_CONTROLLER_SFB_INT] = buckControlSfbIntRun;
     controllers.reset[BUCK_CONTROLLER_SFB_INT] = buckControlSfbIntReset;
+
+    controllers.initialize[BUCK_CONTROLLER_SFB_INT_FPGA] = buckControlSfbIntFPGAInitialize;
+    controllers.setParams[BUCK_CONTROLLER_SFB_INT_FPGA] = buckControlSfbIntFPGASetParams;
+    controllers.getParams[BUCK_CONTROLLER_SFB_INT_FPGA] = buckControlSfbIntFPGAGetParams;
+    controllers.run[BUCK_CONTROLLER_SFB_INT_FPGA] = buckControlSfbIntFPGARun;
+    controllers.reset[BUCK_CONTROLLER_SFB_INT_FPGA] = buckControlSfbIntFPGAReset;
 
     /* Initializes all registered controllers */
     for(k = 0; k < BUCK_CONTROLLER_END; k++){

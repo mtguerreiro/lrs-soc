@@ -478,6 +478,10 @@ typedef enum{
      */
     BUCK_HW_IF_GET_PWM_INV,
 
+	BUCK_HW_IF_SET_PWM_BYPASS,
+
+	BUCK_HW_IF_GET_PWM_BYPASS,
+
     BUCK_HW_IF_END
 }buckHwIfCommands_t;
 

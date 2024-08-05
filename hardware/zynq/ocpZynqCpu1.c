@@ -31,7 +31,7 @@
 //#include "afeIf.h"
 //#include "afeHwZynq.h"
 
-//#include "buckOpil.h"
+#include "buckOpil.h"
 //#include "buckController.h"
 //#include "buckHw.h"
 
@@ -152,7 +152,7 @@ void ocpZynqCpu1Initialize(void *intcInst){
     ocpZynqCpu1InitializeControlSystemBoost();
     ocpZynqCpu1InitializeInterfaceBoost();
     ocpZynqCpu1InitializeControlSystemBuck();
-    //ocpZynqCpu1InitializeInterfaceBuck();
+    ocpZynqCpu1InitializeInterfaceBuck();
 
     ocpIfInitialize();
 }
@@ -180,7 +180,7 @@ static int32_t ocpZynqCpu1InitializeHw(void *intcInst){
 
     buckHwConfig.intc = intcInst;
     buckHwConfig.irqhandle = ocpZynqCpu1AdcIrq3;
-    //buckHwInitialize(&buckHwConfig);
+    buckHwInitialize(&buckHwConfig);
 
     /* Initialize timer for benchmarking */
     InitBenchmarking();
@@ -506,14 +506,14 @@ static int32_t ocpZynqCpu1InitializeInterfaceBuck(void){
     /* Initializes OPiL interface */
     ocpOpilConfig_t config;
 
-    config.updateMeas = 0;
-    config.updateSimData = 0;
+    config.updateMeas = buckOpilUpdateMeasurements;
+    config.updateSimData = buckOpilUpdateSimData;
 
     config.initControl = 0;
-    config.runControl = ocpZynqCpu1AdcIrq;
+    config.runControl = ocpZynqCpu1AdcIrq3;
 
-    config.getControl = 0;
-    config.getControllerData = 0;
+    config.getControl = buckOpilGetControl;
+    config.getControllerData = buckOpilGetControllerData;
 
     ocpOpilInitialize(&config);
 

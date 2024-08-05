@@ -24,8 +24,8 @@
 
 // Shifting factors determined by calculating b-a in Fixed Point format ap_fixed<a,b> for Vitis HLS
 #define FIXED_MATH_FTOI_GAINS		((float)(1 << 0))
-#define FIXED_MATH_FTOI_STATE1		((float)(1 << 30))
-#define FIXED_MATH_FTOI_STATE2		((float)(1 << 18))
+#define FIXED_MATH_FTOI_STATE1		((float)(1 << 26))
+#define FIXED_MATH_FTOI_STATE2		((float)(1 << 17))
 #define FIXED_MATH_FTOI_STATE3		((float)(1 << 3))
 
 #define ftoiGain1( a )				((int64_t) (a * FIXED_MATH_FTOI_GAINS))
@@ -171,13 +171,16 @@ int32_t boostControlEnergycintFPGARun(void *meas, int32_t nmeas, void *refs, int
 		controlCounter = 0;
 	}
 
-	//----------------- PiL ----------------------------------------
-	//uint32_t D_u32;
-	//D_u32 = XBoostcontrol_Get_D(&HlsBoostcontrol);
-	//o->u = *((float*)&D_u32);
+	XBoostcontrol_Start(&HlsBoostcontrol);
+	//----------------- PiL / Debug ----------------------------------------
+	uint32_t D_u32;
+	//do {
+	D_u32 = XBoostcontrol_Get_D_debug(&HlsBoostcontrol);
+	//} while (XBoostcontrol_Get_D_debug_vld(&HlsBoostcontrol) == 0);
+	o->u = *((float*)&D_u32);
+	o->e = actualEnergy;
 	//--------------------------------------------------------------
 	o->v_o_reference = r->v_o;
-
     return sizeof(boostConfigControl_t);
 }
 

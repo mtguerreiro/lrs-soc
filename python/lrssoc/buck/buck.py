@@ -218,6 +218,35 @@ class Buck:
         return params
     # ------------------------------------------------------------------------
 
+    # ------------------------------------------------------------------------
+    # -------------------------- SFB + int FPGA ------------------------------
+    # ------------------------------------------------------------------------
+    def sfb_int_FPGA_ctl_enable(self, reset=False):
+
+        return self.enable_controller('sfb_int_FPGA', reset=reset)
+    
+
+    def sfb_int_FPGA_ctl_set_params(self, uinc=None, ufinal=None):
+
+        params = {}
+        if Li is not None:
+            params['Li'] = float(Li)
+        if Co is not None:
+            params['Co'] = float(Co)
+        if K1 is not None:
+            params['K1'] = float(K1)
+        if K2 is not None:
+            params['K2'] = float(K2)
+        if K3 is not None:
+            params['K3'] = float(K3)
+
+        return self.set_controller_params('sfb_int_FPGA', params)
+
+
+    def sfb_int_FPGA_ctl_get_params(self):
+
+        return self.get_controller_params('sfb_int_FPGA')
+
 
     # ========================================================================
     

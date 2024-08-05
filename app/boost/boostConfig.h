@@ -95,7 +95,7 @@ typedef struct{
 #define BOOST_CONFIG_L                 ((float)(47e-6))
 #define BOOST_CONFIG_C                 ((float)(156.6e-6))
 
-#define BOOST_CONFIG_I_LIM             (12.0f)
+#define BOOST_CONFIG_I_LIM             (15.0f)
 #define BOOST_CONFIG_V_LIM             (30.0f)
 
 #define BOOST_CONFIG_SHUTDOWN_U_DEC     0.005

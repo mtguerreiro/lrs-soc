@@ -40,6 +40,7 @@ class Controllers:
             0            : {'id':0, 'if':None},
             'startup'    : {'id':1, 'if':Startup()},
             'sfb_int'    : {'id':2, 'if':SFBINT()},
+            'sfb_int_FPGA' : {'id':3, 'if':SFBINTFPGA()}
             }
 
 
@@ -182,6 +183,37 @@ class SFBINT:
         ctl_params = {'k1':K[0], 'k2':K[1], 'ke':K[2], 'dt':dt}
 
         return ctl_params
+
+class SFBINTFPGA:
+    def __init__(self):
+        pass
+    
+
+    def set(self, params):
+
+        Li = params['Li']
+        Co = params['Co']
+        K1 = params['K1']
+        K2 = params['K2']
+        K3 = params['K3']
+        data = list(struct.pack('<fffff', Li, Co, K1, K2, K3))
+        
+        return data
+    
+
+    def get(self, data):
+
+        pars = struct.unpack('<fffff', data)
+
+        params = {
+            'Li': pars[0],
+            'Co': pars[1],
+            'K1' : pars[2],
+            'K2' : pars[3],
+            'K3' : pars[4]
+            }
+
+        return params
 
     
 class Controller:
