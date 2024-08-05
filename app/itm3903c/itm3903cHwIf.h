@@ -730,6 +730,43 @@ typedef enum{
         /**
      * Command
      *  -------------------------------------------
+     *  | SET CAL DATA (uint32) | DATA (8 floats) |
+     *  -------------------------------------------
+     * 
+     * Response
+     * No response
+     * 
+     * Notes
+     *  - Calibration data entered:
+     *    - I Gain
+     *    - I Offset
+     *    - V Gain
+     *    - V Offset
+     */
+    ITM3903C_HW_ANALOG_IF_SET_ADC_CAL_DATA,
+
+    /**
+     * Command
+     *  -------------------------------------------
+     *  | GET CAL DATA (uint32) | DATA (8 floats) |
+     *  -------------------------------------------
+     * 
+     * Response
+     *  -----------------------
+     *  | CAL DATA (8 floats) |
+     *  -----------------------
+     * 
+     * Notes
+     *  - Calibration data is returned:
+     *    - I Gain
+     *    - I Offset
+     *    - V Gain
+     *    - V Offset
+     */
+    ITM3903C_HW_ANALOG_IF_GET_ADC_CAL_DATA,
+        /**
+     * Command
+     *  -------------------------------------------
      *  | GET CAL DATA (uint32) | DATA (8 floats) |
      *  -------------------------------------------
      * 

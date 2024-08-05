@@ -93,7 +93,11 @@ static itm3903cHwControl_t hwControl = {
     .dacGains.a2_gain = 404.40256795f,
     .dacGains.a2_offset = -9.42171167f,
     .dacGains.a3_gain = 403.96189302f,
-    .dacGains.a3_offset = -8.33781641f
+    .dacGains.a3_offset = -8.33781641f,
+    .gains.i_gain = 246,
+    .gains.i_ofs = 58,
+    .gains.v_gain = 48,
+    .gains.v_ofs = 33,
     .alphas.v = 0.5,
     .alphas.i = 0.5,
     };
@@ -165,8 +169,6 @@ int32_t itm3903cHwGetMeasurements(void *meas){
     adc_fifo_drain(); 
     
     dst = (itm3903cConfigMeasurements_t *)meas;
-    
-    dst->i =  hwControl.gains.i_gain * ((float)(temp_chan_0)) + hwControl.gains.i_ofs;
 
     dst->v = hwControl.gains.v_gain * ((float)(temp_chan_1)) + hwControl.gains.v_ofs;
     dst->i = hwControl.gains.i_gain * ((float)(temp_chan_0)) + hwControl.gains.i_ofs;
@@ -800,6 +802,15 @@ void itm3903cHwSetDacCalData(float *data){
     hwControl.dacGains.a3_offset = *data++;
 }
 //-----------------------------------------------------------------------------
+void itm3903cHwSetAdcCalData(float *data){
+
+    hwControl.gains.v_gain = *data++;
+    hwControl.gains.v_ofs = *data++;
+
+    hwControl.gains.i_gain = *data++;
+    hwControl.gains.i_ofs = *data++;
+}
+//-----------------------------------------------------------------------------
 uint32_t itm3903cHwGetDacCalData(float *data){
 
     *data++ = hwControl.dacGains.a1_adj_gain;
@@ -817,6 +828,16 @@ uint32_t itm3903cHwGetDacCalData(float *data){
     return (8 * 4);
 }
 //-----------------------------------------------------------------------------
+uint32_t itm3903cHwGetAdcCalData(float *data){
+
+    *data++ = hwControl.gains.v_gain;
+    *data++ = hwControl.gains.v_ofs;
+
+    *data++ = hwControl.gains.i_gain;
+    *data++ = hwControl.gains.i_ofs;
+
+    return (4 * 4);
+}
 //-----------------------------------------------------------------------------
 uint32_t itm3903cHwGetAlphaValues(float *data){
 
