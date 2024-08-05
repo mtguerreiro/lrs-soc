@@ -106,6 +106,8 @@ static int32_t itm3903cHwIfSetDacA3(void *in, uint32_t insize, void **out, uint3
 
 static int32_t itm3903cHwIfSetDacCalData(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfGetDacCalData(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfSetAlphaValues(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfGetAlphaValues(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //=============================================================================
 
 //=============================================================================
@@ -168,6 +170,8 @@ int32_t itm3903cHwIfInitialize(void){
 
     rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_DAC_CAL_DATA, itm3903cHwIfSetDacCalData);
     rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_GET_DAC_CAL_DATA, itm3903cHwIfGetDacCalData);
+    rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_GET_ALPHA_VALUES, itm3903cHwIfGetAlphaValues);
+    rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_ALPHA_VALUES, itm3903cHwIfSetAlphaValues);
 
     return 0;
 }
@@ -709,6 +713,25 @@ static int32_t itm3903cHwIfGetDacCalData(void *in, uint32_t insize, void **out, 
     uint32_t calsize;
 
     calsize = itm3903cHwGetDacCalData(data);
+
+    return calsize;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfSetAlphaValues(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    float *data = (float *) in;
+
+    itm3903cHwSetAlphaValues(data);
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfGetAlphaValues(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    float *data = (float *) *out;
+    uint32_t calsize;
+
+    calsize = itm3903cHwGetAlphaValues(data);
 
     return calsize;
 }

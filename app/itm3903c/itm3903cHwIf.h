@@ -708,6 +708,46 @@ typedef enum{
      *    - A3_OFFSET
      */
     ITM3903C_HW_ANALOG_IF_GET_DAC_CAL_DATA,
+        /**
+     * Command
+     *  -------------------------------------------
+     *  | GET CAL DATA (uint32) | DATA (8 floats) |
+     *  -------------------------------------------
+     * 
+     * Response
+     *  -----------------------
+     *  | CAL DATA (8 floats) |
+     *  -----------------------
+     * 
+     * Notes
+     *  - Calibration data is returned:
+     *    - I Gain
+     *    - I Offset
+     *    - V Gain
+     *    - V Offset
+     */
+    ITM3903C_HW_ANALOG_IF_GET_ALPHA_VALUES,
+        /**
+     * Command
+     *  -------------------------------------------
+     *  | GET CAL DATA (uint32) | DATA (8 floats) |
+     *  -------------------------------------------
+     * 
+     * Response
+     *  -----------------------
+     *  | CAL DATA (8 floats) |
+     *  -----------------------
+     * 
+     * Notes
+     *  - Calibration data is returned:
+     *    - I Gain
+     *    - I Offset
+     *    - V Gain
+     *    - V Offset
+     */
+    ITM3903C_HW_ANALOG_IF_SET_ALPHA_VALUES,
+
+
 
     ITM3903C_HW_ANALOG_IF_END
 }itm3903cHwAnalogIfCommands_t;

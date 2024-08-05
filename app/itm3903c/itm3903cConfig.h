@@ -19,6 +19,13 @@ typedef struct{
 
     float i;
     float v;
+    
+}itm3903cConfigAlphaValues_t;
+
+typedef struct{
+
+    float i;
+    float v;
 
 }itm3903cConfigMeasurements_t;
 

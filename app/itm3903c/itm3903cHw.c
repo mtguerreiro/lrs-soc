@@ -28,6 +28,7 @@
 #include "ocp/hardware/pico/mcp49x2.h"
 
 #include "itm3903cPicoConfig.h"
+
 //=============================================================================
 
 //=============================================================================
@@ -38,11 +39,14 @@ typedef struct{
     uint32_t status;
 
     itm3903cConfigMeasurements_t meas;
+
     itm3903cConfigControl_t control;
 
     itm3903cConfigMeasGains_t gains;
 
     itm3903cConfigDacGains_t dacGains;
+
+    itm3903cConfigAlphaValues_t alphas;
 
     /* Sampling period in us */
     uint32_t ts;
@@ -90,6 +94,8 @@ static itm3903cHwControl_t hwControl = {
     .dacGains.a2_offset = -9.42171167f,
     .dacGains.a3_gain = 403.96189302f,
     .dacGains.a3_offset = -8.33781641f
+    .alphas.v = 0.5,
+    .alphas.i = 0.5,
     };
 
 static float texec = 0.0f;
@@ -163,9 +169,26 @@ int32_t itm3903cHwGetMeasurements(void *meas){
     dst->i =  hwControl.gains.i_gain * ((float)(temp_chan_0)) + hwControl.gains.i_ofs;
 
     dst->v = hwControl.gains.v_gain * ((float)(temp_chan_1)) + hwControl.gains.v_ofs;
+    dst->i = hwControl.gains.i_gain * ((float)(temp_chan_0)) + hwControl.gains.i_ofs;
+
+    static float previousv; 
+    static float previousi;
+
+    static float alphav; 
+    static float alphai;
+
+    alphav = hwControl.alphas.v;
+    alphai = hwControl.alphas.i;
+
+    dst->v = previousv * (1 - alphav) + (dst->v * alphav);
+    dst->i = previousi * (1 - alphai) + (dst->i * alphai);
+
+    previousv = dst->v;
+    previousi = dst->i;
 
     return sizeof(itm3903cConfigMeasurements_t);
 }
+
 //-----------------------------------------------------------------------------
 int32_t itm3903cHwApplyOutputs(void *outputs, int32_t size){
 
@@ -792,6 +815,21 @@ uint32_t itm3903cHwGetDacCalData(float *data){
     *data++ = hwControl.dacGains.a3_offset;
 
     return (8 * 4);
+}
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+uint32_t itm3903cHwGetAlphaValues(float *data){
+
+    *data++ = hwControl.alphas.v;
+    *data++ = hwControl.alphas.i;
+
+    return (2 * 4);
+}
+//-----------------------------------------------------------------------------
+void itm3903cHwSetAlphaValues(float *data){
+
+    hwControl.alphas.v = *data++;
+    hwControl.alphas.i = *data++;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
