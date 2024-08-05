@@ -1504,6 +1504,10 @@ class AnalogCommands:
         self.set_dac23_a3           = 7
         self.set_dac_cal_data       = 8
         self.get_dac_cal_data       = 9
+        self.set_adc_cal_data       = 10
+        self.get_adc_cal_data       = 11
+        self.get_alpha_values       = 12
+        self.set_alpha_values       = 13
 
 
 class MeasGains:
@@ -1514,24 +1518,53 @@ class MeasGains:
     def decode(self, data):
         fmt = '<' + 'f' * 4
         data = struct.unpack(fmt, data)
-
+        
         gains = {
-            'v_gain':      data[0],  'v_ofs':      data[1],
-            'i_gain':      data[2],  'i_ofs':      data[3],
+            'v_gain':     data[0],
+            'v_ofs':      data[1],
+            
+            'i_gain':     data[2],
+            'i_ofs':      data[3],
             }
-
+        
         return gains
 
     def encode(self, gains):
-        data = [gains['v_gain'],      gains['v_ofs'],
-                gains['i_gain'],      gains['i_ofs'],
+        data = [gains['v_gain'],
+                gains['v_ofs'],
+                
+                gains['i_gain'],
+                gains['i_ofs'],
                 ]
+        
         fmt = '<' + 'f' * 4
         data = struct.pack(fmt, *data)
 
         return data
 
+class AlphaValues: 
+    def __init__(self):
+        pass
 
+    def decode(self, data):
+        fmt = '<' + 'f' * 2
+        data = struct.unpack(fmt, data)
+        
+        gains = {
+            'v':      data[0],
+            'i':      data[1],
+            }
+        return gains
+
+    def encode(self, gains):
+        data = [gains['v'],
+                gains['i'],
+                ]
+        
+        fmt = '<' + 'f' * 2
+        data = struct.pack(fmt, *data)
+
+        return data
 class DacCalData:
 
     def __init__(self):
@@ -1772,6 +1805,72 @@ class AnalogHw:
         """
 
         return self._get_dac_cal_data()
+    
+    def set_adc_cal_data(self, data):
+        """Sets the calibration data for the ADC channels.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        tuple
+            Returns a tuple of the form `(status, error)`. If the command was
+            executed successfully, `status` is 0 and `error` is empty.
+            Otherwise, `status` is an error code and `error` is non-empty.
+        """
+
+        return self._set_adc_cal_data(data)
+    
+    def get_adc_cal_data(self):
+        """Gets the calibration data for the ADC channels.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        tuple
+            Returns a tuple of the form `(status, data)`. If the command was
+            executed successfully, `status` is 0 and `data` is the calibration
+            data of the board. Otherwise, `status` is negative and `error` is
+            an error code.
+        """
+
+        return self._get_adc_cal_data()
+    
+    def set_alpha_values(self, data):
+        """Sets the alpha values for filtering.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        tuple
+            Returns a tuple of the form `(status, error)`. If the command was
+            executed successfully, `status` is 0 and `error` is empty.
+            Otherwise, `status` is an error code and `error` is non-empty.
+        """
+
+        return self._set_alpha_values(data)
+    
+    def get_alpha_values(self):
+        """Gets the alpha values for filtering.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        tuple
+            Returns a tuple of the form `(status, data)`. If the command was
+            executed successfully, `status` is 0 and `data` is the calibration
+            data of the board. Otherwise, `status` is negative and `error` is
+            an error code.
+        """
+
+        return self._get_alpha_values()
 
     
     def _set_sampling_status(self, status):
@@ -1921,6 +2020,23 @@ class AnalogHw:
             return (-1, status)
 
         return (0,)
+    
+    def _set_adc_cal_data(self, data):
+        cmd = self._cmd.set_adc_cal_data
+
+        data_b = MeasGains().encode(data)
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( data_b )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting adc cal data. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        return (0,)
 
 
     def _get_dac_cal_data(self):
@@ -1938,3 +2054,54 @@ class AnalogHw:
         data = DacCalData().decode(data_b)
         
         return (0, data)
+    
+    def _get_adc_cal_data(self):
+        cmd = self._cmd.get_adc_cal_data
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, data_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting adc cal data. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        data = MeasGains().decode(data_b)
+        
+        return (0, data)
+    
+    def _set_alpha_values(self, data):
+        cmd = self._cmd.set_alpha_values
+
+        data_b = AlphaValues().encode(data)
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( data_b )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting alpha values. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        return (0,)
+    
+    def _get_alpha_values(self):
+        
+        cmd = self._cmd.get_alpha_values
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, data_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting alpha values. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        data = AlphaValues().decode(data_b)
+        
+        return (0, data)
+
