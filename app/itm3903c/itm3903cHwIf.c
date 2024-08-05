@@ -86,14 +86,22 @@ static int32_t itm3903cHwIfGetCurrentMin(void *in, uint32_t insize, void **out, 
 static int32_t itm3903cHwIfSetCurrentMax(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfSetCurrentMin(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfGetVoltageProtectionStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfGetVoltageUnderProtectionStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfSetVoltageProtectionStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfGetPowerProtectionStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfSetPowerProtectionStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfGetCurrentProtectionStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfGetCurrentUnderProtectionStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfSetCurrentProtectionStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfGetVoltageSlewRate(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfSetVoltageSlewRate(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
+static int32_t itm3903cHwIfGetVoltageOverProtection(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfGetVoltageUnderProtection(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfGetCurrentOverProtection(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfGetCurrentUnderProtection(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfGetPowerOverProtection(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfGetPowerUnderProtection(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 /* Analog interface */
 static int32_t itm3903cHwIfSetSamplingStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfGetSamplingStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
@@ -150,13 +158,22 @@ int32_t itm3903cHwIfInitialize(void){
     rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_SET_CURRENT_MAX, itm3903cHwIfSetCurrentMax);
     rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_SET_CURRENT_MIN, itm3903cHwIfSetCurrentMin);
     rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_PROTECTION_STATUS, itm3903cHwIfGetVoltageProtectionStatus);
+    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_UNDER_PROTECTION_STATUS, itm3903cHwIfGetVoltageUnderProtectionStatus);
     rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_SET_VOLTAGE_PROTECTION_STATUS, itm3903cHwIfSetVoltageProtectionStatus);
     rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_POWER_PROTECTION_STATUS, itm3903cHwIfGetPowerProtectionStatus);
     rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_SET_POWER_PROTECTION_STATUS, itm3903cHwIfSetPowerProtectionStatus);
     rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_CURRENT_PROTECTION_STATUS, itm3903cHwIfGetCurrentProtectionStatus);
+    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_CURRENT_UNDER_PROTECTION_STATUS, itm3903cHwIfGetCurrentUnderProtectionStatus);
     rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_SET_CURRENT_PROTECTION_STATUS, itm3903cHwIfSetCurrentProtectionStatus);
     rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_SLOW_RATE, itm3903cHwIfGetVoltageSlewRate);
     rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_SET_VOLTAGE_SLOW_RATE, itm3903cHwIfSetVoltageSlewRate);
+
+    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_OVERPROTECTION_VALUE,itm3903cHwIfGetVoltageOverProtection);
+    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_UNDERPROTECTION_VALUE,itm3903cHwIfGetVoltageUnderProtection);
+    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_CURRENT_OVERPROTECTION_VALUE,itm3903cHwIfGetCurrentOverProtection);
+    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_CURRENT_UNDERPROTECTION_VALUE,itm3903cHwIfGetCurrentUnderProtection);
+    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_POWER_OVERPROTECTION_VALUE,itm3903cHwIfGetPowerOverProtection);
+    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_POWER_UNDERPROTECTION_VALUE,itm3903cHwIfGetPowerUnderProtection);
 
     /* Initializes the request processor of the analog interface */
     rpInitialize(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_END, hwControl.analogIf.handles);
@@ -319,7 +336,7 @@ static int32_t itm3903cHwIfSetAnalogExternalStatus(void *in, uint32_t insize, vo
 }
 //-----------------------------------------------------------------------------
 static int32_t itm3903cHwIfGetOutputStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
-    uint32_t *o = (u_int32_t *) *out;
+    uint32_t *o = (uint32_t *)*out;
 
     uint32_t output_status = itm3903cHwGetOutputStatus();
 
@@ -329,7 +346,7 @@ static int32_t itm3903cHwIfGetOutputStatus(void *in, uint32_t insize, void **out
 }
 //-----------------------------------------------------------------------------
 static int32_t itm3903cHwIfGetAnalogExternalStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
-    uint32_t *o = (u_int32_t *) *out;
+    uint32_t *o = (uint32_t *) *out;
 
     uint32_t output_status = itm3903cHwGetAnalogExternalStatus();
 
@@ -532,11 +549,21 @@ static int32_t itm3903cHwIfSetCurrentMin(void *in, uint32_t insize, void **out, 
 }
 //-----------------------------------------------------------------------------
 static int32_t itm3903cHwIfGetVoltageProtectionStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
-    uint32_t *o = (u_int32_t *) *out;
+    uint32_t *o = (uint32_t *) *out;
 
     uint32_t volt_prot_status = itm3903cHwGetVoltageProtectionStatus();
 
     *o = volt_prot_status;
+
+    return 4;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfGetVoltageUnderProtectionStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+    uint32_t *o = (uint32_t *) *out;
+
+    uint32_t volt_uprot_status = itm3903cHwGetVoltageUnderProtectionStatus();
+
+    *o = volt_uprot_status;
 
     return 4;
 }
@@ -550,8 +577,29 @@ static int32_t itm3903cHwIfSetVoltageProtectionStatus(void *in, uint32_t insize,
     return 0;
 }
 //-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfGetVoltageOverProtection(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+    
+    float *o = (float *) *out;
+
+    float volt_oprot_value = itm3903cHwGetVoltageOverProtectionValue();
+
+    *o = volt_oprot_value;
+
+    return 4;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfGetVoltageUnderProtection(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+    float *o = (float *) *out;
+
+    float volt_uprot_value = itm3903cHwGetVoltageUnderProtectionValue();
+
+    *o = volt_uprot_value;
+
+    return 4;
+}
+//-----------------------------------------------------------------------------
 static int32_t itm3903cHwIfGetPowerProtectionStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
-    uint32_t *o = (u_int32_t *) *out;
+    uint32_t *o = (uint32_t *) *out;
 
     uint32_t power_prot_status = itm3903cHwGetPowerProtectionStatus();
 
@@ -569,12 +617,42 @@ static int32_t itm3903cHwIfSetPowerProtectionStatus(void *in, uint32_t insize, v
     return 0;
 }
 //-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfGetPowerOverProtection(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+    float *o = (float *) *out;
+
+    float pow_oprot_value = itm3903cHwGetPowerOverProtectionValue();
+
+    *o = pow_oprot_value;
+
+    return 4;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfGetPowerUnderProtection(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+    float *o = (float *) *out;
+
+    float pow_uprot_value = itm3903cHwGetPowerUnderProtectionValue();
+
+    *o = pow_uprot_value;
+
+    return 4;
+}
+//-----------------------------------------------------------------------------
 static int32_t itm3903cHwIfGetCurrentProtectionStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
-    uint32_t *o = (u_int32_t *) *out;
+    uint32_t *o = (uint32_t *) *out;
 
     uint32_t curr_prot_status = itm3903cHwGetCurrentProtectionStatus();
 
     *o = curr_prot_status;
+
+    return 4;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfGetCurrentUnderProtectionStatus(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+    uint32_t *o = (uint32_t *) *out;
+
+    uint32_t curr_uprot_status = itm3903cHwGetCurrentUnderProtectionStatus();
+
+    *o = curr_uprot_status;
 
     return 4;
 }
@@ -586,6 +664,26 @@ static int32_t itm3903cHwIfSetCurrentProtectionStatus(void *in, uint32_t insize,
     itm3903cHwSetCurrentProtectionStatus(setCurrProtStatus);
 
     return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfGetCurrentOverProtection(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+    float *o = (float *) *out;
+
+    float curr_oprot_value = itm3903cHwGetCurrentOverProtectionValue();
+
+    *o = curr_oprot_value;
+
+    return 4;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfGetCurrentUnderProtection(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+    float *o = (float *) *out;
+
+    float curr_uprot_value = itm3903cHwGetCurrentUnderProtectionValue();
+
+    *o = curr_uprot_value;
+
+    return 4;
 }
 //-----------------------------------------------------------------------------
 static int32_t itm3903cHwIfGetVoltageSlewRate(void *in, uint32_t insize, void **out, uint32_t maxoutsize){

@@ -632,6 +632,60 @@ void itm3903cHwSetVoltageProtectionStatus(uint32_t setStatus){
     uart_write_blocking(ITM3903C_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) command_size); 
 }
 //-----------------------------------------------------------------------------
+uint32_t itm3903cHwGetVoltageUnderProtectionStatus(void) {
+
+    uint32_t volt_uprot_status;
+    int32_t size;
+    char command[] = "VOLT:UND:PROT:STAT?\r\n";
+
+    size_t command_size = sizeof(command) - 1;
+
+    uart_write_blocking(ITM3903C_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) command_size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+
+    if( size < 0 ) volt_uprot_status = 0xFFFFFFFF;
+    else volt_uprot_status = (uint32_t) atoi(command);
+
+    return volt_uprot_status;
+}
+//-----------------------------------------------------------------------------
+float itm3903cHwGetVoltageOverProtectionValue(void) {
+
+    float volt_oprot_value; 
+    char command[50];
+    size_t size;
+    
+    size = snprintf(command, sizeof(command), "VOLT:PROT?\r\n");   
+
+    uart_write_blocking(ITM3903C_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+
+    if( size < 0 ) volt_oprot_value = NAN;
+    else volt_oprot_value = (float) strtod(command, NULL);
+
+    return volt_oprot_value;
+}
+//-----------------------------------------------------------------------------
+float itm3903cHwGetVoltageUnderProtectionValue(void) {
+
+    float volt_uprot_value; 
+    char command[50];
+    size_t size;
+    
+    size = snprintf(command, sizeof(command), "VOLT:UND:PROT?\r\n");   
+
+    uart_write_blocking(ITM3903C_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+
+    if( size < 0 ) volt_uprot_value = NAN;
+    else volt_uprot_value = (float) strtod(command, NULL);
+
+    return volt_uprot_value;
+}
+//-----------------------------------------------------------------------------
 uint32_t itm3903cHwGetPowerProtectionStatus(void) {
 
     uint32_t power_prot_status;
@@ -663,6 +717,42 @@ void itm3903cHwSetPowerProtectionStatus(uint32_t setStatus){
     uart_write_blocking(ITM3903C_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) command_size); 
 }
 //-----------------------------------------------------------------------------
+float itm3903cHwGetPowerOverProtectionValue(void) {
+
+    float pow_oprot_value; 
+    char command[50];
+    size_t size;
+    
+    size = snprintf(command, sizeof(command), "POW:PROT?\r\n");   
+
+    uart_write_blocking(ITM3903C_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+
+    if( size < 0 ) pow_oprot_value = NAN;
+    else pow_oprot_value = (float) strtod(command, NULL);
+
+    return pow_oprot_value;
+}
+//-----------------------------------------------------------------------------
+float itm3903cHwGetPowerUnderProtectionValue(void) {
+
+    float pow_uprot_value; 
+    char command[50];
+    size_t size;
+    
+    size = snprintf(command, sizeof(command), "POW:UND:PROT?\r\n");   
+
+    uart_write_blocking(ITM3903C_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+
+    if( size < 0 ) pow_uprot_value = NAN;
+    else pow_uprot_value = (float) strtod(command, NULL);
+
+    return pow_uprot_value;
+}
+//-----------------------------------------------------------------------------
 uint32_t itm3903cHwGetCurrentProtectionStatus(void) {
 
     uint32_t curr_prot_status;
@@ -692,6 +782,61 @@ void itm3903cHwSetCurrentProtectionStatus(uint32_t setStatus){
     }
 
     uart_write_blocking(ITM3903C_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) command_size); 
+}
+//-----------------------------------------------------------------------------
+uint32_t itm3903cHwGetCurrentUnderProtectionStatus(void) {
+
+    uint32_t curr_uprot_status;
+    int32_t size;
+    char command[] = "CURR:UND:PROT:STAT?\r\n";
+
+    size_t command_size = sizeof(command) - 1;
+
+    uart_write_blocking(ITM3903C_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) command_size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+
+    if( size < 0 ) curr_uprot_status = 0xFFFFFFFF;
+    else curr_uprot_status = (uint32_t) atoi(command);
+
+    return curr_uprot_status;
+}
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+float itm3903cHwGetCurrentOverProtectionValue(void) {
+
+    float curr_oprot_value; 
+    char command[50];
+    size_t size;
+    
+    size = snprintf(command, sizeof(command), "CURR:PROT?\r\n");   
+
+    uart_write_blocking(ITM3903C_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+
+    if( size < 0 ) curr_oprot_value = NAN;
+    else curr_oprot_value = (float) strtod(command, NULL);
+
+    return curr_oprot_value;
+}
+//-----------------------------------------------------------------------------
+float itm3903cHwGetCurrentUnderProtectionValue(void) {
+
+    float curr_uprot_value; 
+    char command[50];
+    size_t size;
+    
+    size = snprintf(command, sizeof(command), "CURR:UND:PROT?\r\n");   
+
+    uart_write_blocking(ITM3903C_PICO_CONFIG_RS232_UART, (u_int8_t*) command, (size_t) size);
+    
+    size = itm3903HwGetSupplyResponse(command, sizeof(command));
+
+    if( size < 0 ) curr_uprot_value = NAN;
+    else curr_uprot_value = (float) strtod(command, NULL);
+
+    return curr_uprot_value;
 }
 //-----------------------------------------------------------------------------
 float itm3903cHwGetVoltageSlewRate(void){

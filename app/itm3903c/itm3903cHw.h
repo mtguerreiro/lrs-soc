@@ -50,8 +50,6 @@ void itm3903cHwSetAdcEnable(uint32_t enable);
 //-----------------------------------------------------------------------------
 uint32_t itm3903cHwGetAdcEnable(void);
 //-----------------------------------------------------------------------------
-int32_t itm3903cHwGetMeasurements(void *meas);
-//-----------------------------------------------------------------------------
 int32_t itm3903cHwApplyOutputs(void *outputs, int32_t size);
 //-----------------------------------------------------------------------------
 void itm3903cHwSetSlope(uint32_t channel, float slope);
@@ -112,6 +110,8 @@ void itm3903cHwSetCurrentMin(float value);
 //-----------------------------------------------------------------------------
 uint32_t itm3903cHwGetVoltageProtectionStatus(void);
 //-----------------------------------------------------------------------------
+uint32_t itm3903cHwGetVoltageUnderProtectionStatus(void);
+//-----------------------------------------------------------------------------
 void itm3903cHwSetVoltageProtectionStatus(uint32_t setStatus);
 //-----------------------------------------------------------------------------
 uint32_t itm3903cHwGetPowerProtectionStatus(void);
@@ -119,6 +119,8 @@ uint32_t itm3903cHwGetPowerProtectionStatus(void);
 void itm3903cHwSetPowerProtectionStatus(uint32_t setStatus);
 //-----------------------------------------------------------------------------
 uint32_t itm3903cHwGetCurrentProtectionStatus(void);
+//-----------------------------------------------------------------------------
+uint32_t itm3903cHwGetCurrentUnderProtectionStatus(void);
 //-----------------------------------------------------------------------------
 void itm3903cHwSetCurrentProtectionStatus(uint32_t setStatus);
 //-----------------------------------------------------------------------------
@@ -149,6 +151,18 @@ void itm3903cHwSetAdcCalData(float *data);
 uint32_t itm3903cHwGetAdcCalData(float *data);
 //-----------------------------------------------------------------------------
 uint32_t itm3903cHwGetDacCalData(float *data);
+//-----------------------------------------------------------------------------
+float itm3903cHwGetVoltageOverProtectionValue(void);
+//-----------------------------------------------------------------------------
+float itm3903cHwGetVoltageUnderProtectionValue(void);
+//-----------------------------------------------------------------------------
+float itm3903cHwGetCurrentOverProtectionValue(void);
+//-----------------------------------------------------------------------------
+float itm3903cHwGetCurrentUnderProtectionValue(void);
+//-----------------------------------------------------------------------------
+float itm3903cHwGetPowerOverProtectionValue(void);
+//-----------------------------------------------------------------------------
+float itm3903cHwGetPowerUnderProtectionValue(void);
 //-----------------------------------------------------------------------------
 uint32_t itm3903cHwGetAlphaValues(float *data);
 //-----------------------------------------------------------------------------
