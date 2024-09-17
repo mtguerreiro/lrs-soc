@@ -24,7 +24,7 @@
 
 // Shifting factors determined by calculating b-a in Fixed Point format ap_fixed<a,b> for Vitis HLS
 #define FIXED_MATH_FTOI_GAINS		((float)(1 << 0))
-#define FIXED_MATH_FTOI_STATE1		((float)(1 << 26))
+#define FIXED_MATH_FTOI_STATE1		((float)((uint64_t)1 << 34))
 #define FIXED_MATH_FTOI_STATE2		((float)(1 << 17))
 #define FIXED_MATH_FTOI_STATE3		((float)(1 << 3))
 
@@ -34,6 +34,8 @@
 #define ftoiState1( a )				((int32_t) (a * FIXED_MATH_FTOI_STATE1))
 #define ftoiState2( a )				((int32_t) (a * FIXED_MATH_FTOI_STATE2))
 #define ftoiState3( a )				((int32_t) (a * FIXED_MATH_FTOI_STATE3))
+
+static float boostHwExpMovAvg(float sample, float average, float alpha);
 
 //=============================================================================
 /*--------------------------------- Globals ---------------------------------*/
@@ -59,6 +61,8 @@ static float min_i_l = BOOST_CONFIG_IL_OFFS;
 static float min_i_o = BOOST_CONFIG_IO_AVG_OFFS;
 static float adc_gain_i_l_inv = BOOST_CONFIG_IL_GAIN;
 static float adc_gain_i_o_inv = BOOST_CONFIG_IO_AVG_GAIN;
+
+static float i_o_filt = 0.0f;
 
 static XBoostcontrol HlsBoostcontrol;
 static XBoostcontrol_Config *BoostcontrolPtr = NULL;
@@ -138,6 +142,7 @@ int32_t boostControlEnergycintFPGARun(void *meas, int32_t nmeas, void *refs, int
 	float i_out_conv = (m->i_o);
 	float v_out_conv = (m->v_dc_out);
 	float v_in_conv = (m->v_dc_in);
+	i_o_filt = boostHwExpMovAvg(i_out_conv, i_o_filt, 0.01f);
 	//-------------------------------------------------------------
 
     //----------------- PiL ----------------------------------------
@@ -147,7 +152,7 @@ int32_t boostControlEnergycintFPGARun(void *meas, int32_t nmeas, void *refs, int
 	//float v_in_conv = (m->v_dc_in) * adc_gain_v_in_inv + min_v_in;
 	//--------------------------------------------------------------
 
-	float Po = v_out_conv * i_out_conv;
+	float Po = v_out_conv * i_o_filt;
 
 	float actualEnergy = 0.5f * ( Li * i_in_conv * i_in_conv + Co * v_out_conv * v_out_conv );
 	float energySetPoint = 0.5f * ( Li * (Po / v_in_conv) * (Po / v_in_conv) + Co * (r->v_o) * (r->v_o) );
@@ -171,16 +176,21 @@ int32_t boostControlEnergycintFPGARun(void *meas, int32_t nmeas, void *refs, int
 		controlCounter = 0;
 	}
 
-	XBoostcontrol_Start(&HlsBoostcontrol);
+	//XBoostcontrol_Start(&HlsBoostcontrol);
 	//----------------- PiL / Debug ----------------------------------------
-	uint32_t D_u32;
+	//uint32_t D_u32;
 	//do {
-	D_u32 = XBoostcontrol_Get_D_debug(&HlsBoostcontrol);
+	//D_u32 = XBoostcontrol_Get_D_debug(&HlsBoostcontrol);
 	//} while (XBoostcontrol_Get_D_debug_vld(&HlsBoostcontrol) == 0);
-	o->u = *((float*)&D_u32);
-	o->e = actualEnergy;
+	//o->u = *((float*)&D_u32);
+	//o->e = actualEnergy;
 	//--------------------------------------------------------------
+
 	o->v_o_reference = r->v_o;
+	o->i_o_filt = i_o_filt;
+	o->e = actualEnergy;
+	o->e_reference = energySetPoint;
+
     return sizeof(boostConfigControl_t);
 }
 
@@ -214,6 +224,11 @@ void boostControlEnergycintFPGAReset(void){
 	XBoostcontrol_Set_adc_gain_v_in_inv(&HlsBoostcontrol, *((u32*)&adc_gain_v_in_inv));
 	XBoostcontrol_Set_adc_gain_v_out_inv(&HlsBoostcontrol, *((u32*)&adc_gain_v_out_inv));
 	//boostHwSetPwmBypass(0);
+}
+//-----------------------------------------------------------------------------
+static float boostHwExpMovAvg(float sample, float average, float alpha){
+
+    return alpha * sample + (1.0f - alpha) * average;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

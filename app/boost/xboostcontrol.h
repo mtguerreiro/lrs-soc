@@ -81,12 +81,6 @@ int XBoostcontrol_Initialize(XBoostcontrol *InstancePtr, const char* InstanceNam
 int XBoostcontrol_Release(XBoostcontrol *InstancePtr);
 #endif
 
-void XBoostcontrol_Start(XBoostcontrol *InstancePtr);
-u32 XBoostcontrol_IsDone(XBoostcontrol *InstancePtr);
-u32 XBoostcontrol_IsIdle(XBoostcontrol *InstancePtr);
-u32 XBoostcontrol_IsReady(XBoostcontrol *InstancePtr);
-void XBoostcontrol_EnableAutoRestart(XBoostcontrol *InstancePtr);
-void XBoostcontrol_DisableAutoRestart(XBoostcontrol *InstancePtr);
 
 void XBoostcontrol_Set_Li(XBoostcontrol *InstancePtr, u32 Data);
 u32 XBoostcontrol_Get_Li(XBoostcontrol *InstancePtr);
@@ -98,16 +92,6 @@ void XBoostcontrol_Set_adc_gain_v_in_inv(XBoostcontrol *InstancePtr, u32 Data);
 u32 XBoostcontrol_Get_adc_gain_v_in_inv(XBoostcontrol *InstancePtr);
 void XBoostcontrol_Set_adc_gain_v_out_inv(XBoostcontrol *InstancePtr, u32 Data);
 u32 XBoostcontrol_Get_adc_gain_v_out_inv(XBoostcontrol *InstancePtr);
-u32 XBoostcontrol_Get_D_debug(XBoostcontrol *InstancePtr);
-u32 XBoostcontrol_Get_D_debug_vld(XBoostcontrol *InstancePtr);
-
-void XBoostcontrol_InterruptGlobalEnable(XBoostcontrol *InstancePtr);
-void XBoostcontrol_InterruptGlobalDisable(XBoostcontrol *InstancePtr);
-void XBoostcontrol_InterruptEnable(XBoostcontrol *InstancePtr, u32 Mask);
-void XBoostcontrol_InterruptDisable(XBoostcontrol *InstancePtr, u32 Mask);
-void XBoostcontrol_InterruptClear(XBoostcontrol *InstancePtr, u32 Mask);
-u32 XBoostcontrol_InterruptGetEnabled(XBoostcontrol *InstancePtr);
-u32 XBoostcontrol_InterruptGetStatus(XBoostcontrol *InstancePtr);
 
 #ifdef __cplusplus
 }

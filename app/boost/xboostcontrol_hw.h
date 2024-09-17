@@ -4,25 +4,10 @@
 // Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
 // ==============================================================
 // control
-// 0x00 : Control signals
-//        bit 0  - ap_start (Read/Write/COH)
-//        bit 1  - ap_done (Read/COR)
-//        bit 2  - ap_idle (Read)
-//        bit 3  - ap_ready (Read/COR)
-//        bit 7  - auto_restart (Read/Write)
-//        bit 9  - interrupt (Read)
-//        others - reserved
-// 0x04 : Global Interrupt Enable Register
-//        bit 0  - Global Interrupt Enable (Read/Write)
-//        others - reserved
-// 0x08 : IP Interrupt Enable Register (Read/Write)
-//        bit 0 - enable ap_done interrupt (Read/Write)
-//        bit 1 - enable ap_ready interrupt (Read/Write)
-//        others - reserved
-// 0x0c : IP Interrupt Status Register (Read/TOW)
-//        bit 0 - ap_done (Read/TOW)
-//        bit 1 - ap_ready (Read/TOW)
-//        others - reserved
+// 0x00 : reserved
+// 0x04 : reserved
+// 0x08 : reserved
+// 0x0c : reserved
 // 0x10 : Data signal of Li
 //        bit 31~0 - Li[31:0] (Read/Write)
 // 0x14 : reserved
@@ -38,17 +23,8 @@
 // 0x30 : Data signal of adc_gain_v_out_inv
 //        bit 31~0 - adc_gain_v_out_inv[31:0] (Read/Write)
 // 0x34 : reserved
-// 0x38 : Data signal of D_debug
-//        bit 31~0 - D_debug[31:0] (Read)
-// 0x3c : Control signal of D_debug
-//        bit 0  - D_debug_ap_vld (Read/COR)
-//        others - reserved
 // (SC = Self Clear, COR = Clear on Read, TOW = Toggle on Write, COH = Clear on Handshake)
 
-#define XBOOSTCONTROL_CONTROL_ADDR_AP_CTRL                 0x00
-#define XBOOSTCONTROL_CONTROL_ADDR_GIE                     0x04
-#define XBOOSTCONTROL_CONTROL_ADDR_IER                     0x08
-#define XBOOSTCONTROL_CONTROL_ADDR_ISR                     0x0c
 #define XBOOSTCONTROL_CONTROL_ADDR_LI_DATA                 0x10
 #define XBOOSTCONTROL_CONTROL_BITS_LI_DATA                 32
 #define XBOOSTCONTROL_CONTROL_ADDR_MIN_V_IN_DATA           0x18
@@ -59,7 +35,4 @@
 #define XBOOSTCONTROL_CONTROL_BITS_ADC_GAIN_V_IN_INV_DATA  32
 #define XBOOSTCONTROL_CONTROL_ADDR_ADC_GAIN_V_OUT_INV_DATA 0x30
 #define XBOOSTCONTROL_CONTROL_BITS_ADC_GAIN_V_OUT_INV_DATA 32
-#define XBOOSTCONTROL_CONTROL_ADDR_D_DEBUG_DATA            0x38
-#define XBOOSTCONTROL_CONTROL_BITS_D_DEBUG_DATA            32
-#define XBOOSTCONTROL_CONTROL_ADDR_D_DEBUG_CTRL            0x3c
 

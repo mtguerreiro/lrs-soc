@@ -9,6 +9,7 @@
 #include "xparameters.h"
 #include "xboostcontrol.h"
 
+
 #define XPAR_XBOOSTCONTROL_NUM_INSTANCES 1
 
 //extern XBoostcontrol_Config XBoostcontrol_ConfigTable[];
