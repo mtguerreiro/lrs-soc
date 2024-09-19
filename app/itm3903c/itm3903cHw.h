@@ -167,6 +167,10 @@ float itm3903cHwGetPowerUnderProtectionValue(void);
 uint32_t itm3903cHwGetAlphaValues(float *data);
 //-----------------------------------------------------------------------------
 void itm3903cHwSetAlphaValues(float *data);
+//-----------------------------------------------------------------------------
+uint32_t itm3903cHwGetNeighborIps(float *data);
+//-----------------------------------------------------------------------------
+void itm3903cHwSetNeighborIps(float *data);
 //=============================================================================
 
 #endif /* ITM3903C_H_ */

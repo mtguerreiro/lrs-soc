@@ -16,12 +16,16 @@
 #include "ocpPlatform.h"
 #include "ocpConfig.h"
 #include "ocpOpil.h"
+#include "stdio.h"
 
 #include "stddef.h"
 
 #include "../utils/rp.h"
 
 #include "ocp/ipc/ipcClient.h"
+
+#include "pico_ocp_freertos/tasks/task_ntpsync.h"
+#include "inttypes.h"
 //=============================================================================
 
 //=============================================================================
@@ -609,6 +613,7 @@ static int32_t ocpIfMasterTraceGetSizeSecondCore(uint32_t id){
 	cmd[1] = id;
 
 	status = ipcClientRequest( (void *)&cmd, 8, (void **)&p, 4, OCP_IF_CONFIG_DUAL_CORE_COMM_TO );
+
 	if( status < 0 ) return status;
 
 	return size;

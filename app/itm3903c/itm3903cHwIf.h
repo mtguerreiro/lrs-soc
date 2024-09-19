@@ -891,6 +891,46 @@ typedef enum{
      */
     ITM3903C_HW_ANALOG_IF_SET_ALPHA_VALUES,
 
+            /**
+     * Command
+     *  -------------------------------------------
+     *  | GET CAL DATA (uint32) | DATA (8 floats) |
+     *  -------------------------------------------
+     * 
+     * Response
+     *  -----------------------
+     *  | CAL DATA (8 floats) |
+     *  -----------------------
+     * 
+     * Notes
+     *  - Calibration data is returned:
+     *    - I Gain
+     *    - I Offset
+     *    - V Gain
+     *    - V Offset
+     */
+    ITM3903C_HW_ANALOG_IF_GET_NEIGHBOR_IPS,
+
+                /**
+     * Command
+     *  -------------------------------------------
+     *  | GET CAL DATA (uint32) | DATA (8 floats) |
+     *  -------------------------------------------
+     * 
+     * Response
+     *  -----------------------
+     *  | CAL DATA (8 floats) |
+     *  -----------------------
+     * 
+     * Notes
+     *  - Calibration data is returned:
+     *    - I Gain
+     *    - I Offset
+     *    - V Gain
+     *    - V Offset
+     */
+    ITM3903C_HW_ANALOG_IF_SET_NEIGHBOR_IPS,
+
 
 
     ITM3903C_HW_ANALOG_IF_END

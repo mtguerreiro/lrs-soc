@@ -2,10 +2,13 @@
     "Board 1":{
         "Port": "8080",
         "address": "131.246.75.233",
-        "status" : "0",
-        
+        "status" : "1",
+        "powstatus" : true,
+        "mode" : "current",
+        "analog external status" : true,
+
         "ADCV":{
-            "gain":0.212183309353,
+            "gain":0.00245779,
             "Offset":-0.0340484
         },
 
@@ -32,6 +35,25 @@
         "DAC3": {
             "gain":411.105,
             "Offset":0.633312
+        },
+        "AValues":{
+            "v" : 0.5,
+            "i" : 0.05
+        },
+        "Voltage Supply Settings":{
+            "power_lim": [-200, 200],
+            "curr_lim": [-3, 3], 
+            "analog_1": [ [0, 10], [0, 100] ],
+            "analog_2": [ [0, 10], [0, 8] ],
+            "analog_3": [ [0, 10], [-8, 0] ]
+        },
+        
+        "Current Supply Settings":{
+            "power_lim": [-200, 200],
+            "volt_lim": [0, 100], 
+            "analog_1": [ [0, 10], [-2, 2] ],
+            "analog_2": [ [0, 10], [0, 100] ],
+            "analog_3": [ [0, 10], [0, 100] ]
         }
     },
 
@@ -39,9 +61,12 @@
         "Port": "8080",
         "address": "131.246.75.206",
         "status" : "1",
+        "powstatus" :true,
+        "mode" : "voltage",
+        "analog external status" : true,
 
         "ADCV":{
-            "gain":0.212183309353,
+            "gain":0.00245831,
             "Offset":-0.0417398
         },
 
@@ -51,7 +76,7 @@
         },
 
         "DACOFFSET": {
-            "gain":587.13011,
+            "gain":587.129,
             "Offset":2.24092
         },
     
@@ -68,6 +93,25 @@
         "DAC3": {
             "gain":410.427,
             "Offset":2.22668
+        },
+        "AValues": {
+            "v" : 0.5,
+            "i" : 0.05
+        },
+        "Voltage Supply Settings":{
+            "power_lim": [-1000, 1000],
+            "curr_lim": [-3, 3], 
+            "analog_1": [ [0, 10], [0, 100] ],
+            "analog_2": [ [0, 10], [0, 8] ],
+            "analog_3": [ [0, 10], [-8, 0] ]
+        },
+        
+        "Current Supply Settings":{
+            "power_lim": [-200, 200],
+            "volt_lim": [0, 100], 
+            "analog_1": [ [0, 10], [-2, 2] ],
+            "analog_2": [ [0, 10], [0, 100] ],
+            "analog_3": [ [0, 10], [100, 0] ]
         }
     }
 }

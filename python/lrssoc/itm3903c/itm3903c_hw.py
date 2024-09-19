@@ -6,6 +6,7 @@ Module ``itm3903c_hw``
 """
 import lrssoc
 import struct
+import json
 
 class DigitalCommands:
     """
@@ -270,101 +271,6 @@ class DigitalHw:
 
         return (0, (mx, mb))
 
-    
-    def setup_supply(self, settings):
-
-        if 'mode' not in settings:
-            print('Cannot run setup if `mode` is not specified.\n\r')
-            return (-1, )
-
-        if (settings['mode'] != 'current') and (settings['mode'] != 'voltage'):
-            print('Cannot run setup. `mode` must be \'voltage\' or \'current\'')
-            return (-1,)
-        
-        print('Setting mode to {:}...'.format(settings['mode']))
-        status = self.set_func_mode(settings['mode'])
-        if( status[0] < 0 ):
-            print('Could not complete setup. Error setting `mode` ({:})'.format(status[1]))
-            return (-1, status[1])
-        else:
-            print('Mode set.\n\r')
-        
-        if 'power_lim' in settings:
-            plim = settings['power_lim']
-            print('Setting power limits to {:} W and {:} W...'.format(plim[0], plim[1]))
-            status_min = self.set_power_min(plim[0])
-            status_max = self.set_power_max(plim[1])
-            if( (status_max[0] < 0) or (status_min[0] < 0) ):
-                print('Error setting power limits... Status: {:} {:}.\n\r'. format(status_min[1], status_max[1]))
-                return ( -1, (status_min[1], status_max[1]) )
-            else:
-                print('Power limits set.\n\r')
-        else:
-            print('Skipping setting power limits...\n\r')
-
-        if ( (settings['mode'] == 'voltage') and ('curr_lim' in settings) ):
-            ilim = settings['curr_lim']
-            print('Setting current limits to {:} A and {:} A...'.format(ilim[0], ilim[1]))
-            status_min = self.set_current_min(ilim[0])
-            status_max = self.set_current_max(ilim[1])
-            if( (status_max[0] < 0) or (status_min[0] < 0) ):
-                print('Error setting current limits... Status: {:} {:}.\n\r'. format(status_min[1], status_max[1]))
-                return ( -1, (status_min[1], status_max[1]) )
-            else:
-                print('Current limits set.\n\r')
-
-        elif ( (settings['mode'] == 'voltage') and ('curr_lim' not in settings) ):
-            print('Skipping setting current limits...\n\r')
-
-        if ( (settings['mode'] == 'current') and ('volt_lim' in settings) ):
-            vlim = settings['volt_lim']
-            print('Setting voltage limits to {:} V and {:} V...'.format(vlim[0], vlim[1]))
-            status_min = self.set_voltage_min(vlim[0])
-            status_max = self.set_voltage_max(vlim[1])
-            if( (status_max[0] < 0) or (status_min[0] < 0) ):
-                print('Error setting voltage limits... Status: {:} {:}.\n\r'. format(status_min[1], status_max[1]))
-                return ( -1, (status_min[1], status_max[1]) )
-            else:
-                print('Voltage limits set.\n\r')
-
-        elif ( (settings['mode'] == 'current') and ('volt_lim' not in settings) ):
-            print('Skipping setting voltage limits...\n\r')
-            
-        if 'analog_1' in settings:
-            ain, aout = settings['analog_1'][0], settings['analog_1'][1]
-            print('Setting analog channel 1: {:}\t{:}...'.format(ain, aout))
-            status = self.config_slope_offset(1, ain, aout)
-            if( status[0] < 0 ):
-                print('Error setting analog channel 1... Status: {:}\n\r'.format(status[1]))
-            else:
-                print('Analog channel 1 set.\n\r')
-
-        if 'analog_2' in settings:
-            ain, aout = settings['analog_2'][0], settings['analog_2'][1]
-            print('Setting analog channel 2: {:}\t{:}...'.format(ain, aout))
-            status = self.config_slope_offset(2, ain, aout)
-            if( status[0] < 0 ):
-                print('Error setting analog channel 2... Status: {:}\n\r'.format(status[1]))
-            else:
-                print('Analog channel 2 set.\n\r')
-        else:
-            print('Skipping setting analog channel 2.\n\r')
-
-        if 'analog_3' in settings:
-            ain, aout = settings['analog_3'][0], settings['analog_3'][1]
-            print('Setting analog channel 3: {:}\t{:}...'.format(ain, aout))
-            status = self.config_slope_offset(3, ain, aout)
-            if( status[0] < 0 ):
-                print('Error setting analog channel 3... Status: {:}\n\r'.format(status[1]))
-            else:
-                print('Analog channel 3 set.\n\r')
-        else:
-            print('Skipping setting analog channel 3.\n\r')
-            
-        print('Setup completed.\n\r')            
-        return (0,)
-
-    
     def _get_version(self):
         """
         Returns the version of the firmware of the power supply
@@ -1508,7 +1414,9 @@ class AnalogCommands:
         self.get_adc_cal_data       = 11
         self.get_alpha_values       = 12
         self.set_alpha_values       = 13
-
+        self.get_neighbor_ips       = 14
+        self.set_neighbor_ips       = 15
+ 
 
 class MeasGains:
 
@@ -1572,6 +1480,7 @@ class DacCalData:
 
     def decode(self, data):
         fmt = '<' + 'f' * 8
+        
         data = struct.unpack(fmt, data)
 
         gains = {
@@ -1589,7 +1498,7 @@ class DacCalData:
             }
 
         return gains
-
+    
     def encode(self, gains):
         data = [
             gains['dac1_adj_gain'],
@@ -1606,6 +1515,40 @@ class DacCalData:
         data = struct.pack(fmt, *data)
 
         return data
+
+class BoardComm:
+
+    def __init__(self):
+        pass
+
+    def decode(self, data):
+        fmt = '<' + 'f' * 5
+       
+        data = struct.unpack(fmt, data)
+        gains = {
+            'ip1':  data[0],
+            'ip2':  data[1],
+            'ip3':  data[2],
+            'ip4':  data[3],
+            'ip5':  data[4],
+            }
+
+        return gains
+    
+    def encode(self, gains):
+        data = [
+            gains['ip1'],
+            gains['ip2'],
+            gains['ip3'],
+            gains['ip4'],
+            gains['ip5'],
+            ]
+        fmt = '<' + 'f' * 5
+        data = struct.pack(fmt, *data)
+
+        return data
+        
+
     
 class AnalogHw:
     """
@@ -1871,8 +1814,42 @@ class AnalogHw:
         """
 
         return self._get_alpha_values()
-
     
+    def set_neighbor_ips(self, data):
+        """Sets the neigbors ip addresses
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        tuple
+            Returns a tuple of the form `(status, data)`. If the command was
+            executed successfully, `status` is 0 and `data` is the calibration
+            data of the board. Otherwise, `status` is negative and `error` is
+            an error code.
+        """
+
+        return self._set_neighbor_ips(data)
+    
+    def get_neighbor_ips(self):
+        """Gets the neigbors ip addresses
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        tuple
+            Returns a tuple of the form `(status, data)`. If the command was
+            executed successfully, `status` is 0 and `data` is the calibration
+            data of the board. Otherwise, `status` is negative and `error` is
+            an error code.
+        """
+
+        return self._get_neighbor_ips()
+    
+
     def _set_sampling_status(self, status):
         cmd = self._cmd.set_sampling_status
 
@@ -2102,6 +2079,40 @@ class AnalogHw:
             return (-1, status)
 
         data = AlphaValues().decode(data_b)
+        
+        return (0, data)
+    
+    def _set_neighbor_ips(self, data):
+        cmd = self._cmd.set_neighbor_ips
+
+        data_b = BoardComm().encode(data)
+        
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( data_b )
+
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting neighbor ips. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        return (0,)
+
+    def _get_neighbor_ips(self):
+        
+        cmd = self._cmd.get_neighbor_ips
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, data_b = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+        
+        if status < 0:
+            print('Error getting neighbor ips. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        data = BoardComm().decode(data_b)
         
         return (0, data)
 

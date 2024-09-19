@@ -16,6 +16,14 @@
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
 typedef struct{
+    float ipone;
+    float iptwo;
+    float ipthree;
+    float ipfour;
+    float ipfive;
+}itm3903cConfigIPAddresses_t;
+
+typedef struct{
 
     float i;
     float v;
@@ -26,6 +34,7 @@ typedef struct{
 
     float i;
     float v;
+    float t;
 
 }itm3903cConfigMeasurements_t;
 
@@ -59,6 +68,7 @@ typedef struct{
     float a3_gain;
     float a3_offset;
 }itm3903cConfigDacGains_t;
+
 //=============================================================================
 
 #endif /* ITM3903C_CONFIG_H_ */

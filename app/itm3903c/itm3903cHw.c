@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include "string.h"
 #include <math.h>
+#include "time.h"
 
 #include "pico/stdlib.h"
 #include "hardware/adc.h"
@@ -28,6 +29,8 @@
 #include "ocp/hardware/pico/mcp49x2.h"
 
 #include "itm3903cPicoConfig.h"
+
+#include "pico_ocp_freertos/tasks/task_ntpsync.h"
 
 //=============================================================================
 
@@ -47,6 +50,8 @@ typedef struct{
     itm3903cConfigDacGains_t dacGains;
 
     itm3903cConfigAlphaValues_t alphas;
+
+    itm3903cConfigIPAddresses_t ips;
 
     /* Sampling period in us */
     uint32_t ts;
@@ -100,6 +105,11 @@ static itm3903cHwControl_t hwControl = {
     .gains.v_ofs = 33,
     .alphas.v = 0.5,
     .alphas.i = 0.5,
+    .ips.ipone = 131,67,239,466,
+    .ips.iptwo = 131,67,239,466,
+    .ips.ipthree = 131,67,239,466,
+    .ips.ipfour = 131,67,239,466,
+    .ips.ipfive = 131,67,239,466
     };
 
 static float texec = 0.0f;
@@ -172,6 +182,7 @@ int32_t itm3903cHwGetMeasurements(void *meas){
 
     dst->v = hwControl.gains.v_gain * ((float)(temp_chan_1)) + hwControl.gains.v_ofs;
     dst->i = hwControl.gains.i_gain * ((float)(temp_chan_0)) + hwControl.gains.i_ofs;
+    dst->t = returnL();
 
     static float previousv; 
     static float previousi;
@@ -406,7 +417,7 @@ uint32_t itm3903cHwGetAnalogExternalStatus(void) {
 //-----------------------------------------------------------------------------
 float itm3903cHwGetVoltageMeasurement(void){
 
-    float voltage_measurement; 
+    float voltage_measurement;
     char command[50];
     size_t size;
     
@@ -902,6 +913,12 @@ void itm3903cHwDac1WriteOffset(float offset){
 
     uint16_t data = (uint16_t)(hwControl.dacGains.a1_offset_gain * offset + hwControl.dacGains.a1_offset_offset);
 
+    if (data > 4095){
+        
+        data = 4095;
+
+    }
+
     mcp49x2Write(&dac_1, ((uint16_t) (data & 0x0FFF)), flags);
 }
 //-----------------------------------------------------------------------------
@@ -910,6 +927,11 @@ void itm3903cHwDac1WriteAdj(float adj){
     uint16_t flags = MCP49X2_CFG_SET_GA_1 | MCP49X2_CFG_DIS_SHDN;
 
     uint16_t data = (uint16_t)(hwControl.dacGains.a1_adj_gain * adj + hwControl.dacGains.a1_adj_offset);
+
+    if (data > 4095){
+
+        data = 4095;
+    }
 
     mcp49x2Write(&dac_1, ((uint16_t) (data & 0x0FFF)), flags);
 }
@@ -920,6 +942,12 @@ void itm3903cHwDac23WriteA2(float value){
 
     uint16_t data = (uint16_t)(hwControl.dacGains.a2_gain * value + hwControl.dacGains.a2_offset);
 
+    if (data > 4095){
+        
+        data = 4095;
+
+    }
+
     mcp49x2Write(&dac_23, ((uint16_t) (data & 0x0FFF)), flags);
 }
 //-----------------------------------------------------------------------------
@@ -928,6 +956,12 @@ void itm3903cHwDac23WriteA3(float value){
     uint16_t flags = MCP49X2_CFG_SET_GA_1 | MCP49X2_CFG_DIS_SHDN | MCP49X2_CFG_WRITE_CH_B;
 
     uint16_t data = (uint16_t)(hwControl.dacGains.a3_gain * value + hwControl.dacGains.a3_offset);
+
+    if (data > 4095){
+        
+        data = 4095;
+
+    }
 
     mcp49x2Write(&dac_23, ((uint16_t) (data & 0x0FFF)), flags);
 }
@@ -997,7 +1031,28 @@ void itm3903cHwSetAlphaValues(float *data){
     hwControl.alphas.v = *data++;
     hwControl.alphas.i = *data++;
 }
+
 //-----------------------------------------------------------------------------
+uint32_t itm3903cHwGetNeighborIps(float *data){
+
+    *data++ = hwControl.ips.ipone;
+    *data++ = hwControl.ips.iptwo;
+    *data++ = hwControl.ips.ipthree;
+    *data++ = hwControl.ips.ipfour;
+    *data++ = hwControl.ips.ipfive;
+
+    return (5 * 4);
+}
+//-----------------------------------------------------------------------------
+void itm3903cHwSetNeighborIps(float *data){
+
+    hwControl.ips.ipone = *data++;
+    hwControl.ips.iptwo = *data++;
+    hwControl.ips.ipthree = *data++;
+    hwControl.ips.ipfour = *data++;
+    hwControl.ips.ipfive = *data++;
+}
+
 //=============================================================================
 
 //=============================================================================

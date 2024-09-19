@@ -7,6 +7,7 @@ Module ``itm3903c``
 import lrssoc
 import numpy as np
 import matplotlib.pyplot as plt
+import json
 
 
 class ITM3903C:
@@ -44,6 +45,206 @@ class ITM3903C:
     # =========================== System functions ===========================
     # ========================================================================
     
+    def initSupply(self, settings):
+
+        if settings["status"] == "0":
+            print("baord not active \n")
+            
+        if settings["status"] == "1":
+            print("board calibrated \n")
+            dac = self._an_hw_if.set_dac_cal_data({   
+                'dac1_adj_gain': settings["DACADJ"]["gain"],
+                'dac1_adj_offset': settings["DACADJ"]["Offset"],
+                'dac1_offset_gain': settings["DACOFFSET"]["gain"],
+                'dac1_offset_offset':settings["DACOFFSET"]["Offset"],
+                'dac2_gain': settings["DAC2"]["gain"],
+                'dac2_offset': settings["DAC2"]["Offset"],
+                'dac3_gain': settings["DAC3"]["gain"],
+                'dac3_offset':settings["DAC3"]["Offset"]
+            })
+
+            if dac[0] >= 0:
+                print("DAC calibration data set\n")
+            else:
+                print("error setting DAC calibration data\n")
+                
+            adc = self._an_hw_if.set_adc_cal_data({   
+                'v_gain': settings["ADCV"]["gain"],
+                'v_ofs': settings["ADCV"]["Offset"],
+                'i_gain': settings["ADCC"]["gain"],
+                'i_ofs': settings["ADCC"]["Offset"],
+            })
+
+            if adc[0] >= 0:
+                print("ADC calibration data set\n")
+            else:
+                print("error setting ADC calibration data\n")
+
+            alpha = self._an_hw_if.set_alpha_values({   
+                'v': settings["AValues"]["v"],
+                'i': settings["AValues"]["i"],
+            })
+          
+            if alpha[0] >= 0:
+                print("Alpha values set\n")
+            else:
+                print("error setting alpha values\n")
+
+            #Function Mode
+            if 'mode' not in settings:
+                print('Cannot run setup if `mode` is not specified.\n\r')
+                return (-1, )
+
+            if (settings['mode'] != 'current') and (settings['mode'] != 'voltage'):
+                print('Cannot run setup. `mode` must be \'voltage\' or \'current\'')
+                return (-1,)
+            
+            print('Setting mode to {:}...'.format(settings['mode']))
+            status = self._hw_if.set_func_mode(settings['mode'])
+            if( status[0] < 0 ):
+                print('Could not complete setup. Error setting `mode` ({:})'.format(status[1]))
+                return (-1, status[1])
+            else:
+                print('Mode set.\n\r')
+
+            #Power Status
+            powstat = self._hw_if.set_output_status(settings["powstatus"])
+            if (powstat[0] < 0):
+                print("Error setting output status")
+            elif (settings["powstatus"] != 0) and (settings["powstatus"] != 1):
+                print("Output status must be either True or False")
+
+            #Analog Status
+            anstat = self._hw_if.set_analog_external_status(settings['analog external status'])
+            if (anstat[0]) < 0:
+                print("error setting external analog status ")
+            elif(settings['analog external status'] != True) and (settings['analog external status'] != False):
+                print("Analog external status must be set to True or False")
+            
+            #Power Limit
+            if (settings['mode'] == "voltage"):
+                plim = settings["Voltage Supply Settings"]['power_lim']
+                print('Setting power limits to {:} W and {:} W...'.format(plim[0], plim[1]))
+                status_min = self._hw_if.set_power_min(plim[0])
+                status_max = self._hw_if.set_power_max(plim[1])
+                if( (status_max[0] < 0) or (status_min[0] < 0) ):
+                    print('Error setting power limits... Status: {:} {:}.\n\r'. format(status_min[1], status_max[1]))
+                    return ( -1, (status_min[1], status_max[1]) )
+                else:
+                    print('Power limits set.\n\r')
+
+            elif (settings['mode'] == "current"):
+                plim = settings["Current Supply Settings"]['power_lim']
+                print('Setting power limits to {:} W and {:} W...'.format(plim[0], plim[1]))
+                status_min = self._hw_if.set_power_min(plim[0])
+                status_max = self._hw_if.set_power_max(plim[1])
+                if( (status_max[0] < 0) or (status_min[0] < 0) ):
+                    print('Error setting power limits... Status: {:} {:}.\n\r'. format(status_min[1], status_max[1]))
+                    return ( -1, (status_min[1], status_max[1]) )
+                else:
+                    print('Power limits set.\n\r')
+
+            else:
+                print('Skipping setting power limits...\n\r')
+
+            #Current Limits
+            if (settings['mode'] == 'voltage'):
+                ilim = settings["Voltage Supply Settings"]['curr_lim']
+                print('Setting current limits to {:} A and {:} A...'.format(ilim[0], ilim[1]))
+                status_min = self._hw_if.set_current_min(ilim[0])
+                status_max = self._hw_if.set_current_max(ilim[1])
+                if( (status_max[0] < 0) or (status_min[0] < 0) ):
+                    print('Error setting current limits... Status: {:} {:}.\n\r'. format(status_min[1], status_max[1]))
+                    return ( -1, (status_min[1], status_max[1]) )
+                else:
+                    print('Current limits set.\n\r')
+
+            elif ( (settings['mode'] == 'voltage')):
+                print('Skipping setting current limits...\n\r')
+
+            #Voltage Limits
+            if (settings['mode'] == 'current' ):
+                vlim = settings["Current Supply Settings"]['volt_lim']
+                print('Setting voltage limits to {:} V and {:} V...'.format(vlim[0], vlim[1]))
+                status_min = self._hw_if.set_voltage_min(vlim[0])
+                status_max = self._hw_if.set_voltage_max(vlim[1])
+                if( (status_max[0] < 0) or (status_min[0] < 0) ):
+                    print('Error setting voltage limits... Status: {:} {:}.\n\r'. format(status_min[1], status_max[1]))
+                    return ( -1, (status_min[1], status_max[1]) )
+                else:
+                    print('Voltage limits set.\n\r')
+
+            elif ( settings['mode'] == 'current' ):
+                print('Skipping setting voltage limits...\n\r')
+            
+            #Set Analog 1    
+            if settings["mode"] == "voltage":
+                ain, aout = settings["Voltage Supply Settings"]['analog_1'][0], settings["Voltage Supply Settings"]['analog_1'][1]
+                print('Setting analog channel 1: {:}\t{:}...'.format(ain, aout))
+                status = self._hw_if.config_slope_offset(1, ain, aout)
+                if( status[0] < 0 ):
+                    print('Error setting analog channel 1... Status: {:}\n\r'.format(status[1]))
+                else:
+                    print('Analog channel 1 set.\n\r')
+
+            elif settings["mode"] == "current":
+                ain, aout = settings["Current Supply Settings"]['analog_1'][0], settings["Current Supply Settings"]['analog_1'][1]
+                print('Setting analog channel 1: {:}\t{:}...'.format(ain, aout))
+                status = self._hw_if.config_slope_offset(1, ain, aout)
+                if( status[0] < 0 ):
+                    print('Error setting analog channel 1... Status: {:}\n\r'.format(status[1]))
+                else:
+                    print('Analog channel 1 set.\n\r')
+            else:
+                print('Skipping setting analog channel 1.\n\r')
+
+
+            #Set Analog 2
+            if settings["mode"] == "voltage":
+                ain, aout = settings["Voltage Supply Settings"]['analog_2'][0], settings["Voltage Supply Settings"]['analog_2'][1]
+                print('Setting analog channel 2: {:}\t{:}...'.format(ain, aout))
+                status = self._hw_if.config_slope_offset(2, ain, aout)
+                if( status[0] < 0 ):
+                    print('Error setting analog channel 2... Status: {:}\n\r'.format(status[1]))
+                else:
+                    print('Analog channel 2 set.\n\r')
+            elif settings["mode"] == "current":
+                ain, aout = settings["Current Supply Settings"]['analog_2'][0], settings["Current Supply Settings"]['analog_2'][1]
+                print('Setting analog channel 2: {:}\t{:}...'.format(ain, aout))
+                status = self._hw_if.config_slope_offset(2, ain, aout)
+                if( status[0] < 0 ):
+                    print('Error setting analog channel 2... Status: {:}\n\r'.format(status[1]))
+                else:
+                    print('Analog channel 2 set.\n\r')
+            else:
+                print('Skipping setting analog channel 2.\n\r')
+
+            #Set Analog 3
+            if settings["mode"] == "voltage":
+                ain, aout = settings["Voltage Supply Settings"]['analog_3'][0], settings["Voltage Supply Settings"]['analog_3'][1]
+                print('Setting analog channel 3: {:}\t{:}...'.format(ain, aout))
+                status = self._hw_if.config_slope_offset(3, ain, aout)
+                if( status[0] < 0 ):
+                    print('Error setting analog channel 3... Status: {:}\n\r'.format(status[1]))
+                else:
+                    print('Analog channel 3 set.\n\r')
+            elif settings["mode"] == "current":
+                ain, aout = settings["Current Supply Settings"]['analog_3'][0], settings["Current Supply Settings"]['analog_3'][1]
+                print('Setting analog channel 3: {:}\t{:}...'.format(ain, aout))
+                status = self._hw_if.config_slope_offset(3, ain, aout)
+                if( status[0] < 0 ):
+                    print('Error setting analog channel 3... Status: {:}\n\r'.format(status[1]))
+                else:
+                    print('Analog channel 3 set.\n\r')
+            else:
+                print('Skipping setting analog channel 3.\n\r')
+                
+            print('Setup completed.\n\r')
+            
+
+  
+    
+
     def enable(self):
         """
         """

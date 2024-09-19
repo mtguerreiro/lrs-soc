@@ -27,6 +27,9 @@
 #include "ocp/app/itm3903c/itm3903cController.h"
 #include "ocp/app/itm3903c/itm3903cHw.h"
 #include "ocp/app/itm3903c/itm3903cHwIf.h"
+
+#include "pico_ocp_freertos/tasks/task_ntpsync.h"
+
 //=============================================================================
 
 //=============================================================================
@@ -124,6 +127,7 @@ static int32_t ocpPicoCpu1InitializeTraces(void){
 
 	ocpTraceAddSignal(OCP_TRACE_1, (void *)&meas->v, "Channel 0");
 	ocpTraceAddSignal(OCP_TRACE_1, (void *)&meas->i, "Channel 1");
+    ocpTraceAddSignal(OCP_TRACE_1, (void *)&meas->t, "timestamp");
 
     texec = itm3903cHwGetC1ControlExecTimeAddr();
 

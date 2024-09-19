@@ -118,6 +118,9 @@ static int32_t itm3903cHwIfGetDacCalData(void *in, uint32_t insize, void **out, 
 static int32_t itm3903cHwIfGetAdcCalData(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfSetAlphaValues(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t itm3903cHwIfGetAlphaValues(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+
+static int32_t itm3903cHwIfGetNeighborIps(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t itm3903cHwIfSetNeighborIps(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //=============================================================================
 
 //=============================================================================
@@ -193,7 +196,9 @@ int32_t itm3903cHwIfInitialize(void){
     rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_GET_ADC_CAL_DATA, itm3903cHwIfGetAdcCalData);
     rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_GET_ALPHA_VALUES, itm3903cHwIfGetAlphaValues);
     rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_ALPHA_VALUES, itm3903cHwIfSetAlphaValues);
-
+    
+    rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_GET_NEIGHBOR_IPS, itm3903cHwIfGetNeighborIps);
+    rpRegisterHandle(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_SET_NEIGHBOR_IPS, itm3903cHwIfSetNeighborIps);
     return 0;
 }
 //-----------------------------------------------------------------------------
@@ -855,6 +860,25 @@ static int32_t itm3903cHwIfGetAlphaValues(void *in, uint32_t insize, void **out,
     calsize = itm3903cHwGetAlphaValues(data);
 
     return calsize;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfGetNeighborIps(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    float *data = (float *) *out;
+    uint32_t calsize;
+
+    calsize = itm3903cHwGetNeighborIps(data);
+
+    return calsize;
+}
+//-----------------------------------------------------------------------------
+static int32_t itm3903cHwIfSetNeighborIps(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    float *data = (float *) in;
+
+    itm3903cHwSetNeighborIps(data);
+
+    return 0;
 }
 //-----------------------------------------------------------------------------
 //=============================================================================
