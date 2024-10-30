@@ -509,7 +509,7 @@ typedef enum{
 	/**
 	 * Command
 	 *  -------------------------------------------------------
-	 *  | SET ADC COMPARATOR RESET (uint32) | ENABLE (uint32) |
+	 *  | SET ADC COMPARATOR ENABLE (uint32) | ENABLE (uint32) |
 	 *  -------------------------------------------------------
 	 *
 	 * Response
@@ -527,7 +527,7 @@ typedef enum{
 	/**
 	 * Command
 	 *  -------------------------------------
-	 *  | GET ADC COMPARATOR RESET (uint32) |
+	 *  | GET ADC COMPARATOR ENABLE (uint32) |
 	 *  -------------------------------------
 	 *
 	 * Response
@@ -536,6 +536,37 @@ typedef enum{
 	 *  -------------------
 	 */
 	BOOST_HW_IF_GET_ADC_COMP_ENABLE,
+
+	/**
+	 * Command
+	 *  -------------------------------------------------------
+	 *  | SET ADC COMPARATOR ENABLE (uint32) | ENABLE (uint32) |
+	 *  -------------------------------------------------------
+	 *
+	 * Response
+	 * No response
+	 *
+	 * Notes
+	 * - ENABLE should be a 32-bit value where each bit enables one protection comparator of ADC channels.
+	 *  A value of 1 enables generation of an interrupt signal  (shunt trip) if protection limit is violated, and a value of 0 disables it.
+	 *  Although the value to be introduced is a 32-bit value, the bits taken in consideration are defined by the
+	 *  number of channels in the ADC. Currently there are 16 channels but only 6 channels are being used so this
+	 *  value should be 0x3F (only the 6 LSB set).
+	 */
+
+	BOOST_HW_IF_SET_ADC_COMP_ENABLE_BIT,
+	/**
+	 * Command
+	 *  -------------------------------------
+	 *  | GET ADC COMPARATOR ENABLE (uint32) |
+	 *  -------------------------------------
+	 *
+	 * Response
+	 *  -------------------
+	 *  | ENABLE (uint32) |
+	 *  -------------------
+	 */
+	BOOST_HW_IF_GET_ADC_COMP_ENABLE_BIT,
 	/**
 	 * Command
 	 *  -------------------------------------------------------
@@ -556,7 +587,7 @@ typedef enum{
 	/**
 	 * Command
 	 *  ----------------------------------
-	 *  | GET ADC DONE INT FACTOR (uint32) |
+	 *  | GET ADC DONE INT FACTOR (uint8) |
 	 *  ----------------------------------
 	 *
 	 * Response
@@ -569,6 +600,49 @@ typedef enum{
 	 * the first interruption is produced.
 	 */
 	BOOST_HW_IF_GET_ADC_DONE_INT_FACTOR,
+
+	/**
+	 * Command
+	 *  -------------------------------------------------------
+	 *  | SET ADC COMPARATOR LIMITS (uint32) | in0 - in15 (uint32) |
+	 *  -------------------------------------------------------
+     *
+	 * Response
+	 * No response
+	 *
+	 * Notes
+	 * - Sets 16 limit values for the comparator in the ADC module.
+	 */
+
+	BOOST_HW_IF_SET_ADC_COMP_TRIP_LIMITS,
+	/**
+	 * Command
+	 *  -------------------------------------
+	 *  | GET ADC COMPARATOR LIMITS (uint32) | out0 - out15 (uint32)
+	 *  -------------------------------------
+	 *
+	 * Response
+	 *  -------------------
+	 *  | out0-out15 (uint32) |
+	 *  - Reads 16 limit valuer from the comparator in the ADC module.
+	 */
+	BOOST_HW_IF_GET_ADC_COMP_TRIP_LIMITS,
+
+	/**
+	 * Command
+	 *  -------------------------------------
+	 *  | GET ADC COMPARATOR RESULTS (uint32) |
+	 *  -------------------------------------
+	 *
+	 * Response
+	 *  -------------------
+	 *  | out0-out15 (uint32) |
+	 *  - Reads 32-bit result value from the comparator in the ADC module.
+	 *  1st 2 LSBs correspond to 1st instance of single comparator (1st LSB to min_limit flag, 2nd LS to max_limit flag)
+	 *  2nd 2 LSBs correspond to 2nd instance of single comparator and so on.
+	 */
+	BOOST_HW_IF_GET_ADC_COMP_RESULT,
+
 
     BOOST_HW_IF_END
 }boostHwIfCommands_t;

@@ -53,7 +53,7 @@ class Plot:
             axes = fig.get_axes()
             
         axes[0].cla()
-        axes[0].step(t, data[:, 3], label='$i_l$', where='post', lw=self._lw)
+        axes[0].step(t, data[:, 4], label='$i_l$', where='post', lw=self._lw)
         axes[0].legend(loc='upper left', bbox_to_anchor=(1.01,1), borderaxespad=0, handlelength=0.75, handleheight=0.5, handletextpad=0.3, fontsize=self._l_fs)
         axes[0].grid()
         axes[0].set_ylabel('Current (A)', fontsize=self._l_fs)
@@ -61,9 +61,9 @@ class Plot:
 
         axes[1].cla()
         axes[1].sharex(axes[0])
-        axes[1].step(t, data[:, 0], label='$V_{dc,in}$', where='post', lw=self._lw)
-        axes[1].step(t, data[:, 1], label='$V_{dc,out}$', where='post', lw=self._lw)
-        axes[1].step(t, data[:, 2], label='$V_{out}$', where='post', lw=self._lw)
+        axes[1].step(t, data[:, 1], label='$V_{dc,in}$', where='post', lw=self._lw)
+        axes[1].step(t, data[:, 2], label='$V_{dc,out}$', where='post', lw=self._lw)
+        #axes[1].step(t, data[:, 3], label='$V_{out}$', where='post', lw=self._lw)
         axes[1].legend(loc='upper left', bbox_to_anchor=(1.01,1), borderaxespad=0, handlelength=0.75, handleheight=0.5, handletextpad=0.3, fontsize=self._l_fs)
         axes[1].grid()
         axes[1].set_ylabel('Voltage (V)', fontsize=self._l_fs)

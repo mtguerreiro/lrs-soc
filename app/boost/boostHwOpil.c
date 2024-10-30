@@ -14,6 +14,7 @@
 #include "boostOpil.h"
 
 #include "boostConfig.h"
+
 //=============================================================================
 
 //=============================================================================
@@ -173,7 +174,7 @@ uint32_t boostHwOpilGetAdcSpiFreq(void){
     return 0;
 }
 //-----------------------------------------------------------------------------
-void boostHwOpilSetAdcCompEnable(uint32_t freq){
+void boostHwOpilSetAdcCompEnable(uint32_t enable){
 
 }
 //-----------------------------------------------------------------------------
@@ -181,6 +182,30 @@ uint32_t boostHwOpilGetAdcCompEnable(void){
 
     return 0;
 }
+//-----------------------------------------------------------------------------
+void boostHwOpilSetAdcCompEnableBit(uint32_t enable, uint32_t instantiation){
+
+}
+//-----------------------------------------------------------------------------
+uint32_t boostHwOpilGetAdcCompEnableBit(uint32_t instantiation){
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+uint32_t boostHwOpilGetAdcCompResult(void){
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+void boostHwOpilSetAdcCompTripLimits(float limit_max, float limit_min, uint32_t instantiation){
+
+}
+//-----------------------------------------------------------------------------
+float boostHwOpilGetAdcCompTripLimits(uint32_t instantiation, uint32_t max){
+
+    return 0;
+}
+
 //-----------------------------------------------------------------------------
 int32_t boostHwOpilGetMeasurements(void *meas){
 

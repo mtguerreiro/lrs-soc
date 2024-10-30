@@ -53,6 +53,8 @@ static float K2 = 0.0f;
 static float v_o_ref = 0.0f;
 static float period = 1e-5; //according to sampling freq = 100kHz.
 
+static float p_o = 0.0f;
+
 static float alpha = 1.0f;
 //=============================================================================
 
@@ -118,6 +120,7 @@ int32_t boostControlEnergycintRun(void *meas, int32_t nmeas, void *refs, int32_t
 //controller equations
 
     i_o_filt = boostHwExpMovAvg(i_o, i_o_filt);
+    p_o = v_o*i_o_filt;
 
     e = (i_l*i_l*L/2) + (v_o*v_o*C/2);
 
@@ -137,7 +140,6 @@ int32_t boostControlEnergycintRun(void *meas, int32_t nmeas, void *refs, int32_t
 
     u = ((rho*L/v_i) + v_o - v_i)/v_o;
 
-
     if( u >= 0.98f ) u = 0.98f;
     if( u <= 0.0f ) u = 0.0f;
 
@@ -145,8 +147,10 @@ int32_t boostControlEnergycintRun(void *meas, int32_t nmeas, void *refs, int32_t
     o->u = u;
     o->v_o_reference = r->v_o;//
     o->e = e;
+    o->e_dot = e_dot;
     o->e_reference = e_ref;
     o->i_o_filt = i_o_filt;
+    o->p_o = p_o;
     return sizeof(boostConfigControl_t);
 }
 //-----------------------------------------------------------------------------

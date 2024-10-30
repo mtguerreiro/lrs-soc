@@ -3,6 +3,7 @@
  *
  *  Created on: 29.03.2023
  *      Author: rodolfo
+ *      testing controller that implements feedback linearization at two frequencies: sf and cf
  */
 
 #ifdef SOC_CPU1
@@ -15,6 +16,9 @@
 #include "ocpTrace.h"
 
 #include "boostConfig.h"
+
+
+
 //=============================================================================
 
 //=============================================================================
@@ -30,9 +34,9 @@ static float C = 0.0f;
 static float KI = 0.0f;
 static float K1 = 0.0f;
 static float K2 = 0.0f;
-static float alpha = 1.0f;
+static float alpha = 0.01f;
 static float control_f = 0.0f;
-static float control_s = 0.0f;
+
 
 static float v_i = 0.0f;
 static float v_o = 0.0f;
@@ -52,6 +56,9 @@ static float period = 0.0f;
 
 static float rho = 0.0f;
 static float u = 0.0f;
+
+
+
 //=============================================================================
 
 //=============================================================================
@@ -59,7 +66,6 @@ static float u = 0.0f;
 //=============================================================================
 //-----------------------------------------------------------------------------
 void boostControlLinearizationInitialize(void){
-
 
 
 }
@@ -73,14 +79,10 @@ int32_t boostControlLinearizationSetParams(void *params, uint32_t n){
 	    KI = *p++;
 	    K1 = *p++;
 	    K2 = *p++;
-	    alpha = *p++;
 		control_f = *p++;
-		control_s = *p++;
 		return 0;
 
-		uint32_t factor= 100e3/control_f;
-		uint8_t f = factor;
-		boostHwSetAdcDoneIntFactor(f);
+
 
 }
 //-----------------------------------------------------------------------------
@@ -93,22 +95,29 @@ int32_t boostControlLinearizationGetParams(void *in, uint32_t insize, void *out,
 	    *p++ = KI;
 	    *p++ = K1;
 	    *p++ = K2;
-	    *p++ = alpha;
 		*p++ = control_f;
-		*p++ = control_s;
-	    return 32;
+	    return 24;
 }
 
 //-----------------------------------------------------------------------------
 int32_t boostControlLinearizationRun(void *meas, int32_t nmeas, void *refs, int32_t nrefs, void *outputs, int32_t nmaxoutputs){
 
+
     boostConfigMeasurements_t *m = (boostConfigMeasurements_t *)meas;
     boostConfigReferences_t *r = (boostConfigReferences_t *)refs;
     boostConfigControl_t *o = (boostConfigControl_t *)outputs;
 
+//set 3rd interruption factor
+    int f = (int)100000/control_f;
+    boostHwSetAdcDoneIntFactor(f);
+
+
 //values from sensors
     v_i = m->v_dc_in;
     v_o = m->v_out;
+
+//reference
+    v_o_ref = r->v_o;
 
 //controller equations
     u = ((rho*L/v_i) + v_o - v_i)/v_o;
@@ -118,15 +127,13 @@ int32_t boostControlLinearizationRun(void *meas, int32_t nmeas, void *refs, int3
 
     o->u = u;
     o->v_o_reference = r->v_o;
-    o-> control_s = control_s;
 
     return sizeof(boostConfigControl_t);
 }
 //-----------------------------------------------------------------------------
 void boostControlLinearizationReset(void){
-    u = 0.0f;
-    rho = 0.0f;
 
+    rho = 0.0f;
     e = 0.0f;
     e_dot = 0.0f;
     i_o_filt = 0.0f;
@@ -136,6 +143,7 @@ void boostControlLinearizationReset(void){
     error = 0.0f;
     error_1 = 0.0f;
 
+    boostHwSetAdcDoneIntFactor(0);
 
 }
 //-----------------------------------------------------------------------------
@@ -144,6 +152,7 @@ void boostControlLinearizationReset(void){
 //-----------------------------------------------------------------------------
 static float boostHwExpMovAvg(float sample, float average);
 //-----------------------------------------------------------------------------
+
 int32_t boostControlEnergycint_rhoRun(void *meas, void *outputs){
 
     boostConfigMeasurements_t *m = (boostConfigMeasurements_t *)meas;
@@ -154,14 +163,13 @@ int32_t boostControlEnergycint_rhoRun(void *meas, void *outputs){
     i_o = m->i_o;
     v_i = m->v_dc_in;
     v_o = m->v_out;
-//value from reference (set point)
-    v_o_ref = o->v_o_reference;
+
 //controller equations
 
     e = (i_l*i_l*L/2) + (v_o*v_o*C/2);
     e_dot = (i_l*v_i) - (i_o_filt*v_o);
 
-    i_o_filt = boostHwExpMovAvg(i_o, i_o_filt);
+    i_o_filt = boostHwExpMovAvg(i_o, i_o_filt); //filtro puede ser implementado en linearizacion
     i_l_ref = i_o_filt*v_o/v_i;
     e_ref = (i_l_ref*i_l_ref*L/2) + (v_o_ref*v_o_ref*C/2);
 
@@ -192,6 +200,5 @@ static float boostHwExpMovAvg(float sample, float average){
 
     return alpha * sample + (1.0f - alpha) * average;
 }
-//-----------------------------------------------------------------------------
 
 #endif /* SOC_CPU1 */

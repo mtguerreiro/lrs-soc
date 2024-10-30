@@ -80,6 +80,13 @@ static int32_t boostHwIfGetAdcSpiFreq(void *in, uint32_t insize, void **out, uin
 static int32_t boostHwIfSetAdcCompEnable(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t boostHwIfGetAdcCompEnable(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
+static int32_t boostHwIfSetAdcCompEnableBit(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t boostHwIfGetAdcCompEnableBit(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+
+static int32_t boostHwIfSetAdcCompTripLimits(void *params, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t boostHwIfGetAdcCompTripLimits(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t boostHwIfGetAdcCompResult(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+
 static int32_t boostHwIfSetInputRelay(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t boostHwIfGetInputRelay(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
@@ -143,6 +150,13 @@ int32_t boostHwIfInitialize(void){
     rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_SET_ADC_COMP_ENABLE, boostHwIfSetAdcCompEnable);
     rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_GET_ADC_COMP_ENABLE, boostHwIfGetAdcCompEnable);
 
+    rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_SET_ADC_COMP_ENABLE_BIT, boostHwIfSetAdcCompEnableBit);
+    rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_GET_ADC_COMP_ENABLE_BIT, boostHwIfGetAdcCompEnableBit);
+
+    rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_SET_ADC_COMP_TRIP_LIMITS, boostHwIfSetAdcCompTripLimits);
+    rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_GET_ADC_COMP_TRIP_LIMITS, boostHwIfGetAdcCompTripLimits);
+
+    rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_GET_ADC_COMP_RESULT, boostHwIfGetAdcCompResult);
 
     rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_SET_INPUT_RELAY, boostHwIfSetInputRelay);
     rpRegisterHandle(&hwControl.interface.rp, BOOST_HW_IF_GET_INPUT_RELAY, boostHwIfGetInputRelay);
@@ -594,7 +608,7 @@ static int32_t boostHwIfSetAdcCompEnable(void *in, uint32_t insize, void **out, 
 
     return 0;
 }
-//----------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
 static int32_t boostHwIfGetAdcCompEnable(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
 
     uint32_t *o = (uint32_t *)*out;
@@ -610,6 +624,97 @@ static int32_t boostHwIfGetAdcCompEnable(void *in, uint32_t insize, void **out, 
 
     return 4;
 }
+//------------------------------------------------------------------------------------
+static int32_t boostHwIfSetAdcCompEnableBit(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+	uint32_t *p = (uint32_t *)in;
+	uint32_t enable = *p++;
+	uint32_t instantiation = *p++;
+
+
+#ifdef BOOST_HW_IF_CONFIG_OPIL
+    boostHwOpilSetAdcCompEnableBit(enable, instantiation);
+#else
+    boostHwSetAdcCompEnableBit(enable, instantiation);
+#endif
+
+    return 0;
+}
+//----------------------------------------------------------------------------
+static int32_t boostHwIfGetAdcCompEnableBit(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    uint32_t *o = (uint32_t *)*out;
+    uint32_t enable;
+    uint32_t instantiation;
+    instantiation = *( (uint32_t *)in );
+
+#ifdef BOOST_HW_IF_CONFIG_OPIL
+    enable = boostHwOpilGetAdcCompEnableBit(instantiation);
+#else
+    enable = boostHwGetAdcCompEnableBit(instantiation);
+#endif
+
+    *o = enable;
+
+    return 4;
+}
+
+//------------------------------------------------------------------------------------
+static int32_t boostHwIfGetAdcCompResult(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    uint32_t *o = (uint32_t *)*out;
+    uint32_t result;
+
+#ifdef BOOST_HW_IF_CONFIG_OPIL
+    result = boostHwOpilGetAdcCompResult();
+#else
+    result = boostHwGetAdcCompResult();
+#endif
+
+    *o = result;
+
+    return 4;
+}
+//-----------------------------------------------------------------------------
+static int32_t boostHwIfSetAdcCompTripLimits(void *params, uint32_t insize, void **out, uint32_t maxoutsize) {
+
+	float *p = (float *)params;
+	float limit_max = *p++;
+	float limit_min = *p++;
+	uint32_t inst = *((uint32_t*)p);
+
+
+#ifdef BOOST_HW_IF_CONFIG_OPIL
+    boostHwOpilSetAdcCompTripLimits(limit_max, limit_min, inst);
+#else
+    boostHwSetAdcCompTripLimits(limit_max, limit_min, inst);
+#endif
+
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t boostHwIfGetAdcCompTripLimits(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+	uint32_t *p = (uint32_t *)in;
+	uint32_t instantiation = *p++;
+	uint32_t max = *p++;
+
+	float *o = (float *)*out;
+	float limit;
+
+
+
+#ifdef BOOST_HW_IF_CONFIG_OPIL
+    limit = boostHwOpilGetAdcCompTripLimits(instantiation, max);
+#else
+    limit = boostHwGetAdcCompTripLimits(instantiation, max);
+#endif
+
+    *o = limit;
+
+    return 4;
+}
+
 //-----------------------------------------------------------------------------
 static int32_t boostHwIfSetInputRelay(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
 

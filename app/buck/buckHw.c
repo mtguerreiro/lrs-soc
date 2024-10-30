@@ -23,16 +23,16 @@
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-#define BUCK_HW_CONFIG_ADC_SPI_FREQ_HZ      ((uint32_t)16666666)
+#define BUCK_HW_CONFIG_ADC_SPI_FREQ_HZ      ((uint32_t)10000000) //((uint32_t)16666666)
 #define BUCK_HW_CONFIG_PWM_FREQ_HZ          ((uint32_t) 100000 )
-#define BUCK_HW_CONFIG_PWM_DEAD_TIME_NS     ((float) 200e-9 )
-#define BUCK_HW_CONFIG_PWM_BASE              0//XPAR_AXI_PWM_1_S00_AXI_BASEADDR
-#define BUCK_HW_CONFIG_ADC_BASE              0//XPAR_ADC_PSCTL_1_S00_AXI_BASEADDR
+#define BUCK_HW_CONFIG_PWM_DEAD_TIME_NS     ((float) 300e-9 )
+#define BUCK_HW_CONFIG_PWM_BASE              XPAR_AXI_PWM_V1_0_1_BASEADDR
+#define BUCK_HW_CONFIG_ADC_BASE              XPAR_ADC_PSCTL_V5_1_BASEADDR
 
 #define BUCK_HW_CONFIG_IRQ_PL_CPU1           ZYNQ_CONFIG_IRQ_PL_TO_CPU1_2
 #define BUCK_HW_CONFIG_ADC_BUFFER            ( ZYNQ_CONFIG_MEM_PL_TO_CPU1_ADR + (ZYNQ_CONFIG_MEM_PL_TO_CPU1_SIZE >> 1) )
 
-#define BUCK_HW_CONFIG_GPIO_ID               0//XPAR_AXI_GPIO_1_DEVICE_ID
+#define BUCK_HW_CONFIG_GPIO_ID               XPAR_AXI_GPIO_1_DEVICE_ID
 #define BUCK_HW_CONFIG_GPIO_CHANNEL          1
 #define BUCK_HW_CONFIG_GPIO_MASK             0b11
 
@@ -85,7 +85,7 @@ static float i_i_filt = 0.0f, i_1_filt = 0.0f, i_o_filt = 0.0f, i_2_filt = 0.0f;
 //-----------------------------------------------------------------------------
 int32_t buckHwInitialize(buckHwInitConfig_t *config){
 
-    buckHwInitializeAdc(config->intc, config->irqhandle);
+    buckHwInitializeAdc(config->intc, config->irqhandle2);
     buckHwInitializePwm();
     buckHwInitializeGpio();
     buckHwInitializeMeasGains();
@@ -411,7 +411,7 @@ void buckHwShutDown(void){
 /*----------------------------- Static functions ----------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-static void buckHwInitializeAdc(void *intc, buckHwAdcIrqHandle_t irqhandle){
+static void buckHwInitializeAdc(void *intc, buckHwAdcIrqHandle_t irqhandle2){
 
     uint32_t clkdiv;
 
@@ -425,7 +425,7 @@ static void buckHwInitializeAdc(void *intc, buckHwAdcIrqHandle_t irqhandle){
 
     zynqAxiAdcBufferAddressWrite(BUCK_HW_CONFIG_ADC_BASE, BUCK_HW_CONFIG_ADC_BUFFER);
 
-    zynqAxiAdcInterruptConfig(intc, BUCK_HW_CONFIG_IRQ_PL_CPU1, irqhandle);
+    zynqAxiAdcInterrupt2Config(intc, BUCK_HW_CONFIG_IRQ_PL_CPU1, irqhandle2);
 
     zynqAxiAdcEnableWrite(BUCK_HW_CONFIG_ADC_BASE, 1);
 }

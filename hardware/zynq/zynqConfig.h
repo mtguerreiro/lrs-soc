@@ -42,9 +42,13 @@
 #define ZYNQ_CONFIG_SIG_CPU1_ID					0x02
 
 /* Interrupts from PL to CPU1 */
-#define ZYNQ_CONFIG_IRQ_PL_TO_CPU1				62U
-#define ZYNQ_CONFIG_IRQ_PL_TO_CPU1_2			61U
-#define ZYNQ_CONFIG_IRQ_PL_TO_CPU1_3            61U
+#define ZYNQ_CONFIG_IRQ_PL_TO_CPU1_0			61U
+#define ZYNQ_CONFIG_IRQ_PL_TO_CPU1_1			62U
+#define ZYNQ_CONFIG_IRQ_PL_TO_CPU1_2			63U
+#define ZYNQ_CONFIG_IRQ_PL_TO_CPU1_3            64U
+
+#define ZYNQ_CONFIG_IRQ_PL_TO_CPU1_4            65U
+
 //-----------------------------------------------------------------------------
 /*
  * Next, memory definitions are given.

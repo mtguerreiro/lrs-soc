@@ -31,14 +31,33 @@
 
 typedef void (*zynqAxiAdcIrqHandle_t)(void *ref);
 //=============================================================================
+typedef enum{
 
+    SINGLE_COMPARATOR_INSTANTIATION_1,
+
+	SINGLE_COMPARATOR_INSTANTIATION_2,
+
+	SINGLE_COMPARATOR_INSTANTIATION_3,
+
+	SINGLE_COMPARATOR_INSTANTIATION_4,
+
+	SINGLE_COMPARATOR_INSTANTIATION_5,
+
+	SINGLE_COMPARATOR_INSTANTIATION_6,
+
+	SINGLE_COMPARATOR_END,
+}SingleComparatorInst;
 //=============================================================================
 /*-------------------------------- Functions --------------------------------*/
 //=============================================================================
 //-----------------------------------------------------------------------------
-void zynqAxiAdcInterruptConfig(void *intcInst, uint32_t intId, zynqAxiAdcIrqHandle_t handle);
+void zynqAxiAdcInterrupt1Config(void *intcInst, uint32_t intId, zynqAxiAdcIrqHandle_t handle);
 //------------------------------------------------------------------------------
 void zynqAxiAdcInterrupt2Config(void *intcInst, uint32_t intId, zynqAxiAdcIrqHandle_t handle);
+//------------------------------------------------------------------------------
+void zynqAxiAdcInterrupt3Config(void *intcInst, uint32_t intId, zynqAxiAdcIrqHandle_t handle);
+//------------------------------------------------------------------------------
+void zynqAxiAdcInterrupt4Config(void *intcInst, uint32_t intId, zynqAxiAdcIrqHandle_t handle);
 //-----------------------------------------------------------------------------
 void zynqAxiAdcEnableWrite(uint32_t adcBase, uint32_t enable);
 //-----------------------------------------------------------------------------
@@ -76,87 +95,18 @@ void zynqAxiAdcCompEnableWrite(uint32_t adcBase, uint32_t data);
 //-----------------------------------------------------------------------------
 uint32_t zynqAxiAdcCompEnableRead(uint32_t adcBase);
 //-----------------------------------------------------------------------------
-
-//-----------------limits------------------------------------------------------
-void zynqAxiAdcLimit0Write(uint32_t adcBase, uint32_t data);
+void zynqAxiAdcCompEnablebitWrite(uint32_t adcBase, uint32_t enable, uint32_t instantiation);
 //-----------------------------------------------------------------------------
-uint32_t zynqAxiAdcLimit0Read(uint32_t adcBase);
+uint32_t zynqAxiAdcCompEnablebitRead(uint32_t adcBase, SingleComparatorInst instantiation);
 //-----------------------------------------------------------------------------
-void zynqAxiAdcLimit1Write(uint32_t adcBase, uint32_t data);
+void zynqAxiAdcTripWrite(uint32_t adcBase, uint32_t data, SingleComparatorInst instantiation);
 //-----------------------------------------------------------------------------
-uint32_t zynqAxiAdcLimit1Read(uint32_t adcBase);
+uint32_t zynqAxiAdcTripRead(uint32_t adcBase, SingleComparatorInst instantiation);
 //-----------------------------------------------------------------------------
-void zynqAxiAdcLimit2Write(uint32_t adcBase, uint32_t data);
+uint32_t zynqAxiAdcCompResultRead(uint32_t adcBase);
 //-----------------------------------------------------------------------------
-uint32_t zynqAxiAdcLimit2Read(uint32_t adcBase);
-
-//-----------------------------------------------------------------------------
-void zynqAxiAdcLimit3Write(uint32_t adcBase, uint32_t data);
-//-----------------------------------------------------------------------------
-uint32_t zynqAxiAdcLimit3Read(uint32_t adcBase);
-
-//-----------------------------------------------------------------------------
-void zynqAxiAdcLimit4Write(uint32_t adcBase, uint32_t data);
-//-----------------------------------------------------------------------------
-uint32_t zynqAxiAdcLimit4Read(uint32_t adcBase);
-
-//-----------------------------------------------------------------------------
-void zynqAxiAdcLimit5Write(uint32_t adcBase, uint32_t data);
-//-----------------------------------------------------------------------------
-uint32_t zynqAxiAdcLimit5Read(uint32_t adcBase);
-
-//-----------------------------------------------------------------------------
-void zynqAxiAdcLimit6Write(uint32_t adcBase, uint32_t data);
-//-----------------------------------------------------------------------------
-uint32_t zynqAxiAdcLimit6Read(uint32_t adcBase);
-
-//-----------------------------------------------------------------------------
-void zynqAxiAdcLimit7Write(uint32_t adcBase, uint32_t data);
-//-----------------------------------------------------------------------------
-uint32_t zynqAxiAdcLimit7Read(uint32_t adcBase);
-
-//-----------------------------------------------------------------------------
-void zynqAxiAdcLimit8Write(uint32_t adcBase, uint32_t data);
-//-----------------------------------------------------------------------------
-uint32_t zynqAxiAdcLimit8Read(uint32_t adcBase);
-
-//-----------------------------------------------------------------------------
-void zynqAxiAdcLimit9Write(uint32_t adcBase, uint32_t data);
-//-----------------------------------------------------------------------------
-uint32_t zynqAxiAdcLimit9Read(uint32_t adcBase);
-
-//-----------------------------------------------------------------------------
-void zynqAxiAdcLimit10Write(uint32_t adcBase, uint32_t data);
-//-----------------------------------------------------------------------------
-uint32_t zynqAxiAdcLimit10Read(uint32_t adcBase);
-
-//-----------------------------------------------------------------------------
-void zynqAxiAdcLimit11Write(uint32_t adcBase, uint32_t data);
-//-----------------------------------------------------------------------------
-uint32_t zynqAxiAdcLimit11Read(uint32_t adcBase);
-
-//-----------------------------------------------------------------------------
-void zynqAxiAdcLimit12Write(uint32_t adcBase, uint32_t data);
-//-----------------------------------------------------------------------------
-uint32_t zynqAxiAdcLimit12Read(uint32_t adcBase);
-
-//-----------------------------------------------------------------------------
-void zynqAxiAdcLimit13Write(uint32_t adcBase, uint32_t data);
-//-----------------------------------------------------------------------------
-uint32_t zynqAxiAdcLimit13Read(uint32_t adcBase);
-
-//-----------------------------------------------------------------------------
-void zynqAxiAdcLimit14Write(uint32_t adcBase, uint32_t data);
-//-----------------------------------------------------------------------------
-uint32_t zynqAxiAdcLimit14Read(uint32_t adcBase);
-
-//-----------------------------------------------------------------------------
-void zynqAxiAdcLimit15Write(uint32_t adcBase, uint32_t data);
-//-----------------------------------------------------------------------------
-uint32_t zynqAxiAdcLimit15Read(uint32_t adcBase);
 
 
-//-----------------------------------------------------------------------------
 //=============================================================================
 
 #endif /* ZYNQ_AXI_ADC_H_ */

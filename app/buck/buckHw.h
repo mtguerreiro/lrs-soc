@@ -23,7 +23,7 @@ typedef void (*buckHwAdcIrqHandle_t)(void *ref);
 typedef struct{
 
     void *intc;
-    buckHwAdcIrqHandle_t irqhandle;
+    buckHwAdcIrqHandle_t irqhandle2;
 
 }buckHwInitConfig_t;
 

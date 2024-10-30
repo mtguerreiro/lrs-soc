@@ -22,7 +22,7 @@
 #include "boostControlEnergycint.h"
 #include "boostControlEnergycMPC.h"
 #include "boostControlLinearization.h"
-
+#include <boostControl_BF_MPC.h>
 //=============================================================================
 
 //=============================================================================
@@ -186,6 +186,12 @@ static void boostControllerInitializeControllers(void){
     controllers.getParams[BOOST_CONTROLLER_LINEARIZATION] = boostControlLinearizationGetParams;
     controllers.run[BOOST_CONTROLLER_LINEARIZATION] = boostControlLinearizationRun;
     controllers.reset[BOOST_CONTROLLER_LINEARIZATION] = boostControlLinearizationReset;
+
+    controllers.initialize[BOOST_CONTROLLER_BF_MPC] = boostControl_BF_MPC_Initialize;
+    controllers.setParams[BOOST_CONTROLLER_BF_MPC] = boostControl_BF_MPC_SetParams;
+    controllers.getParams[BOOST_CONTROLLER_BF_MPC] = boostControl_BF_MPC_GetParams;
+    controllers.run[BOOST_CONTROLLER_BF_MPC] = boostControl_BF_MPC_Run;
+    controllers.reset[BOOST_CONTROLLER_BF_MPC] = boostControl_BF_MPC_Reset;
 
     /* Initializes all registered controllers */
     for(k = 0; k < BOOST_CONTROLLER_END; k++){

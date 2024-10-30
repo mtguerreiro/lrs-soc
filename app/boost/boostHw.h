@@ -12,6 +12,7 @@
 #include "stdint.h"
 
 #include "boostConfig.h"
+#include "zynqAxiAdc.h"
 //=============================================================================
 
 //=============================================================================
@@ -23,8 +24,10 @@ typedef void (*boostHwAdcIrqHandle_t)(void *ref);
 typedef struct{
 
     void *intc;
-    boostHwAdcIrqHandle_t irqhandle;
-    boostHwAdcIrqHandle_t irqhandle2;
+    boostHwAdcIrqHandle_t irqhandle0;
+    boostHwAdcIrqHandle_t irqhandle1;
+    boostHwAdcIrqHandle_t irqhandle3;
+    boostHwAdcIrqHandle_t irqhandle4;
 }boostHwInitConfig_t;
 
 //=============================================================================
@@ -86,6 +89,20 @@ uint8_t boostHwGetAdcDoneIntFactor(void);
 void boostHwSetAdcSpiFreq(uint32_t freq);
 //-----------------------------------------------------------------------------
 uint32_t boostHwGetAdcSpiFreq(void);
+//-----------------------------------------------------------------------------
+void boostHwSetAdcCompEnable(uint32_t enable);
+//-----------------------------------------------------------------------------
+uint32_t boostHwGetAdcCompEnable(void);
+//-----------------------------------------------------------------------------
+void boostHwSetAdcCompEnableBit(uint32_t enable, uint32_t instantiation);
+//-----------------------------------------------------------------------------
+uint32_t boostHwGetAdcCompEnableBit(SingleComparatorInst instantiation);
+//-----------------------------------------------------------------------------
+void boostHwSetAdcCompTripLimits(float limit_max, float limit_min, uint32_t instantiation);
+//-----------------------------------------------------------------------------
+float boostHwGetAdcCompTripLimits(SingleComparatorInst instantiation, int max);
+//-----------------------------------------------------------------------------
+uint32_t boostHwGetAdcCompResult(void);
 //-----------------------------------------------------------------------------
 int32_t boostHwGetMeasurements(void *meas);
 //-----------------------------------------------------------------------------

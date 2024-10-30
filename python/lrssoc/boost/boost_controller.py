@@ -42,7 +42,8 @@ class Controllers:
             'energyc'    : {'id':2, 'if':Energyc()}, #added for new controller
             'energycint' : {'id':3, 'if':Energycint()}, #added for new controller
             'energycmpc' : {'id':4, 'if':Energycmpc()}, #added for new controller
-            'linearization' : {'id':5, 'if':Linearization()} #added for new controller
+            'linearization' : {'id':5, 'if':Linearization()}, #added for new controller
+            'BF_MPC' : {'id':6, 'if':BF_MPC()} #added for new controller
             }
 
 
@@ -182,17 +183,15 @@ class Linearization:    #added for new controller
         KI = params['KI']
         K1 = params['K1']
         K2 = params['K2']
-        alpha = params['alpha']
         control_f = params['control_f']
-        control_s = params['control_s']
-        data = list(struct.pack('<ffffffff', L, C, KI, K1, K2, alpha, control_f, control_s))
+        data = list(struct.pack('<ffffff', L, C, KI, K1, K2, control_f))
         
         return data
     
 
     def get(self, data):
 
-        pars = struct.unpack('<ffffffff', data)
+        pars = struct.unpack('<ffffff', data)
 
         params = {
             'L': pars[0],
@@ -200,13 +199,45 @@ class Linearization:    #added for new controller
             'KI': pars[2],
             'K1': pars[3],
             'K2': pars[4],
-            'alpha':pars[5],
-            'control_f' :pars[6],
-            'control_s' :pars[7]
+            'control_f' :pars[5]
             }
 
         return params
 
+class BF_MPC:    #added for new controller
+    def __init__(self):
+        pass
+    
+
+    def set(self, params):
+
+        L = params['L']
+        C = params['C']
+        i_l_min = params['i_l_min']
+        i_l_max = params['i_l_max']
+        control_f = params['control_f']
+        alpha = params['alpha']
+        alpha_l = params['alpha_l']
+        data = list(struct.pack('<fffffff', L, C, i_l_min, i_l_max, control_f, alpha, alpha_l))
+        
+        return data
+    
+
+    def get(self, data):
+
+        pars = struct.unpack('<fffffff', data)
+
+        params = {
+            'L': pars[0],
+            'C': pars[1],
+            'i_l_min': pars[2],
+            'i_l_max': pars[3],
+            'control_f' :pars[4],
+            'alpha' :pars[5],
+            'alpha_l' :pars[6]
+            }
+
+        return params
 
 
 class Controller:

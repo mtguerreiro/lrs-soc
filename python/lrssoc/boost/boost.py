@@ -7,7 +7,7 @@ Module ``boost``
 import lrssoc
 import numpy as np
 import matplotlib.pyplot as plt
-
+import time
 
 class Boost:
     """
@@ -283,8 +283,8 @@ class Boost:
     # This controller works with 2 frequencies and two processes:
     # - Process 1: Linearization part that converts rho to u (duty cycle) and is
     #  executed according to switching frequency SF (100 kHz).
-    # - Process 2: Selected controller that produces rho and it is being executed 
-    # according to control frequency CF (CF must be a factor of SF).
+    # - Process 2: Feedback linearization (Energycint) that produces rho and it is being executed 
+    # according to control_frequency CF (SW/CF must be integer).
     # ------------------------------------------------------------------------
     def linearization_ctl_enable(self, reset=False):
 
@@ -304,19 +304,55 @@ class Boost:
             params['K1'] = float(K1)    
         if K2 is not None:
             params['K2'] = float(K2)
-        if alpha is not None:
-            params['alpha'] = float(alpha)
         if control_f is not None:
             params['control_f'] = float(control_f)
-        if control_s is not None:
-            params['control_s'] = float(control_s)
-
+            
         return self.set_controller_params('linearization', params)
 
 
     def linearization_ctl_get_params(self):
 
         return self.get_controller_params('linearization')
+    
+  # ------------------------------------------------------------------------
+
+   # ------------------------------------------------------------------------  
+    # -------------------------- BF_MPC controller --------------------
+    # This controller works with 2 frequencies and two processes:
+    # - Process 1: Linearization part that converts rho to u (duty cycle) and is
+    #  executed according to switching frequency SF (100 kHz).
+    # - Process 2: MPC controller that produces rho and it is being executed 
+    # according to control_frequency CF (SW/CF must be integer).
+    # ------------------------------------------------------------------------
+    def BF_MPC_ctl_enable(self, reset=False):
+
+        return self.enable_controller('BF_MPC', reset=reset)
+    
+
+    def BF_MPC_ctl_set_params(self, uinc=None, ufinal=None):
+
+        params = {}
+        if L is not None:
+            params['L'] = float(L)
+        if C is not None:
+            params['C'] = float(C)
+        if KI is not None:
+            params['i_l_min'] = float(i_l_min)
+        if K1 is not None:
+            params['i_l_max'] = float(i_l_max)    
+        if control_f is not None:
+            params['control_f'] = float(control_f)
+        if alpha is not None:
+            params['alpha'] = float(alpha)    
+        if alpha_l is not None:
+            params['alpha_l'] = float(alpha_l)
+            
+        return self.set_controller_params('BF_MPC', params)
+
+
+    def BF_MPC_ctl_get_params(self):
+
+        return self.get_controller_params('BF_MPC')
     
     # ------------------------------------------------------------------------
     
@@ -442,8 +478,12 @@ class Boost:
             plt.pause(dt)
             self.reset_trace()
 
+    # ========================================================================
+    # ============================ Extra functions ============================
+    # ========================================================================
+ 
+   
 
-  
 
         
     def plot_compare( a, file1, file2, vector1, vector2, vectorref1, vectorref2, valueref1, valueref2, op1, op2, t1, t2):
@@ -498,7 +538,6 @@ class Boost:
         #d1 = 'sr_v_050424_1.csv'  v_o (vector1 = 2), v_o_ref (vectorref1 = 7), from plecs (op1 = 1), time vector (t1 = 0)        
         #d2 = 'sr_r_050424_1.csv'  v_o (vector2 = 1), v_o_ref (vectorref2 = 6), from trace (op2 = 0), no time vector (t2 = 0)
         #plot_compare( d1, d2, 2, 1, 7, 6, 10, 1, 0, 0, 0):
-
 
 
         

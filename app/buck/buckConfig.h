@@ -30,6 +30,7 @@ typedef struct{
 
 typedef struct{
     float u;
+    float v_o_reference;
 }buckConfigControl_t;
 
 typedef struct{

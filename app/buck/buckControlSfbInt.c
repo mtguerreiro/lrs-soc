@@ -89,6 +89,7 @@ int32_t buckControlSfbIntRun(void *meas, int32_t nmeas, void *refs, int32_t nref
     if( u < 0.0f ) u = 0.0f;
 
     o->u = u;
+    o->v_o_reference = r->v_o;
 
     return sizeof(buckConfigControl_t);
 }

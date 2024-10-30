@@ -20,7 +20,7 @@
 //=============================================================================
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
-
+static float boostHwExpMovAvgEnergyc(float sample, float average);
 //=============================================================================
 
 //=============================================================================
@@ -34,6 +34,7 @@ static float rho = 0.0f;
 static float u = 0.0f;
 
 static float i_l = 0.0f;
+static float i_o_filt = 0.0f;
 static float i_o = 0.0f;
 static float v_i = 0.0f;
 static float v_o = 0.0f;
@@ -45,6 +46,7 @@ static float K1 = 0.0f;
 static float K2 = 0.0f;
 static float v_o_ref = 0.0f;
 
+static float alpha = 0.01f;
 
 //=============================================================================
 
@@ -98,11 +100,12 @@ int32_t boostControlEnergycRun(void *meas, int32_t nmeas, void *refs, int32_t nr
     v_o_ref = r->v_o;
 
 //controller equations
+    i_o_filt = boostHwExpMovAvgEnergyc(i_o, i_o_filt);
     e = (i_l*i_l*L/2) + (v_o*v_o*C/2);
 
-    e_dot = (i_l*v_i) - (i_o*v_o);
+    e_dot = (i_l*v_i) - (i_o_filt*v_o);
 
-    i_l_ref = i_o*v_o_ref/v_i;
+    i_l_ref = i_o_filt*v_o_ref/v_i;
     //i_l_ref = i_o*v_o/v_i;
 
     e_ref = (i_l_ref*i_l_ref*L/2) + (v_o_ref*v_o_ref*C/2);
@@ -119,6 +122,7 @@ int32_t boostControlEnergycRun(void *meas, int32_t nmeas, void *refs, int32_t nr
     o->v_o_reference = r->v_o;//
     o->e = e;
     o->e_reference = e_ref;
+    o->i_o_filt = i_o_filt;
     return sizeof(boostConfigControl_t);
 }
 //-----------------------------------------------------------------------------
@@ -127,5 +131,9 @@ void boostControlEnergycReset(void){
     u = 0.0f;
 }
 //-----------------------------------------------------------------------------
+static float boostHwExpMovAvgEnergyc(float sample, float average){
+
+    return alpha * sample + (1.0f - alpha) * average;
+}
 //=============================================================================
 #endif /* SOC_CPU1 */

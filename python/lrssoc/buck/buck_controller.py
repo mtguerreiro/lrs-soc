@@ -74,7 +74,7 @@ class SFBINT:
 
         self._params = {}
 
-        self._params['V_in'] = 12
+        self._params['V_in'] = 24
 
         self._params['L'] = 47e-6
         self._params['Co'] = 150e-6

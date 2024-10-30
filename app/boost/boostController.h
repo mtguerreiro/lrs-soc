@@ -22,6 +22,7 @@ typedef enum{
 	BOOST_CONTROLLER_ENERGYCINT,  //added for new controller
 	BOOST_CONTROLLER_ENERGYCMPC,  //added for new controller
 	BOOST_CONTROLLER_LINEARIZATION, //added for new controller
+	BOOST_CONTROLLER_BF_MPC, //added for new controller
 	BOOST_CONTROLLER_END
 }boostControllers_t;
 

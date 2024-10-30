@@ -205,7 +205,7 @@ int32_t boostControlEnergycMPCRun(void *meas, int32_t nmeas, void *refs, int32_t
     rho = 1e6*u[0]; //gain required of 1e6
     d = ((rho*L/v_i) + v_o - v_i)/v_o;
 //-----------------------------------
-    o->u = d;
+    o->u = rho; //d
     o->v_o_reference = r->v_o; //bypassing reference value to an output
     o->e = e;
     o->e_reference = e_ref;

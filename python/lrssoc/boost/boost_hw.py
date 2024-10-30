@@ -62,8 +62,16 @@ class Commands:
         self.set_adc_comp_enable = 32
         self.get_adc_comp_enable = 33
         
-        self.set_adc_done_int_factor = 34
-        self.get_adc_done_int_factor = 35
+        self.set_adc_comp_enable_bit = 34
+        self.get_adc_comp_enable_bit = 35
+        
+        self.set_adc_done_int_factor = 36
+        self.get_adc_done_int_factor = 37
+        
+        self.set_adc_comp_trip_limits = 38 
+        self.get_adc_comp_trip_limits = 39 #
+   
+        self.get_adc_comp_result = 40
 
 """
 class MeasGains:
@@ -314,6 +322,42 @@ class Hw:
             return (-1, status)
         
         return (status, int(enable))
+   
+    def set_adc_comp_enable_bit(self, enable, instantiation):
+        """Enables ADC comparators.
+        """
+        return self._set_adc_comp_enable_bit(enable, instantiation)
+
+    def get_adc_comp_enable_bit(self, instantiation):
+        """Gets status of ADC comparators.
+        """
+        status, enable = self._get_adc_comp_enable_bit(int(instantiation))
+        if status != 0:
+            return (-1, status)
+        
+        return (status, int(enable))
+
+    def set_adc_comp_trip_limits(self, limit_max, limit_min, inst):
+        """Sets ADC trip limits, 3 decimals sensible.
+        """
+
+        return self._set_adc_comp_trip_limits(limit_max, limit_min, inst)
+        
+    def get_adc_comp_trip_limits(self, instantiation, m):
+        """Gets ADC trip limit of comparator instantiation, if m = 1 max_limit, if m = 0, min_limit.
+        """
+        status, enable = self._get_adc_comp_trip_limits(int(instantiation),int(m))
+        if status != 0:
+            return (-1, status)
+        
+        return (status, enable)
+
+
+
+    def get_adc_comp_result(self):
+
+        return self._get_adc_comp_result() 
+
 
 
     def set_input_relay(self, state):
@@ -373,7 +417,8 @@ class Hw:
         
         return (status, hw_status)
 
-    
+
+ 
     def _set_pwm_reset(self, reset):
         """
 
@@ -1088,8 +1133,141 @@ class Hw:
         enable = lrssoc.conversions.u8_to_u32(enable, msb=False)
         
         return (0, enable)
+
+    def _set_adc_comp_enable_bit(self, enable, instantiation):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.set_adc_comp_enable_bit
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(enable, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(instantiation, msb=False) )
+        
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error enabling ADC comparator instantiation. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        return (0,)
+
+    def _get_adc_comp_enable_bit(self, instantiation):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.get_adc_comp_enable_bit
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(instantiation, msb=False) )
+        
+        status, enable = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting ADC comparator instantiation status. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        enable = lrssoc.conversions.u8_to_u32(enable, msb=False)
+        
+        return (0, enable)
+
+    def _set_adc_comp_trip_limits(self, limit_max, limit_min, inst):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.set_adc_comp_trip_limits
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False))
+        tx_data.extend(list(struct.pack('<ff', limit_max, limit_min)))
+        tx_data.extend( lrssoc.conversions.u32_to_u8(inst, msb=False))
+        
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting ADC trip limits. Error code {:}\r\n'.format(status))
+            return (-1, status)
         
         
+        
+        return (0,)
+  
+  
+    def _get_adc_comp_trip_limits(self, instantiation, m):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.get_adc_comp_trip_limits
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(instantiation, msb=False) )
+        tx_data.extend( lrssoc.conversions.u32_to_u8(m, msb=False) )
+        status, data = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+        
+        
+    
+        if status < 0:
+            print('Error getting ADC comparator trip limit. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        pars = struct.unpack('<f', data)
+        
+        
+        return (0, pars)
+
+        
+    def _get_adc_comp_result(self):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.get_adc_comp_result
+
+        tx_data = []
+        tx_data.extend( lrssoc.conversions.u32_to_u8(cmd, msb=False) )
+        
+        status, enable = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error getting ADC comparator result. Error code {:}\r\n'.format(status))
+            return (-1, status)
+
+        enable = lrssoc.conversions.u8_to_u32(enable, msb=False)
+        
+        return (0, enable) 
+ 
         
 
     def _set_input_relay(self, state):

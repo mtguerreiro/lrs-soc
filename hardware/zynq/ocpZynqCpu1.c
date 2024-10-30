@@ -60,6 +60,8 @@
 
 #include "benchmarking_zynq.h"
 #include "sleep.h"
+
+int irq4_flag = 0;
 //=============================================================================
 
 //=============================================================================
@@ -90,11 +92,15 @@ static int32_t ocpZynqCpu1InitializeInterfaceBoost(void);
 //-----------------------------------------------------------------------------
 static int32_t ocpZynqCpu1InitializeInterfaceBuck(void);
 //-----------------------------------------------------------------------------
+void ocpZynqCpu1AdcIrq0(void *callbackRef);
+//-----------------------------------------------------------------------------
 void ocpZynqCpu1AdcIrq(void *callbackRef);
 //-----------------------------------------------------------------------------
 void ocpZynqCpu1AdcIrq2(void *callbackRef);
 //-----------------------------------------------------------------------------
 void ocpZynqCpu1AdcIrq3(void *callbackRef);
+//-----------------------------------------------------------------------------
+void ocpZynqCpu1AdcIrq4(void *callbackRef);
 //-----------------------------------------------------------------------------
 //=============================================================================
 
@@ -134,8 +140,8 @@ static float bInputs2[OCP_ZYNQ_C1_CONFIG_INPUT_BUF_SIZE];
 static float bOutputs2[OCP_ZYNQ_C1_CONFIG_OUTPUT_BUF_SIZE];
 
 static float texec_buck = 0.0f;
-
 static float texec_boost_sw = 0.0f, texec_boost_ctl = 0.0f;
+
 //=============================================================================
 
 //=============================================================================
@@ -172,15 +178,17 @@ static int32_t ocpZynqCpu1InitializeHw(void *intcInst){
     buckHwInitConfig_t buckHwConfig;
 
     boostHwConfig.intc = intcInst;
-    boostHwConfig.irqhandle = ocpZynqCpu1AdcIrq;
-    boostHwConfig.irqhandle2 = ocpZynqCpu1AdcIrq2;
+    boostHwConfig.irqhandle0 = ocpZynqCpu1AdcIrq0;
+    boostHwConfig.irqhandle1 = ocpZynqCpu1AdcIrq;
+    boostHwConfig.irqhandle3 = ocpZynqCpu1AdcIrq3;
+    boostHwConfig.irqhandle4 = ocpZynqCpu1AdcIrq4;
 
     //cukHwInitialize(&config);
     boostHwInitialize(&boostHwConfig);
 
     buckHwConfig.intc = intcInst;
-    buckHwConfig.irqhandle = ocpZynqCpu1AdcIrq3;
-    //buckHwInitialize(&buckHwConfig);
+    buckHwConfig.irqhandle2 = ocpZynqCpu1AdcIrq2;
+    buckHwInitialize(&buckHwConfig);
 
     /* Initialize timer for benchmarking */
     InitBenchmarking();
@@ -286,7 +294,7 @@ static int32_t ocpZynqCpu1InitializeTracesMeasBoost(void){
     ocpTraceAddSignal(OCP_TRACE_1, &meas->v_out, "Output voltage");
 
     ocpTraceAddSignal(OCP_TRACE_1, &meas->i_l, "Inductor current");
-    ocpTraceAddSignal(OCP_TRACE_1, &meas->i_o, "Output current current");
+    ocpTraceAddSignal(OCP_TRACE_1, &meas->i_o, "Output current");
 
     /* Adds control signals to trace */
     outputs = (boostConfigControl_t *)bOutputs1;
@@ -301,6 +309,10 @@ static int32_t ocpZynqCpu1InitializeTracesMeasBoost(void){
     ocpTraceAddSignal(OCP_TRACE_1, &outputs->e, "Energy");
     ocpTraceAddSignal(OCP_TRACE_1, &outputs->e_reference, "Energy Reference");
     ocpTraceAddSignal(OCP_TRACE_1, &outputs->i_o_filt, "Output current filtered");
+    ocpTraceAddSignal(OCP_TRACE_1, &outputs->p_o, "Output power");
+    ocpTraceAddSignal(OCP_TRACE_1, &outputs->e_dot, "E_dot");
+    //ocpTraceAddSignal(OCP_TRACE_1, &outputs->rho_1, "rho_1 (linearization)");
+    //ocpTraceAddSignal(OCP_TRACE_1, &outputs->i_l_filt, "i_l_filt");
 
     /* Other signals to add */
     //references = (boostConfigReferences_t *)bOutputs;
@@ -330,7 +342,7 @@ static int32_t ocpZynqCpu1InitializeTracesMeasBuck(void){
 
     /* Other signals to add */
     ocpTraceAddSignal(OCP_TRACE_2, &texec_buck, "Exec. time");
-
+    ocpTraceAddSignal(OCP_TRACE_2, &outputs->v_o_reference, "Output voltage Reference");
     return 0;
 }
 //-----------------------------------------------------------------------------
@@ -542,29 +554,46 @@ void ocpZynqCpu1AdcIrq(void *callbackRef){
     texec_boost_sw = TicksToS(ticks) / 1e-6;
 }
 //-----------------------------------------------------------------------------
-void ocpZynqCpu1AdcIrq2(void *callbackRef){
+void ocpZynqCpu1AdcIrq3(void *callbackRef){
 
 	static uint32_t ticks = 0;
-
+	//texec_boost_ctl = TicksToS(ticks - GetTicks())/ 1e-6; //this measures time between interruptions (control period), disable this and enable last one to measure exec time of energy controller of the MPC (discounting linearization part)
 	ticks = GetTicks();
 
 	uint32_t currentController = get_active_controller();
 
-	if (currentController == 5){
+	if (currentController == 6){
 
 		boostConfigMeasurements_t *meas;
 		boostConfigControl_t *outputs;
 		meas = (boostConfigMeasurements_t *)bInputs1;
 		outputs = (boostConfigControl_t *)bOutputs1;
 
-		boostControlEnergycint_rhoRun(meas, outputs);
+		//boostControlEnergycint_rhoRun(meas, outputs);
+		boostControl_BF_MPC_rho_Run(meas, outputs);
 	}
 
 	texec_boost_ctl = TicksToS(ticks - GetTicks()) / 1e-6;
 
 }
+
 //-----------------------------------------------------------------------------
-void ocpZynqCpu1AdcIrq3(void *callbackRef){
+void ocpZynqCpu1AdcIrq0(void *callbackRef){
+
+   set_mpc_flag();
+
+}
+
+//-----------------------------------------------------------------------------
+void ocpZynqCpu1AdcIrq4(void *callbackRef){ //function for protection trip in boost converter
+
+	irq4_flag++;
+
+}
+
+//-----------------------------------------------------------------------------
+
+void ocpZynqCpu1AdcIrq2(void *callbackRef){
 
     uint32_t ticks;
 
