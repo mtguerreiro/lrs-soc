@@ -105,11 +105,11 @@ static itm3903cHwControl_t hwControl = {
     .gains.v_ofs = 33,
     .alphas.v = 0.5,
     .alphas.i = 0.5,
-    .ips.ipone = 131,67,239,466,
-    .ips.iptwo = 131,67,239,466,
-    .ips.ipthree = 131,67,239,466,
-    .ips.ipfour = 131,67,239,466,
-    .ips.ipfive = 131,67,239,466
+    .ips.ipone = 0,
+    .ips.iptwo = 0,
+    .ips.ipthree = 0,
+    .ips.ipfour = 0,
+    .ips.ipfive = 0
     };
 
 static float texec = 0.0f;
@@ -182,7 +182,7 @@ int32_t itm3903cHwGetMeasurements(void *meas){
 
     dst->v = hwControl.gains.v_gain * ((float)(temp_chan_1)) + hwControl.gains.v_ofs;
     dst->i = hwControl.gains.i_gain * ((float)(temp_chan_0)) + hwControl.gains.i_ofs;
-    dst->t = returnL();
+    //dst->t = returnL();
 
     static float previousv; 
     static float previousi;
