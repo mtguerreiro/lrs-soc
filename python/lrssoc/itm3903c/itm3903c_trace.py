@@ -5,6 +5,7 @@ Module ``itm3903c_trace``
 """
 import lrssoc
 import struct
+import time
 
 class Trace:
     """
@@ -33,6 +34,8 @@ class Trace:
             print('Error reading trace data')
             return (-1, status)
 
+        time.sleep(0.1) # time for pico to open its socket again
+
         status, n_traces = self._ocp_if.trace_get_number_signals( self._tr_id )
         if status != 0 :
             print('Error getting number of traces')
@@ -42,6 +45,8 @@ class Trace:
         fmt = '<' + 'f' * n
         unpacked_data = struct.unpack(fmt, trace_data)
 
+        time.sleep(0.1) # time for pico to open its socket again
+        
         status, trace_names = self._ocp_if.trace_get_signals_names( self._tr_id )
         if status != 0 :
             print('Error getting names of trace signals')
@@ -73,6 +78,8 @@ class Trace:
 
         trace_size = int( 4 * n_traces * size )
 
+        time.sleep(0.1) # time for pico to open its socket again
+        
         status = self._ocp_if.trace_set_size( self._tr_id, trace_size )
 
         if status[0] < 0 :
@@ -88,6 +95,8 @@ class Trace:
         if status != 0 :
             print('Error getting number of traces')
             return (-1, status)
+
+        time.sleep(0.1) # time for pico to open its socket again
         
         status, trace_size = self._ocp_if.trace_get_size( self._tr_id )
         if status != 0 :
