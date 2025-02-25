@@ -13,6 +13,7 @@
 #include "ocp/ocp/ocpCSMaster.h"
 #include "ocp/ocp/ocpIfMaster.h"
 #include "ocp/ocp/ocpConfig.h"
+#include "ocp/ocp/ocpPlatform.h"
 
 #include "ocp/hardware/pico/wz_pico_init.h"
 #include "ocp/hardware/pico/ipcClientPico.h"
@@ -24,6 +25,7 @@
 #include "ocp/app/itm3903c/itm3903cHw.h"
 #include "ocp/app/itm3903c/itm3903cHwIf.h"
 
+#include "pico/unique_id.h"
 //=============================================================================
 
 //=============================================================================
@@ -59,6 +61,11 @@ void ocpPicoCpu0Initialize(ocpPicoInitConfig_t *config){
 	ocpPicoCpu0InitializeTraces();
 	ocpPicoCpu0InitializeControlSystem();
 	ocpPicoCpu0InitializeInterface(config);
+
+
+    pico_unique_board_id_t id;
+    pico_get_unique_board_id(&id);
+    ocpPlatformSetID((char *)&id, sizeof(id));
 }
 //-----------------------------------------------------------------------------
 //=============================================================================

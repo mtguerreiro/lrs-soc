@@ -446,18 +446,19 @@ typedef enum{
      *  -----------------------------
      */
     ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_PROTECTION_STATUS,
-        /**
-     * Command
-     *  -------------------------------------------
-     *  | GET VOLTAGE PROTECTION STATUS (uint32) |
-     *  -------------------------------------------
-     *
-     * Response
-     *  -----------------------------
-     *  | VOLT_PROT_STATUS (uint32) |
-     *  -----------------------------
-     */
-    ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_UNDER_PROTECTION_STATUS,
+
+    // /**
+    //  * Command
+    //  *  -------------------------------------------
+    //  *  | GET VOLTAGE PROTECTION STATUS (uint32) |
+    //  *  -------------------------------------------
+    //  *
+    //  * Response
+    //  *  -----------------------------
+    //  *  | VOLT_PROT_STATUS (uint32) |
+    //  *  -----------------------------
+    //  */
+    // ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_UNDER_PROTECTION_STATUS,
 
     /**
      * Command
@@ -473,32 +474,33 @@ typedef enum{
      */
     ITM3903C_HW_DIGITAL_IF_SET_VOLTAGE_PROTECTION_STATUS,
 
-    /**
-     * Command
-     *  ----------------------------------------------------------------
-     *  | GET VOLTAGE OVERPROTECTION VALUE (uint32) | SETSTATUS (uint32) |
-     *  ----------------------------------------------------------------
-     *
-     * Response
-     * No response
-     * 
-     * Notes
-     *  -read the voltage overprotection value
-     */
-    ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_OVERPROTECTION_VALUE,
-        /**
-     * Command
-     *  ----------------------------------------------------------------
-     *  | GET VOLTAGE UNDERPROTECTION VALUE (uint32) | SETSTATUS (uint32) |
-     *  ----------------------------------------------------------------
-     *
-     * Response
-     * No response
-     * 
-     * Notes
-     *  -read the voltage overprotection value
-     */
-    ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_UNDERPROTECTION_VALUE,
+    // /**
+    //  * Command
+    //  *  ----------------------------------------------------------------
+    //  *  | GET VOLTAGE OVERPROTECTION VALUE (uint32) | SETSTATUS (uint32) |
+    //  *  ----------------------------------------------------------------
+    //  *
+    //  * Response
+    //  * No response
+    //  * 
+    //  * Notes
+    //  *  -read the voltage overprotection value
+    //  */
+    // ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_OVERPROTECTION_VALUE,
+
+    // /**
+    //  * Command
+    //  *  ----------------------------------------------------------------
+    //  *  | GET VOLTAGE UNDERPROTECTION VALUE (uint32) | SETSTATUS (uint32) |
+    //  *  ----------------------------------------------------------------
+    //  *
+    //  * Response
+    //  * No response
+    //  * 
+    //  * Notes
+    //  *  -read the voltage overprotection value
+    //  */
+    // ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_UNDERPROTECTION_VALUE,
 
     /**
      * Command
@@ -527,33 +529,33 @@ typedef enum{
      */
     ITM3903C_HW_DIGITAL_IF_SET_POWER_PROTECTION_STATUS,
 
-        /**
-     * Command
-     *  ----------------------------------------------------------------
-     *  | GET POWER OVERPROTECTION VALUE (uint32) | SETSTATUS (uint32) |
-     *  ----------------------------------------------------------------
-     *
-     * Response
-     * No response
-     * 
-     * Notes
-     *  -read the voltage overprotection value
-     */
-    ITM3903C_HW_DIGITAL_IF_GET_POWER_OVERPROTECTION_VALUE,
+    // /**
+    //  * Command
+    //  *  ----------------------------------------------------------------
+    //  *  | GET POWER OVERPROTECTION VALUE (uint32) | SETSTATUS (uint32) |
+    //  *  ----------------------------------------------------------------
+    //  *
+    //  * Response
+    //  * No response
+    //  * 
+    //  * Notes
+    //  *  -read the voltage overprotection value
+    //  */
+    // ITM3903C_HW_DIGITAL_IF_GET_POWER_OVERPROTECTION_VALUE,
 
-            /**
-     * Command
-     *  ----------------------------------------------------------------
-     *  | GET POWER UNDERPROTECTION VALUE (uint32) | SETSTATUS (uint32) |
-     *  ----------------------------------------------------------------
-     *
-     * Response
-     * No response
-     * 
-     * Notes
-     *  -read the voltage overprotection value
-     */
-    ITM3903C_HW_DIGITAL_IF_GET_POWER_UNDERPROTECTION_VALUE,
+    // /**
+    //  * Command
+    //  *  ----------------------------------------------------------------
+    //  *  | GET POWER UNDERPROTECTION VALUE (uint32) | SETSTATUS (uint32) |
+    //  *  ----------------------------------------------------------------
+    //  *
+    //  * Response
+    //  * No response
+    //  * 
+    //  * Notes
+    //  *  -read the voltage overprotection value
+    //  */
+    // ITM3903C_HW_DIGITAL_IF_GET_POWER_UNDERPROTECTION_VALUE,
 
     /**
      * Command
@@ -567,18 +569,19 @@ typedef enum{
      *  -----------------------------
      */
     ITM3903C_HW_DIGITAL_IF_GET_CURRENT_PROTECTION_STATUS,
-        /**
-     * Command
-     *  -------------------------------------------
-     *  | GET CURRENT PROTECTION STATUS (uint32) |
-     *  -------------------------------------------
-     *
-     * Response
-     *  -----------------------------
-     *  | CURR_PROT_STATUS (uint32) |
-     *  -----------------------------
-     */
-    ITM3903C_HW_DIGITAL_IF_GET_CURRENT_UNDER_PROTECTION_STATUS,
+
+    // /**
+    //  * Command
+    //  *  -------------------------------------------
+    //  *  | GET CURRENT PROTECTION STATUS (uint32) |
+    //  *  -------------------------------------------
+    //  *
+    //  * Response
+    //  *  -----------------------------
+    //  *  | CURR_PROT_STATUS (uint32) |
+    //  *  -----------------------------
+    //  */
+    // ITM3903C_HW_DIGITAL_IF_GET_CURRENT_UNDER_PROTECTION_STATUS,
 
     /**
      * Command
@@ -594,33 +597,33 @@ typedef enum{
      */
     ITM3903C_HW_DIGITAL_IF_SET_CURRENT_PROTECTION_STATUS,
 
-    /**
-     * Command
-     *  ----------------------------------------------------------------
-     *  | GET CURRENT OVERPROTECTION VALUE (uint32) | SETSTATUS (uint32) |
-     *  ----------------------------------------------------------------
-     *
-     * Response
-     * No response
-     * 
-     * Notes
-     *  -read the voltage overprotection value
-     */
-    ITM3903C_HW_DIGITAL_IF_GET_CURRENT_OVERPROTECTION_VALUE,
+    // /**
+    //  * Command
+    //  *  ----------------------------------------------------------------
+    //  *  | GET CURRENT OVERPROTECTION VALUE (uint32) | SETSTATUS (uint32) |
+    //  *  ----------------------------------------------------------------
+    //  *
+    //  * Response
+    //  * No response
+    //  * 
+    //  * Notes
+    //  *  -read the voltage overprotection value
+    //  */
+    // ITM3903C_HW_DIGITAL_IF_GET_CURRENT_OVERPROTECTION_VALUE,
 
-    /**
-     * Command
-     *  ----------------------------------------------------------------
-     *  | GET CURRENT UNDERPROTECTION VALUE (uint32) | SETSTATUS (uint32) |
-     *  ----------------------------------------------------------------
-     *
-     * Response
-     * No response
-     * 
-     * Notes
-     *  -read the voltage overprotection value
-     */
-    ITM3903C_HW_DIGITAL_IF_GET_CURRENT_UNDERPROTECTION_VALUE,
+    // /**
+    //  * Command
+    //  *  ----------------------------------------------------------------
+    //  *  | GET CURRENT UNDERPROTECTION VALUE (uint32) | SETSTATUS (uint32) |
+    //  *  ----------------------------------------------------------------
+    //  *
+    //  * Response
+    //  * No response
+    //  * 
+    //  * Notes
+    //  *  -read the voltage overprotection value
+    //  */
+    // ITM3903C_HW_DIGITAL_IF_GET_CURRENT_UNDERPROTECTION_VALUE,
 
     /**
      * Command
@@ -633,7 +636,7 @@ typedef enum{
      *  | SLEW_RATE (float) |
      *  ----------------------
      */
-    ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_SLOW_RATE,
+    ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_SLEW_RATE,
 
     /**
      * Command
@@ -645,7 +648,7 @@ typedef enum{
      * No response
      *
      */
-    ITM3903C_HW_DIGITAL_IF_SET_VOLTAGE_SLOW_RATE,
+    ITM3903C_HW_DIGITAL_IF_SET_VOLTAGE_SLEW_RATE,
     
     ITM3903C_HW_DIGITAL_IF_END   
 }itm3903cHwDigitalIfCommands_t;

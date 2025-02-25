@@ -161,22 +161,22 @@ int32_t itm3903cHwIfInitialize(void){
     rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_SET_CURRENT_MAX, itm3903cHwIfSetCurrentMax);
     rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_SET_CURRENT_MIN, itm3903cHwIfSetCurrentMin);
     rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_PROTECTION_STATUS, itm3903cHwIfGetVoltageProtectionStatus);
-    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_UNDER_PROTECTION_STATUS, itm3903cHwIfGetVoltageUnderProtectionStatus);
+    //rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_UNDER_PROTECTION_STATUS, itm3903cHwIfGetVoltageUnderProtectionStatus);
     rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_SET_VOLTAGE_PROTECTION_STATUS, itm3903cHwIfSetVoltageProtectionStatus);
     rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_POWER_PROTECTION_STATUS, itm3903cHwIfGetPowerProtectionStatus);
     rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_SET_POWER_PROTECTION_STATUS, itm3903cHwIfSetPowerProtectionStatus);
     rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_CURRENT_PROTECTION_STATUS, itm3903cHwIfGetCurrentProtectionStatus);
-    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_CURRENT_UNDER_PROTECTION_STATUS, itm3903cHwIfGetCurrentUnderProtectionStatus);
+    //rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_CURRENT_UNDER_PROTECTION_STATUS, itm3903cHwIfGetCurrentUnderProtectionStatus);
     rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_SET_CURRENT_PROTECTION_STATUS, itm3903cHwIfSetCurrentProtectionStatus);
-    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_SLOW_RATE, itm3903cHwIfGetVoltageSlewRate);
-    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_SET_VOLTAGE_SLOW_RATE, itm3903cHwIfSetVoltageSlewRate);
+    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_SLEW_RATE, itm3903cHwIfGetVoltageSlewRate);
+    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_SET_VOLTAGE_SLEW_RATE, itm3903cHwIfSetVoltageSlewRate);
 
-    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_OVERPROTECTION_VALUE,itm3903cHwIfGetVoltageOverProtection);
-    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_UNDERPROTECTION_VALUE,itm3903cHwIfGetVoltageUnderProtection);
-    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_CURRENT_OVERPROTECTION_VALUE,itm3903cHwIfGetCurrentOverProtection);
-    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_CURRENT_UNDERPROTECTION_VALUE,itm3903cHwIfGetCurrentUnderProtection);
-    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_POWER_OVERPROTECTION_VALUE,itm3903cHwIfGetPowerOverProtection);
-    rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_POWER_UNDERPROTECTION_VALUE,itm3903cHwIfGetPowerUnderProtection);
+    //rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_OVERPROTECTION_VALUE,itm3903cHwIfGetVoltageOverProtection);
+    //rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_VOLTAGE_UNDERPROTECTION_VALUE,itm3903cHwIfGetVoltageUnderProtection);
+    //rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_CURRENT_OVERPROTECTION_VALUE,itm3903cHwIfGetCurrentOverProtection);
+    //rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_CURRENT_UNDERPROTECTION_VALUE,itm3903cHwIfGetCurrentUnderProtection);
+    //rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_POWER_OVERPROTECTION_VALUE,itm3903cHwIfGetPowerOverProtection);
+    //rpRegisterHandle(&hwControl.digitalIf.rp, ITM3903C_HW_DIGITAL_IF_GET_POWER_UNDERPROTECTION_VALUE,itm3903cHwIfGetPowerUnderProtection);
 
     /* Initializes the request processor of the analog interface */
     rpInitialize(&hwControl.analogIf.rp, ITM3903C_HW_ANALOG_IF_END, hwControl.analogIf.handles);

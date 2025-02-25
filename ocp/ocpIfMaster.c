@@ -135,7 +135,7 @@ typedef struct{
 }ocpIfControl_t;
 
 #define OCP_IF_CONFIG_DUAL_CORE_COMM_TO		60000
-#define OCP_IF_CONFIG_LOCK_TO				1000
+#define OCP_IF_CONFIG_LOCK_TO				2000
 //=============================================================================
 
 //=============================================================================

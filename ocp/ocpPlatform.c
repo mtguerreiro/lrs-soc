@@ -15,9 +15,8 @@
 //===========================================================================
 /*------------------------------ Definitions ------------------------------*/
 //===========================================================================
-
-static char xplatformID[] = "Windows";
-
+static char id[32] = {0};
+static char idsize = 0;
 //===========================================================================
 
 //===========================================================================
@@ -29,14 +28,26 @@ int32_t ocpPlatformID(char *buffer, uint32_t maxsize){
 	uint32_t k;
 	char *p;
 
-	p = xplatformID;
-	k = 0;
-	while( (*p != 0) && (k < maxsize) ){
-		*buffer++ = *p++;
-		k++;
-	}
+	if( maxsize < idsize ) return -1;
 
-	return k;
+	k = idsize;
+	p = id;
+	while(k--) *buffer++ = *p++;
+
+	return idsize;
+}
+//---------------------------------------------------------------------------
+int32_t ocpPlatformSetID(char *buffer, uint32_t size){
+
+	char *p;
+
+	if( size > sizeof(id) ) return -1;
+
+	idsize = size;
+	p = id;
+	while(size--) *p++ = *buffer++;
+
+	return 0;
 }
 //---------------------------------------------------------------------------
 int32_t ocpPlatformIf(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
