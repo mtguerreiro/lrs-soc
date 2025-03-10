@@ -14,7 +14,7 @@
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
 
-
+#define C_SC    12.5f
 //=============================================================================
 
 //=============================================================================
@@ -46,6 +46,15 @@ static uint32_t first_enter = 0;
 
 static float kd = 5;
 
+static float sc_soe_ref = (1.f / 2.f) * C_SC * (9.0f * 9.0f);
+static float sc_soe = 0.0f;
+static float sc_soe_e_dot = 0.0f;
+static float sc_soe_e = 0.0f;
+static float sc_soe_k1 = 16.0f, sc_soe_k2 = -93.78436535876395f;
+static float sc_soe_gain = 1.0f / 50.0f;
+static uint32_t sc_soe_first_enter = 0;
+static uint32_t sc_soe_en = 0;
+float sc_soe_dv;
 //=============================================================================
 
 
@@ -77,6 +86,17 @@ int32_t fsbuckboostControlBoostEnergyRun(void *meas, int32_t nmeas,
     il_r = m->v_dc_out * io_filt / m->v_in;
 
     vo_r = r->v_out - kd * io_filt;
+
+    if( sc_soe_en == 1 ){
+        sc_soe = (1.f / 2.f) * C_SC * (m->v_in * m->v_in);
+        if( sc_soe_first_enter == 0 ){
+            sc_soe_first_enter = 1;
+            sc_soe_e = -(sc_soe_k1 * sc_soe) / sc_soe_k2;
+        }
+        sc_soe_e = sc_soe_e + dt * (sc_soe_ref - sc_soe);
+        sc_soe_dv = - sc_soe_k1 * sc_soe - sc_soe_k2 * sc_soe_e;
+        vo_r = r->v_out - sc_soe_dv * sc_soe_gain;
+    }
 
     yr = (1. / 2.) * C * vo_r * vo_r + (1. / 2.) * L * il_r * il_r;
 
@@ -123,6 +143,8 @@ int32_t fsbuckboostControlBoostEnergySetParams(void *params, uint32_t size){
 
     kd = *p++;
 
+    sc_soe_en = (uint32_t)*p++;
+
     return 0;
 }
 //-----------------------------------------------------------------------------
@@ -142,15 +164,18 @@ int32_t fsbuckboostControlBoostEnergyGetParams(void *buffer, uint32_t size){
     *p++ = (float)filt_en;
 
     *p++ = kd;
+    *p++ = (float)sc_soe_en;
 
-    return 36;
+    return 40;
 }
 //-----------------------------------------------------------------------------
 void fsbuckboostControlBoostEnergyReset(void){
 
     e = 0.0f;
-
     first_enter = 0;
+
+    sc_soe_e = 0.0f;
+    sc_soe_first_enter = 0;
 }
 //-----------------------------------------------------------------------------
 int32_t fsbuckboostControlBoostEnergyFirstEntry(void *meas, int32_t nmeas,

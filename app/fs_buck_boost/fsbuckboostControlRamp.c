@@ -67,17 +67,15 @@ int32_t fsbuckboostControlRampRun(void *meas, int32_t nmeas, void *refs, int32_t
     fsbuckboostConfigReferences_t *r = (fsbuckboostConfigReferences_t *)refs;
     fsbuckboostConfigControl_t *o = (fsbuckboostConfigControl_t *)outputs;
 
-    if( u < u_ref  ){
-        u = u + u_step;
-        if(u > u_ref ) u = u_ref ;
+    if( o->u < u_ref  ){
+        o->u = o->u + u_step;
+        if(o->u > u_ref ) o->u = u_ref ;
     }
 
     else{
-        u = u - u_step;
-        if(u < u_ref ) u = u_ref ;
+        o->u = o->u - u_step;
+        if(o->u < u_ref ) o->u = u_ref ;
     }
-
-    o->u = u;
 
     return sizeof(fsbuckboostConfigControl_t);
 }

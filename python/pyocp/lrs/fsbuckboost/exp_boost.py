@@ -18,8 +18,11 @@ def config_energy_controller(fsbb, model_params, ctl_params):
 
     alpha = ctl_params['alpha']
     filt_en = ctl_params['filt_en']
-    fsbb.boost_energy.set_params({'alpha':alpha, 'filt_en':filt_en})
-
+    kd = ctl_params['kd']
+    fsbb.boost_energy.set_params({
+        'alpha':alpha, 'filt_en':filt_en,
+        'kd':kd
+        })
 
 def config_meas_gains(fsbb, meas_gains):
 
@@ -133,9 +136,9 @@ def run_ref_step(settings, run_params, save=False):
     
     # Trace config
     fsbb.trace.set_n_pre_trig_samples(100)
-    fsbb.trace.set_size(1000)
+    fsbb.trace.set_size(500000)
     
-    fsbb.trace.set_trig_level(10)
+    fsbb.trace.set_trig_level(13)
     fsbb.trace.set_trig_signal(8)
 
     fsbb.trace.set_mode(1)
@@ -149,24 +152,22 @@ def run_ref_step(settings, run_params, save=False):
     init_relays(fsbb)
 
     ramp_duty_up(fsbb, ramp_params)
-    time.sleep(0.1)
-
+    time.sleep(0.5)
+    
     fsbb.set_ref(exp_params['v_ref'])
     fsbb.boost_energy.enable()
-    time.sleep(0.2)
+    time.sleep(1)
 
-    fsbb.set_ref(exp_params['v_ref_step_up'])
-    fsbb.boost_energy.enable()
-    time.sleep(0.2)
+    fsbb.set_ref(exp_params['v_ref_step'])
+    time.sleep(1)
+
+    fsbb.set_ref(exp_params['v_ref'])
+    time.sleep(0.5)
     
     while True:
-        time.sleep(1)
+        time.sleep(0.5)
         status, trig_state = fsbb.trace.get_trig_state()
         if trig_state == 4: break
-
-    fsbb.set_ref(exp_params['v_ref'])
-    fsbb.boost_energy.enable()
-    time.sleep(0.2)
     
     ramp_duty_down(fsbb)
     time.sleep(0.1)
