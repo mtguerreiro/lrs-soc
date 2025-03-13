@@ -5,6 +5,10 @@
 #include "fsbuckboostControlBoostEnergy.h"
 #include "fsbuckboostConfig.h"
 
+/* OCP */
+#include "ocpConfig.h"
+#include "ocp/ocpTrace.h"
+
 #include "controller/controller.h"
 
 #include "utils/dfilt.h"
@@ -50,7 +54,7 @@ static float sc_soe_ref = (1.f / 2.f) * C_SC * (9.0f * 9.0f);
 static float sc_soe = 0.0f;
 static float sc_soe_e_dot = 0.0f;
 static float sc_soe_e = 0.0f;
-static float sc_soe_k1 = 16.0f, sc_soe_k2 = -93.78436535876395f;
+static float sc_soe_k1 = 16.0f / 2.0f, sc_soe_k2 = -93.78436535876395f / 2.0f;
 static float sc_soe_gain = 1.0f / 50.0f;
 static uint32_t sc_soe_first_enter = 0;
 static uint32_t sc_soe_en = 0;
@@ -64,6 +68,12 @@ float sc_soe_dv;
 //-----------------------------------------------------------------------------
 int32_t fsbuckboostControlBoostEnergyInit(void){
 
+    ocpTraceAddSignal(
+            FS_BUCK_BOOST_CONFIG_TRACE_ID,
+            (void *)&sc_soe,
+            "SC SoE"
+    );
+    
     return 0;
 }
 //-----------------------------------------------------------------------------
