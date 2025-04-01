@@ -6,6 +6,12 @@
 #include "fsbuckboostConfig.h"
 
 #include "controller/controller.h"
+
+/* OCP */
+#include "ocpConfig.h"
+#include "ocp/ocpTrace.h"
+
+#include "utils/dfilt.h"
 //============================================================================
 
 //=============================================================================
@@ -34,6 +40,8 @@ static float i;
 static float v;
 static float u;
 
+static uint32_t filt_en = 0;
+static float alpha = 1.0f;
 //=============================================================================
 
 
@@ -42,6 +50,12 @@ static float u;
 //=============================================================================
 //-----------------------------------------------------------------------------
 int32_t fsbuckboostControlBuckSfbInit(void){
+
+    ocpTraceAddSignal(
+            FS_BUCK_BOOST_CONFIG_TRACE_ID,
+            (void *)&i,
+            "Filt. ind. current"
+    );
 
     return 0;
 }
@@ -54,8 +68,11 @@ int32_t fsbuckboostControlBuckSfbRun(void *meas, int32_t nmeas,
     fsbuckboostConfigControl_t *o = (fsbuckboostConfigControl_t *)outputs;
     fsbuckboostConfigReferences_t *r = (fsbuckboostConfigReferences_t *)refs;
 
-    i = m->il;
-    v = m->v_out;
+    if( filt_en != 0 ) i = dfiltExpMovAvg(m->il, i, alpha);
+    else i = m->il;
+
+    //i = m->il;
+    v = m->v_dc_out;
     v_ref = r->v_out;
 
     ev = v_ref - v;
@@ -81,6 +98,9 @@ int32_t fsbuckboostControlBuckSfbSetParams(void *params, uint32_t size){
     k_ev = *p++;
     dt = *p++;
 
+    filt_en = (uint32_t)*p++;
+    alpha = *p++;
+
     return 0;
 }
 //-----------------------------------------------------------------------------
@@ -93,19 +113,27 @@ int32_t fsbuckboostControlBuckSfbGetParams(void *buffer, uint32_t size){
     *p++ = k_ev;
     *p++ = dt;
 
-    return 16;
+    *p++ = (float)filt_en;
+    *p++ = alpha;
+
+    return 24;
 }
 //-----------------------------------------------------------------------------
 void fsbuckboostControlBuckSfbReset(void){
 
     e = 0.0f;
-
     ev_1 = 0.0f;
+
+    i = 0;
 }
 //-----------------------------------------------------------------------------
 int32_t fsbuckboostControlBuckSfbFirstEntry(void *meas, int32_t nmeas,
     void *refs, int32_t nrefs,
     void *outputs, int32_t nmaxoutputs){
+
+    fsbuckboostConfigMeasurements_t *m = (fsbuckboostConfigMeasurements_t *)meas;
+
+    i = m->il;
 
     return 0;
 }

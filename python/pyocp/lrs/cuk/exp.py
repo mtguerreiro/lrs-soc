@@ -85,6 +85,19 @@ def config_energy_controller(cuk, ctl_params, model_params):
     cuk.energy.set_params({'kd':kd})
 
 
+def config_casc_fblin_controller(cuk, ctl_params, model_params):
+
+    f_pwm = model_params['f_pwm']
+    cuk.hw.set_pwm_frequency(f_pwm)
+
+    ts = ctl_params['ts']
+    os = ctl_params['os']
+    cuk.casc_fblin.set_gains(ts=ts, os=os, dt=1/f_pwm)
+
+    kd = ctl_params['kd']
+    cuk.casc_fblin.set_params({'kd':kd})
+    
+
 def set_trace(cuk, trace_mode, trace_params):
 
     if trace_mode == 0:
@@ -336,7 +349,7 @@ def run_ramp_cpl(settings_cuk, settings_fsbb, run_params, save=False):
     return data_cuk, data_fsbb
 
 
-def run_load_step(settings, run_params, save=False):
+def run_load_step(settings, run_params, save=False, ctlr='energy'):
 
     if settings['host'] == 'localhost':
         plat = 'sim'
@@ -353,6 +366,7 @@ def run_load_step(settings, run_params, save=False):
     exp_params = run_params['cuk']['exp_params']
 
     config_energy_controller(cuk, ctl_params, model_params)
+    config_casc_fblin_controller(cuk, ctl_params, model_params)
 
     trace_mode = 1
     trace_size = 80000
@@ -373,13 +387,18 @@ def run_load_step(settings, run_params, save=False):
     time.sleep(0.1 * k)
     
     ramp_duty_up(cuk, ramp_params)
-    time.sleep(0.05 * k)
+    time.sleep(0.2 * k)
     
     # Runs the experiment
     print('Running the experiment...')
     cuk.set_ref(exp_params['v_ref'])
-    cuk.energy.reset()
-    cuk.energy.enable()
+    if ctlr == 'energy':
+        cuk.energy.reset()
+        cuk.energy.enable()
+    else:
+        cuk.casc_fblin.reset()
+        cuk.casc_fblin.enable()
+        
     time.sleep(0.1 * k)
 
     cuk.set_ref(exp_params['v_ref_step_up'])

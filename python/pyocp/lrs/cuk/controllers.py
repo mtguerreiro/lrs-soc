@@ -55,6 +55,7 @@ class Controllers:
         self.idle = _Idle(0, ctl_if)
         self.ramp = _Ramp(1, ctl_if)
         self.energy = _Energy(3, ctl_if)
+        self.casc_fblin = _CascFblin(4, ctl_if)
         #self.sfb = _SFB(2, ctl_if)
         #self.cascaded = _Cascaded(3, ctl_if)
 
@@ -213,4 +214,69 @@ class _Energy(pyocp.controller.ControllerTemplate):
         filt = {'a0':num_d[0], 'a1':num_d[1], 'a2':num_d[2], 'b1':den_d[1], 'b2':den_d[2]}
         
         return filt
+
+
+class _CascFblin(pyocp.controller.ControllerTemplate):
+    
+    def __init__(self, ctl_id, ctl_if):
+        super().__init__(ctl_id, ctl_if)
+
+        self.keys = (
+            'ki', 'k_ei', 'kv', 'k_ev', 'dt',
+            'kd'
+        )
+        
+
+    def _decode(self, params_bin):
+        
+        keys = self.keys
+        
+        _params = struct.unpack(f'<{len(keys)}f', params_bin)
+        params = dict(zip(keys, _params))
+
+        return params
+    
+
+    def get_model_params(self):
+
+        return self._model_params
+    
+
+    def set_model_params(self, params):
+
+        self._model_params = params
+        
+
+    def _encode(self, params):
+
+        keys = self.keys
+        
+        _params = [params[key] for key in keys]
+        params_bin = struct.pack(f'<{len(keys)}f', *_params)
+
+        return params_bin
+
+        
+    def set_gains(self, ts=3e-3, os=5, dt=1/100e3):
+
+        params = self._get_gains(ts=ts, os=os, dt=dt)
+
+        return self.set_params(params)
+
+
+    def _get_gains(self, ts=1e-3, os=5, dt=1/100e3, method='approx', alpha=5):
+
+        zeta = -np.log(os/100) / np.sqrt(np.pi**2 + (np.log(os/100))**2)
+        wn_v = 4 / ( ts * zeta )
+        wn_i = 4 / ( (ts / 5 ) * zeta )
+
+        k_ev = -wn_v**2 
+        kv = 2 * zeta * wn_v
+        
+        k_ei = -wn_i**2 
+        ki = 2 * zeta * wn_i
+
+        gains = {'ki':ki, 'k_ei':k_ei, 'kv':kv, 'k_ev':k_ev}
+
+        return gains
 

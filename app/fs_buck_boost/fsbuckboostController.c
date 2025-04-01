@@ -55,8 +55,13 @@ fsbuckboostController_t xfsbuckboostControler;
 //-----------------------------------------------------------------------------
 int32_t fsbuckboostControllerInit(void){
 
-    controllerConfig_t config;
+    ocpTraceAddSignal(
+            FS_BUCK_BOOST_CONFIG_TRACE_ID,
+            (void *)&xfsbuckboostControler.refs.v_out,
+            "Voltage reference"
+    );
 
+    controllerConfig_t config;
     controllerGetCbs_t ctlGetCbs[FS_BUCK_BOOST_CONTROLLER_END] = {0};
     ctlGetCbs[FS_BUCK_BOOST_CONTROLLER_IDLE] = fsbuckboostControlIdleGetCallbacks;
     ctlGetCbs[FS_BUCK_BOOST_CONTROLLER_RAMP] = fsbuckboostControlRampGetCallbacks;
@@ -76,12 +81,6 @@ int32_t fsbuckboostControllerInit(void){
     controllerIfRegister(
             &xfsbuckboostControler.controller,
             FS_BUCK_BOOST_CONFIG_CS_ID
-    );
-
-    ocpTraceAddSignal(
-            FS_BUCK_BOOST_CONFIG_TRACE_ID,
-            (void *)&xfsbuckboostControler.refs.v_out,
-            "Voltage reference"
     );
 
     return 0;

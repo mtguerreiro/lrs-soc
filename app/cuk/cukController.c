@@ -19,6 +19,7 @@
 #include "cukControlRamp.h"
 #include "cukControlSfb.h"
 #include "cukControlEnergy.h"
+#include "cukControlCascFblin.h"
 //============================================================================
 
 //=============================================================================
@@ -29,6 +30,7 @@ typedef enum{
     CUK_CONTROLLER_RAMP,
     CUK_CONTROLLER_SFB,
     CUK_CONTROLLER_ENERGY,
+    CUK_CONTROLLER_CASC_FBLIN,
     CUK_CONTROLLER_END
 }appControllersEnum_t;
 
@@ -59,6 +61,7 @@ int32_t cukControllerInit(void){
     ctlGetCbs[CUK_CONTROLLER_RAMP] = cukControlRampGetCallbacks;
     ctlGetCbs[CUK_CONTROLLER_SFB] = cukControlSfbGetCallbacks;
     ctlGetCbs[CUK_CONTROLLER_ENERGY] = cukControlEnergyGetCallbacks;
+    ctlGetCbs[CUK_CONTROLLER_CASC_FBLIN] = cukControlCascFblinGetCallbacks;
 
     config.refBuffer = (void *)&xcukControler.refs;
     config.refSize = sizeof(xcukControler.refs);

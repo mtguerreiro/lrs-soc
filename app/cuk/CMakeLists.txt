@@ -10,6 +10,7 @@ target_sources(cuk
     cukControlRamp.c
     cukControlSfb.c
     cukControlEnergy.c
+    cukControlCascFblin.c
     cukControlEnergyMpc.c
 
     cukHwOpil.c

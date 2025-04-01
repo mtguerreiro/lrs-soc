@@ -54,7 +54,7 @@ static float sc_soe_ref = (1.f / 2.f) * C_SC * (9.0f * 9.0f);
 static float sc_soe = 0.0f;
 static float sc_soe_e_dot = 0.0f;
 static float sc_soe_e = 0.0f;
-static float sc_soe_k1 = 16.0f / 2.0f, sc_soe_k2 = -93.78436535876395f / 2.0f;
+static float sc_soe_k1 = 8.0f, sc_soe_k2 = -23.4461f;
 static float sc_soe_gain = 1.0f / 50.0f;
 static uint32_t sc_soe_first_enter = 0;
 static uint32_t sc_soe_en = 0;
@@ -155,6 +155,10 @@ int32_t fsbuckboostControlBoostEnergySetParams(void *params, uint32_t size){
 
     sc_soe_en = (uint32_t)*p++;
 
+    sc_soe_k1 = *p++;
+    sc_soe_k2 = *p++;
+    sc_soe_gain = *p++;
+
     return 0;
 }
 //-----------------------------------------------------------------------------
@@ -176,7 +180,11 @@ int32_t fsbuckboostControlBoostEnergyGetParams(void *buffer, uint32_t size){
     *p++ = kd;
     *p++ = (float)sc_soe_en;
 
-    return 40;
+    *p++ = sc_soe_k1;
+    *p++ = sc_soe_k2;
+    *p++ = sc_soe_gain;
+
+    return 52;
 }
 //-----------------------------------------------------------------------------
 void fsbuckboostControlBoostEnergyReset(void){

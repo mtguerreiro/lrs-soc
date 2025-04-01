@@ -14,8 +14,8 @@ from dataclasses import dataclass
 
 @dataclass
 class ModelParams:
-    v_in : float = 10
-    R : float = 22
+    v_in : float = 20
+    R : float = 5
     L : float = 15e-6
     Co : float = 100e-6
 
@@ -92,7 +92,10 @@ class _BuckSFB(pyocp.controller.ControllerTemplate):
     def __init__(self, ctl_id, ctl_if):
         super().__init__(ctl_id, ctl_if)
 
-        self.keys = ('ki', 'kv', 'k_ev', 'dt')
+        self.keys = (
+            'ki', 'kv', 'k_ev', 'dt',
+            'filt_en', 'alpha'
+            )
         self._model_params = ModelParams
 
 
@@ -188,7 +191,9 @@ class _BoostEnergy(pyocp.controller.ControllerTemplate):
         self.keys = (
             'k1', 'k2', 'k3', 'dt',
             'C', 'L', 'alpha', 'filt_en',
-            'kd', 'soe_en'
+            'kd',
+            'soe_en',
+            'sc_soe_k1', 'sc_soe_k2', 'sc_soe_gain'
             )
         self._model_params = ModelParams
         
@@ -211,16 +216,37 @@ class _BoostEnergy(pyocp.controller.ControllerTemplate):
         params_bin = struct.pack(f'<{len(keys)}f', *_params)
 
         return params_bin
-    
 
-    def set_gains(self, ts=2e-3, os=5, dt=1/100e3):
 
-        params = self._get_gains(ts, os=os, dt=dt)
+    def set_gains_soe_controller(self, ts=1, os=1, pv_gain=1/50):
+
+        params = self._get_gains_soe(ts, os=os, pv_gain=pv_gain)
         
         return self.set_params(params)
 
 
-    def _get_gains(self, ts, os=5, method='approx', alpha=5.0, dt=1.0):
+    def _get_gains_soe(self, ts, os=1, pv_gain=1/50):
+
+        zeta = -np.log(os / 100) / np.sqrt( np.pi**2 + (np.log(os / 100))**2 )
+        wn = 4 / ts / zeta
+        
+        k1 = 2 * zeta * wn
+        k2 = -wn**2
+        gains = {'sc_soe_k1':k1, 'sc_soe_k2':k2, 'sc_soe_gain':pv_gain}
+
+        print('Gains: {:}'.format(gains))
+
+        return gains
+    
+
+    def set_gains_voltage_controller(self, ts=2e-3, os=5, dt=1/100e3):
+
+        params = self._get_gains_voltage_controller(ts, os=os, dt=dt)
+        
+        return self.set_params(params)
+    
+
+    def _get_gains_voltage_controller(self, ts, os=5, method='approx', alpha=5.0, dt=1.0):
 
         # Poles
         if method == 'approx':
