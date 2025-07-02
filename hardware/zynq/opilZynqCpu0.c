@@ -13,7 +13,7 @@
 
 #include "ipcClient.h"
 
-#include "config/stypes.h"
+#include "stypes.h"
 
 ///* Open controller project */
 //#include "ocpTrace.h"
