@@ -100,6 +100,8 @@ static int32_t boostSbpHwIfGetOutputSsrP(void *in, uint32_t insize, void **out, 
 static int32_t boostSbpHwIfSetOutputSsrN(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t boostSbpHwIfGetOutputSsrN(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
+static int32_t boostSbpHwIfSetInputSsr(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
+static int32_t boostSbpHwIfSetOutputSsr(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //static int32_t boostSbpHwIfSetOutputRelay(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //static int32_t boostSbpHwIfGetOutputRelay(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 //
@@ -187,6 +189,8 @@ int32_t boostSbpHwIfInitialize(void){
     rpRegisterHandle(&hwControl.interface.rp, BOOST_SBP_HW_IF_SET_OUTPUT_SSR_N, boostSbpHwIfSetOutputSsrN);
     rpRegisterHandle(&hwControl.interface.rp, BOOST_SBP_HW_IF_GET_OUTPUT_SSR_N, boostSbpHwIfGetOutputSsrN);
 
+    rpRegisterHandle(&hwControl.interface.rp, BOOST_SBP_HW_IF_SET_INPUT_SSR, boostSbpHwIfSetInputSsr);
+    rpRegisterHandle(&hwControl.interface.rp, BOOST_SBP_HW_IF_SET_OUTPUT_SSR, boostSbpHwIfSetOutputSsr);
 //    rpRegisterHandle(&hwControl.interface.rp, BOOST_SBP_HW_IF_SET_INPUT_RELAY, boostSbpHwIfSetInputRelay);
 //    rpRegisterHandle(&hwControl.interface.rp, BOOST_SBP_HW_IF_GET_INPUT_RELAY, boostSbpHwIfGetInputRelay);
 //
@@ -716,6 +720,26 @@ static int32_t boostSbpHwIfGetOutputSsrN(void *in, uint32_t insize, void **out, 
     *o = state;
 
     return 4;
+}
+//-----------------------------------------------------------------------------
+static int32_t boostSbpHwIfSetInputSsr(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    uint32_t state;
+
+    state = *( (uint32_t *)in );
+
+    boostSbpHwSetInputSsr(state);
+    return 0;
+}
+//-----------------------------------------------------------------------------
+static int32_t boostSbpHwIfSetOutputSsr(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
+
+    uint32_t state;
+
+    state = *( (uint32_t *)in );
+
+    boostSbpHwSetOutputSsr(state);
+    return 0;
 }
 //-----------------------------------------------------------------------------
 //static int32_t boostSbpHwIfSetMeasGains(void *in, uint32_t insize, void **out, uint32_t maxoutsize){

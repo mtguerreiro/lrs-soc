@@ -565,6 +565,40 @@ uint32_t boostSbpHwGetOutputSsrN(void){
     return gpio;
 }
 //-----------------------------------------------------------------------------
+void boostSbpHwSetInputSsr(uint32_t state){
+
+    uint32_t gpio;
+    uint32_t ssr, ssr_flags;
+
+    ssr_flags = BOOST_SBP_HW_CONFIG_GPIO_IN_SSR_N | BOOST_SBP_HW_CONFIG_GPIO_IN_SSR_P;
+
+    if( state != 0 ) ssr = ssr_flags;
+    else ssr = 0;
+
+    gpio = XGpio_DiscreteRead(&hwControl.gpio, BOOST_SBP_HW_CONFIG_GPIO_CHANNEL) & (~ssr_flags);
+
+    gpio = gpio | ssr;
+
+    XGpio_DiscreteWrite(&hwControl.gpio, BOOST_SBP_HW_CONFIG_GPIO_CHANNEL, gpio);
+}
+//-----------------------------------------------------------------------------
+void boostSbpHwSetOutputSsr(uint32_t state){
+
+    uint32_t gpio;
+    uint32_t ssr, ssr_flags;
+
+    ssr_flags = BOOST_SBP_HW_CONFIG_GPIO_OUT_SSR_N | BOOST_SBP_HW_CONFIG_GPIO_OUT_SSR_P;
+
+    if( state != 0 ) ssr = ssr_flags;
+    else ssr = 0;
+
+    gpio = XGpio_DiscreteRead(&hwControl.gpio, BOOST_SBP_HW_CONFIG_GPIO_CHANNEL) & (~ssr_flags);
+
+    gpio = gpio | ssr;
+
+    XGpio_DiscreteWrite(&hwControl.gpio, BOOST_SBP_HW_CONFIG_GPIO_CHANNEL, gpio);
+}
+//-----------------------------------------------------------------------------
 //void boostSbpHwSetMeasGains(boostSbpConfigMeasGains_t *gains){
 //
 //    hwControl.gains = *gains;

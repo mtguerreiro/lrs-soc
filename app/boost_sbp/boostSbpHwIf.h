@@ -661,6 +661,30 @@ typedef enum{
      */
     BOOST_SBP_HW_IF_GET_OUTPUT_SSR_N,
 
+    /**
+     * Command
+     *  -------------------------------------------
+     *  | SET INPUT SSR (uint32) | STATE (uint32) |
+     *  -------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
+    BOOST_SBP_HW_IF_SET_INPUT_SSR,
+
+    /**
+     * Command
+     *  --------------------------------------------
+     *  | SET OUTPUT SSR (uint32) | STATE (uint32) |
+     *  --------------------------------------------
+     *
+     * Response
+     * No response
+     *
+     */
+    BOOST_SBP_HW_IF_SET_OUTPUT_SSR,
+
 //    /**
 //     * Command
 //     *  ---------------------------------------------

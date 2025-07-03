@@ -137,7 +137,11 @@ uint32_t boostSbpHwGetOutputSsrP(void);
 //-----------------------------------------------------------------------------
 void boostSbpHwSetOutputSsrN(uint32_t state);
 //-----------------------------------------------------------------------------
-uint32_t boostSbpHwGetInOutputSsrN(void);
+uint32_t boostSbpHwGetOutputSsrN(void);
+//-----------------------------------------------------------------------------
+void boostSbpHwSetInputSsr(uint32_t state);
+//-----------------------------------------------------------------------------
+void boostSbpHwSetOutputSsr(uint32_t state);
 //-----------------------------------------------------------------------------
 //void boostSbpHwSetMeasGains(boostSbpConfigMeasGains_t *gains);
 //-----------------------------------------------------------------------------

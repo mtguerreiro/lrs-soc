@@ -77,8 +77,11 @@ class Commands:
         self.set_output_ssr_n = 42
         self.get_output_ssr_n = 43
         
-        self.clear_status = 44
-        self.get_status = 45
+        self.set_input_ssr = 44
+        self.set_output_ssr = 45
+        
+        self.clear_status = 46
+        self.get_status = 47
 
 
 class MeasGains:
@@ -413,6 +416,16 @@ class Hw:
             return (-1, status)
         
         return (status, int(state))
+
+
+    def set_input_ssr(self, state):
+
+        return self._set_input_ssr(int(state))
+
+    
+    def set_output_ssr(self, state):
+
+        return self._set_output_ssr(int(state))
     
     
     def clear_status(self):
@@ -1552,6 +1565,56 @@ class Hw:
         
         return (0, state)
 
+
+    def _set_input_ssr(self, state):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.set_input_ssr
+
+        tx_data = []
+        tx_data.extend( pyocp.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( pyocp.conversions.u32_to_u8(state, msb=False) )
+        
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting the input ssr. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        return (0,)
+
+
+    def _set_output_ssr(self, state):
+        """
+
+        Parameters
+        ----------
+
+        Raises
+        ------
+
+        """
+        cmd = self._cmd.set_output_ssr
+
+        tx_data = []
+        tx_data.extend( pyocp.conversions.u32_to_u8(cmd, msb=False) )
+        tx_data.extend( pyocp.conversions.u32_to_u8(state, msb=False) )
+        
+        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
+
+        if status < 0:
+            print('Error setting the input ssr. Error code {:}\r\n'.format(status))
+            return (-1, status)
+        
+        return (0,)
+    
     
     def _clear_status(self):
         """
