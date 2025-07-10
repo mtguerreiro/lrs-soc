@@ -20,11 +20,10 @@
 /*------------------------------- Definitions -------------------------------*/
 //=============================================================================
 #define BOOST_SBP_HW_CONFIG_ADC_SPI_FREQ_HZ      ((uint32_t)16666666)
-#define BOOST_SBP_HW_CONFIG_PWM_FREQ_HZ          ((uint32_t) 100000 )
-#define BOOST_SBP_HW_CONFIG_PWM_DEAD_TIME_NS     ((float) 100e-9 )
-//#define BOOST_SBP_HW_CONFIG_PWM_BASE             XPAR_AXI_PWM_BUCKBOOST_0_S00_AXI_BASEADDR//XPAR_AXI_PWM_1_S00_AXI_BASEADDR
-#define BOOST_SBP_HW_CONFIG_PWM_BASE             XPAR_AXI_PWM_0_S00_AXI_BASEADDR//XPAR_AXI_PWM_1_S00_AXI_BASEADDR
-#define BOOST_SBP_HW_CONFIG_ADC_BASE             XPAR_ADC_PSCTL_0_S00_AXI_BASEADDR//XPAR_ADC_PSCTL_1_S00_AXI_BASEADDR
+#define BOOST_SBP_HW_CONFIG_PWM_FREQ_HZ          ((uint32_t) 40000 )
+#define BOOST_SBP_HW_CONFIG_PWM_DEAD_TIME_NS     ((float) 200e-9 )
+#define BOOST_SBP_HW_CONFIG_PWM_BASE             XPAR_AXI_PWM_0_S00_AXI_BASEADDR
+#define BOOST_SBP_HW_CONFIG_ADC_BASE             XPAR_ADC_PSCTL_0_S00_AXI_BASEADDR
 
 #define BOOST_SBP_HW_CONFIG_IRQ_PL_CPU1          ZYNQ_CONFIG_IRQ_PL_TO_CPU1
 #define BOOST_SBP_HW_CONFIG_IRQ_PL_CPU1_PRIO     ZYNQ_CONFIG_IRQ_PL_TO_CPU1_PRIO
@@ -158,36 +157,6 @@ void boostSbpHwSetPwmInv(uint32_t enable){
 uint32_t boostSbpHwGetPwmInv(void){
 
     return zynqAxiFsPwmInvRead(BOOST_SBP_HW_CONFIG_PWM_BASE);
-}
-//-----------------------------------------------------------------------------
-void boostSbpHwSetPwmMode(uint32_t mode){
-
-    zynqAxiFsPwmModeWrite(BOOST_SBP_HW_CONFIG_PWM_BASE, mode);
-}
-//-----------------------------------------------------------------------------
-uint32_t boostSbpHwGetPwmMode(void){
-
-    return zynqAxiFsPwmModeRead(BOOST_SBP_HW_CONFIG_PWM_BASE);
-}
-//-----------------------------------------------------------------------------
-void boostSbpHwSetPwmLsSw(uint32_t state){
-
-    zynqAxiFsPwmLsSwWrite(BOOST_SBP_HW_CONFIG_PWM_BASE, state);
-}
-//-----------------------------------------------------------------------------
-uint32_t boostSbpHwGetPwmLsSw(void){
-
-    return zynqAxiFsPwmLsSwRead(BOOST_SBP_HW_CONFIG_PWM_BASE);
-}
-//-----------------------------------------------------------------------------
-void boostSbpHwSetPwmHsSw(uint32_t state){
-
-    zynqAxiFsPwmHsSwWrite(BOOST_SBP_HW_CONFIG_PWM_BASE, state);
-}
-//-----------------------------------------------------------------------------
-uint32_t boostSbpHwGetPwmHsSw(void){
-
-    return zynqAxiFsPwmHsSwRead(BOOST_SBP_HW_CONFIG_PWM_BASE);
 }
 //-----------------------------------------------------------------------------
 void boostSbpHwSetPwmFrequency(uint32_t freq){
@@ -657,10 +626,6 @@ static void boostSbpHwInitializePwm(void){
 
     boostSbpHwSetPwmOvfTriggerEnable(0);
     boostSbpHwSetPwmOutputEnable(0);
-
-    boostSbpHwSetPwmMode(0);
-    boostSbpHwSetPwmHsSw(0);
-    boostSbpHwSetPwmLsSw(0);
 
     boostSbpHwSetPwmReset(0);
 }

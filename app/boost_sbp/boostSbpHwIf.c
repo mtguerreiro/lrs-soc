@@ -46,15 +46,6 @@ static int32_t boostSbpHwIfGetPwmOvfTriggerEnable(void *in, uint32_t insize, voi
 static int32_t boostSbpHwIfSetPwmInv(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t boostSbpHwIfGetPwmInv(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
-static int32_t boostSbpHwIfSetPwmMode(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
-static int32_t boostSbpHwIfGetPwmMode(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
-
-static int32_t boostSbpHwIfSetPwmLsSw(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
-static int32_t boostSbpHwIfGetPwmLsSw(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
-
-static int32_t boostSbpHwIfSetPwmHsSw(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
-static int32_t boostSbpHwIfGetPwmHsSw(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
-
 static int32_t boostSbpHwIfSetPwmFrequency(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 static int32_t boostSbpHwIfGetPwmFrequency(void *in, uint32_t insize, void **out, uint32_t maxoutsize);
 
@@ -135,15 +126,6 @@ int32_t boostSbpHwIfInitialize(void){
     rpRegisterHandle(&hwControl.interface.rp, BOOST_SBP_HW_IF_SET_PWM_INV, boostSbpHwIfSetPwmInv);
     rpRegisterHandle(&hwControl.interface.rp, BOOST_SBP_HW_IF_GET_PWM_INV, boostSbpHwIfGetPwmInv);
 
-    rpRegisterHandle(&hwControl.interface.rp, BOOST_SBP_HW_IF_SET_PWM_MODE, boostSbpHwIfSetPwmMode);
-    rpRegisterHandle(&hwControl.interface.rp, BOOST_SBP_HW_IF_GET_PWM_MODE, boostSbpHwIfGetPwmMode);
-
-    rpRegisterHandle(&hwControl.interface.rp, BOOST_SBP_HW_IF_SET_PWM_LS_SW, boostSbpHwIfSetPwmLsSw);
-    rpRegisterHandle(&hwControl.interface.rp, BOOST_SBP_HW_IF_GET_PWM_LS_SW, boostSbpHwIfGetPwmLsSw);
-
-    rpRegisterHandle(&hwControl.interface.rp, BOOST_SBP_HW_IF_SET_PWM_HS_SW, boostSbpHwIfSetPwmHsSw);
-    rpRegisterHandle(&hwControl.interface.rp, BOOST_SBP_HW_IF_GET_PWM_HS_SW, boostSbpHwIfGetPwmHsSw);
-    
     rpRegisterHandle(&hwControl.interface.rp, BOOST_SBP_HW_IF_SET_PWM_FREQ, boostSbpHwIfSetPwmFrequency);
     rpRegisterHandle(&hwControl.interface.rp, BOOST_SBP_HW_IF_GET_PWM_FREQ, boostSbpHwIfGetPwmFrequency);
 
@@ -312,75 +294,6 @@ static int32_t boostSbpHwIfGetPwmInv(void *in, uint32_t insize, void **out, uint
     enable = boostSbpHwGetPwmInv();
 
     *o = enable;
-
-    return 4;
-}
-//-----------------------------------------------------------------------------
-static int32_t boostSbpHwIfSetPwmMode(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
-
-    uint32_t mode;
-
-    mode = *( (uint32_t *)in ) & 0x01;
-
-    boostSbpHwSetPwmMode(mode);
-
-    return 0;
-}
-//-----------------------------------------------------------------------------
-static int32_t boostSbpHwIfGetPwmMode(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
-
-    uint32_t *o = (uint32_t *)*out;
-    uint32_t mode;
-
-    mode = boostSbpHwGetPwmMode();
-
-    *o = mode;
-
-    return 4;
-}
-//-----------------------------------------------------------------------------
-static int32_t boostSbpHwIfSetPwmLsSw(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
-
-    uint32_t state;
-
-    state = *( (uint32_t *)in ) & 0x01;
-
-    boostSbpHwSetPwmLsSw(state);
-
-    return 0;
-}
-//-----------------------------------------------------------------------------
-static int32_t boostSbpHwIfGetPwmLsSw(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
-
-    uint32_t *o = (uint32_t *)*out;
-    uint32_t state;
-
-    state = boostSbpHwGetPwmLsSw();
-
-    *o = state;
-
-    return 4;
-}
-//-----------------------------------------------------------------------------
-static int32_t boostSbpHwIfSetPwmHsSw(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
-
-    uint32_t state;
-
-    state = *( (uint32_t *)in ) & 0x01;
-
-    boostSbpHwSetPwmHsSw(state);
-
-    return 0;
-}
-//-----------------------------------------------------------------------------
-static int32_t boostSbpHwIfGetPwmHsSw(void *in, uint32_t insize, void **out, uint32_t maxoutsize){
-
-    uint32_t *o = (uint32_t *)*out;
-    uint32_t state;
-
-    state = boostSbpHwGetPwmHsSw();
-
-    *o = state;
 
     return 4;
 }

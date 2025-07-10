@@ -22,66 +22,57 @@ class Commands:
 
         self.set_pwm_inv = 6
         self.get_pwm_inv = 7
-
-        self.set_pwm_mode = 8
-        self.get_pwm_mode = 9
-
-        self.set_pwm_ls_sw = 10
-        self.get_pwm_ls_sw = 11
-
-        self.set_pwm_hs_sw = 12
-        self.get_pwm_hs_sw = 13
         
-        self.set_pwm_freq = 14
-        self.get_pwm_freq = 15
+        self.set_pwm_freq = 8
+        self.get_pwm_freq = 9
         
-        self.set_pwm_duty = 16
-        self.get_pwm_duty = 17
+        self.set_pwm_duty = 10
+        self.get_pwm_duty = 11
         
-        self.set_pwm_dead_time = 18
-        self.get_pwm_dead_time = 19
+        self.set_pwm_dead_time = 12
+        self.get_pwm_dead_time = 13
         
-        self.set_adc_enable = 20
-        self.get_adc_enable = 21
+        self.set_adc_enable = 14
+        self.get_adc_enable = 15
         
-        self.set_adc_manual_trigger = 22
-        self.get_adc_manual_trigger = 23
+        self.set_adc_manual_trigger = 16
+        self.get_adc_manual_trigger = 17
         
-        self.set_adc_int_enable = 24
-        self.get_adc_int_enable = 25
+        self.set_adc_int_enable = 18
+        self.get_adc_int_enable = 19
         
-        self.set_adc_spi_freq = 26
-        self.get_adc_spi_freq = 27
+        self.set_adc_spi_freq = 20
+        self.get_adc_spi_freq = 21
 
-        self.set_input_prech = 28
-        self.get_input_prech = 29
+        self.set_input_prech = 22
+        self.get_input_prech = 23
 
-        self.set_input_disch = 30
-        self.get_input_disch = 31
+        self.set_input_disch = 24
+        self.get_input_disch = 25
 
-        self.set_input_ssr_p = 32
-        self.get_input_ssr_p = 33
+        self.set_input_ssr_p = 26
+        self.get_input_ssr_p = 27
 
-        self.set_input_ssr_n = 34
-        self.get_input_ssr_n = 35
+        self.set_input_ssr_n = 28
+        self.get_input_ssr_n = 29
 
-        self.set_output_prech = 36
-        self.get_output_prech = 37
+        self.set_output_prech = 30
+        self.get_output_prech = 31
 
-        self.set_output_disch = 38
-        self.get_output_disch = 39
+        self.set_output_disch = 32
+        self.get_output_disch = 33
 
-        self.set_output_ssr_p = 40
-        self.get_output_ssr_p = 41
+        self.set_output_ssr_p = 34
+        self.get_output_ssr_p = 35
 
-        self.set_output_ssr_n = 42
-        self.get_output_ssr_n = 43
+        self.set_output_ssr_n = 36
+        self.get_output_ssr_n = 37
         
-        self.set_input_ssr = 44
-        self.set_output_ssr = 45
+        self.set_input_ssr = 38
+        self.set_output_ssr = 39
         
-        self.clear_status = 46
-        self.get_status = 47
+        self.clear_status = 40
+        self.get_status = 41
 
 
 class MeasGains:
@@ -172,36 +163,6 @@ class Hw:
     def get_pwm_inv(self):
 
         return self._get_pwm_inv()
-
-    
-    def set_pwm_mode(self, mode):
-
-        return self._set_pwm_mode(mode)
-
-
-    def get_pwm_mode(self):
-
-        return self._get_pwm_mode()
-
-
-    def set_pwm_ls_sw(self, state):
-
-        return self._set_pwm_ls_sw(state)
-
-
-    def get_pwm_ls_sw(self):
-
-        return self._get_pwm_ls_sw()
-
-
-    def set_pwm_hs_sw(self, state):
-
-        return self._set_pwm_hs_sw(state)
-
-
-    def get_pwm_hs_sw(self):
-
-        return self._get_pwm_hs_sw()
 
     
     def set_pwm_frequency(self, freq):
@@ -646,159 +607,6 @@ class Hw:
         enable = pyocp.conversions.u8_to_u32(enable, msb=False)
         
         return (0, enable)
-
-
-    def _set_pwm_mode(self, mode):
-        """
-
-        Parameters
-        ----------
-
-        Raises
-        ------
-
-        """    
-        cmd = self._cmd.set_pwm_mode
-
-        tx_data = []
-        tx_data.extend( pyocp.conversions.u32_to_u8(cmd, msb=False) )
-        tx_data.extend( pyocp.conversions.u32_to_u8(mode, msb=False) )
-        
-        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
-
-        if status < 0:
-            print('Error setting PWM mode. Error code {:}\r\n'.format(status))
-            return (-1, status)
-        
-        return (0,)
-
-
-    def _get_pwm_mode(self):
-        """
-
-        Parameters
-        ----------
-
-        Raises
-        ------
-
-        """    
-        cmd = self._cmd.get_pwm_mode
-
-        tx_data = []
-        tx_data.extend( pyocp.conversions.u32_to_u8(cmd, msb=False) )
-        
-        status, mode = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
-
-        if status < 0:
-            print('Error getting PWM mode. Error code {:}\r\n'.format(status))
-            return (-1, status)
-
-        mode = pyocp.conversions.u8_to_u32(mode, msb=False)
-        
-        return (0, mode)
-    
-
-    def _set_pwm_ls_sw(self, state):
-        """
-
-        Parameters
-        ----------
-
-        Raises
-        ------
-
-        """    
-        cmd = self._cmd.set_pwm_ls_sw
-
-        tx_data = []
-        tx_data.extend( pyocp.conversions.u32_to_u8(cmd, msb=False) )
-        tx_data.extend( pyocp.conversions.u32_to_u8(state, msb=False) )
-        
-        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
-
-        if status < 0:
-            print('Error setting PWM low-side switch. Error code {:}\r\n'.format(status))
-            return (-1, status)
-        
-        return (0,)
-
-
-    def _get_pwm_ls_sw(self):
-        """
-
-        Parameters
-        ----------
-
-        Raises
-        ------
-
-        """    
-        cmd = self._cmd.get_pwm_ls_sw
-
-        tx_data = []
-        tx_data.extend( pyocp.conversions.u32_to_u8(cmd, msb=False) )
-        
-        status, state = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
-
-        if status < 0:
-            print('Error getting state of PWM low-side switch. Error code {:}\r\n'.format(status))
-            return (-1, status)
-
-        state = pyocp.conversions.u8_to_u32(state, msb=False)
-        
-        return (0, state)
-
-
-    def _set_pwm_hs_sw(self, state):
-        """
-
-        Parameters
-        ----------
-
-        Raises
-        ------
-
-        """    
-        cmd = self._cmd.set_pwm_hs_sw
-
-        tx_data = []
-        tx_data.extend( pyocp.conversions.u32_to_u8(cmd, msb=False) )
-        tx_data.extend( pyocp.conversions.u32_to_u8(state, msb=False) )
-        
-        status, _ = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
-
-        if status < 0:
-            print('Error setting PWM high-side switch. Error code {:}\r\n'.format(status))
-            return (-1, status)
-        
-        return (0,)
-
-
-    def _get_pwm_hs_sw(self):
-        """
-
-        Parameters
-        ----------
-
-        Raises
-        ------
-
-        """    
-        cmd = self._cmd.get_pwm_hs_sw
-
-        tx_data = []
-        tx_data.extend( pyocp.conversions.u32_to_u8(cmd, msb=False) )
-        
-        status, state = self._ocp_if.cs_hardware_if(self._cs_id, tx_data)
-
-        if status < 0:
-            print('Error getting state of PWM high-side switch. Error code {:}\r\n'.format(status))
-            return (-1, status)
-
-        state = pyocp.conversions.u8_to_u32(state, msb=False)
-        
-        return (0, state)
 
     
     def _set_pwm_freq(self, freq):
